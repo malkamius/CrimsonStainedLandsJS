@@ -7,7 +7,7 @@ class ExitData {
 		this.destinationVnum = XmlHelper.GetElementValue(exitdata, "Destination");
 		this.description = XmlHelper.GetElementValue(exitdata, "Description");
 		this.source = room;
-		room.exits[RoomData.Directions.indexOf(this.direction)] = this;
+		room.exits[RoomData.Directions.indexOf(this.direction.toLowerCase())] = this;
 	}
 }
 
