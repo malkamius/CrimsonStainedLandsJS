@@ -3,14 +3,15 @@ Character = require("./Character");
 function dosay(player, arguments) {
 	for (const otherplayer of Player.Players) {
 		if (otherplayer.name !== null && otherplayer != player) {
-		  otherplayer.send(`${player.name} says '${arguments}'\n`);
+		  player.Act("\\y$n" + ` says '${arguments}'\\x\n`, otherplayer, null, null, "ToVictim");
 		} 
 	}
-	player.send(`You say '${arguments}'\n`);
+	player.send(`\\yYou say '${arguments}'\\x\n`);
 }
 
 function doquit(player, arguments) {
 	player.sendnow("Alas, all good things must come to an end.\n\r");
+	player.RemoveCharacterFromRoom();
 	player.socket.destroy();
 	Player.Players.splice(Player.Players.indexOf(player), 1)
 	console.log(`${player.name} disconnected`)
@@ -41,7 +42,9 @@ function dolook(player, arguments, auto) {
 		doexits(player, "");
 		for(const other of player.Room.Characters) {
 			if (other != player)
-				player.send(`${other.name} is standing here.\n\r`);
+				player.Act(other.LongDescription && other.LongDescription.length > 0?
+					other.LongDescription :
+					"$N is standing here.\n\r", other, null, null, "ToChar");
 		}
 	} else {
 		player.send("You can't do that yet.\n\r");

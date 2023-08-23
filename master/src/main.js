@@ -30,54 +30,51 @@ function getplayerbyname(name) {
   }
 }
 
-function broadcastMessage(socket, message) {
-	var player = getplayer(socket);
-	for (const otherplayer of Player.Players) {
-		if (otherplayer.name !== null && otherplayer != player) {
-		  otherplayer.socket.write(`${message}\n`);
-		} 
-	  
-  }
-}
-
-function handleplayerLeaving(socket) {
+function HandlePlayerDisconnect(socket) {
   player = getplayer(socket)
   console.log(`${player.name} disconnected`)
-  if(player.name)
-	broadcastMessage(socket, `The form of ${player.name} pops out of existence!`)
+
   
+  if(player.state == "Playing")
+  {
+	player.Act("The form of $n fades away.", null, null, null, "ToRoom")	
+  }
+
+  player.RemoveCharacterFromRoom();
+
   if(player != null) Player.Players.splice(Player.Players.indexOf(player), 1);
+}
+
+function HandleNewSocket(socket) {
+	socket.on('error', function(ex) {
+		console.log(ex);
+	});
+	
+	console.log(`Connection from ${socket.remoteAddress} port ${socket.remotePort}`)
+	
+	socket.on("end", () => HandlePlayerDisconnect(socket))
+	player = new Player(socket);
+		
+	Character.DoCommands.DoHelp(player, "diku", true);
+	
+	player.send("Please enter your name: ");
+	
+	
+	socket.on("data", (buffer) => {
+		player = getplayer(socket)
+		const message = buffer.toString("ascii").replace("\r", "");
+		player.input = player.input + message;
+	});
 }
 
 function startListening(port) {
 	setTimeout(function () {
 		  pulse()
 		}, 250);
-	net.createServer((socket) => {
-	  socket.on('error', function(ex) {
-		console.log("handled error");
-		console.log(ex);
-		});
-		console.log(`Connection from ${socket.remoteAddress} port ${socket.remotePort}`)
-		player = new Player(socket);
-		
-		Character.DoCommands.DoHelp(player, "diku", true);
-		
-		player.send("Please enter your name: ");
-		
-		
-		socket.on("data", (buffer) => {
-		  player = getplayer(socket)
-		  const message = buffer.toString("utf-8").replace("\r", "");
-		  player.input = player.input + message;
-		})
-		
-		socket.on("end", () => handleplayerLeaving(socket))
-	})
-  
-    .listen(port, () => {
-		console.log(`Listening on port ${port}`)
-    });
+	net.createServer(HandleNewSocket)
+		.listen(port, () => {
+			console.log(`Listening on port ${port}`)
+    	});
 }
 
 function pulse()
@@ -95,9 +92,25 @@ function pulse()
 }
 
 function handleoutput(player) {
+	
+	
 	if(player.output != null && player.output != "")
-		player.socket.write(player.output);
+	{
+
+
+		if(player.status == "Playing") {
+			if(!player.output.startsWith("\n") && player.SittingAtPrompt)
+				player.output = "\n" + player.output;
+			if(!player.output.endsWith("\n"))
+				player.output = player.output + "\n";
+			player.output = player.output + player.GetPrompt();
+			player.SittingAtPrompt = true;
+		}
+		player.socket.write(player.output.replace("\n", "\n\r"), "ascii");
+	}
+	
 	player.output = "";
+	
 }
 
 
@@ -119,15 +132,23 @@ function handleinput(player) {
 			}
 			else if(player.status == "Playing") {
 				var args = oneargument(str);
+				if(args[0] == "")
+				{
+					player.send("\n\r");
+					player.SittingAtPrompt = false;
+					return;
+				}
 
 				for(var key in Commands) {
 					if(StringUtility.Prefix(key, args[0])) {
 						Commands[key](player, args[1]);
+						player.SittingAtPrompt = false;
 						return;
 					}
 				}
 				
 				player.send("Huh?\n\r");
+				player.SittingAtPrompt = false;
 			}
 		}
 	}
@@ -135,10 +156,17 @@ function handleinput(player) {
 
 function nanny(player, input) {
 	if(!player.name) {
+		if(!input || input.length < 3 || input.length > 12) {
+			player.send("Name must be between 3 and 12 characters long.\n\r");
+			player.send(`What is your name? `);
+			return true;
+		}
+
 		var regex = /\s/;
 		var result = regex.exec(input);
-		if(result && result.index) {
+		if(result && result.index >= 0) {
 			player.send("Name cannot contain whitespace.\n\r");
+			player.send(`What is your name? `);
 			return true;
 		}
 		var otherplayer = getplayerbyname(input);
@@ -147,13 +175,21 @@ function nanny(player, input) {
 			player.send(`What is your name? `);
 			return true;
 		}
+		regex = /[^A-Za-z]+/;
+		result = regex.exec(input);
+
+		if(result && result.index >= 0 && result.length > 0) {
+			player.send("Name can only contain characters in the alphabet.\n\r");
+			player.send(`What is your name? `);
+			return true;
+		}
+
 		player.status = "Playing";
 		player.name = StringUtility.Capitalize(input);
 		Character.DoCommands.DoHelp(player, "greeting");
 		player.send("\n\rWelcome to the Crimson Stained Lands!\n\r\n\r");
-		broadcastMessage(player.socket, `The form of ${player.name} appears before you!`);
 		player.AddCharacterToRoom(RoomData.Rooms["3700"]);
-		
+		player.Act("The form of $n appears before you.", null, null, null, "ToRoom");
 		return true;
 	}
 	return false;

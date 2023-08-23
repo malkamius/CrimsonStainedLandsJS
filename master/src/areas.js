@@ -7,6 +7,8 @@ const fs = require('fs');
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser({ strict: false, trim: false });
 const RoomData = require('./RoomData');
+const NPCTemplateData = require('./NPCTemplateData');
+const ResetData = require('./ResetData');
 
 function areas()
 {
@@ -62,6 +64,9 @@ function areadata(areas, xml)
 	this.xml = xml;
 	this.name = xml.AREADATA[0].NAME[0];
 	this.Rooms = {};
+	this.NPCTemplates = {};
+	this.ItemTemplates = {};
+	this.Resets = Array();
 	this.helps = {};
 	this.load = function(areas) { 
 		loadareadata(areas, this, xml);
@@ -69,11 +74,29 @@ function areadata(areas, xml)
 }
 
 function loadareadata(areas, area, xml) {
+	var reset = null;
+	if(!area) return;
 	if(xml.ROOMS) {
 		for(const rooms of xml.ROOMS) {
 			if(rooms.ROOM)
 				for(const room of rooms.ROOM) {
 					areas.Rooms[room.VNUM] = area.Rooms[room.VNUM] = new RoomData(areas, area, room);
+				}
+		}
+	}
+	if(xml.NPCS) {
+		for(const npcs of xml.NPCS) {
+			if(npcs.NPC)
+				for(const npc of npcs.NPC) {
+					var npctemplate = new NPCTemplateData(area, npc);
+				}
+		}
+	}
+	if(xml.RESETS) {
+		for(const resets of xml.RESETS) {
+			if(resets.RESET)
+				for(resetxml of resets.RESET) {
+					reset = new ResetData(area, resetxml);
 				}
 		}
 	}
@@ -86,7 +109,10 @@ function loadareadata(areas, area, xml) {
 		}
 		
 	}
-	
+	for(var i = 0; i < area.Resets.length; i++) {
+		reset = area.Resets[i];
+		reset.Execute();
+	}
 }
 
 function helpdata(vnum, keyword, text) {

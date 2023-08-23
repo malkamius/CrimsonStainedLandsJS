@@ -9,6 +9,7 @@ class Player extends Character {
 	this.input = "";
 	this.output = "";
 	this.status = "GetName";
+	this.SittingAtPrompt = false;
 	this.send = function(data) {
 		data = data.replace("\r", "").replace("\n", "\n\r");
 		this.output = this.output + Color.ColorString(data, false, false);
