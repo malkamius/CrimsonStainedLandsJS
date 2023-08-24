@@ -7,7 +7,7 @@ function getElement(xml, name) {
 	return undefined;
 }
 
-function getElementValue(xml, name, defaultvalue) {
+function getElementValue(xml, name, defaultvalue = "") {
 	for(key in xml) {
 		if(StringUtility.Compare(key, name))
 		{
@@ -16,6 +16,10 @@ function getElementValue(xml, name, defaultvalue) {
 		
 	}
 	return defaultvalue;
+}
+
+function getElementValueInt(xml, name, defaultvalue = 0) {
+	return parseInt(getElementValue(xml, name, defaultvalue));
 }
 
 function getAttributeValue(xml, name, defaultvalue) {
@@ -27,6 +31,14 @@ function getAttributeValue(xml, name, defaultvalue) {
 	return defaultvalue;
 }
 
+
+function getAttributeValueInt(xml, name, defaultvalue = 0) {
+	return parseInt(getAttributeValue(xml, name, defaultvalue));
+}
+
+
 exports.GetElement = getElement;
 exports.GetElementValue = getElementValue;
+exports.GetElementValueInt = getElementValueInt;
 exports.GetAttributeValue = getAttributeValue;
+exports.GetAttributeValueInt = getAttributeValueInt;

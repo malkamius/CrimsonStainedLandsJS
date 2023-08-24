@@ -1,10 +1,10 @@
 Character = require("./Character");
 
 function movechar(player, direction) {
-	if(player.Room && player.Room.exits[direction] && player.Room.exits[direction].destination) {
+	if(player.Room && player.Room.Exits[direction] && player.Room.Exits[direction].Destination && !player.Room.Exits[direction].Flags.Closed) {
 		var room = player.Room;
 		player.RemoveCharacterFromRoom();
-		player.AddCharacterToRoom(room.exits[direction].destination);
+		player.AddCharacterToRoom(room.Exits[direction].Destination);
 	}
 	else
 		player.send("Alas, you cannot go that way.\n\r");

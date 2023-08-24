@@ -5,20 +5,20 @@ NPCTemplates = {};
 class NPCTemplateData extends Character {
   constructor(area, xml) {
     super();
-    this.vnum = XmlHelper.GetElementValue(xml, "vnum");
-    this.name = XmlHelper.GetElementValue(xml, "Name");
+    this.VNum = XmlHelper.GetElementValue(xml, "vnum");
+    this.Name = XmlHelper.GetElementValue(xml, "Name");
     this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription");
     this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription");
 
-    if(!area.NPCTemplates[this.vnum])
-      area.NPCTemplates[this.vnum] = this;
+    if(!area.NPCTemplates[this.VNum])
+      area.NPCTemplates[this.VNum] = this;
     else
-      console.log(`NPCTemplate ${this.vnum} already exists in area ${this.name}.`);
+      console.log(`NPCTemplate ${this.VNum} already exists in area ${this.Name}.`);
 
-    if(!NPCTemplates[this.vnum])
-      NPCTemplates[this.vnum] = this;
+    if(!NPCTemplates[this.VNum])
+      NPCTemplates[this.VNum] = this;
     else
-      console.log(`NPCTemplate ${this.vnum} already exists.`);
+      console.log(`NPCTemplate ${this.VNum} already exists.`);
   }
 }
 

@@ -2,13 +2,15 @@ const path = require('path')
 const fs = require('fs');
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser({ strict: false, trim: false });
-const RoomData = require('./RoomData');
-const NPCTemplateData = require('./NPCTemplateData');
-const ResetData = require('./ResetData');
+
+
+AllAreas = {};
+AllRooms = {};
+AllHelps = {};
 
 class AreaData {
 	xml = null;
-	name = "";
+	Name = "";
 	Rooms = {};
 	NPCTemplates = {};
 	ItemTemplates = {};
@@ -16,7 +18,7 @@ class AreaData {
 	helps = {};
 	constructor(xml) { 
 		var reset = null;
-		this.name = xml.AREADATA[0].NAME[0];
+		this.Name = xml.AREADATA[0].NAME[0];
 		if(xml.ROOMS) {
 			for(const rooms of xml.ROOMS) {
 				if(rooms.ROOM)
@@ -30,6 +32,14 @@ class AreaData {
 				if(npcs.NPC)
 					for(const npc of npcs.NPC) {
 						var npctemplate = new NPCTemplateData(this, npc);
+					}
+			}
+		}
+		if(xml.ITEMS) {
+			for(const items of xml.ITEMS) {
+				if(items.ITEM)
+					for(const item of items.ITEM) {
+						var itemtemplate = new ItemTemplateData(this, item);
 					}
 			}
 		}
@@ -50,16 +60,16 @@ class AreaData {
 			}
 			
 		}
-		for(var i = 0; i < this.Resets.length; i++) {
-			reset = this.Resets[i];
-			reset.Execute();
-		}
+		
 	} // end constructor
 
 }
-AreaData.AllAreas = {};
-AreaData.AllRooms = {};
-AreaData.AllHelps = {};
+if(!AreaData.AllAreas);
+	AreaData.AllAreas = AllAreas;
+if(!AreaData.AllRooms);
+	AreaData.AllRooms = AllRooms;
+if(!AreaData.AllHelps);
+	AreaData.AllHelps = AllHelps;
 
 AreaData.LoadAllAreas = function(callback) {
     var counter = 0;
@@ -79,6 +89,7 @@ AreaData.LoadAllAreas = function(callback) {
 				}
 				parser.parseString(content, function(err, xml) {
 					var area = AreaData.AllAreas[xml.AREA.AREADATA[0].NAME[0]] = new AreaData(xml.AREA);
+					//console.log("Loaded area " + area.Name);
 				});
 				counter++;
 				if (counter === filenames.length) {
@@ -97,9 +108,15 @@ AreaData.LoadAllAreas = function(callback) {
 }
 
 function helpdata(vnum, keyword, text) {
-	this.vnum = vnum;
-	this.keyword = keyword;
-	this.text = text;
+	this.VNum = vnum;
+	this.Keyword = keyword;
+	this.Text = text;
+	console.log("Loaded help " + this.VNum + " :: " + this.Keyword);
 }
 
 module.exports = AreaData;
+
+const RoomData = require('./RoomData');
+const NPCTemplateData = require('./NPCTemplateData');
+const ItemTemplateData = require('./ItemTemplateData');
+const ResetData = require('./ResetData');

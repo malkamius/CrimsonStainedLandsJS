@@ -1,14 +1,33 @@
-net = require("net");
-AreaData = require("./AreaData");
-Player = require("./Player");
-RoomData = require("./RoomData");
-StringUtility = require("./StringUtility");
-Commands = require("./Commands");
-ActInfo = require("./ActInfo");
+const net = require("net");
+const RoomData = require("./RoomData");
+const AreaData = require("./AreaData");
+const Player = require("./Player");
 
+const StringUtility = require("./StringUtility");
+const Commands = require("./Commands");
+const ActInfo = require("./ActInfo");
+const fs = require('fs');
+const crypto = require('crypto');
+
+console.dir(RoomData.Directions);
 AreaData.LoadAllAreas(function() { 
-	console.log(Object.keys(AreaData.AllRooms).length + " rooms loaded.");
+	
 	fixExits();
+
+	console.log(Object.keys(AreaData.AllRooms).length + " rooms loaded.");
+	console.log(Object.keys(AreaData.AllHelps).length + " helps  loaded.");
+	console.log(Object.keys(AreaData.AllAreas).length + " areas  loaded.");
+	
+	for(var areakey in AreaData.AllAreas)
+	{
+		var area = AreaData.AllAreas[areakey];
+		
+		for(var i = 0; i < area.Resets.length; i++) {
+			reset = area.Resets[i];
+			reset.Execute();
+		}
+		//console.log("Reset area " + area.Name);
+	}
 	startListening(3000); 
 	} );
 
@@ -24,7 +43,7 @@ function getplayer(socket) {
 
 function getplayerbyname(name) {
 	for (const player of Player.Players) {
-	  if(StringUtility.Compare(player.name, name)) {
+	  if(StringUtility.Compare(player.Name, name)) {
 		  return player;
 	  }
   }
@@ -32,7 +51,7 @@ function getplayerbyname(name) {
 
 function HandlePlayerDisconnect(socket) {
   player = getplayer(socket)
-  console.log(`${player.name} disconnected`)
+  console.log(`${player.Name} disconnected`)
 
   
   if(player.state == "Playing")
@@ -131,7 +150,7 @@ function handleinput(player) {
 				nanny(player, str);
 			}
 			else if(player.status == "Playing") {
-				var args = oneargument(str);
+				var args = StringUtility.OneArgument(str);
 				if(args[0] == "")
 				{
 					player.send("\n\r");
@@ -155,7 +174,7 @@ function handleinput(player) {
 }
 
 function nanny(player, input) {
-	if(!player.name) {
+	if(player.status == "GetName") {
 		if(!input || input.length < 3 || input.length > 12) {
 			player.send("Name must be between 3 and 12 characters long.\n\r");
 			player.send(`What is your name? `);
@@ -184,26 +203,47 @@ function nanny(player, input) {
 			return true;
 		}
 
-		player.status = "Playing";
-		player.name = StringUtility.Capitalize(input);
-		Character.DoCommands.DoHelp(player, "greeting");
-		player.send("\n\rWelcome to the Crimson Stained Lands!\n\r\n\r");
-		player.AddCharacterToRoom(RoomData.Rooms["3700"]);
-		player.Act("The form of $n appears before you.", null, null, null, "ToRoom");
+		player.Name = StringUtility.Capitalize(input);
+		if(fs.existsSync(`data/players/${player.Name}.xml`)) {
+			player.Load(`data/players/${player.Name}.xml`);
+			player.status = "GetPassword";
+			player.send("Enter your password: ");
+			return true;
+		} else {
+			player.status = "Playing";
+			Character.DoCommands.DoHelp(player, "greeting");
+			player.send("\n\rWelcome to the Crimson Stained Lands!\n\r\n\r");
+			player.AddCharacterToRoom(RoomData.Rooms["3700"]);
+			player.Act("The form of $n appears before you.", null, null, null, "ToRoom");
+			return true;
+		}
+			
+	}
+	if(player.status == "GetPassword") {
+		let hash = crypto.createHash('md5').update(input + "salt").digest("hex");
+		if(!StringUtility.Compare(hash, player.Password)) {
+			player.sendnow("Incorrect password.\n\r");
+			player.socket.destroy();
+			Player.Players.splice(Player.Players.indexOf(player), 1);
+			console.log(`${player.Name} disconnected - incorrect password`);
+		}
+		else {
+			player.status = "Playing";
+			
+
+			Character.DoCommands.DoHelp(player, "greeting");
+			player.send("\n\rWelcome to the Crimson Stained Lands!\n\r\n\r");
+			var room = RoomData.Rooms[player.RoomVNum];
+			player.AddCharacterToRoom(room? room : RoomData.Rooms["3700"]);
+			player.Act("The form of $n appears before you.", null, null, null, "ToRoom");
+		}
 		return true;
+		
 	}
 	return false;
 }
 
-function oneargument(text) {
-	var regex = /[\s']/;
-	const results = regex.exec(text);
-	if(results != null && results.index != null && results.index != -1) {
-		return [text.substr(0, results.index), text.length > results.index? text.substr(results.index + 1) : ""];
-	}
-	else
-		return [text, ""];
-}
+
 
 
 
@@ -211,8 +251,9 @@ function fixExits() {
 	for(var roomvnum in AreaData.AllRooms) {
 		var room = AreaData.AllRooms[roomvnum];
 		for(var index = 0; index < 6; index++) {
-			if(room.exits[index] && room.exits[index].destinationVnum)
-				room.exits[index].destination = AreaData.AllRooms[room.exits[index].destinationVnum];
+			if(room.Exits[index] && room.Exits[index].DestinationVNum) {
+				room.Exits[index].Destination = AreaData.AllRooms[room.Exits[index].DestinationVNum];
+			}
 		}
 	}
 }

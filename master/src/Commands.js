@@ -7,11 +7,17 @@ Commands = {
 				"west": Character.DoCommands.DoWest,
 				"up": Character.DoCommands.DoUp,
 				"down": Character.DoCommands.DoDown,
+				"equipment": Character.DoCommands.DoEquipment,
+				"inventory": Character.DoCommands.DoInventory,
 				"say": Character.DoCommands.DoSay,
 				"quit": Character.DoCommands.DoQuit,
 				"help": Character.DoCommands.DoHelp,
 				"look": Character.DoCommands.DoLook,
-				"exits": Character.DoCommands.DoExits
+				"exits": Character.DoCommands.DoExits,
+				"get": Character.DoCommands.DoGet,
+				"drop": Character.DoCommands.DoDrop,
+				"wear": Character.DoCommands.DoWear,
+				"remove": Character.DoCommands.DoRemove
 			};
 
 module.exports = Commands;
