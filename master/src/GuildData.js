@@ -57,7 +57,7 @@ function LoadAllGuilds(callback) {
     var content = fs.readFileSync(guildspath, "utf-8");
     parser.parseString(content, (err, xml) => {
         for(var guildxml of xml.GUILDS.GUILD)
-        var race = new GuildData(guildxml);
+        var guild = new GuildData(guildxml);
     });
     callback();
 };
