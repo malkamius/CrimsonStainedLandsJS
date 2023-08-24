@@ -1,6 +1,6 @@
 const XmlHelper = require("./XmlHelper");
 const ItemTemplateData = require('./ItemTemplateData');
-const StringUtility = require('./StringUtility');
+const Utility = require('./Utility');
 /**
  *
  *
@@ -111,11 +111,11 @@ class ItemData {
         this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription", this.LongDescription);
         if(xml.WEARFLAGS) {
             this.WearFlags = {};
-            StringUtility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
+            Utility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
         }
         if(xml.EXTRAFLAGS) {
             this.ExtraFlags = {};
-            StringUtility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
+            Utility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
         }
         if(xml.CONTAINS) {
             for(const containsxml of xml.CONTAINS) {
@@ -133,20 +133,18 @@ class ItemData {
         //var item = this;
 
         var itemele = ele.ele("Item");
-        itemele.ele("VNum", undefined, this.VNum);
-        itemele.ele("Name", undefined, this.Name);
-        itemele.ele("ShortDescription", undefined, this.ShortDescription);
-        itemele.ele("LongDescription", undefined, this.LongDescription);
-        itemele.ele("Description", undefined, this.Description);
-        itemele.ele("ItemTypes", undefined, StringUtility.JoinFlags(this.ItemTypes));
-        itemele.ele("WearFlags", undefined, StringUtility.JoinFlags(this.WearFlags));
-        itemele.ele("ExtraFlags", undefined, StringUtility.JoinFlags(this.ExtraFlags));
+        itemele.ele("VNum", this.VNum);
+        itemele.ele("Name", this.Name);
+        itemele.ele("ShortDescription", this.ShortDescription);
+        itemele.ele("LongDescription", this.LongDescription);
+        itemele.ele("Description", this.Description);
+        itemele.ele("ItemTypes", Utility.JoinFlags(this.ItemTypes));
+        itemele.ele("WearFlags", Utility.JoinFlags(this.WearFlags));
+        itemele.ele("ExtraFlags", Utility.JoinFlags(this.ExtraFlags));
 
         var contains = itemele.ele("Contains");
         for(var i = 0; i < this.Contains.length; i++) {
             this.Contains[i].Element(contains)
-            //result.Item.Contains.push(item.Contains[i].Element());
-
         }
         return itemele;
     }

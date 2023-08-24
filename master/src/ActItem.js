@@ -1,6 +1,6 @@
 const Character = require("./Character");
 const ItemData = require("./ItemData");
-const StringUtility = require("./StringUtility");
+const Utility = require("./Utility");
 
 /**
  *
@@ -159,13 +159,13 @@ function GetItem(player, item, container = null) {
  * @return {Array[ItemData, number]} Item and count as array
  */
 function GetItemInventory(player, itemname, count = 0) {
-    var number = StringUtility.NumberArgument(itemname);
+    var number = Utility.NumberArgument(itemname);
     itemname = number[1];
     number = number[0];
     for(var i = 0; i < player.Inventory.length; i++) {
         var item = player.Inventory[i];
 
-        if((StringUtility.IsNullOrEmpty(itemname) || StringUtility.IsName(item.Name, itemname)) && ++count >= number) {
+        if((Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
             return [item, count];
         }
     }
@@ -181,13 +181,13 @@ function GetItemInventory(player, itemname, count = 0) {
  * @return {Array[ItemData, number, string]} Item, count and slot id as array
  */
 function GetItemEquipment(player, itemname, count = 0) {
-    var number = StringUtility.NumberArgument(itemname);
+    var number = Utility.NumberArgument(itemname);
     itemname = number[1];
     number = number[0];
     for(key in Character.WearSlots) {
         var item = player.Equipment[key];
 
-        if(item && (StringUtility.IsNullOrEmpty(itemname) || StringUtility.IsName(item.Name, itemname)) && ++count >= number) {
+        if(item && (Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
             return [item, count, key];
         }
     }
@@ -204,13 +204,13 @@ function GetItemEquipment(player, itemname, count = 0) {
  * @return {Array} item, count, key in the list 
  */
 function GetItemList(player, list, itemname, count = 0) {
-    var number = StringUtility.NumberArgument(itemname);
+    var number = Utility.NumberArgument(itemname);
     itemname = number[1];
     number = number[0];
     for(key in list) {
         var item = list[key];
 
-        if((StringUtility.IsNullOrEmpty(itemname) || StringUtility.IsName(item.Name, itemname)) && ++count >= number) {
+        if((Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
             return [item, count, key];
         }
     }
@@ -235,13 +235,13 @@ function GetItemHere(player, itemname) {
 }
 
 function DoGet(player, arguments) {
-    args = StringUtility.OneArgument(arguments);
-    var fAll = StringUtility.Compare(args[0], "all");
+    args = Utility.OneArgument(arguments);
+    var fAll = Utility.Compare(args[0], "all");
 
     var itemName = args[0];
     var containerName = args[1];
     
-    if(fAll && StringUtility.IsNullOrEmpty(containerName)) {
+    if(fAll && Utility.IsNullOrEmpty(containerName)) {
         for(var i = 0; i < player.Room.Items.length; i++) {
             var item = player.Room.Items[i];
 
@@ -252,7 +252,7 @@ function DoGet(player, arguments) {
                 player.send("You can't pick that up.\n\r");
             }
         }
-    } else if(!StringUtility.IsNullOrEmpty(containerName)) {
+    } else if(!Utility.IsNullOrEmpty(containerName)) {
         var container = null;
 
         if((container = GetItemHere(player, containerName)) != null) {
@@ -275,7 +275,7 @@ function DoGet(player, arguments) {
                 itemName = itemName.substring(4);
                 for(var i = 0; i < container.Contains.length; i++) {
                     var item = container.Contains[i];
-                    if(item != null && item.WearFlags.Take && StringUtility.IsName(item.Name, itemName)) {
+                    if(item != null && item.WearFlags.Take && Utility.IsName(item.Name, itemName)) {
                         if(GetItem(player, item, container))
                             i--;
                     }
@@ -295,7 +295,7 @@ function DoGet(player, arguments) {
         } else {
             player.send("You don't see that container here.\n\r");
         }
-    } else if(StringUtility.IsNullOrEmpty(containerName)) {
+    } else if(Utility.IsNullOrEmpty(containerName)) {
         if(player.Room.Items.length == 0) {
             player.send("You don't see anything here.\n\r");
         } else if(fAll) {
@@ -312,7 +312,7 @@ function DoGet(player, arguments) {
             itemName = itemName.substring(4);
             for(var i = 0; i < player.Room.Items.length; i++) {
                 var item = player.Room.Items[i];
-                if(item != null && item.WearFlags.Take && StringUtility.IsName(item.Name, itemName)) {
+                if(item != null && item.WearFlags.Take && Utility.IsName(item.Name, itemName)) {
                     if(GetItem(player, item, container))
                         i--;
                 }
@@ -332,8 +332,8 @@ function DoGet(player, arguments) {
 }
 
 function DoDrop(player, arguments) {
-    if(StringUtility.Compare(arguments, "all")) {
-        var inventory = StringUtility.CloneArray(player.Inventory);
+    if(Utility.Compare(arguments, "all")) {
+        var inventory = Utility.CloneArray(player.Inventory);
         for(key in inventory) {
             var item = inventory[key];
             if(!item)
@@ -396,7 +396,7 @@ function RemoveEquipment(player, item, sendmessage) {
 }
 
 function DoRemove(player, arguments) {
-    if(StringUtility.Compare(arguments, "all")) {
+    if(Utility.Compare(arguments, "all")) {
         for(slotkey in Character.WearSlots) {
             var item = player.Equipment[slotkey];
             if(item) {
@@ -580,12 +580,12 @@ function WearItem(player, item, sendMessage = true, remove = true)
 }
 function DoWear(player, arguments) {
     
-    if (StringUtility.IsNullOrEmpty(arguments)) {
+    if (Utility.IsNullOrEmpty(arguments)) {
         player.send("Wear what?\n\r");
         return;
-    } else if (StringUtility.Compare(arguments, "all"))     {
+    } else if (Utility.Compare(arguments, "all"))     {
         var woreanything = false;
-        var inventory = StringUtility.CloneArray(player.Inventory);
+        var inventory = Utility.CloneArray(player.Inventory);
         for (var allitem in inventory) {
             var item = inventory[allitem];
             if (WearItem(player, item, true, false))

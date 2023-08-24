@@ -3,15 +3,43 @@ const RoomData = require("./RoomData");
 const AreaData = require("./AreaData");
 const Player = require("./Player");
 
-const StringUtility = require("./StringUtility");
+const Utility = require("./Utility");
 const Commands = require("./Commands");
 const ActInfo = require("./ActInfo");
 const fs = require('fs');
 const crypto = require('crypto');
+const RaceData = require("./RaceData");
+const PcRaceData = require("./PcRaceData");
+const GuildData = require("./GuildData");
 
-AreaData.LoadAllAreas(function() { 	
-	fixExits();
+LoadRaces();
 
+function LoadRaces() {
+	RaceData.LoadAllRaces(LoadPcRaces);
+}
+
+function LoadPcRaces() {
+	PcRaceData.LoadAllPcRaces(LoadGuilds);
+}
+
+function LoadGuilds() {
+	GuildData.LoadAllGuilds(LoadAreas);
+}
+
+function LoadAreas() {
+	console.dir(GuildData.Guilds);
+
+	AreaData.LoadAllAreas(function() { 	
+		fixExits();
+
+		AllLoaded();
+	} );
+
+}
+
+function AllLoaded() {
+	console.log(RaceData.Races.length + " races  loaded.");
+	console.log(PcRaceData.PcRaces.length + " pc races  loaded.");
 	console.log(Object.keys(AreaData.AllRooms).length + " rooms loaded.");
 	console.log(Object.keys(AreaData.AllHelps).length + " helps  loaded.");
 	console.log(Object.keys(AreaData.AllAreas).length + " areas  loaded.");
@@ -27,9 +55,7 @@ AreaData.LoadAllAreas(function() {
 		//console.log("Reset area " + area.Name);
 	}
 	startListening(3000); 
-} );
-
-
+}
 
 function getplayer(socket) {
 for (const player of Player.Players) {
@@ -41,7 +67,7 @@ for (const player of Player.Players) {
 
 function getplayerbyname(name) {
 for (const player of Player.Players) {
-	if(StringUtility.Compare(player.Name, name)) {
+	if(Utility.Compare(player.Name, name)) {
 		return player;
 	}
 }
@@ -97,14 +123,14 @@ net.createServer(HandleNewSocket)
 
 function pulse()
 {
-	for(player of StringUtility.CloneArray(Player.Players))
+	for(player of Utility.CloneArray(Player.Players))
 	{
 		handleinput(player);
 	}
 
 	Update();
 
-	for(player of StringUtility.CloneArray(Player.Players))
+	for(player of Utility.CloneArray(Player.Players))
 	{	
 		handleoutput(player);
 	}
@@ -148,7 +174,7 @@ function handleoutput(player) {
 				player.Act("$N " + health + "\n\r", player.Fighting);
 			}
 			player.output = player.output + "\n\r" + player.GetPrompt();
-			if ((player.Position == "Fighting" || player.Fighting) && player.SittingAtPrompt && !player.output.startsWith("\n\r"))
+			if (player.SittingAtPrompt && !player.output.startsWith("\n\r"))
         		player.output = "\n\r" + player.output;
 		}
 		
@@ -179,7 +205,7 @@ function handleinput(player) {
 				nanny(player, str);
 			}
 			else if(player.status == "Playing") {
-				var args = StringUtility.OneArgument(str);
+				var args = Utility.OneArgument(str);
 				if(args[0] == "")
 				{
 					player.send("\n\r");
@@ -188,7 +214,7 @@ function handleinput(player) {
 				}
 
 				for(var key in Commands) {
-					if(StringUtility.Prefix(key, args[0])) {
+					if(Utility.Prefix(key, args[0])) {
 						Commands[key](player, args[1]);
 						player.SittingAtPrompt = false;
 						return;
@@ -232,7 +258,7 @@ if(player.status == "GetName") {
 		return true;
 	}
 
-	player.Name = StringUtility.Capitalize(input);
+	player.Name = Utility.Capitalize(input);
 	if(fs.existsSync(`data/players/${player.Name}.xml`)) {
 		player.Load(`data/players/${player.Name}.xml`);
 		player.status = "GetPassword";
@@ -250,7 +276,7 @@ if(player.status == "GetName") {
 }
 if(player.status == "GetPassword") {
 	let hash = crypto.createHash('md5').update(input + "salt").digest("hex");
-	if(!StringUtility.Compare(hash, player.Password)) {
+	if(!Utility.Compare(hash, player.Password)) {
 		player.sendnow("Incorrect password.\n\r");
 		player.socket.destroy();
 		Player.Players.splice(Player.Players.indexOf(player), 1);
@@ -297,7 +323,7 @@ function Update() {
 }
 
 function UpdateCombat() {
-	for(var character of StringUtility.CloneArray(Character.Characters)) {
+	for(var character of Utility.CloneArray(Character.Characters)) {
 		if(character.Fighting) {
 			Character.Combat.ExecuteRound(character);
 		}

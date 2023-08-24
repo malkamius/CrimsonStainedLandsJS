@@ -1,7 +1,7 @@
-StringUtility = require("./StringUtility");
+Utility = require("./Utility");
 function getElement(xml, name) {
 	for(key in xml) {
-		if(StringUtility.Compare(key, name))
+		if(Utility.Compare(key, name))
 			return xml[key];
 	}
 	return undefined;
@@ -9,7 +9,7 @@ function getElement(xml, name) {
 
 function getElementValue(xml, name, defaultvalue = "") {
 	for(key in xml) {
-		if(StringUtility.Compare(key, name))
+		if(Utility.Compare(key, name))
 		{
 			return xml[key]._ ? xml[key]._ : xml[key][0]._? xml[key][0]._ : xml[key][0];
 		}
@@ -25,7 +25,7 @@ function getElementValueInt(xml, name, defaultvalue = 0) {
 function getAttributeValue(xml, name, defaultvalue) {
 	if(xml.$)
 		for(key in xml.$) {
-			if(StringUtility.Compare(key, name))
+			if(Utility.Compare(key, name))
 				return xml.$[key]? xml.$[key] : defaultvalue;
 		}
 	return defaultvalue;

@@ -111,7 +111,7 @@ function helpdata(vnum, keyword, text) {
 	this.VNum = vnum;
 	this.Keyword = keyword;
 	this.Text = text;
-	console.log("Loaded help " + this.VNum + " :: " + this.Keyword);
+	//console.log("Loaded help " + this.VNum + " :: " + this.Keyword);
 }
 
 module.exports = AreaData;

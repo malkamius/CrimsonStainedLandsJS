@@ -1,4 +1,4 @@
-StringUtility = require("./StringUtility");
+Utility = require("./Utility");
 
 class ItemTemplateData {
     VNum = 0;
@@ -41,9 +41,9 @@ class ItemTemplateData {
         this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription");
         this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription");
         this.Description = XmlHelper.GetElementValue(xml, "Description");
-        StringUtility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
-        StringUtility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
-        StringUtility.ParseFlags(this.ItemTypes, XmlHelper.GetElementValue(xml, "ItemTypes"));
+        Utility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
+        Utility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
+        Utility.ParseFlags(this.ItemTypes, XmlHelper.GetElementValue(xml, "ItemTypes"));
         this.WeaponType = XmlHelper.GetElementValue(xml, "WeaponType");
 
         if(!area.ItemTemplates[this.VNum])

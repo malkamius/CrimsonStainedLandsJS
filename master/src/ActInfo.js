@@ -26,7 +26,7 @@ function dohelp(player, arguments, plain = false) {
 	//var args = oneargument(str);
 	for(var helpkey in AreaData.AllHelps) {
 		var help = AreaData.AllHelps[helpkey];
-		if(help.VNum.startsWith(arguments) || StringUtility.Includes(help.Keyword, arguments)) {
+		if(help.VNum.startsWith(arguments) || Utility.Includes(help.Keyword, arguments)) {
 			if(!plain)
 			player.send("--------------------------------------------------------------------------------\n\r");
 			player.send((help.Text.startsWith(".")? help.Text.substr(1) : help.Text) + (help.Text.endsWith("\n") || help.Text.endsWith("\r")? "" : "\n\r"));
@@ -67,7 +67,7 @@ function dolook(player, arguments, auto) {
 				player.Act("You look at yourself.", targetch, null, null, "ToChar");
 				player.Act("$n looks at $mself.", targetch, null, null, "ToRoomNotVictim");
 				
-				player.Act(StringUtility.IsNullOrEmpty(targetch.Description)? "You see nothing special about yourself." : targetch.Description, targetch);
+				player.Act(Utility.IsNullOrEmpty(targetch.Description)? "You see nothing special about yourself." : targetch.Description, targetch);
 				player.Act("You are wearing: ", targetch);
 			}
 			else
@@ -76,7 +76,7 @@ function dolook(player, arguments, auto) {
 				player.Act("$n looks at $N.", targetch, null, null, "ToRoomNotVictim");
 				player.Act("$n looks at you.", targetch, null, null, "ToVictim");
 
-				player.Act(StringUtility.IsNullOrEmpty(targetch.Description)? "You see nothing special about $N." : targetch.Description, targetch);
+				player.Act(Utility.IsNullOrEmpty(targetch.Description)? "You see nothing special about $N." : targetch.Description, targetch);
 				player.Act("$N is wearing: ", targetch);
 			}
 			var anyitems = false;
@@ -158,13 +158,13 @@ function doinventory(player, arguments) {
 }
 
 function GetCharacterList(player, list, arguments, count = 0) {
-	if(StringUtility.Compare(arguments, "self")) return [player, ++count, ""];
-	var numberargs = StringUtility.NumberArgument(arguments);
+	if(Utility.Compare(arguments, "self")) return [player, ++count, ""];
+	var numberargs = Utility.NumberArgument(arguments);
 	var desiredcount = numberargs[0];
 	arguments = numberargs[1];
 	for(key in list) {
 		var ch = list[key];
-		if((StringUtility.IsNullOrEmpty(arguments) || StringUtility.IsName(ch.Name, arguments)) && ++count > desiredcount)
+		if((Utility.IsNullOrEmpty(arguments) || Utility.IsName(ch.Name, arguments)) && ++count > desiredcount)
 			return [ch, count, key];
 	}
 	return [null, count, ""];

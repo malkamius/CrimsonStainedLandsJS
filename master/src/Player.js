@@ -1,10 +1,11 @@
 const Character = require("./Character");
 const Color = require("./Color");
 const XmlHelper = require("./XmlHelper");
-const StringUtility = require("./StringUtility");
+const Utility = require("./Utility");
 const fs = require("fs");
 const xml2js = require('xml2js');
 const ItemData = require("./ItemData");
+const RaceData = require("./RaceData");
 const parser = new xml2js.Parser({ strict: false, trim: false });
 
 Players = Array();
@@ -55,8 +56,11 @@ class Player extends Character {
 		this.MaxManaPoints = XmlHelper.GetElementValueInt(xml,"MaxManaPoints");
 		this.MovementPoints = XmlHelper.GetElementValue(xml,"MovementPoints");
 		this.MaxMovementPoints = XmlHelper.GetElementValue(xml,"MaxMovementPoints");
-		
-		StringUtility.ParseFlags(this.Flags, XmlHelper.GetElementValue(xml,"Flags"));
+		var race = XmlHelper.GetElementValue(xml,"Race", "human");
+		if(!(this.Race = RaceData.LookupRace(race)))
+			console.log(`Race ${race} not found`);
+
+		Utility.ParseFlags(this.Flags, XmlHelper.GetElementValue(xml,"Flags"));
 
 		this.RoomVNum = XmlHelper.GetElementValueInt(xml,"Room");
 		
@@ -99,7 +103,8 @@ class Player extends Character {
 	xmlelement.ele("Description", this.Description);
 	xmlelement.ele("ShortDescription", this.ShortDescription);
 	xmlelement.ele("LongDescription", this.LongDescription);
-	xmlelement.ele("Room", this.Room? this.Room.VNum : 3700);
+	xmlelement.ele("Room", parseInt((this.Room? this.Room.VNum : 3700)));
+	xmlelement.ele("Race", (this.Race? this.Race.Name : "human"));
 	xmlelement.ele("Sex", this.Sex);
 	xmlelement.ele("Level", this.Level);
 	xmlelement.ele("HitPoints", this.HitPoints);
@@ -114,7 +119,7 @@ class Player extends Character {
 	xmlelement.ele("ArmorExotic", this.ArmorExotic);
 	xmlelement.ele("Xp", this.Xp);
 	xmlelement.ele("XpTotal", this.XpTotal);
-	xmlelement.ele("Flags", StringUtility.JoinFlags(this.Flags));
+	xmlelement.ele("Flags", Utility.JoinFlags(this.Flags));
 	xmlelement.ele("Password", this.Password);
 	
 	var inventory = xmlelement.ele("Inventory")

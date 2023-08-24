@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Race CanSpeak="false" HasCoins="false">
   <Name>orc</Name>
-  <PcRace>False</PcRace>
+  <PcRace>True</PcRace>
   <Act>Fast</Act>
   <Aff></Aff>
   <Immune></Immune>
   <Resist></Resist>
   <Vulnerable>Fire</Vulnerable>
-  <Form>edible animal mammal</Form>
+  <Form>edible sentient biped mammal</Form>
   <Part>Head Legs Heart Brains Guts Feet Ear Eye Claws Fangs</Part>
   <Stats>
     <Strength>20</Strength>

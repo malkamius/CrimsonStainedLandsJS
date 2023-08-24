@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Race CanSpeak="true" HasCoins="true">
   <Name>elf</Name>
-  <PcRace>False</PcRace>
+  <PcRace>True</PcRace>
   <Act></Act>
   <Aff>Infrared Sneak</Aff>
   <Immune></Immune>

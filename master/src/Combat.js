@@ -1,5 +1,5 @@
 const Character = require("./Character");
-const StringUtility = require("./StringUtility");
+const Utility = require("./Utility");
 
 Character.Combat.DoKill = function(character, arguments) {
     if(character.Fighting) {
@@ -190,12 +190,12 @@ function DamageMessage(ch, victim, damageAmount, nounDamage, DamageType = "Bash"
     if (immune)
     {
         // Check various conditions and display corresponding immunity messages
-        if (ch == victim && !StringUtility.IsNullOrEmpty(nounDamage))
+        if (ch == victim && !Utility.IsNullOrEmpty(nounDamage))
         {
             ch.Act("$n is unaffected by $s own " + nounDamage + ".", null, null, null, "ToRoom");
             ch.Act("Luckily, you are immune to that.");
         }
-        else if (!StringUtility.IsNullOrEmpty(nounDamage))
+        else if (!Utility.IsNullOrEmpty(nounDamage))
         {
             ch.Act("$N is unaffected by $n's " + nounDamage + "!", victim, null, null, "ToRoomNotVictim");
             ch.Act("$N is unaffected by your " + nounDamage + "!", victim, null, null, "ToChar");
@@ -215,7 +215,7 @@ function DamageMessage(ch, victim, damageAmount, nounDamage, DamageType = "Bash"
     }
 
     // If the attacker and victim are different characters and there is a specific damage noun
-    if (victim != ch && ch != null && !StringUtility.IsNullOrEmpty(nounDamage))
+    if (victim != ch && ch != null && !Utility.IsNullOrEmpty(nounDamage))
     {
         // Display damage messages with specific noun to the attacker, victim, and the room
         ch.Act("Your " + nounDamage + " \\R" + vp + "\\x $N" + punct, victim, null, null, "ToChar");
@@ -223,14 +223,14 @@ function DamageMessage(ch, victim, damageAmount, nounDamage, DamageType = "Bash"
         ch.Act("$n's " + nounDamage + " \\R" + vp + "\\x $N" + punct, victim, null, null, "ToRoomNotVictim");
     }
     // If the attacker is null and there is a specific damage noun
-    else if (ch == null && !StringUtility.IsNullOrEmpty(nounDamage))
+    else if (ch == null && !Utility.IsNullOrEmpty(nounDamage))
     {
         // Display damage messages with specific noun to the victim and the room
         victim.Act("Your " + nounDamage + " \\R" + vp + "\\x you" + punct, null, null, null, "ToChar");
         victim.Act("$n's " + nounDamage + " \\R" + vp + "\\x them" + punct, null, null, null, "ToRoom");
     }
     // If there is a specific damage noun but no attacker
-    else if (!StringUtility.IsNullOrEmpty(nounDamage))
+    else if (!Utility.IsNullOrEmpty(nounDamage))
     {
         // Display damage messages with specific noun to the attacker (if available) and the room
         ch.Act("Your " + nounDamage + " \\R" + vp + "\\x you" + punct, null, null, null, "ToChar");
@@ -245,14 +245,14 @@ function DamageMessage(ch, victim, damageAmount, nounDamage, DamageType = "Bash"
         ch.Act("$n \\R" + vp + "\\x $N" + punct, victim, null, null, "ToRoomNotVictim");
     }
     // If the attacker is null and there is no specific damage noun
-    else if (ch == null && StringUtility.IsNullOrEmpty(nounDamage))
+    else if (ch == null && Utility.IsNullOrEmpty(nounDamage))
     {
         // Display generic damage messages to the victim and the room
         victim.Act("You \\R" + vs + "\\x yourself" + punct, null, null, null, "ToChar");
         victim.Act("$n \\R" + vp + "\\x $mself" + punct, null, null, null, "ToRoom");
     }
     // If there is no specific damage noun
-    else if (StringUtility.IsNullOrEmpty(nounDamage))
+    else if (Utility.IsNullOrEmpty(nounDamage))
     {
         // Display generic damage messages to the attacker and the room
         ch.Act("You \\R" + vs + "\\x yourself" + punct, null, null, null, "ToChar");
