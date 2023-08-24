@@ -1,13 +1,13 @@
 net = require("net");
-areas = require("./areas");
+AreaData = require("./AreaData");
 Player = require("./Player");
 RoomData = require("./RoomData");
 StringUtility = require("./StringUtility");
 Commands = require("./Commands");
 ActInfo = require("./ActInfo");
 
-areas.load(function() { 
-	console.log(Object.keys(areas.Rooms).length + " rooms loaded.");
+AreaData.LoadAllAreas(function() { 
+	console.log(Object.keys(AreaData.AllRooms).length + " rooms loaded.");
 	fixExits();
 	startListening(3000); 
 	} );
@@ -208,11 +208,11 @@ function oneargument(text) {
 
 
 function fixExits() {
-	for(var roomvnum in areas.Rooms) {
-		var room = areas.Rooms[roomvnum];
+	for(var roomvnum in AreaData.AllRooms) {
+		var room = AreaData.AllRooms[roomvnum];
 		for(var index = 0; index < 6; index++) {
 			if(room.exits[index] && room.exits[index].destinationVnum)
-				room.exits[index].destination = areas.Rooms[room.exits[index].destinationVnum];
+				room.exits[index].destination = AreaData.AllRooms[room.exits[index].destinationVnum];
 		}
 	}
 }

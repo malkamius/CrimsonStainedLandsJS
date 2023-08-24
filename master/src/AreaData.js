@@ -1,0 +1,105 @@
+const path = require('path')
+const fs = require('fs');
+const xml2js = require('xml2js');
+const parser = new xml2js.Parser({ strict: false, trim: false });
+const RoomData = require('./RoomData');
+const NPCTemplateData = require('./NPCTemplateData');
+const ResetData = require('./ResetData');
+
+class AreaData {
+	xml = null;
+	name = "";
+	Rooms = {};
+	NPCTemplates = {};
+	ItemTemplates = {};
+	Resets = Array();
+	helps = {};
+	constructor(xml) { 
+		var reset = null;
+		this.name = xml.AREADATA[0].NAME[0];
+		if(xml.ROOMS) {
+			for(const rooms of xml.ROOMS) {
+				if(rooms.ROOM)
+					for(const room of rooms.ROOM) {
+						AreaData.AllRooms[room.VNUM] = this.Rooms[room.VNUM] = new RoomData(AreaData, this, room);
+					}
+			}
+		}
+		if(xml.NPCS) {
+			for(const npcs of xml.NPCS) {
+				if(npcs.NPC)
+					for(const npc of npcs.NPC) {
+						var npctemplate = new NPCTemplateData(this, npc);
+					}
+			}
+		}
+		if(xml.RESETS) {
+			for(const resets of xml.RESETS) {
+				if(resets.RESET)
+					for(var resetxml of resets.RESET) {
+						reset = new ResetData(this, resetxml);
+					}
+			}
+		}
+		if(xml.HELPS) {
+			for(const helps of xml.HELPS) {
+				for(var help of helps.HELP)
+				{
+					AreaData.AllHelps[help.$.VNUM] = this.helps[help.$.VNUM] = new helpdata(help.$.VNUM, help.$.KEYWORD, help._);
+				}
+			}
+			
+		}
+		for(var i = 0; i < this.Resets.length; i++) {
+			reset = this.Resets[i];
+			reset.Execute();
+		}
+	} // end constructor
+
+}
+AreaData.AllAreas = {};
+AreaData.AllRooms = {};
+AreaData.AllHelps = {};
+
+AreaData.LoadAllAreas = function(callback) {
+    var counter = 0;
+	var areasdirectory = path.join(__dirname, '../data/areas');
+	fs.readdir(areasdirectory, function(err, filenames) {
+		if (err) {
+		  throw err;
+		  return;
+		}
+		
+		filenames.forEach(function(filename) {
+			if(filename.endsWith(".xml") && !filename.endsWith("_Programs.xml")) {
+			  fs.readFile(path.join(areasdirectory, filename), 'utf-8', function(err, content) {
+				if (err) {
+				  throw err;
+				  return;
+				}
+				parser.parseString(content, function(err, xml) {
+					var area = AreaData.AllAreas[xml.AREA.AREADATA[0].NAME[0]] = new AreaData(xml.AREA);
+				});
+				counter++;
+				if (counter === filenames.length) {
+					callback();
+				}
+			  });
+			} else {
+				counter++;
+				if (counter === filenames.length) {
+					callback();
+				}
+			}
+		});
+	});
+    
+}
+
+function helpdata(vnum, keyword, text) {
+	this.vnum = vnum;
+	this.keyword = keyword;
+	this.text = text;
+}
+
+module.exports = AreaData;

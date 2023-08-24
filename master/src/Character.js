@@ -1,74 +1,79 @@
 Characters = Array();
 
 class Character {
+	vnum = 0;
+	name = null;
+	socket = null;
+	input = "";
+	output = "";
+	Room = null;
+	ShortDescription = "";
+	LongDescription = "";
+	Description = "";
+	Affects = Array();
+	Flags = {};
+	Level = 60;
+	WeaponDamageMessage = null;
+	Alignment = "neutral";
+	Ethos = "neutral";
+	_position = "Standing";
+	Race = null;
+	Sex = "neutral";
+	Size = "Medium";
+	Material = "unknown";
+	Inventory = Array();
+	Equipment = new Map();
+	AffectedBy = {};
+	HitPoints = 100;
+	MaxHitPoints = 100;
+	ManaPoints = 100;
+	MaxManaPoints = 100;
+	MovementPoints = 100;
+	MaxMovementPoints = 100;
+	Xp = 0;
+	XpTotal = 0;
+	_fighting = null;
+	Fighting = null;
+	Following = null;
+	LastFighting = null;
+	Wait = 0;
+	Daze = 0;
+	HitRoll = 0;
+	DamageRoll = 0;
+	ArmorClass = 0;
+	Silver = 0;
+	Gold = 0;
+	Hunger = 48;
+	Thirst = 48;
+	Drunk = 0;
+	Starving = 0;
+	Dehydrated = 0;
+	Trains = 0;
+	Practices = 0;
+	SavingThrow = 0;
+	PermanentStats = Array(20,20,20,20,20,20);
+	ModifiedStats = Array(0,0,0,0,0,0);
+	ArmorBash = 0;
+	ArmorPierce = 0;
+	ArmorSlash = 0;
+	ArmorExotic = 0;
+	DefaultPosition = "Standing";
+		
   	constructor() {
-		this.vnum = 0;
-		this.name = null;
-		this.socket = null;
-		this.input = "";
-		this.output = "";
-		this.Room = null;
-		this.ShortDescription = "";
-		this.LongDescription = "";
-		this.Description = "";
-		this.Affects = Array();
-		this.Flags = {};
-		this.Level = 60;
-		this.WeaponDamageMessage = null;
-		this.Alignment = "neutral";
-		this.Ethos = "neutral";
-		this._position = "Standing";
-		this.Race = null;
-		this.Sex = "neutral";
-		this.Size = "Medium";
-		this.Material = "unknown";
-		this.Inventory = Array();
-		this.Equipment = new Map();
-		this.AffectedBy = {};
-		this.HitPoints = 100;
-		this.MaxHitPoints = 100;
-		this.ManaPoints = 100;
-		this.MaxManaPoints = 100;
-		this.MovementPoints = 100;
-		this.MaxMovementPoints = 100;
-		this.Xp = 0;
-		this.XpTotal = 0;
-		this._fighting = null;
-		this.Fighting = null;
-		this.Following = null;
-		this.LastFighting = null;
-		this.Wait = 0;
-		this.Daze = 0;
-		this.HitRoll = 0;
-		this.DamageRoll = 0;
-		this.ArmorClass = 0;
-		this.Silver = 0;
-		this.Gold = 0;
-		this.Hunger = 48;
-		this.Thirst = 48;
-		this.Drunk = 0;
-		this.Starving = 0;
-		this.Dehydrated = 0;
-		this.Trains = 0;
-		this.Practices = 0;
-		this.SavingThrow = 0;
-		this.PermanentStats = Array(20,20,20,20,20,20);
-		this.ModifiedStats = Array(0,0,0,0,0,0);
-		this.ArmorBash = 0;
-		this.ArmorPierce = 0;
-		this.ArmorSlash = 0;
-		this.ArmorExotic = 0;
-		this.DefaultPosition = "Standing";
-		
-		
-		this.send = function(data) {
-		};
-		
-		this.sendnow = function(data) {
-		};
 		Characters.push(this);
-		
 	}
+
+	send(data) {}
+	sendnow(data) {}
+
+	get Position() {
+		return this._position;
+	}
+
+	set Position(value) {
+		this._position = value;
+	}
+
 	AddCharacterToRoom(Room) {
 		if(this.Room != null)
 			this.RemoveCharacterFromRoom();
@@ -96,6 +101,12 @@ class Character {
 
 	Display(to) {
 		return this.GetShortDescription(to);
+	}
+
+	GetLongDescription() {
+		if(this.Position == this.DefaultPosition && this.LongDescription && this.LongDescription.length > 0)
+			return this.LongDescription;
+		return "$N is " + this.Position.toLowerCase() + " here.\n\r"
 	}
 
 	GetPrompt() {

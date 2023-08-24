@@ -21,8 +21,8 @@ function doquit(player, arguments) {
 
 function dohelp(player, arguments, plain = false) {
 	//var args = oneargument(str);
-	for(var helpkey in areas.helps) {
-		var help = areas.helps[helpkey];
+	for(var helpkey in AreaData.AllHelps) {
+		var help = AreaData.AllHelps[helpkey];
 		if(help.vnum.startsWith(arguments) || StringUtility.Includes(help.keyword, arguments)) {
 			if(!plain)
 			player.send("--------------------------------------------------------------------------------\n\r");
@@ -42,9 +42,10 @@ function dolook(player, arguments, auto) {
 		doexits(player, "");
 		for(const other of player.Room.Characters) {
 			if (other != player)
-				player.Act(other.LongDescription && other.LongDescription.length > 0?
-					other.LongDescription :
-					"$N is standing here.\n\r", other, null, null, "ToChar");
+				player.Act(other.GetLongDescription(), other, null, null, "ToChar");
+		}
+		for(const item of player.Room.Items){
+			player.send(item.GetLongDescription + "\n\r");
 		}
 	} else {
 		player.send("You can't do that yet.\n\r");
