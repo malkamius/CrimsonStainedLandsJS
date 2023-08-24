@@ -167,11 +167,24 @@ function ParseFlags(array, flags) {
 	}
 }
 
+function JoinFlags(array) {
+	var result = "";
+	for(var key in array) {
+		result = result + (result.length > 0? " " : "") + key;
+	}
+	return result;
+}
+
 function CloneArray(arraytoclone) {
 	var result = Array();
 	//Object.assign(result, array);
 	for(var i = 0; i < arraytoclone.length; i++)
 		result.push(arraytoclone[i]);
+	return result;
+}
+
+function Roll(dice) {
+	var result = Math.floor(Math.random() * dice[0]) * Math.floor(Math.random() * dice[1]) + dice[2];
 	return result;
 }
 
@@ -186,3 +199,5 @@ exports.TrimStart = TrimStart;
 exports.IsName = IsName;
 exports.IsNullOrEmpty = IsNullOrEmpty;
 exports.CloneArray = CloneArray;
+exports.JoinFlags = JoinFlags;
+exports.Roll = Roll;

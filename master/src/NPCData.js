@@ -1,7 +1,7 @@
 const NPCTemplateData = require("./NPCTemplateData");
-
-Character = require("./Character");
-Color = require("./Color");
+const StringUtility = require("./StringUtility");
+const Character = require("./Character");
+const Color = require("./Color");
 
 class NPCData extends Character {
   constructor(VNum, room, xml) {
@@ -20,6 +20,8 @@ class NPCData extends Character {
 		this.ShortDescription = template.ShortDescription;
 		this.LongDescription = template.LongDescription;
 		this.Description = template.Description;
+		this.MaxHitPoints = StringUtility.Roll(template.HitPointDice); 
+		this.HitPoints = this.MaxHitPoints;
 		this.AddCharacterToRoom(room);
 	}
 

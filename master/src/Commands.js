@@ -17,7 +17,9 @@ Commands = {
 				"get": Character.DoCommands.DoGet,
 				"drop": Character.DoCommands.DoDrop,
 				"wear": Character.DoCommands.DoWear,
-				"remove": Character.DoCommands.DoRemove
+				"remove": Character.DoCommands.DoRemove,
+				"save": Character.DoCommands.DoSave,
+				"kill": Character.Combat.DoKill
 			};
 
 module.exports = Commands;

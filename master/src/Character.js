@@ -57,6 +57,7 @@ class Character {
 	MaxManaPoints = 100;
 	MovementPoints = 100;
 	MaxMovementPoints = 100;
+	HitPointDice = Array(0,0,0);
 	Xp = 0;
 	XpTotal = 0;
 	_fighting = null;
@@ -264,6 +265,7 @@ class Character {
 Character.DoCommands = {};
 Character.ItemFunctions = {};
 Character.CharacterFunctions = {};
+Character.Combat = {};
 Character.Characters = Characters;
 Character.WearSlots = WearSlots;
 module.exports = Character;
@@ -272,4 +274,4 @@ module.exports = Character;
 ActInfo = require("./ActInfo");
 ActMovement = require("./ActMovement");
 ActItem = require("./ActItem");
-
+Combat = require("./Combat");

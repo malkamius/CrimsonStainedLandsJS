@@ -9,7 +9,10 @@ class NPCTemplateData extends Character {
     this.Name = XmlHelper.GetElementValue(xml, "Name");
     this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription");
     this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription");
-
+    this.HitPointDice[0] = XmlHelper.GetElementValueInt(xml, "HitPointDiceSides");
+    this.HitPointDice[1] = XmlHelper.GetElementValueInt(xml, "HitPointDiceCount");
+    this.HitPointDice[2] = XmlHelper.GetElementValueInt(xml, "HitPointDiceBonus");
+    
     if(!area.NPCTemplates[this.VNum])
       area.NPCTemplates[this.VNum] = this;
     else

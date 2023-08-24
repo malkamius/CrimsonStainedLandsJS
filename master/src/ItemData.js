@@ -105,6 +105,7 @@ class ItemData {
     }
 
     Load(xml) {
+        this.VNum = XmlHelper.GetElementValue(xml, "VNUM", this.VNum);
         this.Name = XmlHelper.GetElementValue(xml, "NAME", this.Name);
         this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription", this.ShortDescription);
         this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription", this.LongDescription);
@@ -126,6 +127,28 @@ class ItemData {
 				}
 			}
         }
+    }
+
+    Element(ele) {
+        //var item = this;
+
+        var itemele = ele.ele("Item");
+        itemele.ele("VNum", undefined, this.VNum);
+        itemele.ele("Name", undefined, this.Name);
+        itemele.ele("ShortDescription", undefined, this.ShortDescription);
+        itemele.ele("LongDescription", undefined, this.LongDescription);
+        itemele.ele("Description", undefined, this.Description);
+        itemele.ele("ItemTypes", undefined, StringUtility.JoinFlags(this.ItemTypes));
+        itemele.ele("WearFlags", undefined, StringUtility.JoinFlags(this.WearFlags));
+        itemele.ele("ExtraFlags", undefined, StringUtility.JoinFlags(this.ExtraFlags));
+
+        var contains = itemele.ele("Contains");
+        for(var i = 0; i < this.Contains.length; i++) {
+            this.Contains[i].Element(contains)
+            //result.Item.Contains.push(item.Contains[i].Element());
+
+        }
+        return itemele;
     }
 }
 

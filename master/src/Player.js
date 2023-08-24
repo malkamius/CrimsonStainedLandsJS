@@ -61,13 +61,13 @@ class Player extends Character {
 		this.RoomVNum = XmlHelper.GetElementValueInt(xml,"Room");
 		
 		this.Password = XmlHelper.GetElementValue(xml,"Password");
-
+		
 		if(xml.EQUIPMENT) {
 			for(const equipmentxml of xml.EQUIPMENT) {
 				if(equipmentxml.SLOT)
 					for(const slotxml of equipmentxml.SLOT) {
 						var slotid = slotxml.$.SLOTID;
-						if(slotxml.ITEM) {
+						if(slotxml.ITEM && slotxml.ITEM) {
 							var itemxml = slotxml.ITEM[0];
 							var item = player.Equipment[slotid] = new ItemData(itemxml.VNUM[0], null, null);
 							item.Load(itemxml);
@@ -86,8 +86,50 @@ class Player extends Character {
 				}
 			}
 		}
-
 	}
+  } // end LoadPlayerData
+
+  Save(path) {
+	if(!path) path = `data/players/${player.Name}.xml`;
+
+	var builder = require('xmlbuilder');
+	var xmlelement = builder.create("PlayerData");
+	
+	xmlelement.ele("Name", this.Name);
+	xmlelement.ele("Description", this.Description);
+	xmlelement.ele("ShortDescription", this.ShortDescription);
+	xmlelement.ele("LongDescription", this.LongDescription);
+	xmlelement.ele("Room", this.Room? this.Room.VNum : 3700);
+	xmlelement.ele("Sex", this.Sex);
+	xmlelement.ele("Level", this.Level);
+	xmlelement.ele("HitPoints", this.HitPoints);
+	xmlelement.ele("MaxHitPoints", this.MaxHitPoints);
+	xmlelement.ele("ManaPoints", this.ManaPoints);
+	xmlelement.ele("MaxManaPoints", this.MaxManaPoints);
+	xmlelement.ele("MovementPoints", this.MovementPoints);
+	xmlelement.ele("MaxMovementPoints", this.MaxMovementPoints);
+	xmlelement.ele("ArmorBash", this.ArmorBash);
+	xmlelement.ele("ArmorSlash", this.ArmorSlash);
+	xmlelement.ele("ArmorPierce", this.ArmorPierce);
+	xmlelement.ele("ArmorExotic", this.ArmorExotic);
+	xmlelement.ele("Xp", this.Xp);
+	xmlelement.ele("XpTotal", this.XpTotal);
+	xmlelement.ele("Flags", StringUtility.JoinFlags(this.Flags));
+	xmlelement.ele("Password", this.Password);
+	
+	var inventory = xmlelement.ele("Inventory")
+	for(var i = 0; i < this.Inventory.length; i++) {
+		this.Inventory[i].Element(inventory);
+	}
+	
+	var equipment = xmlelement.ele("Equipment")
+	for(var key in this.Equipment) {
+		var slot = equipment.ele("Slot").attribute("SlotID", key);
+		this.Equipment[key].Element(slot);
+	}
+	
+  	var xml = xmlelement.end({ pretty: true});
+	fs.writeFileSync(path, xml);
   }
 }
 

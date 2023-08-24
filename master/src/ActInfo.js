@@ -177,6 +177,12 @@ function GetCharacterHere(player, arguments) {
 
 }
 
+function DoSave(player, arguments) {
+	if(player && !player.IsNPC) {
+		player.Save();
+		player.send("Your character has been saved.\n\r");
+	}
+}
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
@@ -184,6 +190,8 @@ Character.DoCommands.DoLook = dolook;
 Character.DoCommands.DoExits = doexits;
 Character.DoCommands.DoEquipment = doequipment;
 Character.DoCommands.DoInventory = doinventory;
+Character.DoCommands.DoSave = DoSave;
 
 Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
 Character.CharacterFunctions.GetCharacterList = GetCharacterList;
+const Player = require("./Player");
