@@ -39,7 +39,10 @@ function OneHit(character, victim) {
         victim.HitPoints -= damage;
         if(victim.HitPoints < -15) {
             victim.Position = "Dead";
-            victim.Act("$n has been killed!", null, null, null, "ToChar");
+            character.Act("$N has been killed!", victim, null, null, "ToRoomNotVictim");
+            character.Act("You have been killed!", victim, null, null, "ToVictim");
+            character.Act("$N is DEAD!", victim, null, null, "ToChar");
+            
             for(var other of victim.Room.Characters) {
                 if(other.Fighting == victim) {
                     other.Fighting = null;
