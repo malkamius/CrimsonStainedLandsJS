@@ -3,6 +3,7 @@ const NPCData = require("./NPCData");
 const ItemData = require("./ItemData");
 XmlHelper = require("./XmlHelper");
 Resets = Array();
+LastNPCReset = null;
 
 class ResetData {
   Type = "";
@@ -26,16 +27,25 @@ class ResetData {
         var room = RoomData.Rooms[this.Destination];
         if(room) {
             var npc = new NPCData(this.VNum, room);
-
+            LastNPCReset = npc;
+        } else {
+          LastNPCReset = null;
         }
     } else if(this.Type == "Item") {
         var room = RoomData.Rooms[this.Destination];
           if(room) {
             var item = new ItemData(this.VNum, room);
         }
+    } else if(this.Type == "Give" && LastNPCReset) {
+      var item = new ItemData(this.VNum, null, null);
+      LastNPCReset.Inventory.unshift(item);
+    } else if(this.Type == "Equip" && LastNPCReset) {
+      var item = new ItemData(this.VNum, null, null);
+      Character.ItemFunctions.WearItem(LastNPCReset, item, false, true);
     }
   }
 }
 
 ResetData.Resets = this.Resets;
 module.exports = ResetData;
+const Character = require("./Character");

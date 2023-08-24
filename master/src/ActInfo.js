@@ -59,7 +59,31 @@ function dolook(player, arguments, auto) {
 		}
 		
 	} else {
-		player.send("You can't do that yet.\n\r");
+		
+		var targetch = Character.CharacterFunctions.GetCharacterHere(player, arguments);
+		
+		if(targetch)	{
+			player.Act("You look at $N.", targetch, null, null, "ToChar");
+			player.Act("$n looks at $N.", targetch, null, null, "ToRoomNotVictim");
+			player.Act("$n looks at you.", targetch, null, null, "ToVictim");
+
+			player.Act(StringUtility.IsNullOrEmpty(targetch.Description)? "You see nothing special about $N." : targetch.Description, targetch);
+			player.Act("$N is wearing: ", targetch);
+			var anyitems = false;
+			for(var slotkey in Character.WearSlots) {
+				var slot = Character.WearSlots[slotkey];
+				var item = targetch.Equipment[slotkey];
+				if(item) {
+					player.send(slot.Slot + item.DisplayFlags(player) + item.Display(player) + "\n\r");
+					anyitems = true;
+				}
+				
+			}
+			if(!anyitems)
+					player.send("   nothing.\n\r");
+		} else {
+			player.send("You don't see them.\n\r");
+		}
 	}
 }
 
@@ -122,6 +146,26 @@ function doinventory(player, arguments) {
 			player.send("   " + (items[key] > 1? "[" + items[key] + "]" : "") + key + "\n\r");
 	}
 }
+
+function GetCharacterList(player, list, arguments, count = 0) {
+	var numberargs = StringUtility.NumberArgument(arguments);
+	var desiredcount = numberargs[0];
+	arguments = numberargs[1];
+	for(key in list) {
+		var ch = list[key];
+		if((StringUtility.IsNullOrEmpty(arguments) || StringUtility.IsName(ch.Name, arguments)) && ++count > desiredcount)
+			return [ch, count, key];
+	}
+	return [null, count, ""];
+}
+
+function GetCharacterHere(player, arguments) {
+	var results = GetCharacterList(player, player.Room.Characters, arguments);
+
+	return results[0];
+
+}
+
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
@@ -129,6 +173,9 @@ Character.DoCommands.DoLook = dolook;
 Character.DoCommands.DoExits = doexits;
 Character.DoCommands.DoEquipment = doequipment;
 Character.DoCommands.DoInventory = doinventory;
+
+Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
+Character.CharacterFunctions.GetCharacterList = GetCharacterList;
 // module.exports = { 
 					// DoSay: dosay, 
 					// DoQuit: doquit,

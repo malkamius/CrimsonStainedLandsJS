@@ -61,12 +61,13 @@ function HandlePlayerDisconnect(socket) {
 
   player.RemoveCharacterFromRoom();
 
-  if(player != null) Player.Players.splice(Player.Players.indexOf(player), 1);
+  if(player && Player.Players.indexOf(player) >= 0) Player.Players.splice(Player.Players.indexOf(player), 1);
 }
 
 function HandleNewSocket(socket) {
 	socket.on('error', function(ex) {
 		console.log(ex);
+		HandlePlayerDisconnect(socket);
 	});
 	
 	console.log(`Connection from ${socket.remoteAddress} port ${socket.remotePort}`)

@@ -167,6 +167,14 @@ function ParseFlags(array, flags) {
 	}
 }
 
+function CloneArray(arraytoclone) {
+	var result = Array();
+	//Object.assign(result, array);
+	for(var i = 0; i < arraytoclone.length; i++)
+		result.push(arraytoclone[i]);
+	return result;
+}
+
 exports.Compare = Compare;
 exports.Includes = Includes;
 exports.Prefix = Prefix;
@@ -177,3 +185,4 @@ exports.ParseFlags = ParseFlags;
 exports.TrimStart = TrimStart;
 exports.IsName = IsName;
 exports.IsNullOrEmpty = IsNullOrEmpty;
+exports.CloneArray = CloneArray;

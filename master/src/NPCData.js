@@ -17,7 +17,7 @@ class NPCData extends Character {
   		Character.Characters.splice(Character.Characters.indexOf(this), 1);
 	} else {
 		this.Name = template.Name;
-		this.ShortDerscription = template.ShortDerscription;
+		this.ShortDescription = template.ShortDescription;
 		this.LongDescription = template.LongDescription;
 		this.Description = template.Description;
 		this.AddCharacterToRoom(room);
@@ -27,4 +27,5 @@ class NPCData extends Character {
 
 }
 
+NPCData.ItemFunctions = Character.ItemFunctions;
 module.exports = NPCData;

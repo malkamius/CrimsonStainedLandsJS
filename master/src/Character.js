@@ -127,7 +127,7 @@ class Character {
 		if(this.ShortDescription && this.ShortDescription.length > 0)
 			return this.ShortDescription;
 		else
-			return this.name;
+			return this.Name;
 	}
 
 	Display(to) {
@@ -262,6 +262,8 @@ class Character {
 
 
 Character.DoCommands = {};
+Character.ItemFunctions = {};
+Character.CharacterFunctions = {};
 Character.Characters = Characters;
 Character.WearSlots = WearSlots;
 module.exports = Character;

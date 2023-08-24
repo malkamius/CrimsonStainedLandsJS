@@ -2,6 +2,14 @@ const Character = require("./Character");
 const ItemData = require("./ItemData");
 const StringUtility = require("./StringUtility");
 
+/**
+ *
+ *
+ * @param {Character} player
+ * @param {ItemData} item
+ * @param {boolean} [atEnd=false]
+ * @return {*} 
+ */
 function AddInventoryItem(player, item, atEnd = false)
 {
     
@@ -91,6 +99,14 @@ function AddInventoryItem(player, item, atEnd = false)
     }
 }
 
+/**
+ * Attempt to pick up an item, can fail if too many items or too much weight
+ *
+ * @param {Character} player
+ * @param {ItemData} item
+ * @param {ItemData} [container=null]
+ * @return {boolean} 
+ */
 function GetItem(player, item, container = null) {
     if (item.WearFlags.Take)
     {
@@ -134,6 +150,14 @@ function GetItem(player, item, container = null) {
         return false;
 }
 
+/**
+ * Attempt to get an item from the characters inventory, can be a n.item name
+ *
+ * @param {Character} player
+ * @param {string} itemname
+ * @param {number} [count=0]
+ * @return {Array[ItemData, number]} Item and count as array
+ */
 function GetItemInventory(player, itemname, count = 0) {
     var number = StringUtility.NumberArgument(itemname);
     itemname = number[1];
@@ -148,6 +172,14 @@ function GetItemInventory(player, itemname, count = 0) {
     return [null, count];
 }
 
+/**
+ * Attempt to retrieve an item from the equipment of the character, can be a n.name argument
+ *
+ * @param {Character} player
+ * @param {string} itemname
+ * @param {number} [count=0]
+ * @return {Array[ItemData, number, string]} Item, count and slot id as array
+ */
 function GetItemEquipment(player, itemname, count = 0) {
     var number = StringUtility.NumberArgument(itemname);
     itemname = number[1];
@@ -162,6 +194,15 @@ function GetItemEquipment(player, itemname, count = 0) {
     return [null, count, key];
 }
 
+/**
+ *
+ *
+ * @param {Character}} player
+ * @param {Array} list
+ * @param {string} itemname
+ * @param {number} [count=0]
+ * @return {Array} item, count, key in the list 
+ */
 function GetItemList(player, list, itemname, count = 0) {
     var number = StringUtility.NumberArgument(itemname);
     itemname = number[1];
@@ -176,6 +217,13 @@ function GetItemList(player, list, itemname, count = 0) {
     return [null, count, key];
 }
 
+/**
+ *
+ *
+ * @param {Character} player
+ * @param {string} itemname
+ * @return {ItemData} 
+ */
 function GetItemHere(player, itemname) {
     var result = GetItemInventory(player, itemname);
     if(!result[0])
@@ -284,20 +332,40 @@ function DoGet(player, arguments) {
 }
 
 function DoDrop(player, arguments) {
-    var item = GetItemInventory(player, arguments)[0];
-    
-    if(!item)
-        player.send("You couldn't find it.\n\r")
-    else if(item.ExtraFlags.NoDrop) {
-        player.send("You can't drop it.\n\r");
-    }
-    else {
-        player.Inventory.splice(player.Inventory.indexOf(item), 1);
-        item.CarriedBy = null;
-        player.Room.Items.unshift(item);
-        item.Room = player.Room;
-        player.Act("You drop $p.", null, item, null, "ToChar");
-        player.Act("$n drops $p.", null, item, null, "ToRoom");
+    if(StringUtility.Compare(arguments, "all")) {
+        var inventory = StringUtility.CloneArray(player.Inventory);
+        for(key in inventory) {
+            var item = inventory[key];
+            if(!item)
+                player.send("You couldn't find it.\n\r")
+            else if(item.ExtraFlags.NoDrop) {
+                player.send("You can't drop it.\n\r");
+            }
+            else {
+                player.Inventory.splice(player.Inventory.indexOf(item), 1);
+                item.CarriedBy = null;
+                player.Room.Items.unshift(item);
+                item.Room = player.Room;
+                player.Act("You drop $p.", null, item, null, "ToChar");
+                player.Act("$n drops $p.", null, item, null, "ToRoom");
+            }    
+        }
+    } else {
+        var item = GetItemInventory(player, arguments)[0];
+        
+        if(!item)
+            player.send("You couldn't find it.\n\r")
+        else if(item.ExtraFlags.NoDrop) {
+            player.send("You can't drop it.\n\r");
+        }
+        else {
+            player.Inventory.splice(player.Inventory.indexOf(item), 1);
+            item.CarriedBy = null;
+            player.Room.Items.unshift(item);
+            item.Room = player.Room;
+            player.Act("You drop $p.", null, item, null, "ToChar");
+            player.Act("$n drops $p.", null, item, null, "ToRoom");
+        }
     }
 }
 
@@ -328,10 +396,20 @@ function RemoveEquipment(player, item, sendmessage) {
 }
 
 function DoRemove(player, arguments) {
-    var itemandslot = GetItemEquipment(player, arguments);
-    var item = itemandslot[0];
-    var slot = itemandslot[2];
-    RemoveEquipment(player, item, true);
+    if(StringUtility.Compare(arguments, "all")) {
+        for(slotkey in Character.WearSlots) {
+            var item = player.Equipment[slotkey];
+            if(item) {
+                RemoveEquipment(player, item, true);
+            }
+        }
+    }
+    else {
+        var itemandslot = GetItemEquipment(player, arguments);
+        var item = itemandslot[0];
+        var slot = itemandslot[2];
+        RemoveEquipment(player, item, true);
+    }
 }
 
 function WearItem(player, item, sendMessage = true, remove = true)
@@ -384,11 +462,11 @@ function WearItem(player, item, sendMessage = true, remove = true)
         // }
 
         // Check if the item can be dual wielded and the character has the appropriate skill
-        // if (slot.id == WearSlotIDs.DualWield &&
+        if (slot.ID == "DualWield" || //&&
         //     (GetSkillPercentage(SkillSpell.SkillLookup("dual wield")) <= 1 ||
-        //     itemData.extraFlags.ISSET(ExtraFlags.TwoHands) ||
-        //     (wielded != null && wielded.extraFlags.ISSET(ExtraFlags.TwoHands))))
-        //     continue;
+             item.ExtraFlags.TwoHands ||
+             (wielded && wielded.ExtraFlags.TwoHands))
+             continue;
 
         // Check if the item can be worn in the current slot and the slot is empty
         if (item.WearFlags[slot.Flag] && !player.Equipment[slot.ID])
@@ -414,7 +492,7 @@ function WearItem(player, item, sendMessage = true, remove = true)
 
     // Check if a two-handed item requires the removal of an offhand item
     if (!emptySlot && !remove) return false;
-    if (item.ExtraFlags.TwoHands && ((offhand = player.Equipment[Shield]) || (offhand = player.Equipment[Held]) || (offhand = player.Equipment[DualWield])))
+    if (item.ExtraFlags.TwoHands && ((offhand = player.Equipment["Shield"]) || (offhand = player.Equipment["Held"]) || (offhand = player.Equipment["DualWield"])))
     {
         if (!RemoveEquipment(player, offhand, sendMessage))
         {
@@ -503,19 +581,19 @@ function WearItem(player, item, sendMessage = true, remove = true)
 function DoWear(player, arguments) {
     
     if (StringUtility.IsNullOrEmpty(arguments)) {
-        ch.send("Wear what?\n\r");
+        player.send("Wear what?\n\r");
         return;
     } else if (StringUtility.Compare(arguments, "all"))     {
         var woreanything = false;
-        
-        for (var allitem in ch.Inventory) {
-            var item = ch.Inventory[allitem];
+        var inventory = StringUtility.CloneArray(player.Inventory);
+        for (var allitem in inventory) {
+            var item = inventory[allitem];
             if (WearItem(player, item, true, false))
                 woreanything = true;
         }
         
         if (!woreanything)
-            ch.send("You wore nothing.\n\r");
+            player.send("You wore nothing.\n\r");
     }
     else {
         var item = GetItemInventory(player, arguments)[0];
@@ -533,3 +611,11 @@ Character.DoCommands.DoGet = DoGet;
 Character.DoCommands.DoDrop = DoDrop;
 Character.DoCommands.DoRemove = DoRemove;
 Character.DoCommands.DoWear = DoWear;
+
+Character.ItemFunctions.WearItem = WearItem;
+Character.ItemFunctions.AddInventoryItem = AddInventoryItem;
+Character.ItemFunctions.GetItemInventory = GetItemInventory;
+Character.ItemFunctions.GetItemEquipment = GetItemEquipment;
+Character.ItemFunctions.GetItemHere = GetItemHere;
+Character.ItemFunctions.GetItemList = GetItemList;
+Character.ItemFunctions.GetItem = GetItem;

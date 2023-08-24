@@ -1,6 +1,11 @@
 const XmlHelper = require("./XmlHelper");
 const ItemTemplateData = require('./ItemTemplateData');
-
+const StringUtility = require('./StringUtility');
+/**
+ *
+ *
+ * @class ItemData
+ */
 class ItemData {
     VNum = 0;
     Name = "";
@@ -103,6 +108,14 @@ class ItemData {
         this.Name = XmlHelper.GetElementValue(xml, "NAME", this.Name);
         this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription", this.ShortDescription);
         this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription", this.LongDescription);
+        if(xml.WEARFLAGS) {
+            this.WearFlags = {};
+            StringUtility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
+        }
+        if(xml.EXTRAFLAGS) {
+            this.ExtraFlags = {};
+            StringUtility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
+        }
         if(xml.CONTAINS) {
             for(const containsxml of xml.CONTAINS) {
 				if(containsxml.ITEM)
