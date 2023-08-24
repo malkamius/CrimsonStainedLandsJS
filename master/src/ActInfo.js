@@ -63,12 +63,22 @@ function dolook(player, arguments, auto) {
 		var targetch = Character.CharacterFunctions.GetCharacterHere(player, arguments);
 		
 		if(targetch)	{
-			player.Act("You look at $N.", targetch, null, null, "ToChar");
-			player.Act("$n looks at $N.", targetch, null, null, "ToRoomNotVictim");
-			player.Act("$n looks at you.", targetch, null, null, "ToVictim");
+			if(targetch == player) {
+				player.Act("You look at yourself.", targetch, null, null, "ToChar");
+				player.Act("$n looks at $mself.", targetch, null, null, "ToRoomNotVictim");
+				
+				player.Act(StringUtility.IsNullOrEmpty(targetch.Description)? "You see nothing special about yourself." : targetch.Description, targetch);
+				player.Act("You are wearing: ", targetch);
+			}
+			else
+			{
+				player.Act("You look at $N.", targetch, null, null, "ToChar");
+				player.Act("$n looks at $N.", targetch, null, null, "ToRoomNotVictim");
+				player.Act("$n looks at you.", targetch, null, null, "ToVictim");
 
-			player.Act(StringUtility.IsNullOrEmpty(targetch.Description)? "You see nothing special about $N." : targetch.Description, targetch);
-			player.Act("$N is wearing: ", targetch);
+				player.Act(StringUtility.IsNullOrEmpty(targetch.Description)? "You see nothing special about $N." : targetch.Description, targetch);
+				player.Act("$N is wearing: ", targetch);
+			}
 			var anyitems = false;
 			for(var slotkey in Character.WearSlots) {
 				var slot = Character.WearSlots[slotkey];
@@ -148,6 +158,7 @@ function doinventory(player, arguments) {
 }
 
 function GetCharacterList(player, list, arguments, count = 0) {
+	if(StringUtility.Compare(arguments, "self")) return [player, ++count, ""];
 	var numberargs = StringUtility.NumberArgument(arguments);
 	var desiredcount = numberargs[0];
 	arguments = numberargs[1];
@@ -176,10 +187,3 @@ Character.DoCommands.DoInventory = doinventory;
 
 Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
 Character.CharacterFunctions.GetCharacterList = GetCharacterList;
-// module.exports = { 
-					// DoSay: dosay, 
-					// DoQuit: doquit,
-					// DoHelp: dohelp,
-					// DoLook: dolook,
-					// DoExits: doexits
-				// };
