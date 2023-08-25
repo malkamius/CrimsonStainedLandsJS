@@ -10,7 +10,7 @@ class PcRaceData {
     Name = "";
     IsPcRace = true;
 
-    Alignment = Array();
+    Alignments = Array();
     Ethos = Array();
     Parts = {};
     Size = "Medium";
@@ -27,7 +27,7 @@ class PcRaceData {
         
         var alignments = {};
         Utility.ParseFlags(alignments, XmlHelper.GetElementValue(xml, "Alignment"));
-        for(var alignment in alignments) this.Alignment.push(alignment);
+        for(var alignment in alignments) this.Alignments.push(alignment);
 
         var ethosi = {};
         Utility.ParseFlags(ethosi, XmlHelper.GetElementValue(xml, "Ethos"));

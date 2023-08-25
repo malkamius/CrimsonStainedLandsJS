@@ -183,6 +183,16 @@ function CloneArray(arraytoclone) {
 	return result;
 }
 
+function JoinArray(arraytojoin, transform, separator = ", ") {
+	var result = "";
+	for(var key in arraytojoin) {
+		var value = arraytojoin[key];
+		if(transform) value = transform(value);
+		result = result + (result.length > 0? separator : "") + value;
+	}
+	return result;
+}
+
 function Roll(dice) {
 	var result = Math.floor(Math.random() * dice[0]) * Math.floor(Math.random() * dice[1]) + dice[2];
 	return result;
@@ -201,3 +211,4 @@ exports.IsNullOrEmpty = IsNullOrEmpty;
 exports.CloneArray = CloneArray;
 exports.JoinFlags = JoinFlags;
 exports.Roll = Roll;
+exports.JoinArray = JoinArray;

@@ -3,6 +3,7 @@ const fs = require('fs');
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser({ strict: false, trim: false });
 const XmlHelper = require("./XmlHelper");
+const Utility = require("./Utility");
 const PcRaceData = require("./PcRaceData");
 Guilds = Array();
 
@@ -61,7 +62,11 @@ function LoadAllGuilds(callback) {
     });
     callback();
 };
-
+GuildData.Lookup = function(name, strprefix = false) {
+    for(var guild of Guilds)
+        if((strprefix && Utility.Prefix(guild.Name, name)) || Utility.Compare(guild.Name, name))
+            return guild;
+};
 GuildData.LoadAllGuilds = LoadAllGuilds;
 
 module.exports = GuildData;

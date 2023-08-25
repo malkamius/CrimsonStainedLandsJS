@@ -20,22 +20,16 @@ function DataLoaded() {
 	
 	
 }
-function getplayer(socket) {
-	for (const player of Player.Players) {
-		if(player.socket == socket) {
-			return player;
-		}
-	}
-}
+
 
 function HandlePlayerDisconnect(socket) {
-	player = getplayer(socket)
-	console.log(`${player.Name} disconnected`)
+	player = Player.GetPlayer(socket);
+	console.log(`${player.Name} disconnected`);
 
 
 	if(player.state == "Playing")
 	{
-		player.Act("The form of $n fades away.", null, null, null, "ToRoom")	
+		player.Act("The form of $n fades away.", null, null, null, "ToRoom");
 	}
 
 	player.RemoveCharacterFromRoom();
@@ -60,7 +54,7 @@ function HandleNewSocket(socket) {
 
 
 	socket.on("data", (buffer) => {
-		player = getplayer(socket)
+		player = Player.GetPlayer(socket)
 		const message = buffer.toString("ascii").replace("\r", "");
 		player.input = player.input + message;
 	});

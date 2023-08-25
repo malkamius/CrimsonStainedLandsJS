@@ -1,4 +1,10 @@
 {
+  "main": "src/main.js",	
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/malkamius/CrimsonStainedLandsJS.git"
+  },
+
   "dependencies": {
     "xml2js": "^0.6.2",
     "xmlbuilder": "^15.1.1"
