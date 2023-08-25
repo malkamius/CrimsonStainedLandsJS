@@ -3,6 +3,7 @@ const AreaData = require("./AreaData");
 const Character = require("./Character");
 const Utitlity = require("./Utility");
 const Settings = require("./Settings");
+const FileSystem = require("fs");
 
 function dosay(player, arguments) {
 	player.Act("\\y$n says '{0}\\x\\y'\\x\n", null, null, null, "ToRoom", [arguments]);
@@ -289,6 +290,27 @@ function DoSkills(ch, arguments) {
 		ch.send(text + "\n\r");
 	}
 }
+
+function DoDelete(character, arguments) {
+	if(!character.Flags["ConfirmDelete"]) {
+		character.Flags["ConfirmDelete"] = true;
+		character.send("Type `delete yes` to delete your character.\n\rThis process is irreversible.\n\r")
+	} else if(Utility.Compare(arguments, "yes")) {
+		character.Act("The form of $n explodes!", null, null, null, "ToRoom");
+		character.sendnow("Alas, all good things must come to an end.\n\r");
+		character.RemoveCharacterFromRoom();
+		character.socket.destroy();
+		Player.Players.splice(Player.Players.indexOf(character), 1)
+		console.log(`${character.Name} disconnected`)
+
+		path = Settings.PlayerDataPath + `/${character.Name}.xml`;
+		FileSystem.unlinkSync(path);
+	} else {
+		character.send("Character deletion cancelled.\n\r");
+		delete character.Flags["ConfirmDelete"];
+	}
+}
+
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
@@ -299,6 +321,7 @@ Character.DoCommands.DoInventory = doinventory;
 Character.DoCommands.DoSave = DoSave;
 Character.DoCommands.DoWho = DoWho;
 Character.DoCommands.DoSkills = DoSkills;
+Character.DoCommands.DoDelete = DoDelete;
 
 Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
 Character.CharacterFunctions.GetCharacterList = GetCharacterList;

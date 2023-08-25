@@ -85,6 +85,8 @@ class SkillSpell {
         this.SpellFuncType = XmlHelper.GetAttributeValue(xml, "SpellFuncType");
         this.SpellFuncName = XmlHelper.GetAttributeValue(xml, "SpellFuncName");
         this.Lyrics = XmlHelper.GetElementValue(xml, "Lyrics");
+        this.Prerequisites = XmlHelper.GetAttributeValue(xml, "Prerequisites");
+        this.PrerequisitePercentage = XmlHelper.GetAttributeValueInt(xml, "PrerequisitePercentage");
         Utility.ParseFlags(this.SkillTypes, XmlHelper.GetAttributeValue(xml, "SkillTypes"));
         if(xml.SKILLLEVEL) {
             for(const skilllevel of xml.SKILLLEVEL) {
@@ -95,13 +97,9 @@ class SkillSpell {
                 var prerequisitepercentage = XmlHelper.GetAttributeValueInt(skilllevel, "PrerequisitePercentage");
                 var percentage = parseInt(prerequisitepercentage);
 
-                while(!Utility.IsNullOrEmpty(prerequisiteskills)) {
-                    var args = Utility.OneArgument(prerequisiteskills);
-                    prerequisiteskills = args[1];
-                    args[0] = args[0].toLowerCase();
-                    this.GuildPreRequisiteSkill[args[0]] = args[0];
-                    this.GuildPreRequisiteSkillPercentage[args[0]] = percentage;
-                }
+                this.GuildPreRequisiteSkill[guild] = prerequisiteskills;
+                this.GuildPreRequisiteSkillPercentage[guild] = percentage;
+                
             }
         }
     }
@@ -144,36 +142,39 @@ class SkillSpell {
     {
         if (ch.IsImmortal() || ch.IsNPC) return true;
 
-        prereqs = this.Prerequisites;
-        prereq = "";
+        var prereqs = this.Prerequisites;
+        var prereq = "";
+        //if(this.Name == "flurry") console.log(`${prereqs} ${this.PrerequisitePercentage}`);
         while (prereqs.length > 0)
         {
             var args = Utility.OneArgument(prereqs);
-            prereqlist = args[0];
+            prereq = args[0];
             prereqs = args[1];
             var skill = SkillSpell.GetSkill(prereq);
             var learned;
-            if ((learned = ch.Learned[skill]) && learned.Percent >= this.PrerequisitePercentage)
+            if ((learned = ch.Learned[skill.Name]) && learned.Percent >= this.PrerequisitePercentage)
                 continue;
             else
             {
                 return false;
             }
         }
-
-        if (ch.Guild && this.GuildPreRequisiteSkill[ch.Guild.Name] && this.GuildPreRequisiteSkillPercentage[ch.Guild.Name] && !!Utility.IsNullOrEmpty(GuildPreRequisiteSkill[ch.Guild.Name]))
+       
+        if (ch.Guild && this.GuildPreRequisiteSkill[ch.Guild.Name] && 
+            this.GuildPreRequisiteSkillPercentage[ch.Guild.Name] && 
+            !Utility.IsNullOrEmpty(this.GuildPreRequisiteSkill[ch.Guild.Name]))
         {
             prereqs = this.GuildPreRequisiteSkill[ch.Guild.Name];
-
+            
             if (prereqs.includes("|"))
             {
                 var prereqlist = prereqs.split('|');
-                failed = 0;
-                foreach (list in prereqlist)
+                var failed = 0;
+                for (var list of prereqlist)
                 {
                     prereqs = list;
-                    failthis = false;
-                    while (prereqs.Length > 0)
+                    var failthis = false;
+                    while (prereqs.length > 0)
                     {
                         var args = Utility.OneArgument(prereqs);
                         prereq = args[0];
@@ -191,6 +192,7 @@ class SkillSpell {
                     if (failthis) failed++;
 
                 }
+                
                 if (failed == prereqlist.length) return false;
             }
             else
@@ -198,9 +200,10 @@ class SkillSpell {
                 while (prereqs.length > 0)
                 {
                     var args = Utility.OneArgument(prereqs);
-                    prereqlist = args[0];
+                    var skill = args[0];
                     prereqs = args[1];
                     var learned;
+                    
                     if ((learned = ch.Learned[skill]) && learned.Percent >= this.GuildPreRequisiteSkillPercentage[ch.Guild.Name])
                         continue;
                     else
@@ -210,7 +213,7 @@ class SkillSpell {
                 }
             }
         }
-
+        
         return true;
     }
 }

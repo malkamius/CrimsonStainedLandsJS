@@ -43,7 +43,7 @@ class Character {
 	Affects = Array();
 	Learned = {};
 	Flags = {};
-	Level = 60;
+	Level = 1;
 	WeaponDamageMessage = null;
 	Alignment = "neutral";
 	Ethos = "neutral";
@@ -509,7 +509,7 @@ class Character {
 			return 0;
 		else if (this.IsImmortal())
 			return 100;
-		else if ((IsNPC || this.Level < 60) &&  this.GetLevelSkillLearnedAt(skill) == 60)
+		else if ((this.IsNPC || this.Level < 60) &&  this.GetLevelSkillLearnedAt(skill) == 60)
 			return 0;
 		else if (this.Learned[skill] && this.Level >= this.GetLevelSkillLearnedAt(skill) && skillentry.PrerequisitesMet(this))
 			return this.Learned[skill].Percent;

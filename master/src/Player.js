@@ -14,6 +14,7 @@ const PcRaceData = require("./PcRaceData");
 const GuildData = require("./GuildData");
 const AffectData = require("./AffectData");
 const Settings = require("./Settings");
+const SkillSpell = require("./SkillSpell");
 
 const parser = new xml2js.Parser({ strict: false, trim: false });
 
@@ -125,6 +126,7 @@ class Player extends Character {
 		
 		if(xml.LEARNED) {
 			for(var learned of xml.LEARNED) {
+				if(learned.SKILLSPELL)
 				for(var sp of learned.SKILLSPELL) {
 					var name = XmlHelper.GetAttributeValue(sp, "Name");
 					var percent = XmlHelper.GetAttributeValueInt(sp, "Value");
@@ -180,90 +182,90 @@ class Player extends Character {
 	}
   } // end LoadPlayerData
 
-  Save(path) {
-	if(!path) path = `data/players/${player.Name}.xml`;
+	Save(path) {
+		if(!path) path = Settings.PlayerDataPath + `/${player.Name}.xml`;
 
-	var builder = require('xmlbuilder');
-	var xmlelement = builder.create("PlayerData");
-	
-	xmlelement.ele("Name", this.Name);
-	xmlelement.ele("Description", this.Description);
-	xmlelement.ele("ShortDescription", this.ShortDescription);
-	xmlelement.ele("LongDescription", this.LongDescription);
-	xmlelement.ele("Title", this.Title);
-	xmlelement.ele("ExtendedTitle", this.ExtendedTitle);
-	xmlelement.ele("Room", parseInt((this.Room? this.Room.VNum : 3700)));
-	xmlelement.ele("Race", (this.Race? this.Race.Name : "human"));
-	xmlelement.ele("Guild", (this.Guild? this.Guild.Name : "warrior"));
-	xmlelement.ele("Alignment", this.Alignment);
-	xmlelement.ele("Ethos", this.Ethos);
-	xmlelement.ele("Sex", this.Sex);
-	xmlelement.ele("Level", this.Level);
-	xmlelement.ele("HitPoints", this.HitPoints);
-	xmlelement.ele("MaxHitPoints", this.MaxHitPoints);
-	xmlelement.ele("ManaPoints", this.ManaPoints);
-	xmlelement.ele("MaxManaPoints", this.MaxManaPoints);
-	xmlelement.ele("MovementPoints", this.MovementPoints);
-	xmlelement.ele("MaxMovementPoints", this.MaxMovementPoints);
+		var builder = require('xmlbuilder');
+		var xmlelement = builder.create("PlayerData");
+		
+		xmlelement.ele("Name", this.Name);
+		xmlelement.ele("Description", this.Description);
+		xmlelement.ele("ShortDescription", this.ShortDescription);
+		xmlelement.ele("LongDescription", this.LongDescription);
+		xmlelement.ele("Title", this.Title);
+		xmlelement.ele("ExtendedTitle", this.ExtendedTitle);
+		xmlelement.ele("Room", parseInt((this.Room? this.Room.VNum : 3700)));
+		xmlelement.ele("Race", (this.Race? this.Race.Name : "human"));
+		xmlelement.ele("Guild", (this.Guild? this.Guild.Name : "warrior"));
+		xmlelement.ele("Alignment", this.Alignment);
+		xmlelement.ele("Ethos", this.Ethos);
+		xmlelement.ele("Sex", this.Sex);
+		xmlelement.ele("Level", this.Level);
+		xmlelement.ele("HitPoints", this.HitPoints);
+		xmlelement.ele("MaxHitPoints", this.MaxHitPoints);
+		xmlelement.ele("ManaPoints", this.ManaPoints);
+		xmlelement.ele("MaxManaPoints", this.MaxManaPoints);
+		xmlelement.ele("MovementPoints", this.MovementPoints);
+		xmlelement.ele("MaxMovementPoints", this.MaxMovementPoints);
 
-	var stats = xmlelement.ele("PermanentStats");
-	stats.ele("Strength", this.PermanentStats[0]);
-	stats.ele("Wisdom", this.PermanentStats[1]);
-	stats.ele("Intelligence", this.PermanentStats[2]);
-	stats.ele("Dexterity", this.PermanentStats[3]);
-	stats.ele("Constitution", this.PermanentStats[4]);
-	stats.ele("Charisma", this.PermanentStats[5]);
-	stats = xmlelement.ele("ModifiedStats");
-	stats.ele("Strength", this.ModifiedStats[0]);
-	stats.ele("Wisdom", this.ModifiedStats[1]);
-	stats.ele("Intelligence", this.ModifiedStats[2]);
-	stats.ele("Dexterity", this.ModifiedStats[3]);
-	stats.ele("Constitution", this.ModifiedStats[4]);
-	stats.ele("Charisma", this.ModifiedStats[5]);
+		var stats = xmlelement.ele("PermanentStats");
+		stats.ele("Strength", this.PermanentStats[0]);
+		stats.ele("Wisdom", this.PermanentStats[1]);
+		stats.ele("Intelligence", this.PermanentStats[2]);
+		stats.ele("Dexterity", this.PermanentStats[3]);
+		stats.ele("Constitution", this.PermanentStats[4]);
+		stats.ele("Charisma", this.PermanentStats[5]);
+		stats = xmlelement.ele("ModifiedStats");
+		stats.ele("Strength", this.ModifiedStats[0]);
+		stats.ele("Wisdom", this.ModifiedStats[1]);
+		stats.ele("Intelligence", this.ModifiedStats[2]);
+		stats.ele("Dexterity", this.ModifiedStats[3]);
+		stats.ele("Constitution", this.ModifiedStats[4]);
+		stats.ele("Charisma", this.ModifiedStats[5]);
 
-	var learnedele = xmlelement.ele("Learned");
-	for(var skillname in this.Learned) {
-		var learned = this.Learned[skillname];
-		var skillele = learnedele.ele("SkillSpell");
-		skillele.attribute("Name", learned.Name);
-		skillele.attribute("Value", learned.Percent);
-		skillele.attribute("Level", learned.Level);
-		skillele.attribute("LearnedAs", Utility.JoinFlags(learned.LearnedAs));
-	}
-	xmlelement.ele("ArmorBash", this.ArmorBash);
-	xmlelement.ele("ArmorSlash", this.ArmorSlash);
-	xmlelement.ele("ArmorPierce", this.ArmorPierce);
-	xmlelement.ele("ArmorExotic", this.ArmorExotic);
-	xmlelement.ele("Xp", this.Xp);
-	xmlelement.ele("XpTotal", this.XpTotal);
-	xmlelement.ele("Flags", Utility.JoinFlags(this.Flags));
-
-	if(this.Affects && this.Affects.length > 0) {
-		var affectselement = itemele.ele("Affects");
-		for(var affect of this.Affects) {
-			affect.Element(affectselement);
+		var learnedele = xmlelement.ele("Learned");
+		for(var skillname in this.Learned) {
+			var learned = this.Learned[skillname];
+			var skillele = learnedele.ele("SkillSpell");
+			skillele.attribute("Name", learned.Name);
+			skillele.attribute("Value", learned.Percent);
+			skillele.attribute("Level", learned.Level);
+			skillele.attribute("LearnedAs", Utility.JoinFlags(learned.LearnedAs));
 		}
-	}
+		xmlelement.ele("ArmorBash", this.ArmorBash);
+		xmlelement.ele("ArmorSlash", this.ArmorSlash);
+		xmlelement.ele("ArmorPierce", this.ArmorPierce);
+		xmlelement.ele("ArmorExotic", this.ArmorExotic);
+		xmlelement.ele("Xp", this.Xp);
+		xmlelement.ele("XpTotal", this.XpTotal);
+		xmlelement.ele("Flags", Utility.JoinFlags(this.Flags));
 
-	var inventory = xmlelement.ele("Inventory")
-	for(var i = 0; i < this.Inventory.length; i++) {
-		this.Inventory[i].Element(inventory);
-	}
-	
-	var equipment = xmlelement.ele("Equipment")
-	for(var key in this.Equipment) {
-		if(this.Equipment[key]) {
-			var slot = equipment.ele("Slot").attribute("SlotID", key);
-			this.Equipment[key].Element(slot);
+		if(this.Affects && this.Affects.length > 0) {
+			var affectselement = itemele.ele("Affects");
+			for(var affect of this.Affects) {
+				affect.Element(affectselement);
+			}
 		}
+
+		var inventory = xmlelement.ele("Inventory")
+		for(var i = 0; i < this.Inventory.length; i++) {
+			this.Inventory[i].Element(inventory);
+		}
+		
+		var equipment = xmlelement.ele("Equipment")
+		for(var key in this.Equipment) {
+			if(this.Equipment[key]) {
+				var slot = equipment.ele("Slot").attribute("SlotID", key);
+				this.Equipment[key].Element(slot);
+			}
+		}
+		xmlelement.ele("Prompt", this.Prompt);
+
+		xmlelement.ele("Password", this.Password);
+
+		var xml = xmlelement.end({ pretty: true});
+		fs.writeFileSync(path, xml);
 	}
-	xmlelement.ele("Prompt", this.Prompt);
-
-	xmlelement.ele("Password", this.Password);
-
-  	var xml = xmlelement.end({ pretty: true});
-	fs.writeFileSync(path, xml);
-  }
 
 
 	HandleOutput() {
@@ -479,11 +481,37 @@ class Player extends Character {
 				this.Guild.StartingWeapon == 0) {
 					this.SetStatus("GetDefaultWeapon");
 				} else {
+					var weapons =  ["sword", "axe", "spear", "staff", "dagger", "mace", "whip", "flail", "polearm"];
+                	var weaponVNums =[ 40000, 40001, 40004, 40005, 40002, 40003, 40006, 40007, 40020 ];
+					var index = weaponVNums.indexOf(this.Guild.StartingWeapon);
+					if(index >= 0) {
+						this.Learned[weapons[index]] = {Name: weapons[index], Percent: 75, Level: 1, LearnedAs: {Skill: true}};
+					}
 					var weapon = new ItemData(this.Guild.StartingWeapon);
 					weapon.CarriedBy = this;
 					this.Equipment.Wield = weapon;
 					this.SetStatus("GetAlignment");
 				}
+				this.Learned["recall"] = {Name: "recall", Percent: 100, Level: 1, LearnedAs: {Skill: true}};
+
+				for(var skillname in SkillSpell.Skills)
+				{
+					var skill = SkillSpell.Skills[skillname];
+					var percent = this.GetSkillPercentage(skill.Name);
+					var lvl = this.GetLevelSkillLearnedAt(skill.Name);
+					var learnastype = {Skill: true};
+					if(skill.SkillTypes["Skill"]) learnastype = {Skill: true};
+					else if(skill.SkillTypes["Supplication"] && this.Guild.CastType == "Commune") learnastype = {Supplication: true};
+					else if(skill.SkillTypes["Spell"] && this.Guild.CastType == "Cast") learnastype = {Spell: true};
+					else if(skill.SkillTypes["Song"] && this.Guild.CastType == "Sing") learnastype = {Song: true};
+
+					if (lvl < 52 && (!this.Learned[skill.Name] || this.Learned[skill.Name].Percent <= 1)) 
+					{
+						this.Learned[skill.Name] = {Name: skill.Name, Percent: 1, Level: lvl, LearnedAs: learnastype};
+					}
+					
+				}
+				//console.dir(this.Learned);
 				break;
 			case "GetDefaultWeapon":
                 var weapons =  ["sword", "axe", "spear", "staff", "dagger", "mace", "whip", "flail", "polearm"];
@@ -494,6 +522,7 @@ class Player extends Character {
 						var weapon = new ItemData(weaponVNums[i]);
 						weapon.CarriedBy = this;
 						this.Equipment.Wield = weapon;
+						this.Learned[weapons[i]] = {Name: weapons[i], Percent: 75, Level: 1, LearnedAs: {Skill: true}};
 						// TODO Set skill to 75
 						this.SetStatus("GetAlignment");
 						return true;

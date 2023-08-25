@@ -21,7 +21,8 @@ Commands = {
 		"save": Character.DoCommands.DoSave,
 		"who": Character.DoCommands.DoWho,
 		"skills": Character.DoCommands.DoSkills,
-		"kill": Character.Combat.DoKill
+		"kill": Character.Combat.DoKill,
+		"delete": Character.DoCommands.DoDelete
 	};
 
 module.exports = Commands;

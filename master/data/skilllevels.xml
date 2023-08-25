@@ -22,7 +22,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellMendWounds"
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="1"
@@ -38,7 +38,7 @@
 	SpellFuncType="Magic"
     SpellFuncName="SpellSate"
     AutoCast="true"
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="4"
@@ -54,7 +54,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellQuench"	
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="9"
@@ -69,7 +69,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellAegis"	
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="10"
@@ -85,7 +85,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellCureDeafness"		
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="12"
@@ -100,7 +100,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellGate"	
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="11"
@@ -116,7 +116,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellHaven"	
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="11"
@@ -132,7 +132,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellCalm"		
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="16"
@@ -147,7 +147,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellRestoration"		
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="19"
@@ -162,7 +162,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellSpiritShepherd"	
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="22"
@@ -176,7 +176,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellPrayer"		
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="23"
@@ -190,7 +190,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellCleanse"		
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="25"
@@ -205,7 +205,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellTurnUndead"		
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="28"
@@ -222,7 +222,7 @@
     SpellFuncName="SpellHealingSleep"
     EndFuncType="Magic"
     EndFuncName="EndHealingSleep"
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="31"
@@ -237,7 +237,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellGroupTeleport"
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="33"
@@ -252,7 +252,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellMassHealing"	
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="35"
@@ -267,7 +267,7 @@
     AutoCast="true"
 	SpellFuncType="Magic"
     SpellFuncName="SpellRejuvenate"	
-    SkillTypes="spell commune">
+    SkillTypes="spell supplication">
     <SkillLevel
       Guild="healer"
       Level="43"
@@ -520,7 +520,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellArmor"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="6"
@@ -618,7 +618,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellBless"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="10"
@@ -636,7 +636,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellCreateBread"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="5"
@@ -750,7 +750,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellWordOfRecall"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="25"
@@ -776,7 +776,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellDetectInvis"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="10"
@@ -803,7 +803,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellInfravision"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="9"
@@ -821,7 +821,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellInvis"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="4"
@@ -840,7 +840,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellBlindness"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="10"
@@ -862,7 +862,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellRemoveTaint"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="29"
@@ -1430,7 +1430,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellWrath"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="paladin"
       Level="21"
@@ -1445,7 +1445,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellHolyWrath"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="paladin"
       Level="30"
@@ -1461,7 +1461,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellFlamestrike"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="paladin"
       Level="24"
@@ -1490,7 +1490,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellPassDoor"
-    SkillTypes="Spell Commune InForm">
+    SkillTypes="Spell supplication InForm">
     <SkillLevel
       Guild="mage"
       Level="24"
@@ -1551,7 +1551,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellSummon"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="20"
@@ -1565,7 +1565,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellTeleport"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="13"
@@ -1945,7 +1945,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellShield"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="25"
@@ -1964,7 +1964,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellWaterShield"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="38"
@@ -1981,7 +1981,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellEarthShield"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="38"
@@ -1998,7 +1998,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellAirShield"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="38"
@@ -2015,7 +2015,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellFireShield"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="38"
@@ -2032,7 +2032,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellLightningShield"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="38"
@@ -2049,7 +2049,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellFrostShield"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="38"
@@ -2065,7 +2065,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellDetectMagic"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="2"
@@ -2084,7 +2084,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellDispelMagic"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="19"
@@ -2102,7 +2102,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellCureDisease"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="27"
@@ -2121,7 +2121,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellStoneskin"
-    SkillTypes="Spell Commune InForm">
+    SkillTypes="Spell supplication InForm">
     <SkillLevel
       Guild="shapeshifter"
       Level="30"
@@ -2242,7 +2242,7 @@
     SpellFuncName="SpellPlague"
 	TickFuncType="Magic"
 	TickFuncName="AffectPlagueTick"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="30"
@@ -2294,7 +2294,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellIdentify"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="10"
@@ -2346,7 +2346,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellLocateObject"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="15"
@@ -2386,7 +2386,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellBlessWeapon"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="12"
@@ -2402,7 +2402,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellHeal"
     AutoCastScript="ch =&gt; ch.HitPoints &lt; ch.MaxHitPoints"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="29"
@@ -2422,7 +2422,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellCureCritical"
     AutoCastScript="ch =&gt; ch.HitPoints &lt; ch.MaxHitPoints"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="22"
@@ -2438,7 +2438,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellCureSerious"
     AutoCastScript="ch =&gt; ch.HitPoints &lt; ch.MaxHitPoints"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="15"
@@ -2454,7 +2454,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellCureLight"
     AutoCastScript="ch =&gt; ch.HitPoints &lt; ch.MaxHitPoints"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="4"
@@ -2469,7 +2469,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellRemoveCurse"
     AutoCastScript="c =&gt; c.IsAffected(CrimsonStainedLands.AffectFlags.Curse)"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="13"
@@ -2488,7 +2488,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellSanctuary"
     AutoCastScript="c =&gt; c.IsAffected(CrimsonStainedLands.AffectFlags.Sanctuary)"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="paladin"
       Level="18"
@@ -2507,7 +2507,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellProtection"
     AutoCastScript="c =&gt; !c.IsAffected(CrimsonStainedLands.AffectFlags.ProtectGood)"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="paladin"
       Level="11"
@@ -2523,7 +2523,7 @@
     MinmumMana="20"
     WaitTime="4"
     AutoCast="true"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
   </SkillSpell>
   <SkillSpell
     Name="protection good"
@@ -2531,7 +2531,7 @@
     MinmumMana="20"
     WaitTime="4"
     AutoCast="true"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
   </SkillSpell>   
   <SkillSpell
     Name="cure blindness"
@@ -2543,7 +2543,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellCureBlindness"
     AutoCastScript="c =&gt; c.IsAffected(CrimsonStainedLands.AffectFlags.Blind)"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="healer"
       Level="7"
@@ -2562,7 +2562,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellCurePoison"
     AutoCastScript="c =&gt; c.IsAffected(CrimsonStainedLands.AffectFlags.Poison)"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="19"
@@ -2608,7 +2608,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellFly"
     AutoCastScript="c =&gt; !c.IsAffected(CrimsonStainedLands.AffectFlags.Flying)"
-    SkillTypes="Spell Commune InForm">
+    SkillTypes="Spell supplication InForm">
     <SkillLevel
       Guild="mage"
       Level="15"
@@ -2640,7 +2640,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellCurse"
     AutoCastScript="c =&gt; !c.IsAffected(CrimsonStainedLands.AffectFlags.Curse)"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="14"
@@ -2656,7 +2656,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellWeaken"
     AutoCastScript="c =&gt; !c.IsAffected(CrimsonStainedLands.AffectFlags.Weaken)"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="28"
@@ -2672,7 +2672,7 @@
     SpellFuncType="Magic"
     SpellFuncName="SpellFrenzy"
     AutoCastScript="c =&gt; !c.IsAffected(CrimsonStainedLands.AffectFlags.Berserk)"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="32"
@@ -2689,7 +2689,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellCreateFood"
-    SkillTypes="Spell Commune" />
+    SkillTypes="Spell supplication" />
   <SkillSpell
     Name="create spring"
     MinmumMana="20"
@@ -2697,7 +2697,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellCreateSpring"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="11"
@@ -2717,7 +2717,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellCreateWater"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="6"
@@ -2738,7 +2738,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellFaerieFog"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="18"
@@ -2761,7 +2761,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellFaerieFire"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="3"
@@ -2785,7 +2785,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellHarm"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="5"
@@ -2917,7 +2917,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellKnowAlignment"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="5"
@@ -2936,7 +2936,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellRefresh"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="15"
@@ -2954,7 +2954,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellSleep"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="35"
@@ -2970,7 +2970,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellCauseLight"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
   </SkillSpell>
   <SkillSpell
     Name="cause serious"
@@ -2982,7 +2982,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellCauseSerious"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
   </SkillSpell>
   <SkillSpell
     Name="cause critical"
@@ -2994,7 +2994,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellCauseCritical"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
   </SkillSpell>
   <SkillSpell
     Name="cancellation"
@@ -3004,7 +3004,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellCancellation"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="shapeshifter"
       Level="18"
@@ -3023,7 +3023,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellSlow"
-    SkillTypes="Spell Commune InForm">
+    SkillTypes="Spell supplication InForm">
     <SkillLevel
       Guild="mage"
       Level="18"
@@ -3042,7 +3042,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellHaste"
-    SkillTypes="Spell Commune InForm">
+    SkillTypes="Spell supplication InForm">
     <SkillLevel
       Guild="mage"
       Level="19"
@@ -3120,7 +3120,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellProtectiveShield"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="20"
@@ -3143,7 +3143,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellChangeSex"
-    SkillTypes="Spell Commune" />
+    SkillTypes="Spell supplication" />
   <SkillSpell
     Name="energy drain"
     TargetType="targetCharOffensive"
@@ -3154,7 +3154,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellEnergyDrain"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="40"
@@ -3169,7 +3169,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellFireBreath"
-    SkillTypes="Spell Commune" />
+    SkillTypes="Spell supplication" />
   <SkillSpell
     Name="fire breath"
     MinimumPosition="Fighting"
@@ -3179,7 +3179,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellFireBreath"
-    SkillTypes="Spell Commune" />
+    SkillTypes="Spell supplication" />
   <SkillSpell
     Name="acid breath"
     MinimumPosition="Fighting"
@@ -3189,7 +3189,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellAcidBreath"
-    SkillTypes="Spell Commune" />
+    SkillTypes="Spell supplication" />
   <SkillSpell
     Name="lightning breath"
     MinimumPosition="Fighting"
@@ -3199,7 +3199,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellLightningBreath"
-    SkillTypes="Spell Commune" />
+    SkillTypes="Spell supplication" />
   <SkillSpell
     Name="earthquake"
     MinimumPosition="Fighting"
@@ -3209,7 +3209,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellEarthquake"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="1"
@@ -3225,7 +3225,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellSheenOfStone"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="5"
@@ -3243,7 +3243,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellWindWall"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="16"
@@ -3261,7 +3261,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellWallOfFire"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="12"
@@ -3279,7 +3279,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellIcicle"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="13"
@@ -3297,7 +3297,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellIceshards"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="mage"
       Level="22"
@@ -3313,7 +3313,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellDetectPoison"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="paladin"
       Level="35"
@@ -3327,7 +3327,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellSpiderhands"
-    SkillTypes="Spell Commune">
+    SkillTypes="Spell supplication">
     <SkillLevel
       Guild="healer"
       Level="23"
@@ -3389,7 +3389,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellSealOfRighteousness"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="paladin"
       Level="16"
@@ -3404,7 +3404,7 @@
     AutoCast="true"
     SpellFuncType="Magic"
     SpellFuncName="SpellSealOfLight"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="paladin"
       Level="8"
@@ -3419,7 +3419,7 @@
     AutoCast="false"
     SpellFuncType="Magic"
     SpellFuncName="SpellSealOfWisdom"
-    SkillTypes="Commune">
+    SkillTypes="supplication">
     <SkillLevel
       Guild="paladin"
       Level="23"
