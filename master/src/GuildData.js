@@ -40,7 +40,7 @@ class GuildData {
             this.Alignments.push(alignment);
         this.GuildGroup = XmlHelper.GetAttributeValue(xml, "GuildGroup");
         this.GuildBasicsGroup = XmlHelper.GetAttributeValue(xml, "GuildBasicsGroup");
-        this.StartingWeapon = XmlHelper.GetAttributeValue(xml, "StartingWeapon");
+        this.StartingWeapon = XmlHelper.GetAttributeValueInt(xml, "StartingWeapon", 0);
         this.HitpointGain = XmlHelper.GetAttributeValue(xml, "HitpointGain");
         this.HitpointGainMax = XmlHelper.GetAttributeValue(xml, "HitpointGainMax");
         this.CastType = XmlHelper.GetAttributeValue(xml, "CastType");

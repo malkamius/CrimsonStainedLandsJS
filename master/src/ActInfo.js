@@ -4,13 +4,13 @@ const Character = require("./Character");
 const Utitlity = require("./Utility");
 
 function dosay(player, arguments) {
-	player.Act("\\y$n" + ` says '${arguments}'\\x\n`, null, null, null, "ToRoom");
+	player.Act("\\y$n says '{0}\\x\\y'\\x\n", null, null, null, "ToRoom", [arguments]);
 	// for (const otherplayer of Player.Players) {
 	// 	if (otherplayer.Name !== null && otherplayer != player) {
 	// 	  player.Act("\\y$n" + ` says '${arguments}'\\x\n`, otherplayer, null, null, "ToVictim");
 	// 	} 
 	// }
-	player.send(`\\yYou say '${arguments}'\\x\n`);
+	player.send("\\yYou say '{0}\\x\\y'\\x\n", [arguments]);
 }
 
 function doquit(player, arguments) {

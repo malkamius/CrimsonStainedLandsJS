@@ -43,27 +43,28 @@ class Player extends Character {
 	this.output = "";
 	this.status = "GetName";
 	this.SittingAtPrompt = false;
-	this.send = function(data) {
-		data = data.replace("\r", "").replace("\n", "\n\r");
-		this.output = this.output + Color.ColorString(data, false, false);
-	};
 	
-	this.sendnow = function(data) {
-		data = data.replace("\r", "").replace("\n", "\n\r");
-		this.socket.write(Color.ColorString(data, false, false));
-	};
 	
 	Players.push(this);
   }
 
-  Load(path) {
-	var player = this;
-	var data =fs.readFileSync(path, {encoding: "ascii"});
+  	send(data, params = []) {
+		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
+		this.output = this.output + Color.ColorString(data, !this.Flags.Color, false);
+	}
+  	
+	sendnow = function(data, params = []) {
+		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
+		this.socket.write(Color.ColorString(data, false, false));
+	};
+	Load(path) {
+		var player = this;
+		var data =fs.readFileSync(path, {encoding: "ascii"});
 
-	parser.parseString(data, function(err, xml) {
-		player.LoadPlayerData(xml.PLAYERDATA);
-	});
-  }
+		parser.parseString(data, function(err, xml) {
+			player.LoadPlayerData(xml.PLAYERDATA);
+		});
+  	}
 
   LoadPlayerData(xml) {
 	if(xml)	{
@@ -376,14 +377,18 @@ class Player extends Character {
 
 				if(!this.Guild)
 					this.SetStatus("GetGuild");
-				else if(this.Guild.StartingWeapon == "0" || this.Guild.StartingWeapon == 0) {
+				else if(Utility.IsNullOrEmpty(this.Guild.StartingWeapon) ||
+				this.Guild.StartingWeapon == "0" || 
+				this.Guild.StartingWeapon == 0) {
 					this.SetStatus("GetDefaultWeapon");
 				} else {
+					var weapon = new ItemData(this.Guild.StartingWeapon);
+					weapon.CarriedBy = this;
+					this.Equipment.Wield = weapon;
 					this.SetStatus("GetAlignment");
 				}
 				break;
 			case "GetDefaultWeapon":
-				var index;
                 var weapons =  ["sword", "axe", "spear", "staff", "dagger", "mace", "whip", "flail", "polearm"];
                 var weaponVNums =[ 40000, 40001, 40004, 40005, 40002, 40003, 40006, 40007, 40020 ];
 
@@ -394,7 +399,7 @@ class Player extends Character {
 						this.Equipment.Wield = weapon;
 						// TODO Set skill to 75
 						this.SetStatus("GetAlignment");
-						break;
+						return true;
 					}
 				}
 
@@ -518,6 +523,12 @@ class Player extends Character {
 					
 				}
 				this.send("What is your guild? (" + guilds + ") ");
+				break;
+			case "GetDefaultWeapon":
+				var weapons =  ["sword", "axe", "spear", "staff", "dagger", "mace", "whip", "flail", "polearm"];
+                
+				this.send("Choose a weapon to start with: (" + Utility.JoinArray(weapons) + ") ");
+	
 				break;
 			case "GetAlignment":
 				if(this.PcRace.Alignments.length == 1) {

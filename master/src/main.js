@@ -8,6 +8,7 @@ const Commands = require("./Commands");
 const fs = require('fs');
 const crypto = require('crypto');
 const Data = require('./Data');
+const Color = require("./Color");
 
 startListening(3000); 
 

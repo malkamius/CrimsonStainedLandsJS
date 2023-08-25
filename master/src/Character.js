@@ -1,5 +1,5 @@
 XmlHelper = require("./XmlHelper");
-
+XmlHelper = require("./AffectData");
 Characters = Array();
 
 WearSlots = { 
@@ -145,7 +145,7 @@ class Character {
 		return `<${this.HitPoints}/${this.MaxHitPoints}hp ${this.ManaPoints}/${this.MaxManaPoints}m ${this.MovementPoints}/${this.MaxMovementPoints}mv> `
 	}
 
-	Act(message, victim = null, item = null, item2 = null, acttype = "ToChar") {
+	Act(message, victim = null, item = null, item2 = null, acttype = "ToChar", params = []) {
 		if(!message || message.length == 0)
 			return;
 		if(this.Room == null && acttype != "ToChar")
@@ -160,24 +160,25 @@ class Character {
 				const other = this.Room.Characters[index];
 				if(other != this && (other != victim || acttype != "ToRoomNotVictim") &&
 				other.Position != "Sleeping") {
-					var output = this.FormatActMessage(message, other, victim, item, item2);
+					var output = this.FormatActMessage(message, other, victim, item, item2, params);
 					other.send(output);
 				}
 			}
 		}
 		else if(acttype == "ToVictim") {
-			var output = this.FormatActMessage(message, victim, victim, item, item2);
+			var output = this.FormatActMessage(message, victim, victim, item, item2, params);
 			victim.send(output);
 		}
 		else if(acttype == "ToChar") {
-			var output = this.FormatActMessage(message, this, victim, item, item2);
+			var output = this.FormatActMessage(message, this, victim, item, item2, params);
 			this.send(output);
 			
 		}
 	}
 
-	FormatActMessage(message, to, victim, item, item2) {
+	FormatActMessage(message, to, victim, item, item2, params = []) {
 		var output = "";
+		message = Utility.Format(message, params);
 		for (var i = 0; i < message.length; i++) {
 			if (message[i] == '$') {
 				i++;
@@ -257,7 +258,69 @@ class Character {
 				output = output[0].toUpperCase() + output.substring(1);
 		}
 		return output;
+	} // end format act message
+
+	AffectToChar(affect) {
+		var newaffect = new AffectData({AffectData: affect});
+		this.Affects.unshift(newaffect);
 	}
+
+	AffectFromChar(affect) {
+		var index = this.Affects.indexOf(affect);
+		if(index >= 0)
+		this.Affects.splice(index, 1);
+	}
+
+	StripAffects(params = {AffectFlag: null, SkillSpell: null}) {
+		if(params.AffectFlag) {
+			for(var aff of Utility.CloneArray(this.Affects)) {
+				for(var flag of params.AffectFlag) {
+					if(aff.Flags[flag])
+						this.AffectFromChar(aff)
+				}
+			}
+		}
+
+		if(params.SkillSpell) {
+
+		}
+	}
+
+	IsAffected(Flag) {
+		var found = false;
+		found = Flags[Flag];
+		if(!found)
+			for(var aff of Affects) {
+				if(aff.Flags[Flag]) {
+					found = true;
+					break;
+				}
+				else if(aff.SkillSpell == Flag) {
+					found = true;
+					break;
+				}
+			}
+		
+		return found;
+	}
+
+	// FindAffects(Flag) {
+	// 	var found = false;
+	// 	found = Flags[Flag];
+	// 	if(!found)
+	// 		for(var aff of Affects) {
+	// 			if(aff.Flags[Flag]) {
+	// 				found = true;
+	// 				break;
+	// 			}
+	// 			else if(aff.SkillSpell == Flag) {
+	// 				found = true;
+	// 				break;
+	// 			}
+	// 		}
+		
+	// 	return found;
+	// }
 }
 
 

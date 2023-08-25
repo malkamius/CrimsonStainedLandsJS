@@ -1,9 +1,9 @@
 const Clear = "\u0001B[0m";
-const Underline = "\u0001B[4m";
-const Reverse = "\u0001B[7m";
-const Flash = "\u0001B[5m";
+const Underline = "\u001B[4m";
+const Reverse = "\u001B[7m";
+const Flash = "\u001B[5m";
 
-function ColorString(text, StripColor = false, Support256 = false) {
+function ColorString(text, StripColor = false, Support256 = false, SupportRGB = false) {
 	var newtext = "";
 	var EscapeChar = '\0';
 	var LastIndex = 0;
@@ -131,11 +131,12 @@ function ColorString(text, StripColor = false, Support256 = false) {
 						number = number + ColorCodeCharacter;
 
 					}
-					// int.TryParse(number, System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture, out color);
-					// if (SupportRGB)
-					// {
-						// newtext = newtext + `\x001b[${base};2;` + (color >> 16 & 0xFF) + ";" + (color >> 8 & 0xFF) + ";" + (color & 0xFF) + "m";
-					// }
+					
+					color = parseInt(number, 16);
+					if (SupportRGB)
+					{
+						newtext = newtext + `\u001b[${base};2;` + (color >> 16 & 0xFF) + ";" + (color >> 8 & 0xFF) + ";" + (color & 0xFF) + "m";
+					}
 					color = -1;
 					if (!ended && text.length > ColorMarkerIndex + number.length + 2 &&
 					   ((ColorCodeCharacter = text.substr(ColorMarkerIndex + number.length + 2, 1)) == ';') &&

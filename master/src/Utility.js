@@ -198,6 +198,77 @@ function Roll(dice) {
 	return result;
 }
 
+function Random(num1, num2) {
+	if(num2 < num1) {
+		var temp = num1;
+		num1 = num2;
+		num2 = temp;
+	}
+	var result = Math.floor(Math.random() * (num2 - num1)) + num1;
+	return result;
+}
+
+function NumberPercent() {
+	return Random(0, 127);
+}
+
+function Format(str, array = []) {
+	var result = "";
+	
+	if(IsNullOrEmpty(str))
+		return result;
+	else if(!array || array.length == 0)
+		return str;
+	else {
+		for(var i = 0; i < str.length; i++) {
+			if(str[i] == "{") {
+				
+				var startindex = i + 1;
+				while(i + 1 < str.length && str[++i] != "}")
+					;
+				
+				if(i > startindex) {
+					var variable = str.substring(startindex, i);
+					variables = variable.split(",");
+					if(variables[0]) {
+						var index = parseInt(variables[0])
+						if(index < array.length && index >= 0) {
+							if(variable[1]) {
+								var padding = parseInt(variables[1]);
+								if(padding && padding < 0) {
+									result = result + array[index].padStart(-padding);
+								} else if (padding > 0) {
+									result = result + array[index].padEnd(padding);
+								} else {
+									result = result + array[index];
+								}
+							}
+							else {
+								result = result + array[index];
+							}
+						}
+						else if(index < 0)
+							console.log("Parameter index less than 0");
+						else
+							console.log("Parameter index greater than array length");
+					} else {
+						var index = parseInt(variable);
+
+						if(index != undefined && index != null) {
+							result = result + array[index];
+						}
+					}
+
+				}
+				//i++;
+			} else 
+			if(i < str.length)
+				result = result + str[i];
+		}
+		return result;
+	}
+}
+
 exports.Compare = Compare;
 exports.Includes = Includes;
 exports.Prefix = Prefix;
@@ -212,3 +283,6 @@ exports.CloneArray = CloneArray;
 exports.JoinFlags = JoinFlags;
 exports.Roll = Roll;
 exports.JoinArray = JoinArray;
+exports.Random = Random;
+exports.NumberPercent = NumberPercent;
+exports.Format = Format;
