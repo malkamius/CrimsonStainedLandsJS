@@ -95,6 +95,8 @@ class Player extends Character {
 		var race = XmlHelper.GetElementValue(xml,"Race", "human");
 		if(!(this.Race = RaceData.LookupRace(race)))
 			console.log(`Race ${race} not found`);
+		if(!(this.PcRace = PcRaceData.LookupRace(race)))
+			console.log(`Race ${race} not found`);
 		var guild = XmlHelper.GetElementValue(xml, "Guild", "warrior");
 		if(!(this.Guild = GuildData.Lookup(guild, false)))
 			console.log(`Guild ${guild} not found`);
@@ -125,9 +127,11 @@ class Player extends Character {
 			for(var learned of xml.LEARNED) {
 				for(var sp of learned.SKILLSPELL) {
 					var name = XmlHelper.GetAttributeValue(sp, "Name");
-					var percent = XmlHelper.GetAttributeValue(sp, "Value");
-					var level = XmlHelper.GetAttributeValue(sp, "Level");
-					this.Learned[name] = {Name: name, Percent: percent, Level: level};
+					var percent = XmlHelper.GetAttributeValueInt(sp, "Value");
+					var level = XmlHelper.GetAttributeValueInt(sp, "Level");
+					var learnedas = {};
+					Utility.ParseFlags(learnedas, XmlHelper.GetAttributeValue("LearnedAs", "Skill Spell Song Supplication"));
+					this.Learned[name] = {Name: name, Percent: percent, Level: level, LearnedAs: learnedas};
 				}
 			}
 		}
@@ -224,6 +228,7 @@ class Player extends Character {
 		skillele.attribute("Name", learned.Name);
 		skillele.attribute("Value", learned.Percent);
 		skillele.attribute("Level", learned.Level);
+		skillele.attribute("LearnedAs", Utility.JoinFlags(learned.LearnedAs));
 	}
 	xmlelement.ele("ArmorBash", this.ArmorBash);
 	xmlelement.ele("ArmorSlash", this.ArmorSlash);

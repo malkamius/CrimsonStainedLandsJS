@@ -24,7 +24,7 @@ class GuildData {
     THAC032="-6";
     
     constructor(xml) {
-        this.Name = XmlHelper.GetAttributeValue(xml, "Name");
+        this.Name = XmlHelper.GetAttributeValue(xml, "Name").toLowerCase();
         this.WhoName = XmlHelper.GetAttributeValue(xml, "WhoName");
         
         var races = {};

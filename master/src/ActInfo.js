@@ -214,6 +214,81 @@ function DoWho(ch, arguments) {
 	//using (new Character.Page(ch))
 		ch.send(whoList);
 }
+
+function DoSkills(ch, arguments) {
+	if (!Utitlity.IsNullOrEmpty(arguments))
+	{
+		var skills = [];
+		for(var skillname in SkillSpell.Skills) {
+			if(Utitlity.Prefix(skillname, arguments) && SkillSpell.Skills[skillname].SkillTypes["Skill"]) {
+				skills.push(SkillSpell.Skills[skillname]);
+			}
+		}
+
+		if (skills.length == 0)
+		{
+			ch.send("You don't know any skills by that name");
+			return;
+		}
+		else
+		{
+			for(var skill of skills)
+			{
+				var percent = ch.GetSkillPercentage(skill.Name);
+				var lvl = ch.GetLevelSkillLearnedAt(skill.Name);
+				if (ch.Level < lvl)
+				{
+					ch.send("You haven't learned that skill yet.");
+					return;
+				}
+
+				ch.send(skill.Name + " " + percent + "%\n\r");
+			}
+		}
+	} else {
+		var lastLevel = 0;
+		var column = 0;
+		var skills = [];
+		var text = "";
+		for(var skillname in SkillSpell.Skills) {
+			if(SkillSpell.Skills[skillname].SkillTypes["Skill"]) {
+				skills.push(SkillSpell.Skills[skillname]);
+			}
+		}
+
+		skills.sort((a,b) => ch.GetLevelSkillLearnedAt(a.Name) < ch.GetLevelSkillLearnedAt(b.Name)? -1 : 
+							 (ch.GetLevelSkillLearnedAt(a.Name) == ch.GetLevelSkillLearnedAt(b.Name)? 0 : 1));
+		
+		for(var skill of skills)
+		{
+			var percent = ch.GetSkillPercentage(skill.Name);
+			var lvl = ch.GetLevelSkillLearnedAt(skill.Name);
+
+			if ((lvl < 52 || ch.IsImmortal()) || percent > 1)  //if (lvl > 0 || percent > 1 || (ch.Level > lvl && lvl > 0))
+			{
+				if (lvl != lastLevel)
+				{
+					lastLevel = lvl;
+					column = 0;
+					text += "\n\r";
+					text += ("Lvl " + lvl + ": ").padEnd(8);
+					text += "\n\r";
+				}
+
+				text += ("    " + (skill.Name + " " + (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A")).padStart(20).padEnd(25));
+
+				if (column == 1)
+				{
+					text += "\n\r";
+					column = 0;
+				}
+				else
+					column++;
+			}
+		}
+		ch.send(text + "\n\r");
+	}
+}
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
@@ -223,7 +298,9 @@ Character.DoCommands.DoEquipment = doequipment;
 Character.DoCommands.DoInventory = doinventory;
 Character.DoCommands.DoSave = DoSave;
 Character.DoCommands.DoWho = DoWho;
+Character.DoCommands.DoSkills = DoSkills;
 
 Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
 Character.CharacterFunctions.GetCharacterList = GetCharacterList;
 const Player = require("./Player");
+const SkillSpell = require("./SkillSpell");

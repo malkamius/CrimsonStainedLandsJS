@@ -20,6 +20,7 @@ Commands = {
 		"remove": Character.DoCommands.DoRemove,
 		"save": Character.DoCommands.DoSave,
 		"who": Character.DoCommands.DoWho,
+		"skills": Character.DoCommands.DoSkills,
 		"kill": Character.Combat.DoKill
 	};
 

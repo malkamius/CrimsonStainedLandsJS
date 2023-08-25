@@ -27,7 +27,7 @@ class RaceData {
     constructor(xml) {
         this.CanSpeak = Utility.Compare(XmlHelper.GetAttributeValue(xml, "CanSpeak", "false"), "true");
         this.HasCoins = Utility.Compare(XmlHelper.GetAttributeValue(xml, "HasCoins", "false"), "true");
-        this.Name = XmlHelper.GetElementValue(xml, "Name");
+        this.Name = XmlHelper.GetElementValue(xml, "Name").toLowerCase();
         this.PcRace = Utility.Compare(XmlHelper.GetElementValue(xml, "PcRace"), "true");
         Utility.ParseFlags(this.Part, XmlHelper.GetElementValue(xml, "Part"));
         Utility.ParseFlags(this.Act, XmlHelper.GetElementValue(xml, "Act"));

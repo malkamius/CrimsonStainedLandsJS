@@ -21,7 +21,7 @@ class PcRaceData {
     
     constructor(xml) {
 
-        this.Name = XmlHelper.GetElementValue(xml, "Name");
+        this.Name = XmlHelper.GetElementValue(xml, "Name").toLowerCase();
         this.IsPcRace = Utility.Compare(XmlHelper.GetElementValue(xml, "IsPcRace"), "true");
         
         Utility.ParseFlags(this.Parts, XmlHelper.GetElementValue(xml, "Parts"));

@@ -1,6 +1,7 @@
 const XmlHelper = require("./XmlHelper");
 const AffectData = require("./AffectData");
 const PhysicalStats = require("./PhysicalStats");
+const SkillSpell = require("./SkillSpell");
 
 Characters = Array();
 
@@ -478,6 +479,46 @@ class Character {
 		
 	// 	return found;
 	// }
+
+	IsImmortal() {
+		return !this.IsNPC && this.Level > 51;
+	}
+
+	GetLevelSkillLearnedAt(skill) {
+		if(Utility.IsNullOrEmpty(skill)) return 60;
+		skill = skill.toLowerCase();
+		var skillentry = SkillSpell.GetSkill(skill, false);
+		if (Utility.IsNullOrEmpty(skill) || !skillentry)
+			return 60;
+		else if (skillentry && !skillentry.PrerequisitesMet(this))
+			return 60;
+		else if (this.Learned[skill])
+			return this.Learned[skill].Level;
+		else if (!this.Guild || !skillentry.LearnedLevel[this.Guild.Name])
+			return 60;
+		else
+			return skillentry.LearnedLevel[this.Guild.Name];
+	}
+
+	GetSkillPercentage(skill) {
+		if(Utility.IsNullOrEmpty(skill)) return 0;
+		skill = skill.toLowerCase();
+		var skillentry = SkillSpell.GetSkill(skill, false);
+		
+		if (Utility.IsNullOrEmpty(skill) || !skillentry)
+			return 0;
+		else if (this.IsImmortal())
+			return 100;
+		else if ((IsNPC || this.Level < 60) &&  this.GetLevelSkillLearnedAt(skill) == 60)
+			return 0;
+		else if (this.Learned[skill] && this.Level >= this.GetLevelSkillLearnedAt(skill) && skillentry.PrerequisitesMet(this))
+			return this.Learned[skill].Percent;
+		else if (this.Guild != null && (this.Level >= this.GetLevelSkillLearnedAt(skill)) && skillentry.PrerequisitesMet(this))
+			return 1;
+		else
+			return 0;
+	}
+
 }
 
 
