@@ -19,6 +19,7 @@ Commands = {
 		"wear": Character.DoCommands.DoWear,
 		"remove": Character.DoCommands.DoRemove,
 		"save": Character.DoCommands.DoSave,
+		"who": Character.DoCommands.DoWho,
 		"kill": Character.Combat.DoKill
 	};
 

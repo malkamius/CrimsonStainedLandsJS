@@ -1,6 +1,7 @@
 const XmlHelper = require("./XmlHelper");
 const ItemTemplateData = require('./ItemTemplateData');
 const Utility = require('./Utility');
+const AffectData = require("./AffectData");
 /**
  *
  *
@@ -117,6 +118,16 @@ class ItemData {
             this.ExtraFlags = {};
             Utility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
         }
+        if(xml.AFFECTS) {
+            this.Affects = Array();
+            for(const affectsxml of xml.AFFECTS) {
+				if(affectsxml.AFFECT)
+                    for(const affectxml of affectsxml.AFFECT) {
+                        var affect = new AffectData({Xml: affectxml});
+                        this.Affects.push(affect);
+                    }
+                }
+        }
         if(xml.CONTAINS) {
             for(const containsxml of xml.CONTAINS) {
 				if(containsxml.ITEM)
@@ -141,7 +152,12 @@ class ItemData {
         itemele.ele("ItemTypes", Utility.JoinFlags(this.ItemTypes));
         itemele.ele("WearFlags", Utility.JoinFlags(this.WearFlags));
         itemele.ele("ExtraFlags", Utility.JoinFlags(this.ExtraFlags));
-
+        if(this.Affects && this.Affects.length > 0) {
+            var affectselement = itemele.ele("Affects");
+            for(var affect of this.Affects) {
+                affect.Element(affectselement);
+            }
+        }
         var contains = itemele.ele("Contains");
         for(var i = 0; i < this.Contains.length; i++) {
             this.Contains[i].Element(contains)

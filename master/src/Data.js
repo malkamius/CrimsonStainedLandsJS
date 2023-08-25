@@ -2,8 +2,12 @@ const RaceData = require("./RaceData");
 const PcRaceData = require("./PcRaceData");
 const GuildData = require("./GuildData");
 const AreaData = require("./AreaData");
+const SkillSpell = require("./SkillSpell");
+const Settings = require("./Settings");
 
 function LoadData(callback) {
+	Settings.Load();
+	SkillSpell.LoadAll();
     LoadRaces(callback);
 }
 
@@ -30,6 +34,7 @@ function LoadAreas(callback) {
 }
 
 function AllLoaded(callback) {
+	console.log(Object.keys(SkillSpell.Skills).length + " skills loaded.");
 	console.log(RaceData.Races.length + " races loaded.");
 	console.log(PcRaceData.PcRaces.length + " pc races loaded.");
 	console.log(GuildData.Guilds.length + " guilds loaded.");

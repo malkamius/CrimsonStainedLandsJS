@@ -1,5 +1,7 @@
-XmlHelper = require("./XmlHelper");
-XmlHelper = require("./AffectData");
+const XmlHelper = require("./XmlHelper");
+const AffectData = require("./AffectData");
+const PhysicalStats = require("./PhysicalStats");
+
 Characters = Array();
 
 WearSlots = { 
@@ -38,6 +40,7 @@ class Character {
 	LongDescription = "";
 	Description = "";
 	Affects = Array();
+	Learned = {};
 	Flags = {};
 	Level = 60;
 	WeaponDamageMessage = null;
@@ -260,15 +263,166 @@ class Character {
 		return output;
 	} // end format act message
 
+	AffectApply(affect, remove = false, silent = false) {
+		if (affect.Where == "ToWeapon") {
+                return;
+		}
+
+		if (remove)
+		{
+			if(!silent && !Utility.IsNullOrEmpty(affect.EndMessage)) {
+				this.Act(affect.EndMessage);
+			}
+	
+			if(!silent && !Utility.IsNullOrEmpty(affect.EndMessageToRoom)) {
+				this.Act(affect.EndMessageToRoom, null, null, null, "ToRoom");
+			}
+
+			if (affect.Flags.length > 0)
+			{
+				for (var flag of affect.Flags)
+				{
+					
+					// don't remove affect provided by another debuff( for example, blinded then dirt kicked, dirt kick won't remove blind of blindness )
+					if (Affects.findIndex((aff) => affect != aff && affect.Flags[flag]) >= 0)
+						continue;
+					else if(AffectedBy[flag])
+						delete AffectedBy[flag];
+				}
+			}
+		}
+		else
+		{
+			for (var flag in affect.Flags)
+				AffectedBy[flag] = true;
+
+			if(!silent && !Utility.IsNullOrEmpty(affect.BeginMessage)) {
+				this.Act(affect.BeginMessage);
+			}
+	
+			if(!silent && !Utility.IsNullOrEmpty(affect.BeginMessageToRoom)) {
+				this.Act(affect.BeginMessageToRoom, null, null, null, "ToRoom");
+			}
+
+		}
+
+		// if (affect.Where == "ToImmune" && remove)
+		// 	ImmuneFlags.RemoveWhere(w => aff.DamageTypes.Contains(w));
+		// else if (affect.Where == "ToResist" && remove)
+		// 	ResistFlags.RemoveWhere(w => aff.DamageTypes.Contains(w));
+		// else if (affect.Where == "ToVulnerabilities" && remove)
+		// 	VulnerableFlags.RemoveWhere(w => aff.DamageTypes.Contains(w));
+		// else if (affect.Where == "ToImmune" && !remove)
+		// 	ImmuneFlags.SETBITS(aff.DamageTypes);
+		// else if (affect.Where == "ToResist" && !remove)
+		// 	ResistFlags.SETBITS(aff.DamageTypes);
+		// else if (affect.Where == "ToVulnerabilities" && !remove)
+		// 	VulnerableFlags.SETBITS(aff.DamageTypes);
+
+		if (affect.Modifier != 0)
+		{
+			var modifier = affect.Modifier;
+			if (remove) modifier = -modifier;
+			switch (affect.Location)
+			{
+				case "Strength":
+					this.ModifiedStats[0] += modifier;
+					break;
+				case "Wisdom":
+					this.ModifiedStats[1] += modifier;
+					break;
+				case "Intelligence":
+					this.ModifiedStats[2] += modifier;
+					break;
+				case "Dexterity":
+					this.ModifiedStats[3] += modifier;
+					break;
+				case "Constitution":
+					this.ModifiedStats[4] += modifier;
+					break;
+				case "Charisma":
+					this.ModifiedStats[5] += modifier;
+					break;
+				case "Hitroll":
+					this.HitRoll += modifier;
+					break;
+				case "Damroll":
+					this.DamageRoll += modifier;
+					break;
+				case "Armor":
+					//ArmorBash += modifier;
+					//ArmorSlash += modifier;
+					//ArmorPierce += modifier;
+					//ArmorExotic += modifier;
+					this.ArmorClass += modifier;
+					break;
+				case "Hitpoints":
+					this.MaxHitPoints += modifier;
+					break;
+				case "Mana":
+					this.MaxManaPoints += modifier;
+					break;
+				case "Move":
+					this.MaxMovementPoints += modifier;
+					break;
+				case "Saves":
+				case "SavingSpell":
+					this.SavingThrow += modifier;
+					break;
+			}
+		}
+
+		var wield = null;
+		// TODO Check weapon weight here
+		if (!IsNPC && (wield = this.Equipment.Wield) != null &&
+			wield.Weight > (PhysicalStats.StrengthApply[GetCurrentStat(0)].Wield))
+		{
+			Act("You drop $p.", null, wield, null, ActType.ToChar);
+			Act("$n drops $p.", null, wield, null, ActType.ToRoom);
+
+			RemoveEquipment(wield, !silent, true);
+
+			Room.items.Insert(0, wield);
+			wield.Room = Room;
+		}
+		if (!IsNPC && (wield = this.Equipment.DualWield) != null &&
+			wield.Weight > (PhysicalStats.StrengthApply[GetCurrentStat(0)].Wield))
+		{
+			Act("You drop $p.", null, wield, null, ActType.ToChar);
+			Act("$n drops $p.", null, wield, null, ActType.ToRoom);
+
+			RemoveEquipment(wield, !silent, true);
+
+			Room.items.Insert(0, wield);
+			wield.Room = Room;
+		}
+	}
+
+	GetCurrentStat(stat) {
+		if (PcRace != null && PcRace.MaxStats != null)
+			return Math.min(PcRace.MaxStats[stat], Math.Min(25, Math.Max(0, PermanentStats != null && ModifiedStats != null ? PermanentStats[stat] + ModifiedStats[stat] : (IsNPC ? 20 : 3))));
+		else
+			return Math.min(25, Math.max(3, PermanentStats != null && ModifiedStats != null ? PermanentStats[stat] + ModifiedStats[stat] : (IsNPC ? 20 : 3)));
+	}
+
+	GetModifiedStatUncapped(stat)
+	{
+		return PermanentStats != null && ModifiedStats != null ? PermanentStats[stat] + ModifiedStats[stat] : (IsNPC ? 20 : 3);
+	}
+
 	AffectToChar(affect) {
 		var newaffect = new AffectData({AffectData: affect});
 		this.Affects.unshift(newaffect);
+
+		this.AffectApply(affect, false, false);
 	}
 
 	AffectFromChar(affect) {
 		var index = this.Affects.indexOf(affect);
 		if(index >= 0)
 		this.Affects.splice(index, 1);
+
+		this.AffectApply(affect, true, false);
 	}
 
 	StripAffects(params = {AffectFlag: null, SkillSpell: null}) {
@@ -282,7 +436,10 @@ class Character {
 		}
 
 		if(params.SkillSpell) {
-
+			for(var aff of Utility.CloneArray(this.Affects)) {	
+				if(aff.SkillSpell == params.SkillSpell)
+					this.AffectFromChar(aff)
+			}
 		}
 	}
 

@@ -1,9 +1,10 @@
-const path = require('path')
 const fs = require('fs');
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser({ strict: false, trim: false });
 const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility")
+const Settings = require("./Settings");
+
 PcRaces = Array();
 
 class PcRaceData {
@@ -61,7 +62,7 @@ class PcRaceData {
 PcRaceData.PcRaces = PcRaces;
 
 function LoadAllPcRaces(callback) {
-    var racespath = path.join(__dirname, '../data/PC_Races.xml');
+    var racespath = Settings.DataPath + '/PC_Races.xml';
     var content = fs.readFileSync(racespath, "utf-8");
     parser.parseString(content, (err, xml) => {
         for(var racexml of xml.RACES.RACEDATA)

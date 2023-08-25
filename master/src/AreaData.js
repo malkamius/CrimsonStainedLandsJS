@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('fs');
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser({ strict: false, trim: false });
-
+const Settings = require("./Settings");
 
 AllAreas = {};
 AllRooms = {};
@@ -73,7 +73,7 @@ if(!AreaData.AllHelps);
 
 AreaData.LoadAllAreas = function(callback) {
     var counter = 0;
-	var areasdirectory = path.join(__dirname, '../data/areas');
+	var areasdirectory = Settings.AreaDataPath;
 	fs.readdir(areasdirectory, function(err, filenames) {
 		if (err) {
 		  throw err;

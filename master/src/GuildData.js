@@ -5,6 +5,8 @@ const parser = new xml2js.Parser({ strict: false, trim: false });
 const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility");
 const PcRaceData = require("./PcRaceData");
+const Settings = require("./Settings");
+
 Guilds = Array();
 
 class GuildData {
@@ -54,7 +56,7 @@ class GuildData {
 GuildData.Guilds = Guilds;
 
 function LoadAllGuilds(callback) {
-    var guildspath = path.join(__dirname, '../data/guilds.xml');
+    var guildspath = Settings.DataPath + "/guilds.xml";
     var content = fs.readFileSync(guildspath, "utf-8");
     parser.parseString(content, (err, xml) => {
         for(var guildxml of xml.GUILDS.GUILD)

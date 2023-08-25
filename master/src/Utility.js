@@ -232,13 +232,13 @@ function Format(str, array = []) {
 					variables = variable.split(",");
 					if(variables[0]) {
 						var index = parseInt(variables[0])
-						if(index < array.length && index >= 0) {
+						if(index != NaN && index < array.length && index >= 0) {
 							if(variable[1]) {
 								var padding = parseInt(variables[1]);
 								if(padding && padding < 0) {
-									result = result + array[index].padStart(-padding);
+									result = result + ("" + array[index]).padStart(-padding);
 								} else if (padding > 0) {
-									result = result + array[index].padEnd(padding);
+									result = result + ("" + array[index]).padEnd(padding);
 								} else {
 									result = result + array[index];
 								}
@@ -254,11 +254,13 @@ function Format(str, array = []) {
 					} else {
 						var index = parseInt(variable);
 
-						if(index != undefined && index != null) {
+						if(index != NaN && index < array.length) {
 							result = result + array[index];
-						}
+						} else if(index < 0)
+							console.log("Parameter index less than 0");
+						else
+							console.log("Parameter index greater than array length");
 					}
-
 				}
 				//i++;
 			} else 

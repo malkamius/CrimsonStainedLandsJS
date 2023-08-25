@@ -2,6 +2,7 @@ const RoomData = require("./RoomData");
 const AreaData = require("./AreaData");
 const Character = require("./Character");
 const Utitlity = require("./Utility");
+const Settings = require("./Settings");
 
 function dosay(player, arguments) {
 	player.Act("\\y$n says '{0}\\x\\y'\\x\n", null, null, null, "ToRoom", [arguments]);
@@ -183,6 +184,36 @@ function DoSave(player, arguments) {
 		player.send("Your character has been saved.\n\r");
 	}
 }
+
+function DoWho(ch, arguments) {
+	var whoList = "";
+	var playersOnline = 0;
+	whoList += "You can see:\n\r";
+
+	for (var connection of Player.Players)
+	{
+		if (connection.status == "Playing" && connection.socket != null && (!connection.Flags.WizInvis || (ch.Flags.HolyLight && ch.Level >= connection.Level)))
+		{
+			whoList += Utitlity.Format("[{0,4} {1}] {2}{3}{4}{5}{6}\n\r",
+				[connection.Level,
+				(connection.Guild? connection.Guild.WhoName : "   "),
+				//connection.IsAFK ? "\\r(AFK)\\x" : "     ",
+				"     ",
+				connection == ch ? "*" : " ",
+				connection.Name,
+				(!Utitlity.IsNullOrEmpty(connection.Title) ? (connection.Title.startsWith(",") ? connection.Title : " " + connection.Title) : ""),
+				(!Utitlity.IsNullOrEmpty(connection.ExtendedTitle) ? (!connection.ExtendedTitle.startsWith(",") ? " " : "") + connection.ExtendedTitle : "")
+				]);
+			playersOnline++;
+		}
+	}
+	whoList += "Visible players: " + playersOnline + "\n\r";
+	whoList += "Max players online at once since last reboot: " + Player.PlayersOnlineAtOnceSinceLastReboot + "\n\r";
+	whoList += "Max players online at once ever: " + Settings.PlayersOnlineAtOnceEver + "\n\r";
+
+	//using (new Character.Page(ch))
+		ch.send(whoList);
+}
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
@@ -191,6 +222,7 @@ Character.DoCommands.DoExits = doexits;
 Character.DoCommands.DoEquipment = doequipment;
 Character.DoCommands.DoInventory = doinventory;
 Character.DoCommands.DoSave = DoSave;
+Character.DoCommands.DoWho = DoWho;
 
 Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
 Character.CharacterFunctions.GetCharacterList = GetCharacterList;

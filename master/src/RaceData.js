@@ -4,6 +4,8 @@ const xml2js = require('xml2js');
 const parser = new xml2js.Parser({ strict: false, trim: false });
 const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility")
+const Settings = require("./Settings");
+
 Races = Array();
 
 class RaceData {
@@ -62,7 +64,7 @@ RaceData.Races = Races;
 
 RaceData.LoadAllRaces = function(callback) {
     var counter = 0;
-	var racesdirectory = path.join(__dirname, '../data/races');
+	var racesdirectory = Settings.RaceDataPath;
 	fs.readdir(racesdirectory, function(err, filenames) {
 		if (err) {
 		  throw err;

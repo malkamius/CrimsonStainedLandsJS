@@ -22,12 +22,18 @@ function getElementValueInt(xml, name, defaultvalue = 0) {
 	return parseInt(getElementValue(xml, name, defaultvalue));
 }
 
-function getAttributeValue(xml, name, defaultvalue) {
-	if(xml.$)
+function getAttributeValue(xml, name, defaultvalue = "") {
+	if(!xml.$ && Object.keys(xml).length == 1) {
+		xml = xml[Object.keys(xml)[0]];
+	}
+	if(xml.$) {
 		for(key in xml.$) {
-			if(Utility.Compare(key, name))
+			if(Utility.Compare(key, name)) {
+				
 				return xml.$[key]? xml.$[key] : defaultvalue;
+			}
 		}
+	}
 	return defaultvalue;
 }
 

@@ -9,16 +9,23 @@ const fs = require('fs');
 const crypto = require('crypto');
 const Data = require('./Data');
 const Color = require("./Color");
-
-startListening(3000); 
+const Settings = require("./Settings");
+var server = startListening(Settings.Port); 
 
 Data.LoadData(DataLoaded);
 
 function DataLoaded() {
+	var address = server.address();
+	console.log(Utility.Format("Awaiting connections at {0}:{1}", [address.address, address.port]));
+
+	for(player of Utility.CloneArray(Player.Players))
+	{	
+		player.HandleOutput();
+	}
+	
 	setTimeout(function () {
 		pulse()
 	}, 250);
-	
 	
 }
 
@@ -62,8 +69,7 @@ function HandleNewSocket(socket) {
 }
 
 function startListening(port) {
-	
-	net.createServer(HandleNewSocket)
+	return net.createServer(HandleNewSocket)
 		.listen(port, () => {
 			console.log(`Listening on port ${port}`)
 		});
@@ -88,24 +94,55 @@ function pulse()
 }
 
 
+const PULSE_PER_SECOND = 4;	
+const PULSE_PER_VIOLENCE = PULSE_PER_SECOND * 3;
+const PULSE_PER_TICK = PULSE_PER_SECOND * 30;
 
+var UpdateCombatCounter = PULSE_PER_VIOLENCE;
+var UpdateTickCounter = PULSE_PER_TICK;
 
-		
-
-
-var UpdateCombatCounter = 12;
 function Update() {
+
+	if(--UpdateTickCounter <= 0) {
+		UpdateTick();
+		UpdateTickCounter = PULSE_PER_TICK;
+	}
 
 	if(--UpdateCombatCounter <= 0) {
 		UpdateCombat();
-		UpdateCombatCounter = 12;
+		UpdateCombatCounter = PULSE_PER_VIOLENCE;
 	}
+
+	UpdateAggro();
+}
+
+function UpdateTick() {
+
+	for(var character of Utility.CloneArray(Character.Characters)) { 
+		for(var affect of character.Affects) {
+			if(affect.Frequency == "Tick" && affect.Duration > 0 && --affect.Duration == 0) {
+				character.AffectFromChar(affect);
+			}
+		}
+	}
+
 }
 
 function UpdateCombat() {
 	for(var character of Utility.CloneArray(Character.Characters)) {
+		for(var affect of character.Affects) {
+			if(affect.Frequency == "Violence" && affect.Duration > 0 && --affect.Duration == 0) {
+				character.AffectFromChar(affect);
+			}
+		}
 		if(character.Fighting) {
 			Character.Combat.ExecuteRound(character);
 		}
+	}
+}
+
+function UpdateAggro() {
+	for(var character of Utility.CloneArray(Character.Characters)) { 
+
 	}
 }

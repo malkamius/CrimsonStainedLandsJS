@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<Settings Port="3000" PlayersOnlineAtOnceEver="2" DataPath="data" PlayerDataPath="data/players" AreaDataPath="data/areas" TitleDataPath="data/guilds" RaceDataPath="data/races"/>

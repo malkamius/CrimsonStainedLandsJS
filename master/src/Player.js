@@ -12,43 +12,51 @@ const RaceData = require("./RaceData");
 const RoomData = require("./RoomData");
 const PcRaceData = require("./PcRaceData");
 const GuildData = require("./GuildData");
-
+const AffectData = require("./AffectData");
+const Settings = require("./Settings");
 
 const parser = new xml2js.Parser({ strict: false, trim: false });
 
 Players = Array();
-function GetPlayerByName(name, extracondition) {
-	for (const player of Player.Players) {
-		if(Utility.Compare(player.Name, name) && (!extracondition || extracondition(player))) {
-			return player;
-		}
-	}
-}
-function GetPlayer(socket) {
-	for (const player of Player.Players) {
-		if(player.socket == socket) {
-			return player;
-		}
-	}
-}
+
 class Player extends Character {
+	static PlayersOnlineAtOnceSinceLastReboot = 0;
+
 	RoomVNum = 0;
 	IsNPC = false;
 	PcRace = null;
+	Title = "";
+	ExtendedTitle = "";
+	socket = null;
+	input = "";
+	output = "";
+	status = "GetName";
+	SittingAtPrompt = false;
+	Prompt = "";
 
-  constructor(socket) {
-	super();
-  	this.socket = socket;
-	this.input = "";
-	this.output = "";
-	this.status = "GetName";
-	this.SittingAtPrompt = false;
-	
-	
-	Players.push(this);
-  }
+  	constructor(socket) {
+		super();
+		this.socket = socket;
+		Players.push(this);
+  	}
 
-  	send(data, params = []) {
+	static GetPlayerByName(name, extracondition) {
+		for (const player of Player.Players) {
+			if(Utility.Compare(player.Name, name) && (!extracondition || extracondition(player))) {
+				return player;
+			}
+		}
+	}
+	
+	static GetPlayer(socket) {
+		for (const player of Player.Players) {
+			if(player.socket == socket) {
+				return player;
+			}
+		}
+	}
+  	
+	send(data, params = []) {
 		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
 		this.output = this.output + Color.ColorString(data, !this.Flags.Color, false);
 	}
@@ -72,6 +80,8 @@ class Player extends Character {
 		this.ShortDescription = XmlHelper.GetElementValue(xml,"ShortDescription");
 		this.LongDescription = XmlHelper.GetElementValue(xml,"LongDescription");
 		this.Description = XmlHelper.GetElementValue(xml,"Description");
+		this.Title = XmlHelper.GetElementValue(xml,"Title");
+		this.ExtendedTitle = XmlHelper.GetElementValue(xml,"ExtendedTitle");
 		this.Alignment = XmlHelper.GetElementValue(xml,"Alignment");
 		this.Ethos = XmlHelper.GetElementValue(xml,"Ethos");
 		this.Sex = XmlHelper.GetElementValue(xml,"Sex");
@@ -90,9 +100,53 @@ class Player extends Character {
 			console.log(`Guild ${guild} not found`);
 		Utility.ParseFlags(this.Flags, XmlHelper.GetElementValue(xml,"Flags"));
 
-		this.RoomVNum = XmlHelper.GetElementValueInt(xml,"Room");
+		if(xml.PERMANENTSTATS) {
+			var stats = xml.PERMANENTSTATS[0];
+			this.PermanentStats[0] = XmlHelper.GetElementValueInt(stats, "STRENGTH");
+			this.PermanentStats[1] = XmlHelper.GetElementValueInt(stats, "WISDOM");
+			this.PermanentStats[2] = XmlHelper.GetElementValueInt(stats, "INTELLIGENCE");
+			this.PermanentStats[3] = XmlHelper.GetElementValueInt(stats, "DEXTERITY");
+			this.PermanentStats[4] = XmlHelper.GetElementValueInt(stats, "CONSTITUTION");
+			this.PermanentStats[5] = XmlHelper.GetElementValueInt(stats, "CHARISMA");
+		}
+
+		if(xml.MODIFIEDSTATS) {
+			var stats = xml.MODIFIEDSTATS[0];
+			
+			this.ModifiedStats[0] = XmlHelper.GetElementValueInt(stats, "STRENGTH");
+			this.ModifiedStats[1] = XmlHelper.GetElementValueInt(stats, "WISDOM");
+			this.ModifiedStats[2] = XmlHelper.GetElementValueInt(stats, "INTELLIGENCE");
+			this.ModifiedStats[3] = XmlHelper.GetElementValueInt(stats, "DEXTERITY");
+			this.ModifiedStats[4] = XmlHelper.GetElementValueInt(stats, "CONSTITUTION");
+			this.ModifiedStats[5] = XmlHelper.GetElementValueInt(stats, "CHARISMA");
+		}
 		
+		if(xml.LEARNED) {
+			for(var learned of xml.LEARNED) {
+				for(var sp of learned.SKILLSPELL) {
+					var name = XmlHelper.GetAttributeValue(sp, "Name");
+					var percent = XmlHelper.GetAttributeValue(sp, "Value");
+					var level = XmlHelper.GetAttributeValue(sp, "Level");
+					this.Learned[name] = {Name: name, Percent: percent, Level: level};
+				}
+			}
+		}
+		
+		this.RoomVNum = XmlHelper.GetElementValueInt(xml,"Room");
+		this.Prompt = XmlHelper.GetElementValue(xml,"Prompt");
+
 		this.Password = XmlHelper.GetElementValue(xml,"Password");
+
+		if(xml.AFFECTS) {
+            this.Affects = Array();
+            for(const affectsxml of xml.AFFECTS) {
+				if(affectsxml.AFFECT)
+                    for(const affectxml of affectsxml.AFFECT) {
+                        var affect = new AffectData({Xml: affectxml});
+                        this.Affects.push(affect);
+                    }
+                }
+        }
 		
 		if(xml.EQUIPMENT) {
 			for(const equipmentxml of xml.EQUIPMENT) {
@@ -118,6 +172,7 @@ class Player extends Character {
 				}
 			}
 		}
+		
 	}
   } // end LoadPlayerData
 
@@ -131,6 +186,8 @@ class Player extends Character {
 	xmlelement.ele("Description", this.Description);
 	xmlelement.ele("ShortDescription", this.ShortDescription);
 	xmlelement.ele("LongDescription", this.LongDescription);
+	xmlelement.ele("Title", this.Title);
+	xmlelement.ele("ExtendedTitle", this.ExtendedTitle);
 	xmlelement.ele("Room", parseInt((this.Room? this.Room.VNum : 3700)));
 	xmlelement.ele("Race", (this.Race? this.Race.Name : "human"));
 	xmlelement.ele("Guild", (this.Guild? this.Guild.Name : "warrior"));
@@ -144,6 +201,30 @@ class Player extends Character {
 	xmlelement.ele("MaxManaPoints", this.MaxManaPoints);
 	xmlelement.ele("MovementPoints", this.MovementPoints);
 	xmlelement.ele("MaxMovementPoints", this.MaxMovementPoints);
+
+	var stats = xmlelement.ele("PermanentStats");
+	stats.ele("Strength", this.PermanentStats[0]);
+	stats.ele("Wisdom", this.PermanentStats[1]);
+	stats.ele("Intelligence", this.PermanentStats[2]);
+	stats.ele("Dexterity", this.PermanentStats[3]);
+	stats.ele("Constitution", this.PermanentStats[4]);
+	stats.ele("Charisma", this.PermanentStats[5]);
+	stats = xmlelement.ele("ModifiedStats");
+	stats.ele("Strength", this.ModifiedStats[0]);
+	stats.ele("Wisdom", this.ModifiedStats[1]);
+	stats.ele("Intelligence", this.ModifiedStats[2]);
+	stats.ele("Dexterity", this.ModifiedStats[3]);
+	stats.ele("Constitution", this.ModifiedStats[4]);
+	stats.ele("Charisma", this.ModifiedStats[5]);
+
+	var learnedele = xmlelement.ele("Learned");
+	for(var skillname in this.Learned) {
+		var learned = this.Learned[skillname];
+		var skillele = learnedele.ele("SkillSpell");
+		skillele.attribute("Name", learned.Name);
+		skillele.attribute("Value", learned.Percent);
+		skillele.attribute("Level", learned.Level);
+	}
 	xmlelement.ele("ArmorBash", this.ArmorBash);
 	xmlelement.ele("ArmorSlash", this.ArmorSlash);
 	xmlelement.ele("ArmorPierce", this.ArmorPierce);
@@ -151,8 +232,14 @@ class Player extends Character {
 	xmlelement.ele("Xp", this.Xp);
 	xmlelement.ele("XpTotal", this.XpTotal);
 	xmlelement.ele("Flags", Utility.JoinFlags(this.Flags));
-	xmlelement.ele("Password", this.Password);
-	
+
+	if(this.Affects && this.Affects.length > 0) {
+		var affectselement = itemele.ele("Affects");
+		for(var affect of this.Affects) {
+			affect.Element(affectselement);
+		}
+	}
+
 	var inventory = xmlelement.ele("Inventory")
 	for(var i = 0; i < this.Inventory.length; i++) {
 		this.Inventory[i].Element(inventory);
@@ -160,10 +247,15 @@ class Player extends Character {
 	
 	var equipment = xmlelement.ele("Equipment")
 	for(var key in this.Equipment) {
-		var slot = equipment.ele("Slot").attribute("SlotID", key);
-		this.Equipment[key].Element(slot);
+		if(this.Equipment[key]) {
+			var slot = equipment.ele("Slot").attribute("SlotID", key);
+			this.Equipment[key].Element(slot);
+		}
 	}
-	
+	xmlelement.ele("Prompt", this.Prompt);
+
+	xmlelement.ele("Password", this.Password);
+
   	var xml = xmlelement.end({ pretty: true});
 	fs.writeFileSync(path, xml);
   }
@@ -303,7 +395,7 @@ class Player extends Character {
 			case "ConfirmNewPassword":
 				if(this.Password == crypto.createHash('md5').update(input + "salt").digest("hex")) {
 					
-					if(GetPlayerByName(this.Name, (player) => player != this)) {
+					if(Player.GetPlayerByName(this.Name, (player) => player != this)) {
 						this.SetStatus("PlayerAlreadyConnected");
 					}
 					else {
@@ -450,7 +542,7 @@ class Player extends Character {
 					console.log(`${this.Name} disconnected - incorrect password`);
 				}
 				else {
-					if(GetPlayerByName(this.Name, (player) => player != this)) {
+					if(Player.GetPlayerByName(this.Name, (player) => player != this)) {
 						this.SetStatus("PlayerAlreadyConnected");
 					}
 					else
@@ -464,7 +556,7 @@ class Player extends Character {
 					Player.Players.splice(Player.Players.indexOf(this), 1);
 					console.log(`${this.Name} disconnected - already playing`);
 				} else if(Utility.Prefix("yes", input)) {
-					var other = GetPlayerByName(this.Name, (player) => player != this);
+					var other = Player.GetPlayerByName(this.Name, (player) => player != this);
 					other.sendnow("Your character is being logged in elsewhere.\n\r");
 					other.Act("$n loses their animation.", null, null, null, "ToRoom");
 					other.socket.destroy();
@@ -472,7 +564,7 @@ class Player extends Character {
 					Player.Players.splice(Player.Players.indexOf(this), 1);
 					other.SetStatus("Playing");
 				} else {
-					var other = GetPlayerByName(this.Name, (player) => player != this);
+					var other = Player.GetPlayerByName(this.Name, (player) => player != this);
 					if(!other) {
 						this.SetStatus("Playing");
 					} else {
@@ -483,7 +575,7 @@ class Player extends Character {
 			default: return false;
 		}
 		return true;
-	}
+	} // end of nanny
 
 	SetStatus(status) {
 		this.status = status;
@@ -584,14 +676,24 @@ class Player extends Character {
 					Character.DoCommands.DoLook(this, "", true);
 					this.Act("$n regains their animation.", null, null, null, "ToRoom");
 				}
-
+				
+				var count = 0;
+				for(var player of Players)
+					if(player.status == "Playing" && player.socket != null) 
+						count++;
+				if(count > Player.PlayersOnlineAtOnceSinceLastReboot)
+					Player.PlayersOnlineAtOnceSinceLastReboot = count;
+				if(count > Settings.PlayersOnlineAtOnceEver) {
+					Settings.PlayersOnlineAtOnceEver =  count;
+					Settings.Save();
+				}
+				
 				break;
 		}
 
-	}
+	} // end of Set Status
 }
-Player.GetPlayer = GetPlayer;
-Player.GetPlayerByName = GetPlayerByName;
+
 Player.Players = Players;
 module.exports = Player;
 //module.exports.Players = Players;
