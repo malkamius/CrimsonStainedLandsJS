@@ -58,12 +58,12 @@ class Player extends Character {
 		}
 	}
   	
-	send(data, params = []) {
+	send(data, ...params) {
 		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
 		this.output = this.output + Color.ColorString(data, !this.Flags.Color, false);
 	}
   	
-	sendnow = function(data, params = []) {
+	sendnow = function(data, ...params) {
 		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
 		this.socket.write(Color.ColorString(data, false, false));
 	};
@@ -355,8 +355,9 @@ class Player extends Character {
 					this.input = "";
 				
 				if(this.status == "Playing" || str.toLowerCase().startsWith("help")) {
-					var args = str.oneArgument();
-					if(args[0] == "")
+					var args, command;
+					[command, args] = str.oneArgument();
+					if(command.IsNullOrEmpty())
 					{
 						this.send("\n\r");
 						this.SittingAtPrompt = false;
@@ -364,8 +365,8 @@ class Player extends Character {
 					}
 					const Commands = require("./Commands");
 					for(var key in Commands) {
-						if(Utility.Prefix(key, args[0])) {
-							Commands[key](this, args[1]);
+						if(Utility.Prefix(key, command)) {
+							Commands[key](this, args);
 							if(this.status != "Playing")
 								this.SetStatus(this.status);
 							this.SittingAtPrompt = false;
@@ -539,10 +540,10 @@ class Player extends Character {
 						var skills = basicsgroup.Skills;
 
 						while(!skills.IsNullOrEmpty()) {
-							var args = skills.oneArgument();
-							var skill = SkillSpell.GetSkill(args[0]);
-							skills = args[1];
-
+							var skillname;
+							[skillname, skills] = skills.oneArgument();
+							var skill = SkillSpell.GetSkill(skillname);
+							
 							if(skill) {
 								var learnastype = {Skill: true};
 								if(skill.SkillTypes["Skill"]) learnastype = {Skill: true};

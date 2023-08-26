@@ -235,7 +235,8 @@ function GetItemHere(player, itemname) {
 }
 
 function DoGet(player, arguments) {
-    args = Utility.OneArgument(arguments);
+    var itemName, containerName;
+    [itemName, containerName] = arguments.oneArgument();
     var fAll = Utility.Compare(args[0], "all");
 
     var itemName = args[0];

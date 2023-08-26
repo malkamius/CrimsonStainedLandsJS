@@ -67,7 +67,7 @@ RaceData.LoadAllRaces = function(callback) {
 	var racesdirectory = Settings.RaceDataPath;
 	fs.readdir(racesdirectory, function(err, filenames) {
 		if (err) {
-		  throw err;
+		  throw new Error(err);
 		  return;
 		}
 		
@@ -75,7 +75,7 @@ RaceData.LoadAllRaces = function(callback) {
 			if(filename.endsWith(".xml")) {
 			  fs.readFile(path.join(racesdirectory, filename), 'utf-8', function(err, content) {
 				if (err) {
-				  throw err;
+				  throw new Error(err);
 				  return;
 				}
 				parser.parseString(content, function(err, xml) {

@@ -49,9 +49,8 @@ class Utility {
 
 		do
 		{
-			var thenameparts = Utility.OneArgument(thename);
-			thename = thenameparts[1];
-			var part = thenameparts[0];
+			var part;
+			[part, thename] = thename.oneArgument();
 
 			if (Utility.IsNullOrEmpty(part))
 				return false;
@@ -60,9 +59,7 @@ class Utility {
 			var found = false;
 			do
 			{
-				var listparts = Utility.OneArgument(list);
-				list = listparts[1];
-				name = listparts[0];
+				[name, list] = list.oneArgument();
 
 				if (Utility.IsNullOrEmpty(name))
 					return false;
@@ -158,12 +155,11 @@ class Utility {
 	}
 
 	static ParseFlags(array, flags) {
-		var args = Utility.OneArgument(flags);
-		flags = args[1];
-		while(args[0]) {
-			array[args[0]] = true;
-			args = Utility.OneArgument(flags);
-			flags = args[1];
+		var flag;
+		[flag, flags] = flags.oneArgument();
+		while(!flag.IsNullOrEmpty()) {
+			array[flag] = true;
+			[flag, flags] = flags.oneArgument();
 		}
 	}
 
@@ -212,7 +208,8 @@ class Utility {
 		return Random(0, 127);
 	}
 
-	static Format(str, array = []) {
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
+	static Format(str, ...array) {
 		var result = "";
 		
 		if(Utility.IsNullOrEmpty(str))
@@ -232,15 +229,15 @@ class Utility {
 						var variables = variable.split(",");
 						if(variables && variables[0]) {
 							var index = parseInt(variables[0])
-							if(index != NaN && index < array.length && index >= 0) {
+							if(index != NaN && index < array[0].length && index >= 0) {
 								if(variable[1]) {
 									var padding = parseInt(variables[1]);
 									if(padding && padding < 0) {
-										result = result + ("" + array[index]).padStart(-padding);
+										result = result + ("" + array[0][index]).padStart(-padding);
 									} else if (padding > 0) {
-										result = result + ("" + array[index]).padEnd(padding);
+										result = result + ("" + array[0][index]).padEnd(padding);
 									} else {
-										result = result + array[index];
+										result = result + array[0][index];
 									}
 								}
 								else {
@@ -289,7 +286,7 @@ Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback
 	const parser = new xml2js.Parser({ strict: false, trim: false });
 	
 	var content;
-	parser.parseString(this, (err, result) => {if(err) throw err; content = result;});
+	parser.parseString(this, (err, result) => {if(err) throw new Error(err); content = result;});
 	return content;
 }} );
 

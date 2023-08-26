@@ -149,7 +149,7 @@ class Character {
 		return `<${this.HitPoints}/${this.MaxHitPoints}hp ${this.ManaPoints}/${this.MaxManaPoints}m ${this.MovementPoints}/${this.MaxMovementPoints}mv> `
 	}
 
-	Act(message, victim = null, item = null, item2 = null, acttype = "ToChar", params = []) {
+	Act(message, victim = null, item = null, item2 = null, acttype = "ToChar", ...params) {
 		if(!message || message.length == 0)
 			return;
 		if(this.Room == null && acttype != "ToChar")
@@ -180,7 +180,7 @@ class Character {
 		}
 	}
 
-	FormatActMessage(message, to, victim, item, item2, params = []) {
+	FormatActMessage(message, to, victim, item, item2, ...params) {
 		var output = "";
 		message = Utility.Format(message, params);
 		for (var i = 0; i < message.length; i++) {

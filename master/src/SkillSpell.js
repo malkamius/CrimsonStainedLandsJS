@@ -147,9 +147,8 @@ class SkillSpell {
         //if(this.Name == "flurry") console.log(`${prereqs} ${this.PrerequisitePercentage}`);
         while (prereqs.length > 0)
         {
-            var args = Utility.OneArgument(prereqs);
-            prereq = args[0];
-            prereqs = args[1];
+            [prereq, prereqs] = prereqs.oneArgument();
+            
             var skill = SkillSpell.GetSkill(prereq);
             var learned;
             if ((learned = ch.Learned[skill.Name]) && learned.Percent >= this.PrerequisitePercentage)
@@ -176,9 +175,8 @@ class SkillSpell {
                     var failthis = false;
                     while (prereqs.length > 0)
                     {
-                        var args = Utility.OneArgument(prereqs);
-                        prereq = args[0];
-                        prereqs = args[1];
+                        [prereq, prereqs] = prereqs.oneArgument();
+                        
                         var learned;
                         
                         if ((learned = ch.Learned[prereq.toLowerCase()]) && learned.Percent >= this.GuildPreRequisiteSkillPercentage[ch.Guild.Name])
@@ -199,7 +197,8 @@ class SkillSpell {
             {
                 while (prereqs.length > 0)
                 {
-                    var args = Utility.OneArgument(prereqs);
+                    var skill;
+                    [skill, prereqs] = prereqs.oneArgument();
                     var skill = args[0];
                     prereqs = args[1];
                     var learned;

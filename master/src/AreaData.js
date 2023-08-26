@@ -70,7 +70,7 @@ class AreaData {
 		var areasdirectory = Settings.AreaDataPath;
 		fs.readdir(areasdirectory, function(err, filenames) {
 			if (err) {
-			  throw err;
+			  throw new Error(err);
 			  return;
 			}
 			
@@ -78,7 +78,7 @@ class AreaData {
 				if(filename.endsWith(".xml") && !filename.endsWith("_Programs.xml")) {
 				  fs.readFile(path.join(areasdirectory, filename), 'utf-8', function(err, content) {
 					if (err) {
-					  throw err;
+					  throw new Error(err);
 					  return;
 					}
 					parser.parseString(content, function(err, xml) {

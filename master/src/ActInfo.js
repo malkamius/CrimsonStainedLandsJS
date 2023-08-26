@@ -6,13 +6,13 @@ const Settings = require("./Settings");
 const FileSystem = require("fs");
 
 function dosay(player, arguments) {
-	player.Act("\\y$n says '{0}\\x\\y'\\x\n", null, null, null, "ToRoom", [arguments]);
+	player.Act("\\y$n says '{0}\\x\\y'\\x\n", null, null, null, "ToRoom", arguments);
 	// for (const otherplayer of Player.Players) {
 	// 	if (otherplayer.Name !== null && otherplayer != player) {
 	// 	  player.Act("\\y$n" + ` says '${arguments}'\\x\n`, otherplayer, null, null, "ToVictim");
 	// 	} 
 	// }
-	player.send("\\yYou say '{0}\\x\\y'\\x\n", [arguments]);
+	player.send("\\yYou say '{0}\\x\\y'\\x\n", arguments);
 }
 
 function doquit(player, arguments) {
@@ -37,7 +37,7 @@ function dohelp(player, arguments, plain = false) {
 			player.send((help.Text.startsWith(".")? help.Text.substr(1) : help.Text) + (help.Text.endsWith("\n") || help.Text.endsWith("\r")? "" : "\n\r"));
 			if(!plain)
 			player.send("--------------------------------------------------------------------------------\n\r");
-			player.send("Last edited on {0} by {1}.\n\r\n\r", [help.LastEditedOn, help.LastEditedBy]);
+			player.send("Last edited on {0} by {1}.\n\r\n\r", help.LastEditedOn, help.LastEditedBy);
 			found = true;
 		}
 	}
@@ -202,7 +202,7 @@ function DoWho(ch, arguments) {
 		if (connection.status == "Playing" && connection.socket != null && (!connection.Flags.WizInvis || (ch.Flags.HolyLight && ch.Level >= connection.Level)))
 		{
 			whoList += Utitlity.Format("[{0,4} {1}] {2}{3}{4}{5}{6}\n\r",
-				[connection.Level,
+				connection.Level,
 				(connection.Guild? connection.Guild.WhoName : "   "),
 				//connection.IsAFK ? "\\r(AFK)\\x" : "     ",
 				"     ",
@@ -210,7 +210,7 @@ function DoWho(ch, arguments) {
 				connection.Name,
 				(!Utitlity.IsNullOrEmpty(connection.Title) ? (connection.Title.startsWith(",") ? connection.Title : " " + connection.Title) : ""),
 				(!Utitlity.IsNullOrEmpty(connection.ExtendedTitle) ? (!connection.ExtendedTitle.startsWith(",") ? " " : "") + connection.ExtendedTitle : "")
-				]);
+				);
 			playersOnline++;
 		}
 	}
@@ -282,7 +282,7 @@ function DoSkills(ch, arguments) {
 					text += "\n\r";
 				}
 
-				text += ("    " + (skill.Name + " " + (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A")).padStart(20).padEnd(25));
+				text += ("    " + (skill.Name + " " + (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A")).padStart(30).padEnd(35));
 
 				if (column == 1)
 				{

@@ -17,7 +17,7 @@ Data.LoadData(DataLoaded);
 
 function DataLoaded() {
 	var address = server.address();
-	console.log(Utility.Format("Awaiting connections at {0}:{1}", [address.address, address.port]));
+	console.log(Utility.Format("Awaiting connections at {0}:{1}", address.address, address.port));
 
 	for(player of Utility.CloneArray(Player.Players))
 	{	
