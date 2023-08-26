@@ -15,6 +15,7 @@ const GuildData = require("./GuildData");
 const AffectData = require("./AffectData");
 const Settings = require("./Settings");
 const SkillSpell = require("./SkillSpell");
+const SkillGroup = require("./SkillGroup");
 
 const parser = new xml2js.Parser({ strict: false, trim: false });
 
@@ -508,8 +509,10 @@ class Player extends Character {
 					}
 				}
 
-				if(!this.Guild)
+				if(!this.Guild) {
 					this.SetStatus("GetGuild");
+					return true;
+				}
 				else if(Utility.IsNullOrEmpty(this.Guild.StartingWeapon) ||
 				this.Guild.StartingWeapon == "0" || 
 				this.Guild.StartingWeapon == 0) {
@@ -527,6 +530,30 @@ class Player extends Character {
 					this.SetStatus("GetAlignment");
 				}
 				this.Learned["recall"] = {Name: "recall", Percent: 100, Level: 1, LearnedAs: {Skill: true}};
+				
+				var groupname;
+				if((groupname = this.Guild.GuildBasicsGroup)) {
+					var basicsgroup = SkillGroup.Lookup(groupname);
+
+					if(basicsgroup) {
+						var skills = basicsgroup.Skills;
+
+						while(!skills.IsNullOrEmpty()) {
+							var args = skills.oneArgument();
+							var skill = SkillSpell.GetSkill(args[0]);
+							skills = args[1];
+
+							if(skill) {
+								var learnastype = {Skill: true};
+								if(skill.SkillTypes["Skill"]) learnastype = {Skill: true};
+								else if(skill.SkillTypes["Supplication"] && this.Guild.CastType == "Commune") learnastype = {Supplication: true};
+								else if(skill.SkillTypes["Spell"] && this.Guild.CastType == "Cast") learnastype = {Spell: true};
+								else if(skill.SkillTypes["Song"] && this.Guild.CastType == "Sing") learnastype = {Song: true};
+								this.Learned[skill.Name] = {Name: skill.Name, Percent: 100, Level: 1, LearnedAs: learnastype};
+							}
+						}
+					}
+				}
 
 				for(var skillname in SkillSpell.Skills)
 				{

@@ -5,11 +5,13 @@ const AreaData = require("./AreaData");
 const SkillSpell = require("./SkillSpell");
 const Settings = require("./Settings");
 const DamageMessage = require("./DamageMessage");
+const SkillGroup = require("./SkillGroup");
 
 function LoadData(callback) {
 	Settings.Load();
 	DamageMessage.Load();
 	SkillSpell.LoadAll();
+	SkillGroup.Load();
     LoadRaces(callback);
 }
 

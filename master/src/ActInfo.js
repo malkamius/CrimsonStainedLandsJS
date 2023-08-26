@@ -31,7 +31,7 @@ function dohelp(player, arguments, plain = false) {
 
 	for(var helpkey in AreaData.AllHelps) {
 		var help = AreaData.AllHelps[helpkey];
-		if(help.VNum.startsWith(arguments) || Utility.Includes(help.Keyword, arguments)) {
+		if(help.VNum.toString().startsWith(arguments) || Utility.Includes(help.Keyword, arguments)) {
 			if(!plain)
 			player.send("--------------------------------------------------------------------------------\n\r");
 			player.send((help.Text.startsWith(".")? help.Text.substr(1) : help.Text) + (help.Text.endsWith("\n") || help.Text.endsWith("\r")? "" : "\n\r"));

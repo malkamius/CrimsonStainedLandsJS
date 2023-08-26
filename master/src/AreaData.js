@@ -4,11 +4,13 @@ const xml2js = require('xml2js');
 const parser = new xml2js.Parser({ strict: false, trim: false });
 const Settings = require("./Settings");
 
-AllAreas = {};
-AllRooms = {};
-AllHelps = {};
+
 
 class AreaData {
+	static AllAreas = {};
+	static AllRooms = {};
+	static AllHelps = {};
+
 	xml = null;
 	Name = "";
 	Rooms = {};
@@ -52,69 +54,57 @@ class AreaData {
 			}
 		}
 		if(xml.HELPS) {
-			for(const helps of xml.HELPS) {
-				for(var help of helps.HELP)
+			for(const helpsxml of xml.HELPS) {
+				for(var helpxml of helpsxml.HELP)
 				{
-					AreaData.AllHelps[help.$.VNUM] = this.helps[help.$.VNUM] = new helpdata(help.$.VNUM, help.$.KEYWORD, help.$.LASTEDITEDBY, help.$.LASTEDITEDON, help._);
+					var help = new HelpData(helpxml);
+					AreaData.AllHelps[help.VNum] = this.helps[help.VNum] = help;
 				}
 			}
 			
 		}
 		
 	} // end constructor
-
-}
-if(!AreaData.AllAreas);
-	AreaData.AllAreas = AllAreas;
-if(!AreaData.AllRooms);
-	AreaData.AllRooms = AllRooms;
-if(!AreaData.AllHelps);
-	AreaData.AllHelps = AllHelps;
-
-AreaData.LoadAllAreas = function(callback) {
-    var counter = 0;
-	var areasdirectory = Settings.AreaDataPath;
-	fs.readdir(areasdirectory, function(err, filenames) {
-		if (err) {
-		  throw err;
-		  return;
-		}
-		
-		filenames.forEach(function(filename) {
-			if(filename.endsWith(".xml") && !filename.endsWith("_Programs.xml")) {
-			  fs.readFile(path.join(areasdirectory, filename), 'utf-8', function(err, content) {
-				if (err) {
-				  throw err;
-				  return;
-				}
-				parser.parseString(content, function(err, xml) {
-					var area = AreaData.AllAreas[xml.AREA.AREADATA[0].NAME[0]] = new AreaData(xml.AREA);
-					//console.log("Loaded area " + area.Name);
-				});
-				counter++;
-				if (counter === filenames.length) {
-					callback();
-				}
-			  });
-			} else {
-				counter++;
-				if (counter === filenames.length) {
-					callback();
-				}
+	static LoadAllAreas(callback) {
+		var counter = 0;
+		var areasdirectory = Settings.AreaDataPath;
+		fs.readdir(areasdirectory, function(err, filenames) {
+			if (err) {
+			  throw err;
+			  return;
 			}
+			
+			filenames.forEach(function(filename) {
+				if(filename.endsWith(".xml") && !filename.endsWith("_Programs.xml")) {
+				  fs.readFile(path.join(areasdirectory, filename), 'utf-8', function(err, content) {
+					if (err) {
+					  throw err;
+					  return;
+					}
+					parser.parseString(content, function(err, xml) {
+						var area = AreaData.AllAreas[xml.AREA.AREADATA[0].NAME[0]] = new AreaData(xml.AREA);
+						//console.log("Loaded area " + area.Name);
+					});
+					counter++;
+					if (counter === filenames.length) {
+						callback();
+					}
+				  });
+				} else {
+					counter++;
+					if (counter === filenames.length) {
+						callback();
+					}
+				}
+			});
 		});
-	});
-    
+		
+	}
+	
 }
 
-function helpdata(vnum, keyword, lasteditedby, lasteditedon, text) {
-	this.VNum = vnum;
-	this.Keyword = keyword;
-	this.LastEditedBy = lasteditedby;
-	this.LastEditedOn = lasteditedon;
-	this.Text = text;
-	//console.log("Loaded help " + this.VNum + " :: " + this.Keyword);
-}
+
+
 
 module.exports = AreaData;
 
@@ -122,3 +112,4 @@ const RoomData = require('./RoomData');
 const NPCTemplateData = require('./NPCTemplateData');
 const ItemTemplateData = require('./ItemTemplateData');
 const ResetData = require('./ResetData');
+const HelpData = require("./HelpData");

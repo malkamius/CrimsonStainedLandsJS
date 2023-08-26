@@ -7,9 +7,10 @@ const Utility = require("./Utility");
 const PcRaceData = require("./PcRaceData");
 const Settings = require("./Settings");
 
-Guilds = Array();
+
 
 class GuildData {
+    static Guilds = Array();
     Name = "";
     WhoName = "";
     Races = Array();
@@ -49,26 +50,24 @@ class GuildData {
         this.THAC0 = XmlHelper.GetAttributeValue(xml, "THAC0");
         this.THAC032 = XmlHelper.GetAttributeValue(xml, "THAC032");
 
-        Guilds.push(this);
+        GuildData.Guilds.push(this);
     }
+
+    static LoadAllGuilds(callback) {
+        var guildspath = Settings.DataPath + "/guilds.xml";
+        var content = fs.readFileSync(guildspath, "utf-8");
+        parser.parseString(content, (err, xml) => {
+            for(var guildxml of xml.GUILDS.GUILD)
+            var guild = new GuildData(guildxml);
+        });
+        callback();
+    };
+    
+    static Lookup(name, strprefix = false) {
+        for(var guild of GuildData.Guilds)
+            if((strprefix && Utility.Prefix(guild.Name, name)) || Utility.Compare(guild.Name, name))
+                return guild;
+    };
 }
-
-GuildData.Guilds = Guilds;
-
-function LoadAllGuilds(callback) {
-    var guildspath = Settings.DataPath + "/guilds.xml";
-    var content = fs.readFileSync(guildspath, "utf-8");
-    parser.parseString(content, (err, xml) => {
-        for(var guildxml of xml.GUILDS.GUILD)
-        var guild = new GuildData(guildxml);
-    });
-    callback();
-};
-GuildData.Lookup = function(name, strprefix = false) {
-    for(var guild of Guilds)
-        if((strprefix && Utility.Prefix(guild.Name, name)) || Utility.Compare(guild.Name, name))
-            return guild;
-};
-GuildData.LoadAllGuilds = LoadAllGuilds;
 
 module.exports = GuildData;
