@@ -1,5 +1,6 @@
 const Character = require("./Character");
 const Utility = require("./Utility");
+const DamageMessage = require("./DamageMessage");
 
 Character.Combat.DoKill = function(character, arguments) {
     if(character.Fighting) {
@@ -14,15 +15,31 @@ Character.Combat.DoKill = function(character, arguments) {
             character.send("Suicide is a mortal sin.\n\r");
         }
         else {
+            var weapon = character.Equipment["Wield"];
             character.Fighting = victim;
             character.Position = "Fighting";
-            OneHit(character, victim);
+            OneHit(character, victim, weapon);
         }
     }
 };
 
-function OneHit(character, victim) {
-    var damage = Math.floor(Math.random() * 150);
+function OneHit(character, victim, weapon) {
+    var damage = Math.floor(Math.random() * 10);
+    var damagemessage = DamageMessage.DamageMessages["punch"];
+    var damagetype = "Bash";
+    var damagenoun = "punch";
+
+    if(weapon) {
+        damage = Utility.Roll(weapon.DamageDice);
+        if(damage != 0) damage += character.DamageRoll;
+        damagemessage = DamageMessage.DamageMessages[weapon.WeaponDamageType];
+    }
+    
+    if(damagemessage) {
+        damagetype = damagemessage.Type;
+        damagenoun = damagemessage.Message;
+   }
+   
     if(character.Fighting && character.Fighting == victim && character.Fighting.Room != victim.Room) {
         character.Fighting = null;
         character.Position = "Standing";
@@ -34,7 +51,7 @@ function OneHit(character, victim) {
             victim.Fighting = character;
         victim.Position = "Fighting";
 
-        DamageMessage(character, victim, damage, "punch", "Bash", false);
+        ShowDamageMessage(character, victim, damage, damagenoun, damagetype, false);
         
         victim.HitPoints -= damage;
         if(victim.HitPoints < -15) {
@@ -56,15 +73,26 @@ function OneHit(character, victim) {
 
 Character.Combat.ExecuteRound = function(character) {
     var numhits = Math.floor(Math.random() * 5);
-
+    var weapon = character.Equipment["Wield"];
     for(var i = 0; i < numhits; i++) {
         if(character.Fighting)
-            OneHit(character, character.Fighting)
+            OneHit(character, character.Fighting, weapon)
+    }
+
+    numhits = Math.floor(Math.random() * 5);
+
+    if(!character.Equipment["Shield"] &&
+        !character.Equipment["Held"]) {
+        weapon = character.Equipment["DualWield"];
+        for(var i = 0; i < numhits; i++) {
+            if(character.Fighting)
+                OneHit(character, character.Fighting, weapon)
+        }
     }
 };
 
 
-function DamageMessage(ch, victim, damageAmount, nounDamage, DamageType = "Bash", immune = false)
+function ShowDamageMessage(ch, victim, damageAmount, nounDamage, DamageType = "Bash", immune = false)
 {
     // Variables for verb singular, verb plural, and punctuation
     var vs = "";

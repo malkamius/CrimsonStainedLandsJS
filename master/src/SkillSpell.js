@@ -4,8 +4,6 @@ const Settings = require("./Settings");
 const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility");
 
-const parser = new xml2js.Parser({ strict: false, trim: false });
-
 class SkillSpell {
     static Skills = {};
     
@@ -41,6 +39,8 @@ class SkillSpell {
     PrerequisitePercentage = 0;
 
     static LoadAll() {
+        const parser = new xml2js.Parser({ strict: false, trim: false });
+
         var paths = [Settings.DataPath + "/skilllevels.xml", Settings.DataPath + "/songs.xml"];
 
         for(var path of paths) {

@@ -22,6 +22,10 @@ function getElementValueInt(xml, name, defaultvalue = 0) {
 	return parseInt(getElementValue(xml, name, defaultvalue));
 }
 
+function getElementValueFloat(xml, name, defaultvalue = 0) {
+	return parseFloat(getElementValue(xml, name, defaultvalue));
+}
+
 function getAttributeValue(xml, name, defaultvalue = "") {
 	if(!xml.$ && Object.keys(xml).length == 1) {
 		xml = xml[Object.keys(xml)[0]];
@@ -42,9 +46,14 @@ function getAttributeValueInt(xml, name, defaultvalue = 0) {
 	return parseInt(getAttributeValue(xml, name, defaultvalue));
 }
 
+function getAttributeValueFloat(xml, name, defaultvalue = 0) {
+	return parseFloat(getAttributeValue(xml, name, defaultvalue));
+}
 
 exports.GetElement = getElement;
 exports.GetElementValue = getElementValue;
 exports.GetElementValueInt = getElementValueInt;
+exports.GetElementValueFloat = getElementValueFloat;
 exports.GetAttributeValue = getAttributeValue;
 exports.GetAttributeValueInt = getAttributeValueInt;
+exports.GetAttributeValueFloat = getAttributeValueFloat;

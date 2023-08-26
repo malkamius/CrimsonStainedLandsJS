@@ -4,9 +4,11 @@ const GuildData = require("./GuildData");
 const AreaData = require("./AreaData");
 const SkillSpell = require("./SkillSpell");
 const Settings = require("./Settings");
+const DamageMessage = require("./DamageMessage");
 
 function LoadData(callback) {
 	Settings.Load();
+	DamageMessage.Load();
 	SkillSpell.LoadAll();
     LoadRaces(callback);
 }

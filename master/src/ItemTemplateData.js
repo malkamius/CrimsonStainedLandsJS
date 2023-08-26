@@ -13,8 +13,8 @@ class ItemTemplateData {
     HelbBy = null;
     ContainedIn = null;
     WearFlags = {};
-    WeaponType = null;
-    WeaponDamageType = null;
+    WeaponType = "";
+    WeaponDamageType = "";
     ExtraFlags = {};
     ItemTypes = {};
     Level = 0;
@@ -41,10 +41,26 @@ class ItemTemplateData {
         this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription");
         this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription");
         this.Description = XmlHelper.GetElementValue(xml, "Description");
+        this.Material = XmlHelper.GetElementValue(xml, "Material");
+        this.Liquid = XmlHelper.GetElementValue(xml, "Liquid");
         Utility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
         Utility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
         Utility.ParseFlags(this.ItemTypes, XmlHelper.GetElementValue(xml, "ItemTypes"));
         this.WeaponType = XmlHelper.GetElementValue(xml, "WeaponType");
+        this.WeaponDamageType = XmlHelper.GetElementValue(xml, "WeaponDamageType");
+        this.DamageDice[0] = XmlHelper.GetElementValueInt(xml, "DiceSides");
+        this.DamageDice[1] = XmlHelper.GetElementValueInt(xml, "DiceCount");
+        this.DamageDice[2] = XmlHelper.GetElementValueInt(xml, "DiceBonus");
+        this.Weight = XmlHelper.GetElementValueFloat(xml, "Weight");
+        this.MaxWeight = XmlHelper.GetElementValueFloat(xml, "MaxWeight");
+        this.Silver = XmlHelper.GetElementValueInt(xml, "Silver");
+        this.Gold = XmlHelper.GetElementValueInt(xml, "Gold");
+        this.Charges = XmlHelper.GetElementValueInt(xml, "Charges");
+        this.MaxCharges = XmlHelper.GetElementValueInt(xml, "MaxCharges");
+        this.ArmorBash = XmlHelper.GetElementValueInt(xml, "ArmorBash");
+        this.ArmorPierce = XmlHelper.GetElementValueInt(xml, "ArmorPierce");
+        this.ArmorSlash = XmlHelper.GetElementValueInt(xml, "ArmorSlash");
+        this.ArmorExotic = XmlHelper.GetElementValueInt(xml, "ArmorExotic");
 
         if(!area.ItemTemplates[this.VNum])
             area.ItemTemplates[this.VNum] = this;

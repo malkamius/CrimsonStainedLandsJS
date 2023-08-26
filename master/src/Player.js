@@ -87,6 +87,22 @@ class Player extends Character {
 		this.Ethos = XmlHelper.GetElementValue(xml,"Ethos");
 		this.Sex = XmlHelper.GetElementValue(xml,"Sex");
 		this.Level = XmlHelper.GetElementValueInt(xml,"Level");
+
+		this.DamageRoll = XmlHelper.GetElementValueInt(xml,"DamRoll");
+		this.HitRoll = XmlHelper.GetElementValueInt(xml,"HitRoll");
+		this.ArmorClass = XmlHelper.GetElementValueInt(xml,"ArmorClass");
+		this.Silver = XmlHelper.GetElementValueInt(xml,"Silver");
+		this.Gold = XmlHelper.GetElementValueInt(xml,"Gold");
+		this.SilverBank = XmlHelper.GetElementValueInt(xml,"SilverBank");
+		this.Practices = XmlHelper.GetElementValueInt(xml,"Practices");
+		this.Trains = XmlHelper.GetElementValueInt(xml,"Trains");
+		this.Hunger = XmlHelper.GetElementValueInt(xml,"Hunger");
+		this.Thirst = XmlHelper.GetElementValueInt(xml,"Thirst");
+		this.SavingThrow = XmlHelper.GetElementValueInt(xml,"SavingThrow");
+
+		this.AffectedBy = {};
+		Utility.ParseFlags(this.AffectedBy, XmlHelper.GetElementValue("AffectedBy"));
+
 		this.HitPoints = XmlHelper.GetElementValueInt(xml,"HitPoints");
 		this.MaxHitPoints = XmlHelper.GetElementValueInt(xml,"MaxHitPoints");
 		this.ManaPoints = XmlHelper.GetElementValueInt(xml,"ManaPoints");
@@ -208,6 +224,21 @@ class Player extends Character {
 		xmlelement.ele("MovementPoints", this.MovementPoints);
 		xmlelement.ele("MaxMovementPoints", this.MaxMovementPoints);
 
+		xmlelement.ele("DamRoll", this.DamageRoll);
+		xmlelement.ele("HitRoll", this.HitRoll);
+		xmlelement.ele("ArmorClass", this.ArmorClass);
+		xmlelement.ele("Silver", this.Silver);
+		xmlelement.ele("Gold", this.Gold);
+		xmlelement.ele("SilverBank", this.SilverBank);
+		xmlelement.ele("Practices", this.Practices);
+		xmlelement.ele("Trains", this.Trains);
+		xmlelement.ele("Hunger", this.Hunger);
+		xmlelement.ele("Thirst", this.Thirst);
+		xmlelement.ele("SavingThrow", this.SavingThrow);
+
+		xmlelement.ele("AffectedBy", Utility.JoinFlags(this.AffectedBy));
+		
+		
 		var stats = xmlelement.ele("PermanentStats");
 		stats.ele("Strength", this.PermanentStats[0]);
 		stats.ele("Wisdom", this.PermanentStats[1]);

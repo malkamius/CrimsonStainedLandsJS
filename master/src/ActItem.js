@@ -462,10 +462,10 @@ function WearItem(player, item, sendMessage = true, remove = true)
         // }
 
         // Check if the item can be dual wielded and the character has the appropriate skill
-        if (slot.ID == "DualWield" || //&&
-        //     (GetSkillPercentage(SkillSpell.SkillLookup("dual wield")) <= 1 ||
+        if (slot.ID == "DualWield" &&
+             (player.GetSkillPercentage("dual wield") <= 1 ||
              item.ExtraFlags.TwoHands ||
-             (wielded && wielded.ExtraFlags.TwoHands))
+             (wielded && wielded.ExtraFlags.TwoHands)))
              continue;
 
         // Check if the item can be worn in the current slot and the slot is empty
@@ -492,6 +492,7 @@ function WearItem(player, item, sendMessage = true, remove = true)
 
     // Check if a two-handed item requires the removal of an offhand item
     if (!emptySlot && !remove) return false;
+
     if (item.ExtraFlags.TwoHands && ((offhand = player.Equipment["Shield"]) || (offhand = player.Equipment["Held"]) || (offhand = player.Equipment["DualWield"])))
     {
         if (!RemoveEquipment(player, offhand, sendMessage))

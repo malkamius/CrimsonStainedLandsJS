@@ -8,6 +8,7 @@ const AffectData = require("./AffectData");
  * @class ItemData
  */
 class ItemData {
+    Template = null;
     VNum = 0;
     Name = "";
     ShortDescription = "";
@@ -20,8 +21,8 @@ class ItemData {
     HelbBy = null;
     ContainedIn = null;
     WearFlags = {};
-    WeaponType = null;
-    WeaponDamageType = null;
+    WeaponType = "";
+    WeaponDamageType = "";
     ExtraFlags = {};
     ItemTypes = {};
     Level = 0;
@@ -45,6 +46,7 @@ class ItemData {
     constructor(vnum, room, character) {
         var template = ItemTemplateData.ItemTemplates[vnum];
         if(template) {
+            this.Template = template;
             this.VNum = template.VNum;
             this.Name = template.Name;
             this.ShortDescription = template.ShortDescription;
@@ -56,6 +58,20 @@ class ItemData {
 
             this.WeaponType = template.WeaponType;
             this.WeaponDamageType = template.WeaponDamageType;
+            this.DamageDice = Utility.CloneArray(template.DamageDice);
+            this.Material = template.Material;
+            this.Liquid = template.Liquid;
+            this.Weight = template.Weight;
+            this.MaxWeight = template.MaxWeight;
+            this.Silver = template.Silver;
+            this.Gold = template.Gold;
+            this.Charges = template.Charges;
+            this.MaxCharges = template.MaxCharges;
+
+            this.ArmorBash = template.ArmorBash;
+            this.ArmorPierce = template.ArmorPierce;
+            this.ArmorSlash = template.ArmorSlash;
+            this.ArmorExotic = template.ArmorExotic;
 
             if(room) {
                 room.Items.unshift(this);
@@ -110,6 +126,7 @@ class ItemData {
         this.Name = XmlHelper.GetElementValue(xml, "NAME", this.Name);
         this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription", this.ShortDescription);
         this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription", this.LongDescription);
+        
         if(xml.WEARFLAGS) {
             this.WearFlags = {};
             Utility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
@@ -146,12 +163,19 @@ class ItemData {
         var itemele = ele.ele("Item");
         itemele.ele("VNum", this.VNum);
         itemele.ele("Name", this.Name);
+        if(this.ShortDescription != this.Template.ShortDescription)
         itemele.ele("ShortDescription", this.ShortDescription);
+        if(this.LongDescription != this.Template.LongDescription)
         itemele.ele("LongDescription", this.LongDescription);
+        if(this.Description != this.Template.Description)
         itemele.ele("Description", this.Description);
+        if(this.Liquid != this.Template.Liquid)
+        itemele.ele("Liquid", this.Liquid);
+
         itemele.ele("ItemTypes", Utility.JoinFlags(this.ItemTypes));
         itemele.ele("WearFlags", Utility.JoinFlags(this.WearFlags));
         itemele.ele("ExtraFlags", Utility.JoinFlags(this.ExtraFlags));
+
         if(this.Affects && this.Affects.length > 0) {
             var affectselement = itemele.ele("Affects");
             for(var affect of this.Affects) {
