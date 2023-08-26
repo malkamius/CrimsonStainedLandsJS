@@ -304,6 +304,7 @@ class Player extends Character {
 
 		if(this.output != null && this.output != "")
 		{
+			this.output = this.output.replace("\r", "");
 			if(this.status == "Playing") {
 				if (this.Fighting)
 				{
@@ -326,11 +327,11 @@ class Player extends Character {
 					else
 						health = "is dead.";
 					//output.Append(fighting.Display(this) + " " + health + "\n\r");
-					this.Act("$N " + health + "\n\r", this.Fighting);
+					this.Act("$N " + health + "\n", this.Fighting);
 				}
-				this.output = this.output + "\n\r" + this.GetPrompt();
-				if (this.SittingAtPrompt && !this.output.startsWith("\n\r"))
-				this.output = "\n\r" + this.output;
+				this.output = this.output + (!this.output.endsWith("\n\n")? "\n" : "") + this.GetPrompt();
+				if (this.SittingAtPrompt && !this.output.startsWith("\n"))
+				this.output = "\n" + this.output;
 			}
 			
 			this.output = this.output.replace("\r", "");

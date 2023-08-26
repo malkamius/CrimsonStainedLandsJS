@@ -181,6 +181,7 @@ class Character {
 	}
 
 	FormatActMessage(message, to, victim, item, item2, ...params) {
+		if(params && params.length == 1 && Array.isArray(params[0])) params = params[0];
 		var output = "";
 		message = Utility.Format(message, params);
 		for (var i = 0; i < message.length; i++) {
