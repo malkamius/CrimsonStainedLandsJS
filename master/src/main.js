@@ -11,6 +11,7 @@ const Data = require('./Data');
 const Color = require("./Color");
 const Settings = require("./Settings");
 var server = startListening(Settings.Port); 
+var IsDataLoaded = false;
 
 Data.LoadData(DataLoaded);
 
@@ -22,7 +23,8 @@ function DataLoaded() {
 	{	
 		player.HandleOutput();
 	}
-	
+	IsDataLoaded = true;
+
 	setTimeout(function () {
 		pulse()
 	}, 250);
@@ -55,11 +57,12 @@ function HandleNewSocket(socket) {
 
 	socket.on("end", () => HandlePlayerDisconnect(socket))
 	player = new Player(socket);
-		
-	Character.DoCommands.DoHelp(player, "diku", true);
+	if(!IsDataLoaded) player.status = "WaitingOnLoad";
+	else {
+		Character.DoCommands.DoHelp(player, "diku", true);
 
-	player.send("Please enter your name: ");
-
+		player.send("Please enter your name: ");
+	}
 
 	socket.on("data", (buffer) => {
 		player = Player.GetPlayer(socket)
@@ -79,6 +82,13 @@ function pulse()
 {
 	for(player of Utility.CloneArray(Player.Players))
 	{
+		if(player.status == "WaitingOnLoad") {
+			player.status = "GetName";
+			Character.DoCommands.DoHelp(player, "diku", true);
+
+			player.send("Please enter your name: ");
+		}
+
 		player.HandleInput();
 	}
 

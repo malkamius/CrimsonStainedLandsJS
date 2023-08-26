@@ -55,7 +55,7 @@ class AreaData {
 			for(const helps of xml.HELPS) {
 				for(var help of helps.HELP)
 				{
-					AreaData.AllHelps[help.$.VNUM] = this.helps[help.$.VNUM] = new helpdata(help.$.VNUM, help.$.KEYWORD, help._);
+					AreaData.AllHelps[help.$.VNUM] = this.helps[help.$.VNUM] = new helpdata(help.$.VNUM, help.$.KEYWORD, help.$.LASTEDITEDBY, help.$.LASTEDITEDON, help._);
 				}
 			}
 			
@@ -107,9 +107,11 @@ AreaData.LoadAllAreas = function(callback) {
     
 }
 
-function helpdata(vnum, keyword, text) {
+function helpdata(vnum, keyword, lasteditedby, lasteditedon, text) {
 	this.VNum = vnum;
 	this.Keyword = keyword;
+	this.LastEditedBy = lasteditedby;
+	this.LastEditedOn = lasteditedon;
 	this.Text = text;
 	//console.log("Loaded help " + this.VNum + " :: " + this.Keyword);
 }

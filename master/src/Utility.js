@@ -277,11 +277,13 @@ class Utility {
 	}
 }
 
-String.prototype.oneArgument = () => { return Utility.OneArgument(this); };
-String.prototype.equals = () => { return Utility.Compare(this); };
-String.prototype.prefix= (str) =>{ return Utility.Prefix(this, str); };
-String.prototype.contains = (str) => { return Utility.Includes(this, str); };
+// https://stackoverflow.com/a/59102181
+Object.defineProperty( String.prototype, 'oneArgument', { value: function () { return Utility.OneArgument(this); }} );
+Object.defineProperty( String.prototype, 'equals', { value: function (str1) { return Utility.Compare(this, str1); }} );
+Object.defineProperty( String.prototype, 'prefix', { value: function (str) { return Utility.Prefix(this, str); }} );
+Object.defineProperty( String.prototype, 'contains', { value: function (str) { return Utility.Includes(this, str); }} );
+Object.defineProperty( String.prototype, 'IsNullOrEmpty', { value: function () { return Utility.IsNullOrEmpty(this); }} );
 
-Array.prototype.joinWithTransform = (transform, separator) => {return Utility.JoinArray(this, transform, separator);};
+Object.defineProperty( Array.prototype, 'joinWithTransform', { value: function () { return Utility.JoinArray(this, transform, separator); }} );
 
 module.exports = Utility;

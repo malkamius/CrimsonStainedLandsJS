@@ -353,10 +353,7 @@ class Player extends Character {
 				else
 					this.input = "";
 				
-				if(this.status != "Playing") {			
-					this.nanny(str);
-				}
-				else if(this.status == "Playing") {
+				if(this.status == "Playing" || str.toLowerCase().startsWith("help")) {
 					var args = str.oneArgument();
 					if(args[0] == "")
 					{
@@ -368,6 +365,8 @@ class Player extends Character {
 					for(var key in Commands) {
 						if(Utility.Prefix(key, args[0])) {
 							Commands[key](this, args[1]);
+							if(this.status != "Playing")
+								this.SetStatus(this.status);
 							this.SittingAtPrompt = false;
 							return;
 						}
@@ -376,6 +375,10 @@ class Player extends Character {
 					this.send("Huh?\n\r");
 					this.SittingAtPrompt = false;
 				}
+				else if(this.status != "Playing") {			
+					this.nanny(str);
+				}
+
 			}
 		}
 	}
@@ -731,7 +734,8 @@ class Player extends Character {
 				this.send("That player is already connected, continuing will disconnect them.\n\rContinue? (yes/no) ");
 				break;
 			case "Playing":
-				Character.DoCommands.DoHelp(this, "greeting");
+				Character.DoCommands.DoHelp(this, "greeting", true);
+				Character.DoCommands.DoHelp(this, "MOTD", false);
 				this.send("\n\rWelcome to the Crimson Stained Lands!\n\r\n\r");
 				if(!this.Room) {
 					var room = RoomData.Rooms[this.RoomVNum];

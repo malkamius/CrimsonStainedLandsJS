@@ -25,7 +25,10 @@ function doquit(player, arguments) {
 }
 
 function dohelp(player, arguments, plain = false) {
+	var found = false;
 	//var args = oneargument(str);
+	if(arguments.IsNullOrEmpty()) arguments = "help";
+
 	for(var helpkey in AreaData.AllHelps) {
 		var help = AreaData.AllHelps[helpkey];
 		if(help.VNum.startsWith(arguments) || Utility.Includes(help.Keyword, arguments)) {
@@ -33,9 +36,12 @@ function dohelp(player, arguments, plain = false) {
 			player.send("--------------------------------------------------------------------------------\n\r");
 			player.send((help.Text.startsWith(".")? help.Text.substr(1) : help.Text) + (help.Text.endsWith("\n") || help.Text.endsWith("\r")? "" : "\n\r"));
 			if(!plain)
-			player.send("--------------------------------------------------------------------------------\n\r\n\r");
+			player.send("--------------------------------------------------------------------------------\n\r");
+			player.send("Last edited on {0} by {1}.\n\r\n\r", [help.LastEditedOn, help.LastEditedBy]);
+			found = true;
 		}
 	}
+	if(!found) player.send("No help on that.\n\r");
 }
 
 function dolook(player, arguments, auto) {
