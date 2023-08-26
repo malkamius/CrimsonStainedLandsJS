@@ -357,7 +357,7 @@ class Player extends Character {
 					this.nanny(str);
 				}
 				else if(this.status == "Playing") {
-					var args = Utility.OneArgument(str);
+					var args = str.oneArgument();
 					if(args[0] == "")
 					{
 						this.send("\n\r");
