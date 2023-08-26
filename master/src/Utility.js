@@ -211,7 +211,7 @@ class Utility {
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
 	static Format(str, ...array) {
 		var result = "";
-		
+		if(array && array.length == 1 && Array.isArray(array[0])) array = array[0];
 		if(Utility.IsNullOrEmpty(str))
 			return result;
 		else if(!array || array.length == 0)
@@ -229,15 +229,15 @@ class Utility {
 						var variables = variable.split(",");
 						if(variables && variables[0]) {
 							var index = parseInt(variables[0])
-							if(index != NaN && index < array[0].length && index >= 0) {
+							if(index != NaN && index < array.length && index >= 0) {
 								if(variable[1]) {
 									var padding = parseInt(variables[1]);
 									if(padding && padding < 0) {
-										result = result + ("" + array[0][index]).padStart(-padding);
+										result = result + ("" + array[index]).padStart(-padding);
 									} else if (padding > 0) {
-										result = result + ("" + array[0][index]).padEnd(padding);
+										result = result + ("" + array[index]).padEnd(padding);
 									} else {
-										result = result + array[0][index];
+										result = result + array[index];
 									}
 								}
 								else {
