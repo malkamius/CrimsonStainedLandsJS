@@ -1,14 +1,19 @@
-Rooms = {};
-Directions = Array("north", "east", "south", "west", "up", "down");
-
 
 class RoomData {
+	static Rooms = {};
+	static Directions = Array("north", "east", "south", "west", "up", "down");
+
+	Area = null;
 	VNum = 0;
 	Name = "";
 	Description = "";
 	Exits = Array(null, null, null, null, null, null);
+	Characters = Array();
+	Items = Array();
 
-	constructor(areas, area, roomxml) {
+	constructor(area, roomxml) {
+		const ExitData = require('./ExitData');
+		this.Area = area;
 		this.VNum = roomxml.VNUM;
 		this.Name = roomxml.NAME;
 		this.Description = roomxml.DESCRIPTION;
@@ -21,17 +26,10 @@ class RoomData {
 				}
 			}
 		}
-		
-		this.Characters = Array();
-		this.Items = Array();
-		
-		Rooms[this.VNum] = this;
+		RoomData.Rooms[this.VNum] = this;
 	}
 }
 
 
-RoomData.Directions = Directions;
-RoomData.Rooms = Rooms;
 module.exports = RoomData;
 
-ExitData = require('./ExitData');

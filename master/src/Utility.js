@@ -278,8 +278,10 @@ const xml2js = require('xml2js');
 
 // https://stackoverflow.com/a/59102181
 Object.defineProperty( String.prototype, 'oneArgument', { value: function () { return Utility.OneArgument(this); }} );
+Object.defineProperty( String.prototype, 'numberArgument', { value: function () { return Utility.NumberArgument(this); }} );
 Object.defineProperty( String.prototype, 'equals', { value: function (str1) { return Utility.Compare(this, str1); }} );
 Object.defineProperty( String.prototype, 'prefix', { value: function (str) { return Utility.Prefix(this, str); }} );
+Object.defineProperty( String.prototype, 'IsName', { value: function (str) { return Utility.IsName(this, str); }} );
 Object.defineProperty( String.prototype, 'contains', { value: function (str) { return Utility.Includes(this, str); }} );
 Object.defineProperty( String.prototype, 'IsNullOrEmpty', { value: function () { return Utility.IsNullOrEmpty(this); }} );
 Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback) { 

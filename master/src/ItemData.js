@@ -134,6 +134,13 @@ class ItemData {
         if(xml.EXTRAFLAGS) {
             this.ExtraFlags = {};
             Utility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
+
+            if(this.ExtraFlags.Locked) this.ExtraFlags.Closed = true;
+            if(this.ExtraFlags.Closed) {
+                this.ExtraFlags.Closable = true;
+                this.ExtraFlags.Closeable = true;
+            }
+
         }
         if(xml.AFFECTS) {
             this.Affects = Array();
@@ -184,6 +191,7 @@ class ItemData {
         }
         var contains = itemele.ele("Contains");
         for(var i = 0; i < this.Contains.length; i++) {
+            if(this.Contains[i].VNum == 0 || !this.Contains[i] || !this.Contains[i].Template) continue;
             this.Contains[i].Element(contains)
         }
         return itemele;

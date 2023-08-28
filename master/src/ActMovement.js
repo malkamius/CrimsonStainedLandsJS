@@ -40,8 +40,17 @@ function movechar(player, direction) {
 		SendToChar("No way! You are still fighting!\n\r");
 		return;
 	}
-
-	if(player.Room && player.Room.Exits[direction] && player.Room.Exits[direction].Destination && !player.Room.Exits[direction].Flags.Closed) {
+	var exit = player.Room.Exits[direction];
+	if(player.Room && exit && 
+		exit.Destination && 
+		(!exit.Flags.Closed || player.AffectedBy.PassDoor)) {
+		var sizes = ["Tiny", "Small", "Medium", "Large", "Huge", "Giant"];
+		if (sizes.indexOf(this.Size) > sizes.indexOf(exit.ExitSize))
+		{
+			send("You can't fit.\n\r");
+			return;
+		}
+		var destination = exit.Destination;
 		var reversedirections = ["south", "west", "north", "east", "below", "above" ];
 		var room = player.Room;
 		var directionstring = RoomData.Directions[direction];
@@ -82,11 +91,84 @@ function dodown(player, arguments) {
 	movechar(player, 5);
 }
 
+function GetExit(character, keyword, count = 0) {
+	var number = 0;
+	var [number, keyword] = keyword.numberArgument();
+	for(var exit of character.Room.Exits) {
+		if(exit && (exit.Keywords.IsName(keyword) || exit.Direction.prefix(keyword)) && ++count > number) {
+			return [exit, count];
+		}
+	}
+	return [null, count];
+}
+
+function DoOpen(character, arguments) {
+	var item, count;
+	var [exit, count] = GetExit(character, arguments, count);
+	var [item, count] = Character.ItemFunctions.GetItemHere(character, arguments, count);
+	
+	if(exit) {
+		if(exit.Flags.Locked) {
+			character.Act("{0} is locked.\n\r", null, null, null, "ToChar", exit.Display);
+		} else if(!exit.Flags.Closed) {
+			character.Act("{0} is not closed.\n\r", null, null, null, "ToChar", exit.Display);
+		} else	{
+			character.Act("You open {0}.\n\r", null, null, null, "ToChar", exit.Display);
+			character.Act("$n opens {0}.", null, null, null, "ToRoom", exit.Display)
+			delete exit.Flags.Closed;
+		}
+	} else if(item) {
+		if(item.ExtraFlags.Locked) {
+			character.send("It's locked.\n\r");
+		} else if(!item.ExtraFlags.Closed) {
+			character.send("It's not closed.\n\r")
+		} else {
+			character.Act("You open $p.\n\r", null, item);
+			character.Act("$n opens $p.", null, item, null, "ToRoom")
+			delete item.ExtraFlags.Closed;
+		}
+
+	} else {
+		character.send("You don't see that here.\n\r");
+	}
+}
+
+function DoClose(character, arguments) {
+	var item, count;
+	var [exit, count] = GetExit(character, arguments, count);
+	var [item, count] = Character.ItemFunctions.GetItemHere(character, arguments, count);
+	
+	if(exit) {
+		if(!exit.Flags.Door) {
+			character.Act("{0} can't be closed.\n\r", null, null, null, "ToChar", exit.Display);
+		} else if(exit.Flags.Closed) {
+			character.Act("{0} is already closed.\n\r", null, null, null, "ToChar", exit.Display);
+		} else {
+			character.send("You close {0}.\n\r", exit.Display);
+			character.Act("$n closes {0}.", null, null, null, "ToRoom", exit.Display)
+			exit.Flags.Closed = true;
+		}
+	} else if(item) {
+		if(!item.ExtraFlags.Closable) {
+			character.Act("$p can't be closed.\n\r", null, item);
+		} else if(item.ExtraFlags.Closed) {
+			character.Act("$p is already closed.\n\r", null, item);
+		} else {
+			character.Act("You close $p.\n\r", null, item);
+			character.Act("$n closes $p.", null, item, null, "ToRoom")
+			item.ExtraFlags.Closed = true;
+		}
+	}  else {
+		character.send("You don't see that here.\n\r");
+	}
+	
+}
 Character.DoCommands.DoNorth = donorth;
 Character.DoCommands.DoEast = doeast;
 Character.DoCommands.DoSouth = dosouth;
 Character.DoCommands.DoWest = dowest;
 Character.DoCommands.DoUp = doup;
 Character.DoCommands.DoDown = dodown;
-
+Character.DoCommands.DoOpen = DoOpen;
+Character.DoCommands.DoClose = DoClose;
 Character.Move = movechar;

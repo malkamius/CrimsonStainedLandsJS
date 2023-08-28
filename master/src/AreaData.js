@@ -25,7 +25,7 @@ class AreaData {
 			for(const rooms of xml.ROOMS) {
 				if(rooms.ROOM)
 					for(const room of rooms.ROOM) {
-						AreaData.AllRooms[room.VNUM] = this.Rooms[room.VNUM] = new RoomData(AreaData, this, room);
+						AreaData.AllRooms[room.VNUM] = this.Rooms[room.VNUM] = new RoomData(this, room);
 					}
 			}
 		}

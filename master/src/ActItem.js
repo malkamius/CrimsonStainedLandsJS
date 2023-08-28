@@ -224,14 +224,14 @@ function GetItemList(player, list, itemname, count = 0) {
  * @param {string} itemname
  * @return {ItemData} 
  */
-function GetItemHere(player, itemname) {
-    var result = GetItemInventory(player, itemname);
+function GetItemHere(player, itemname, count = 0) {
+    var result = GetItemInventory(player, itemname, count);
     if(!result[0])
         result = GetItemEquipment(player, itemname, result[1]);
     if(!result[0])
         result = GetItemList(player, player.Room.Items, itemname, result[1]);
 
-    return result[0];
+    return result;
 }
 
 function DoGet(player, arguments) {
@@ -247,13 +247,17 @@ function DoGet(player, arguments) {
                 i--;
             }
             else if(!item.WearFlags.Take) {
-                player.send("You can't pick that up.\n\r");
+                player.Act("You can't pick up $p.\n\r", null, item);
             }
         }
     } else if(!Utility.IsNullOrEmpty(containerName)) {
         var container = null;
-
-        if((container = GetItemHere(player, containerName)) != null) {
+        var count = 0;
+        if(([container, count] = GetItemHere(player, containerName)) != null) {
+            if(container.Flag.Closed) {
+                player.Act("$p is closed.\n\r", null, container);
+                return;
+            }
             if(container.Contains.length == 0) {
                 player.Act("$p appears to be empty.", null, container, null, "ToChar");
                 return;
@@ -267,7 +271,7 @@ function DoGet(player, arguments) {
                             i--;
                     }
                     else
-                        player.send("You can't pick that up.\n\r");
+                        player.Act("You can't pick up $p.\n\r", null, item);
                 }
             } else if(itemName.startsWith("all.")) {
                 itemName = itemName.substring(4);
@@ -286,7 +290,7 @@ function DoGet(player, arguments) {
                 if(item && item.WearFlags.Take) {
                     GetItem(player, item, container);
                 } else if(item) {
-                    player.send("You can't pick that up.\n\r");
+                    player.Act("You can't pick up $p.\n\r", null, item);
                 }
                 else player.send("You don't see that.\n\r")
             }

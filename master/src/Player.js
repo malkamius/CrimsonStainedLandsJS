@@ -280,12 +280,14 @@ class Player extends Character {
 
 		var inventory = xmlelement.ele("Inventory")
 		for(var i = 0; i < this.Inventory.length; i++) {
+			if(this.Inventory[i].VNum == 0 || !this.Inventory[i] || !this.Inventory[i].Template) continue;
 			this.Inventory[i].Element(inventory);
 		}
 		
 		var equipment = xmlelement.ele("Equipment")
 		for(var key in this.Equipment) {
 			if(this.Equipment[key]) {
+				if(this.Equipment[key].VNum == 0 || !this.Equipment[key] || !this.Equipment[key].Template) continue;
 				var slot = equipment.ele("Slot").attribute("SlotID", key);
 				this.Equipment[key].Element(slot);
 			}

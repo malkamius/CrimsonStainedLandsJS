@@ -35,9 +35,10 @@ function dohelp(player, arguments, plain = false) {
 			if(!plain)
 			player.send("--------------------------------------------------------------------------------\n\r");
 			player.send((help.Text.startsWith(".")? help.Text.substr(1) : help.Text) + (help.Text.endsWith("\n") || help.Text.endsWith("\r")? "" : "\n\r"));
-			if(!plain)
-			player.send("--------------------------------------------------------------------------------\n\r");
-			player.send("Last edited on {0} by {1}.\n\r\n\r", help.LastEditedOn, help.LastEditedBy);
+			if(!plain) {
+				player.send("--------------------------------------------------------------------------------\n\r");
+				player.send("Last edited on {0} by {1}.\n\r\n\r", help.LastEditedOn, help.LastEditedBy);
+			}
 			found = true;
 		}
 	}
@@ -317,6 +318,36 @@ function DoDelete(character, arguments) {
 	}
 }
 
+function DoWhere(character, arguments) {
+	var count = 0;
+	var desiredcount;
+	var playersonly = arguments.IsNullOrEmpty();
+	var playercount = 0;
+	[desiredcount, arguments] = arguments.numberArgument();
+	if(playersonly) {
+		character.send("Players near you:\n\r");
+	}
+	for(var other of Character.Characters) {
+		if(!other.Room) continue;
+		if(other.Room.Area == character.Room.Area && !other.IsNPC && playersonly) {
+			playercount++;
+			character.send("{0}    {1,20}     {2}\n\r", (other == character? "*" : " "), other.Display(character), other.Room.Name);
+		} else if(other.Room.Area == character.Room.Area && other.Name.IsName(arguments) && ++count >= desiredcount) {
+			playercount++;
+			character.send("{0}   {1,20}     {2}\n\r", (other == character? "*" : " "), other.Display(character), other.Room.Name);
+			if(desiredcount) break;
+		}
+	}
+
+	if(playersonly && playercount == 0) {
+		character.send("    {0}\n\r", "None");
+	} else if(playersonly) {
+		character.send("{0} players found\n\r", playercount);
+	} else if(!playersonly && playercount == 0) {
+		character.send("You didn't find them.\n\r");
+	}
+}
+
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
@@ -328,6 +359,7 @@ Character.DoCommands.DoSave = DoSave;
 Character.DoCommands.DoWho = DoWho;
 Character.DoCommands.DoSkills = DoSkills;
 Character.DoCommands.DoDelete = DoDelete;
+Character.DoCommands.DoWhere = DoWhere;
 
 Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
 Character.CharacterFunctions.GetCharacterList = GetCharacterList;

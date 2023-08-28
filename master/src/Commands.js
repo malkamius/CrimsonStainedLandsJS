@@ -7,6 +7,8 @@ Commands = {
 		"west": Character.DoCommands.DoWest,
 		"up": Character.DoCommands.DoUp,
 		"down": Character.DoCommands.DoDown,
+		"open": Character.DoCommands.DoOpen,
+		"close": Character.DoCommands.DoClose,
 		"equipment": Character.DoCommands.DoEquipment,
 		"inventory": Character.DoCommands.DoInventory,
 		"say": Character.DoCommands.DoSay,
@@ -20,6 +22,7 @@ Commands = {
 		"remove": Character.DoCommands.DoRemove,
 		"save": Character.DoCommands.DoSave,
 		"who": Character.DoCommands.DoWho,
+		"where": Character.DoCommands.DoWhere,
 		"skills": Character.DoCommands.DoSkills,
 		"kill": Character.Combat.DoKill,
 		"delete": Character.DoCommands.DoDelete
