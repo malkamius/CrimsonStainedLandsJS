@@ -116,6 +116,15 @@ function DoOpen(character, arguments) {
 			character.Act("You open {0}.\n\r", null, null, null, "ToChar", exit.Display);
 			character.Act("$n opens {0}.", null, null, null, "ToRoom", exit.Display)
 			delete exit.Flags.Closed;
+			if(exit.Destination) {
+				var reversedirections = {north: 2, east: 3, south: 0, west: 1, up: 5, down: 4};
+				var otherside = exit.Destination.Exits[reversedirections[exit.Direction.toLowerCase()]];
+				delete otherside.Flags.Closed;
+				for(var other of exit.Destination.Characters) {
+					if(other.Position != "Sleeping")
+						other.Act("{0} opens.", null, null, null, "ToChar", otherside.Display)
+				}
+			} 
 		}
 	} else if(item) {
 		if(item.ExtraFlags.Locked) {
@@ -139,11 +148,23 @@ function DoClose(character, arguments) {
 	var [item, count] = Character.ItemFunctions.GetItemHere(character, arguments, count);
 	
 	if(exit) {
+		
+
 		if(!exit.Flags.Door) {
 			character.Act("{0} can't be closed.\n\r", null, null, null, "ToChar", exit.Display);
 		} else if(exit.Flags.Closed) {
 			character.Act("{0} is already closed.\n\r", null, null, null, "ToChar", exit.Display);
 		} else {
+			if(exit.Destination) {
+				var reversedirections = {north: 2, east: 3, south: 0, west: 1, up: 5, down: 4};
+				var otherside = exit.Destination.Exits[reversedirections[exit.Direction.toLowerCase()]];
+				otherside.Flags.Closed = true;
+				for(var other of exit.Destination.Characters) {
+					if(other.Position != "Sleeping")
+						other.Act("{0} closes.", null, null, null, "ToChar", otherside.Display)
+				}
+			} 
+			
 			character.send("You close {0}.\n\r", exit.Display);
 			character.Act("$n closes {0}.", null, null, null, "ToRoom", exit.Display)
 			exit.Flags.Closed = true;
