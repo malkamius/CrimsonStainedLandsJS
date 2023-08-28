@@ -19,11 +19,10 @@ const SkillGroup = require("./SkillGroup");
 
 const parser = new xml2js.Parser({ strict: false, trim: false });
 
-Players = Array();
-
 class Player extends Character {
+	static Players = Array();
 	static PlayersOnlineAtOnceSinceLastReboot = 0;
-
+	inanimate = null;
 	RoomVNum = 0;
 	IsNPC = false;
 	PcRace = null;
@@ -39,7 +38,7 @@ class Player extends Character {
   	constructor(socket) {
 		super();
 		this.socket = socket;
-		Players.push(this);
+		Player.Players.push(this);
   	}
 
 	static GetPlayerByName(name, extracondition) {
@@ -178,7 +177,7 @@ class Player extends Character {
 						var slotid = slotxml.$.SLOTID;
 						if(slotxml.ITEM && slotxml.ITEM) {
 							var itemxml = slotxml.ITEM[0];
-							var item = player.Equipment[slotid] = new ItemData(itemxml.VNUM[0], null, null);
+							var item = this.Equipment[slotid] = new ItemData(itemxml.VNUM[0], null, null);
 							item.Load(itemxml);
 						}
 					}
@@ -200,7 +199,7 @@ class Player extends Character {
   } // end LoadPlayerData
 
 	Save(path) {
-		if(!path) path = Settings.PlayerDataPath + `/${player.Name}.xml`;
+		if(!path) path = Settings.PlayerDataPath + `/${this.Name}.xml`;
 
 		var builder = require('xmlbuilder');
 		var xmlelement = builder.create("PlayerData");
@@ -335,7 +334,7 @@ class Player extends Character {
 			}
 			
 			this.output = this.output.replace("\r", "");
-			this.socket.write(player.output.replace("\n", "\n\r"), "ascii");
+			this.socket.write(this.output.replace("\n", "\n\r"), "ascii");
 			this.SittingAtPrompt = true;
 		}
 
@@ -417,7 +416,7 @@ class Player extends Character {
 					break;
 				}
 
-				player.Name = Utility.Capitalize(input);
+				this.Name = Utility.Capitalize(input);
 				if(fs.existsSync(`data/players/${this.Name}.xml`)) {
 					this.Load(`data/players/${this.Name}.xml`);
 					if(this.Password != "") {
@@ -654,11 +653,18 @@ class Player extends Character {
 					console.log(`${this.Name} disconnected - already playing`);
 				} else if(Utility.Prefix("yes", input)) {
 					var other = Player.GetPlayerByName(this.Name, (player) => player != this);
-					other.sendnow("Your character is being logged in elsewhere.\n\r");
-					other.Act("$n loses their animation.", null, null, null, "ToRoom");
-					other.socket.destroy();
-					other.socket = this.socket;
-					Player.Players.splice(Player.Players.indexOf(this), 1);
+					if(other) {
+						if(!other.socket.destroyed) {
+							other.sendnow("Your character is being logged in elsewhere.\n\r");
+							other.Act("$n loses their animation.", null, null, null, "ToRoom");
+							other.socket.destroy();
+						}
+						other.inanimate = null;
+						other.socket = this.socket;
+						// The other player took over this socket, remove this player
+						Player.Players.splice(Player.Players.indexOf(this), 1);
+						this.socket = null;
+					}
 					other.SetStatus("Playing");
 				} else {
 					var other = Player.GetPlayerByName(this.Name, (player) => player != this);
@@ -776,7 +782,7 @@ class Player extends Character {
 				}
 				
 				var count = 0;
-				for(var player of Players)
+				for(var player of Player.Players)
 					if(player.status == "Playing" && player.socket != null) 
 						count++;
 				if(count > Player.PlayersOnlineAtOnceSinceLastReboot)
@@ -790,8 +796,9 @@ class Player extends Character {
 		}
 
 	} // end of Set Status
+
+	IsInanimate() {	return this.inanimate; };
 }
 
-Player.Players = Players;
 module.exports = Player;
 //module.exports.Players = Players;

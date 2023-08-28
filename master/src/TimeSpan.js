@@ -72,8 +72,8 @@ class TimeSpan {
         return TimeSpan.interval(value, MILLIS_PER_SECOND);
     }
 
-    static fromTime(hours, minutes, seconds);
-    static fromTime(days, hours, minutes, seconds, milliseconds);
+    // static fromTime(hours, minutes, seconds);
+    // static fromTime(days, hours, minutes, seconds, milliseconds);
     static fromTime(daysOrHours, hoursOrMinutes, minutesOrSeconds, seconds = 0, milliseconds = 0) {
         if (milliseconds != undefined) {
             return this.fromTimeStartingFromDays(daysOrHours, hoursOrMinutes, minutesOrSeconds, seconds, milliseconds);

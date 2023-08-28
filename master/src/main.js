@@ -37,14 +37,16 @@ function HandlePlayerDisconnect(socket) {
 	console.log(`${player.Name} disconnected`);
 
 
-	if(player.state == "Playing")
+	if(player.status == "Playing")
 	{
-		player.Act("The form of $n fades away.", null, null, null, "ToRoom");
+		player.Act("$n loses their animation.", null, null, null, "ToRoom");
+		if(!player.socket.destroyed)
+			player.socket.destroy();
+		player.inanimate = new Date();
 	}
-
-	player.RemoveCharacterFromRoom();
-
-	if(player && Player.Players.indexOf(player) >= 0) Player.Players.splice(Player.Players.indexOf(player), 1);
+	else if(player && Player.Players.indexOf(player) >= 0) {
+		Player.Players.splice(Player.Players.indexOf(player), 1);
+	} 	
 }
 
 function HandleNewSocket(socket) {
@@ -66,8 +68,10 @@ function HandleNewSocket(socket) {
 
 	socket.on("data", (buffer) => {
 		player = Player.GetPlayer(socket)
-		const message = buffer.toString("ascii").replace("\r", "");
-		player.input = player.input + message;
+		if(player) {
+			const message = buffer.toString("ascii").replace("\r", "");
+			player.input = player.input + message;
+		}
 	});
 }
 
@@ -80,26 +84,65 @@ function startListening(port) {
 
 function pulse()
 {
+	var player;
 	for(player of Utility.CloneArray(Player.Players))
 	{
-		if(player.status == "WaitingOnLoad") {
-			player.status = "GetName";
-			Character.DoCommands.DoHelp(player, "diku", true);
+		try{
+			if(player.status == "WaitingOnLoad" && !player.socket.destroyed) {
+				player.status = "GetName";
+				Character.DoCommands.DoHelp(player, "diku", true);
 
-			player.send("Please enter your name: ");
+				player.send("Please enter your name: ");
+			}
+			const TimeSpan = require("./TimeSpan");
+
+			if(player.inanimate && new TimeSpan(Date.now() - player.inanimate).totalMinutes >= 1) {
+				player.Act("$n disappears into the void.", null, null, null, "ToRoom");
+				player.Save();
+				player.RemoveCharacterFromRoom();
+				if(!player.socket.destroyed)
+				player.socket.destroy();
+				//var index = -1;
+				// var thisplayer = Player.Players.find((thisplayer, thisindexindex) => index = thisindex);
+				// thisplayer.socket = null;
+
+				Player.Players.splice(Player.Players.indexOf(player), 1);
+			}
+
+			if(player.socket && !player.socket.destroyed)
+				player.HandleInput(); 
+		} catch(err) {
+			try {
+				console.log(err);
+				player.send("Error: " + err);
+			}
+			catch(innererr) {
+				console.log(err);
+			}
 		}
-
-		player.HandleInput();
 	}
 
 	Update();
 
 	for(player of Utility.CloneArray(Player.Players))
 	{	
-		player.HandleOutput();
+		try{
+			if(player.socket && !player.socket.destroyed) {
+				player.HandleOutput();
+			}
+		} catch(err) {
+			try {
+				console.log(err);
+				player.send("Error: " + err);
+			}
+			catch(innererr) {
+				console.log(err);
+			}
+		}
+
 	}
 	setTimeout(function () {
-		pulse()
+		pulse();
 	}, 250);
 }
 

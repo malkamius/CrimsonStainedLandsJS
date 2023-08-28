@@ -520,6 +520,7 @@ class Character {
 			return 0;
 	}
 
+	IsInanimate() {	return false; };
 }
 
 

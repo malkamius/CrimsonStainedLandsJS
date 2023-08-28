@@ -237,10 +237,7 @@ function GetItemHere(player, itemname) {
 function DoGet(player, arguments) {
     var itemName, containerName;
     [itemName, containerName] = arguments.oneArgument();
-    var fAll = Utility.Compare(args[0], "all");
-
-    var itemName = args[0];
-    var containerName = args[1];
+    var fAll = Utility.Compare(itemName, "all");
     
     if(fAll && Utility.IsNullOrEmpty(containerName)) {
         for(var i = 0; i < player.Room.Items.length; i++) {

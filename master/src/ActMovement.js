@@ -1,7 +1,46 @@
 const Character = require("./Character");
 const RoomData = require("./RoomData");
 function movechar(player, direction) {
-	
+	if (player.Position != "Standing")
+	{
+		if (player.Position == "Dead")
+		{
+			player.send("Lie still; you are DEAD.\n\r");
+		}
+		else if (player.Position == "Incapacitated")
+		{
+			player.send("You are hurt far too bad for that.\n\r");
+		}
+		else if (player.Position == "Stunned")
+		{
+			player.send("You are too stunned to do that.\n\r");
+		}
+		else if (player.Position == "Resting")
+		{
+			player.send("Nah... You feel too relaxed...\n\r");
+		}
+		else if (player.Position == "Sitting")
+		{
+			player.send("Better stand up first.\n\r");
+		}
+		else if (player.Position == "Fighting")
+		{
+			player.send("No way! You are still fighting!\n\r");
+		}
+		else
+		{
+			player.send("You aren't in the right position?\n\r");
+		}
+		return;
+	}
+
+	// Check if character is currently in combat
+	if (this.Fighting)
+	{
+		SendToChar("No way! You are still fighting!\n\r");
+		return;
+	}
+
 	if(player.Room && player.Room.Exits[direction] && player.Room.Exits[direction].Destination && !player.Room.Exits[direction].Flags.Closed) {
 		var reversedirections = ["south", "west", "north", "east", "below", "above" ];
 		var room = player.Room;
