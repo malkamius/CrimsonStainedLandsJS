@@ -391,7 +391,7 @@ class Combat {
                         {
                             // Find someone else to fight
                             var fightingother = fightingme.Room.Characters.Select(function(other) {
-                                other.Fighting == fightingme
+                                return other.Fighting == fightingme
                             })
                             fightingother.SelectRandom();
 
