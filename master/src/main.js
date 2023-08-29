@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const Data = require('./Data');
 const Color = require("./Color");
 const Settings = require("./Settings");
+
 var server = startListening(Settings.Port); 
 var IsDataLoaded = false;
 
@@ -182,6 +183,7 @@ function UpdateTick() {
 }
 
 function UpdateCombat() {
+	const Combat = require("./Combat");
 	for(var character of Utility.CloneArray(Character.Characters)) {
 		for(var affect of character.Affects) {
 			if(affect.Frequency == "Violence" && affect.Duration > 0 && --affect.Duration == 0) {
@@ -189,7 +191,7 @@ function UpdateCombat() {
 			}
 		}
 		if(character.Fighting) {
-			Character.Combat.ExecuteRound(character);
+			Combat.ExecuteRound(character);
 		}
 	}
 }

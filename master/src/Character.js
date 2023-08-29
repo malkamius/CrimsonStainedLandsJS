@@ -520,6 +520,29 @@ class Character {
 	}
 
 	IsInanimate() {	return false; };
+
+	IsAffectedSkill(skillspell) {
+		for(var aff of this.Affects) {
+			if(aff.SkillSpell == skillspell) {
+				return aff;
+			}
+		}
+		return null;
+	}
+
+	IsAffectedFlag(flag) {
+		if(this.AffectedBy[flag]) return this.AffectedBy[flag];
+		for(var aff of this.Affects) {
+			if(aff.Flags[flag]) {
+				return aff;
+			}
+		}
+		return null;
+	}
+
+	CheckImprove(skillname) {
+
+	}
 }
 
 
@@ -527,7 +550,6 @@ class Character {
 Character.DoCommands = {};
 Character.ItemFunctions = {};
 Character.CharacterFunctions = {};
-Character.Combat = {};
 
 module.exports = Character;
 
@@ -535,4 +557,5 @@ module.exports = Character;
 ActInfo = require("./ActInfo");
 ActMovement = require("./ActMovement");
 ActItem = require("./ActItem");
-Combat = require("./Combat");
+ActWiz = require("./ActWiz");
+

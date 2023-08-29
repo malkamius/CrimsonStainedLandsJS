@@ -1,5 +1,7 @@
 //ActInfo = require("./ActInfo");
-Character = require("./Character");
+const Character = require("./Character");
+const Combat = require("./Combat");
+
 Commands = {
 		"north": Character.DoCommands.DoNorth,
 		"east": Character.DoCommands.DoEast,
@@ -24,7 +26,9 @@ Commands = {
 		"who": Character.DoCommands.DoWho,
 		"where": Character.DoCommands.DoWhere,
 		"skills": Character.DoCommands.DoSkills,
-		"kill": Character.Combat.DoKill,
+		"kill": Combat.DoKill,
+		"flee": Combat.DoFlee,
+		"peace": Character.DoCommands.DoPeace,
 		"delete": Character.DoCommands.DoDelete
 	};
 

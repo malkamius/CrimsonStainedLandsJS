@@ -205,7 +205,7 @@ class Utility {
 	}
 
 	static NumberPercent() {
-		return Random(0, 127);
+		return Utility.Random(0, 100);
 	}
 
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
@@ -272,6 +272,30 @@ class Utility {
 	{
 		return value_00 + level * (value_32 - value_00) / 32;
 	}
+
+	static Select(arr, predicate) {
+		var results = Array();
+		for(var key in arr) {
+			var item = arr[key];
+			if(!predicate || predicate(item, key))
+				results.push(item);
+		}
+		return results;
+	}
+
+	static SelectRandom(arr, predicate) {
+		if(!predicate) {
+			var results = Array();
+			for(var key in arr) {
+				var item = arr[key];
+				if(predicate(item, key))
+					results.push(item);
+			}
+		} else {
+			results = arr;
+		}
+		return results[Utility.Random(0, results.length - 1)];
+	}
 }
 
 const xml2js = require('xml2js');
@@ -294,5 +318,7 @@ Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback
 
 
 Object.defineProperty( Array.prototype, 'joinWithTransform', { value: function () { return Utility.JoinArray(this, transform, separator); }} );
+Object.defineProperty( Array.prototype, 'Select', { value: function (predicate) { return Utility.Select(this, predicate) }} );
+Object.defineProperty( Array.prototype, 'SelectRandom', { value: function (predicate) { return Utility.SelectRandom(this, predicate) }} );
 
 module.exports = Utility;
