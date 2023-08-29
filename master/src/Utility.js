@@ -274,6 +274,7 @@ class Utility {
 	}
 
 	static Select(arr, predicate) {
+		if(!arr) return null;
 		var results = Array();
 		for(var key in arr) {
 			var item = arr[key];
@@ -284,6 +285,7 @@ class Utility {
 	}
 
 	static SelectRandom(arr, predicate) {
+		if(!arr) return null;
 		if(!predicate) {
 			var results = Array();
 			for(var key in arr) {
@@ -294,6 +296,7 @@ class Utility {
 		} else {
 			results = arr;
 		}
+		if(results.length == 0) return null;
 		return results[Utility.Random(0, results.length - 1)];
 	}
 }
