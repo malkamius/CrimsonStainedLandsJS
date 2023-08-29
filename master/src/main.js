@@ -178,6 +178,24 @@ function UpdateTick() {
 				character.AffectFromChar(affect);
 			}
 		}
+
+		if(character.HitPoints < character.MaxHitPoints) {
+			var gain = character.GetHitPointsGain();
+
+			character.HitPoints = Math.min(character.HitPoints + gain, character.MaxHitPoints);
+		}
+
+		if(character.ManaPoints < character.MaxManaPoints) {
+			var gain = character.GetManaPointsGain();
+
+			character.ManaPoints = Math.min(character.ManaPoints + gain, character.MaxManaPoints);
+		}
+
+		if(character.MovementPoints < character.MaxMovementPoints) {
+			var gain = character.GetMovementPointsGain();
+
+			character.MovementPoints = Math.min(character.MovementPoints + gain, character.MaxMovementPoints);
+		}
 	}
 
 }

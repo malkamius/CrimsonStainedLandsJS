@@ -1,11 +1,3 @@
-class PhysicalStatTypes {
-    static Strength = 0;
-    static Wisdom = 1;
-    static Intelligence = 2;
-    static Dexterity = 3;
-    static Constitution = 4;
-    static Charisma = 5;
-}
 class StrengthApplyType
 {
     ToHit;
@@ -68,6 +60,9 @@ class ConstitutionApplyType
     }
 }
 class PhysicalStats {
+    static PhysicalStatTypes = {"Strength": 0, "Wisdom": 1, "Intelligence": 2, "Dexterity": 3, "Constitution": 4, "Charisma": 5 };
+    static PhysicalStatTypesArray = ["Strength", "Wisdom", "Intelligence", "Dexterity", "Constitution", "Charisma"];
+
     static StrengthApply = [
         new StrengthApplyType ( -5, -4,   0,  0 ),  /* 0  */
         new StrengthApplyType ( -5, -4,   3,  1 ),  /* 1  */

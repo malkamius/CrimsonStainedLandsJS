@@ -2,6 +2,7 @@ const XmlHelper = require("./XmlHelper");
 const AffectData = require("./AffectData");
 const PhysicalStats = require("./PhysicalStats");
 const SkillSpell = require("./SkillSpell");
+const Utility = require("./Utility");
 
 class Character {
 	static Characters = Array();
@@ -29,6 +30,9 @@ class Character {
 	
 	};
 	static Sizes = ["Tiny", "Small", "Medium", "Large", "Huge", "Giant"];
+	static DoCommands = {};
+    static ItemFunctions = {};
+    static CharacterFunctions = {};
 	IsNPC = true;
 	VNum = 0;
 	Name = null;
@@ -400,15 +404,15 @@ class Character {
 	}
 
 	GetCurrentStat(stat) {
-		if (PcRace != null && PcRace.MaxStats != null)
-			return Math.min(PcRace.MaxStats[stat], Math.Min(25, Math.Max(0, PermanentStats != null && ModifiedStats != null ? PermanentStats[stat] + ModifiedStats[stat] : (IsNPC ? 20 : 3))));
+		if (this.PcRace && this.PcRace.MaxStats)
+			return Math.min(this.PcRace.MaxStats[stat], Math.min(25, Math.max(0, this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] + this.ModifiedStats[stat] : (this.IsNPC ? 20 : 3))));
 		else
-			return Math.min(25, Math.max(3, PermanentStats != null && ModifiedStats != null ? PermanentStats[stat] + ModifiedStats[stat] : (IsNPC ? 20 : 3)));
+			return Math.min(25, Math.max(3, this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] + this.ModifiedStats[stat] : (this.IsNPC ? 20 : 3)));
 	}
 
 	GetModifiedStatUncapped(stat)
 	{
-		return PermanentStats != null && ModifiedStats != null ? PermanentStats[stat] + ModifiedStats[stat] : (IsNPC ? 20 : 3);
+		return this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] +this. ModifiedStats[stat] : (this.IsNPC ? 20 : 3);
 	}
 
 	AffectToChar(affect) {
@@ -446,19 +450,27 @@ class Character {
 
 	IsAffected(Flag) {
 		var found = false;
-		found = Flags[Flag];
-		if(!found)
-			for(var aff of Affects) {
-				if(aff.Flags[Flag]) {
-					found = true;
-					break;
-				}
-				else if(aff.SkillSpell == Flag) {
-					found = true;
-					break;
+		
+		found = this.Flags[Flag];
+		if(!found) {
+			for(var setflag in this.Flags) { // case insensitive search
+				if(setflag.equals(Flag)) {
+					return Flags[setflag];
 				}
 			}
-		
+			for(var aff of this.Affects) {
+				if(aff.Flags.IsSet(Flag)) {
+					return aff;
+					//found = true;
+					//break;
+				}
+				else if(aff.SkillSpell == Flag || (aff.SkillSpell && aff.SkillSpell.Name.equals(Flag))) {
+					return aff;
+					//found = true;
+					//break;
+				}
+			}
+		}
 		return found;
 	}
 
@@ -484,36 +496,36 @@ class Character {
 		return !this.IsNPC && this.Level > 51;
 	}
 
-	GetLevelSkillLearnedAt(skill) {
-		if(Utility.IsNullOrEmpty(skill)) return 60;
-		skill = skill.toLowerCase();
-		var skillentry = SkillSpell.GetSkill(skill, false);
-		if (Utility.IsNullOrEmpty(skill) || !skillentry)
+	GetLevelSkillLearnedAt(skillname) {
+		if(Utility.IsNullOrEmpty(skillname)) return 60;
+		skillname = skillname.toLowerCase();
+		var skillentry = SkillSpell.GetSkill(skillname, false);
+		if (Utility.IsNullOrEmpty(skillname) || !skillentry)
 			return 60;
 		else if (skillentry && !skillentry.PrerequisitesMet(this))
 			return 60;
-		else if (this.Learned[skill])
-			return this.Learned[skill].Level;
+		else if (this.Learned[skillname])
+			return this.Learned[skillname].Level;
 		else if (!this.Guild || !skillentry.LearnedLevel[this.Guild.Name])
 			return 60;
 		else
 			return skillentry.LearnedLevel[this.Guild.Name];
 	}
 
-	GetSkillPercentage(skill) {
-		if(Utility.IsNullOrEmpty(skill)) return 0;
-		skill = skill.toLowerCase();
-		var skillentry = SkillSpell.GetSkill(skill, false);
+	GetSkillPercentage(skillname) {
+		if(Utility.IsNullOrEmpty(skillname)) return 0;
+		skillname = skillname.toLowerCase();
+		var skillentry = SkillSpell.GetSkill(skillname, false);
 		
-		if (Utility.IsNullOrEmpty(skill) || !skillentry)
+		if (Utility.IsNullOrEmpty(skillname) || !skillentry)
 			return 0;
 		else if (this.IsImmortal())
 			return 100;
-		else if ((this.IsNPC || this.Level < 60) &&  this.GetLevelSkillLearnedAt(skill) == 60)
+		else if ((this.IsNPC || this.Level < 60) &&  this.GetLevelSkillLearnedAt(skillname) == 60)
 			return 0;
-		else if (this.Learned[skill] && this.Level >= this.GetLevelSkillLearnedAt(skill) && skillentry.PrerequisitesMet(this))
-			return this.Learned[skill].Percent;
-		else if (this.Guild != null && (this.Level >= this.GetLevelSkillLearnedAt(skill)) && skillentry.PrerequisitesMet(this))
+		else if (this.Learned[skillname] && this.Level >= this.GetLevelSkillLearnedAt(skillname) && skillentry.PrerequisitesMet(this))
+			return this.Learned[skillname].Percent;
+		else if (this.Guild != null && (this.Level >= this.GetLevelSkillLearnedAt(skillname)) && skillentry.PrerequisitesMet(this))
 			return 1;
 		else
 			return 0;
@@ -540,16 +552,303 @@ class Character {
 		return null;
 	}
 
-	CheckImprove(skillname) {
+	CheckImprove(skillname, success, rating) {
 
 	}
+
+	GetHitPointsGain()
+	{
+		var gain;
+		var number;
+
+		if (!this.Room)
+			return 0;
+
+		if (!this.IsNPC && !this.IsAffectedFlag("Ghost"))
+		{
+			if (this.Starving > 6 && !this.IsAffected("Sated"))
+				return 0;
+			if (this.Dehydrated > 4 && !this.IsAffected("Quenched"))
+				return 0;
+		}
+
+		if (this.IsNPC)
+		{
+			gain = 5 + this.Level;
+			//if (IS_AFFECTED(ch, AFF_REGENERATION))
+			//    gain *= 2;
+
+			switch (this.Position)
+			{
+				default: gain /= 2; break;
+				case "Sleeping": gain = 3 * gain / 2; break;
+				case "Resting": break;
+				case "Fighting": gain /= 3; break;
+			}
+
+		}
+		else
+		{
+			gain = Math.max(3, this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution) - 3 + this.Level / 2);
+			if(this.Guild)
+				gain += this.Guild.HitpointGainMax;
+			number = Utility.NumberPercent();
+			if (number < this.GetSkillPercentage("fast healing"))
+			{
+				gain += number * gain / 100;
+				if (this.HitPoints < this.MaxHitPoints)
+					this.CheckImprove("fast healing", true, 8);
+			}
+			else
+				this.CheckImprove("fast healing", false, 4);
+
+			if (this.IsAffected("EnhancedFastHealing"))
+			{
+				gain += (Utility.NumberPercent() * gain / 100) * 2;
+			}
+
+			switch (this.Position)
+			{
+				default: gain /= 4; break;
+				case "Sleeping": break;
+				case "Resting": gain /= 2; break;
+				case "Fighting": gain /= 6; break;
+			}
+
+			if (this.Hunger == 0 && !this.IsAffected("Sated"))
+				gain /= 2;
+
+			if (this.Thirst == 0 && !this.IsAffected("Quenched"))
+				gain /= 2;
+		}
+
+		//if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
+		//    gain = (gain * 7 / 5);
+
+
+		if (this.IsAffected("Plague"))
+			gain /= 8;
+
+		//if (position == "Sleeping" && get_skill(ch, gsn_dark_dream) > 5)
+		//{
+		//    if (number_percent() < get_skill(ch, gsn_dark_dream))
+		//    {
+		//        check_improve(ch, gsn_dark_dream, TRUE, 7);
+		//        gain *= 3;
+		//        gain /= 2;
+		//    }
+		//}
+
+		if (this.IsAffected("Haste"))
+			gain /= 2;
+		if (this.IsAffected("Slow"))
+		{
+			gain *= 17;
+			gain /= 10;
+		}
+		if (this.IsAffected("Burrow"))
+		{
+			gain *= 17;
+			gain /= 10;
+		}
+
+		if (this.GetSkillPercentage("slow metabolism") > 1)
+		{
+			gain *= 17;
+			gain /= 10;
+		}
+		if (this.IsAffected("camp"))
+		{
+			gain *= 2;
+		}
+		gain *= 2;
+		return Math.min(gain, this.MaxHitPoints - this.HitPoints);
+	} // end of HitpointGain
+
+	GetManaPointsGain()
+	{
+		var gain;
+		var number;
+
+		if (!this.Room)
+			return 0;
+		//if (is_affected(ch, gsn_atrophy) || is_affected(ch, gsn_prevent_healing))
+		//    return 0;
+
+		if (!this.IsNPC && !this.IsAffected("Ghost"))
+		{
+			if (this.Starving > 6 && !this.IsAffected("Sated"))
+				return 0;
+			if (this.Dehydrated > 4 && !this.IsAffected("Quenched"))
+				return 0;
+		}
+
+		if (this.IsNPC)
+		{
+
+			gain = 5 + this.Level;
+
+			if (this.Race && this.Race.Name.toLowerCase() == "malefisti")
+				gain *= 2;
+
+			switch (this.Position)
+			{
+				default: gain /= 2; break;
+				case "Sleeping": gain = 3 * gain / 2; break;
+				case "Resting": break;
+				case "Fighting": gain /= 3; break;
+			}
+		}
+		else
+		{
+			gain = (this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom) / 2 - 9
+				+ this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Intelligence) * 2 + this.Level);
+			number = Utility.NumberPercent();
+			if (number < this.GetSkillPercentage("meditation"))
+			{
+				gain += number * gain / 100;
+				if (this.ManaPoints < this.MaxManaPoints)
+					this.CheckImprove("meditation", true, 4);
+			}
+			number = Utility.NumberPercent();
+			if (number < this.GetSkillPercentage("trance"))
+			{
+				gain += number * gain / 100;
+				if (this.ManaPoints < this.MaxManaPoints)
+					this.CheckImprove("trance", true, 4);
+			}
+
+			switch (this.Position)
+			{
+				default: gain /= 4; break;
+				case "Sleeping": break;
+				case "Resting": gain /= 2; break;
+				case "Fighting": gain /= 6; break;
+			}
+
+			if (this.Hunger == 0 && !this.IsAffected("Sated"))
+				gain /= 2;
+
+			if (this.Thirst == 0 && !this.IsAffected("Quenched"))
+				gain /= 2;
+
+		}
+
+		//if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
+		//    gain = gain * 7 / 5;
+
+		if (this.IsAffected("Poison"))
+			gain /= 4;
+
+		//if (position ==  "Sleeping" && get_skill(ch, gsn_dark_dream) > 5)
+		//{
+		//    if (number_percent() < get_skill(ch, gsn_dark_dream))
+		//    {
+		//        check_improve(ch, gsn_dark_dream, TRUE, 5);
+		//        gain *= 3;
+		//        gain /= 2;
+		//    }
+
+		//}
+
+		if (this.IsAffected("Plague"))
+			gain /= 8;
+
+		if (this.IsAffected("Haste"))
+			gain /= 2;
+		if (this.IsAffected("Slow"))
+			gain += (11 * gain / 10);
+		if (this.IsAffected("Burrow"))
+			gain += (11 * gain / 10);
+		if (this.GetSkillPercentage("slow metabolism") > 1)
+			gain += (11 * gain / 10);
+		if (this.IsAffected("camp"))
+		{
+			gain *= 2;
+		}
+		gain *= 2;
+		return Math.min(gain, this.MaxManaPoints - this.ManaPoints);
+	} // end ManaPointsGain
+
+	GetMovementPointsGain()
+	{
+		var gain;
+
+		if (!this.Room)
+			return 0;
+		//if (is_affected(ch, gsn_atrophy) || is_affected(ch, gsn_prevent_healing))
+		//    return 0;
+
+		if (!this.IsNPC && !this.IsAffected("Ghost"))
+		{
+			if (this.Starving > 6 && !this.IsAffected("Sated"))
+				return 0;
+			if (this.Dehydrated > 4 && !this.IsAffected("Quenched"))
+				return 0;
+		}
+
+		if (this.IsNPC)
+		{
+			gain = this.Level;
+		}
+		else
+		{
+			gain = Math.max(15, this.Level);
+
+			switch (this.Position)
+			{
+				case "Sleeping": gain += this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity); break;
+				case "Resting": gain += this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity) / 2; break;
+			}
+
+			if (this.Hunger == 0 && !this.IsAffected("Sated"))
+				gain /= 2;
+
+			if (this.Thirst == 0 && !this.IsAffected("Quenched"))
+				gain /= 2;
+
+		}
+
+		//gain = gain * ch->in_room->heal_rate / 100;
+
+		//if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
+		//    gain = gain * 6 / 5;
+
+
+		//if (ch->position == POS_SLEEPING && get_skill(ch, gsn_dark_dream) > 5)
+		//{
+		//    if (number_percent() < get_skill(ch, gsn_dark_dream))
+		//    {
+		//        check_improve(ch, gsn_dark_dream, TRUE, 8);
+		//        gain *= 3;
+		//        gain /= 2;
+		//    }
+		//}
+
+		if (this.IsAffected("Poison"))
+			gain /= 4;
+
+		if (this.IsAffected("Plague"))
+			gain /= 8;
+
+		if (this.IsAffected("Haste") || this.IsAffected("Slow"))
+			gain *= 2;
+		if (this.IsAffected("Burrow"))
+			gain *= 2;
+		if (this.GetSkillPercentage("slow metabolism") > 1)
+			gain += (11 * gain / 10);
+		if (this.IsAffected("camp"))
+		{
+			gain *= 2;
+		}
+		gain *= 2;
+		return Math.min(gain, this.MaxMovementPoints - this.MovementPoints);
+	} // end MovementPointsGain
 }
 
 
 
-Character.DoCommands = {};
-Character.ItemFunctions = {};
-Character.CharacterFunctions = {};
+
 
 module.exports = Character;
 

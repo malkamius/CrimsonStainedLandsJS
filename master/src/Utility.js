@@ -299,6 +299,33 @@ class Utility {
 		if(results.length == 0) return null;
 		return results[Utility.Random(0, results.length - 1)];
 	}
+
+	static IsSet(obj, flag) {
+		var found = false;
+		
+		found = obj[flag];
+		if(!found) {
+			for(var setflag in obj) { // case insensitive search
+				if(setflag.equals(flag)) {
+					return obj[setflag];
+				}
+			}
+		}
+		return found;
+	}
+
+	static IsSetAny(obj, flags) {
+		
+		for(var setflag in obj) { // case insensitive search
+			for(var flag of flags) {
+				if(setflag.equals(flag)) {
+					return obj[setflag];
+				}
+			}
+		}
+	
+		return false;
+	}
 }
 
 const xml2js = require('xml2js');
@@ -324,4 +351,7 @@ Object.defineProperty( Array.prototype, 'joinWithTransform', { value: function (
 Object.defineProperty( Array.prototype, 'Select', { value: function (predicate) { return Utility.Select(this, predicate) }} );
 Object.defineProperty( Array.prototype, 'SelectRandom', { value: function (predicate) { return Utility.SelectRandom(this, predicate) }} );
 
+
+Object.defineProperty( Object.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
+Object.defineProperty( Object.prototype, 'IsSetAny', { value: function (flags) { return Utility.IsSetAny(this, flags) }} );
 module.exports = Utility;
