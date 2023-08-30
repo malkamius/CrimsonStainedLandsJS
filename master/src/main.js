@@ -84,8 +84,9 @@ function HandleNewSocket(socket) {
 		if(player) {
 			try{ 
 				if(buffer.length > 4200 || player.input.length > 4200) {
-					socket.write("Too much data.\n\r", "ascii");
-					HandlePlayerDisconnect(socket);
+					//socket.write();
+					socket.end("Too much data.\n\r", "ascii");
+					Player.Players.splice(Player.Players.indexOf(player), 1);
 					return;
 				}
 

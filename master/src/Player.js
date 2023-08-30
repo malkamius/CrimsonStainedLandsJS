@@ -659,7 +659,7 @@ class Player extends Character {
 					console.log(`${this.Name} disconnected - incorrect password`);
 				}
 				else {
-					if(Player.GetPlayerByName(this.Name, (player) => player != this)) {
+					if(Player.GetPlayerByName(this.Name, (player) => player != this && player.status == "Playing")) {
 						this.SetStatus("PlayerAlreadyConnected");
 					}
 					else
