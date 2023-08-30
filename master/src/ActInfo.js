@@ -403,6 +403,63 @@ function DoWhere(character, arguments) {
 	}
 }
 
+Character.DoCommands.DoStand = function(ch, args) {
+	if(ch.Position == "Sleeping") {
+		ch.Act("$n wakes and stands up.", null, null, null, "ToRoom");
+		ch.Act("You wake and stands up.", null, null, null, "ToChar");
+		ch.Position = "Standing";
+	} else if(ch.Position == "Resting" || ch.Position == "Sitting") {
+		ch.Act("$n stands up.", null, null, null, "ToRoom");
+		ch.Act("You stand up.", null, null, null, "ToChar");
+		ch.Position = "Standing";
+	} else if(ch.Position == "Fighting" || ch.Position == "Standing") {
+		ch.send("You're already standing.\n\r");
+	}
+}
+
+Character.DoCommands.DoSit = function(ch, args) {
+	if(ch.Position == "Sleeping") {
+		ch.Act("$n wakes and sits up.", null, null, null, "ToRoom");
+		ch.Act("You wake and sits up.", null, null, null, "ToChar");
+		ch.Position = "Sitting";
+	} else if(ch.Position == "Resting" || ch.Position == "Standing") {
+		ch.Act("$n begins sitting.", null, null, null, "ToRoom");
+		ch.Act("You begin sitting.", null, null, null, "ToChar");
+		ch.Position = "Sitting";
+	} else if(ch.Position == "Fighting") {
+		ch.send("No way! You're too busy fighting.\n\r");
+	} else if(ch.Position == "Sitting") {
+		ch.send("You're already sitting.\n\r");
+	}
+}
+
+Character.DoCommands.DoRest = function(ch, args) {
+	if(ch.Position == "Sleeping") {
+		ch.Act("$n wakes and begins resting.", null, null, null, "ToRoom");
+		ch.Act("You wake and begin resting.", null, null, null, "ToChar");
+		ch.Position = "Resting";
+	} else if(ch.Position == "Sitting" || ch.Position == "Standing") {
+		ch.Act("$n begins resting.", null, null, null, "ToRoom");
+		ch.Act("You begin resting.", null, null, null, "ToChar");
+		ch.Position = "Resting";
+	} else if(ch.Position == "Fighting") {
+		ch.send("No way! You're too busy fighting.\n\r");
+	} else if(ch.Position == "Resting") {
+		ch.send("You're already resting.\n\r");
+	}
+}
+
+Character.DoCommands.DoSleep = function(ch, args) {
+	if(ch.Position == "Standing" || ch.Position == "Resting" || ch.Position == "Sitting") {
+		ch.Act("$n lays down and goes to sleep.", null, null, null, "ToRoom");
+		ch.Act("You lay down and go to sleep.", null, null, null, "ToChar");
+		ch.Position = "Sleeping";
+	} else if(ch.Position == "Fighting") {
+		ch.send("No way! You're too busy fighting.\n\r");
+	} else if(ch.Position == "Sleeping") {
+		ch.send("You're already sleeping.\n\r");
+	}
+}
 Character.DoCommands.DoToggle = function(ch, args)
 {
 	var flags = [

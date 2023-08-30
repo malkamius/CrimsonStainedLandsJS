@@ -385,10 +385,42 @@ class Player extends Character {
 					for(var key in Commands) {
 						if(Utility.Prefix(key, command)) {
 							this.LastActivity = new Date();
-							Commands[key](this, args);
+							this.SittingAtPrompt = false;
+							if (Player.Positions.indexOf(this.Position) < Player.Positions.indexOf(Commands[key].MinimumPosition))
+							{
+								// Send an appropriate message based on the character's position
+								switch (this.Position)
+								{
+									case "Dead":
+										this.send("Lie still; you are DEAD.\n\r");
+										break;
+									case "Mortal":
+									case "Incapacitated":
+										this.send("You are hurt far too bad for that.\n\r");
+										break;
+									case "Stunned":
+										this.send("You are too stunned to do that.\n\r");
+										break;
+									case "Sleeping":
+										this.send("In your dreams or what?\n\r");
+										break;
+									case "Resting":
+										this.send("Nah... You feel too relaxed...\n\r");
+										break;
+									case "Sitting":
+										this.send("Better stand up first.\n\r");
+										break;
+									case "Fighting":
+										this.send("No way! You are still fighting!\n\r");
+										break;
+								}
+								return;
+							}
+
+							Commands[key].Command(this, args);
 							if(this.status != "Playing")
 								this.SetStatus(this.status);
-							this.SittingAtPrompt = false;
+							
 							
 							return;
 						}

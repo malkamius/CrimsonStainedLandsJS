@@ -31,6 +31,7 @@ class Character {
 	
 	};
 	static Sizes = ["Tiny", "Small", "Medium", "Large", "Huge", "Giant"];
+	static Positions = ["Dead", "Mortal", "Incapacitated", "Stunned", "Sleeping", "Resting", "Sitting", "Fighting", "Standing"];
 	static DoCommands = {};
     static ItemFunctions = {};
     static CharacterFunctions = {};
