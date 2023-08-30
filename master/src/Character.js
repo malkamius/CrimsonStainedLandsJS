@@ -1080,7 +1080,7 @@ class Character {
 		this.Xp += gain;
 
 		if (this.Xp > this.XpTotal)
-			this.XpTotal = Xp;
+			this.XpTotal = this.Xp;
 
 		while (this.Level < 51 && this.Xp >=
 			this.XpToLevel * (this.Level))
