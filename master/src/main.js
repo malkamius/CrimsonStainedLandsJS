@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const Data = require('./Data');
 const Color = require("./Color");
 const Settings = require("./Settings");
+const TelnetProtocol = require("./TelnetProtocol");
 
 var server = startListening(Settings.Port); 
 var IsDataLoaded = false;
@@ -35,19 +36,21 @@ function DataLoaded() {
 
 function HandlePlayerDisconnect(socket) {
 	player = Player.GetPlayer(socket);
-	console.log(`${player.Name} disconnected`);
+	if(player != null) {
+		console.log(`${player.Name} disconnected`);
 
 
-	if(player.status == "Playing")
-	{
-		player.Act("$n loses their animation.", null, null, null, "ToRoom");
-		if(!player.socket.destroyed)
-			player.socket.destroy();
-		player.inanimate = new Date();
+		if(player.status == "Playing")
+		{
+			player.Act("$n loses their animation.", null, null, null, "ToRoom");
+			if(!player.socket.destroyed)
+				player.socket.destroy();
+			player.inanimate = new Date();
+		}
+		else if(player && Player.Players.indexOf(player) >= 0) {
+			Player.Players.splice(Player.Players.indexOf(player), 1);
+		} 	
 	}
-	else if(player && Player.Players.indexOf(player) >= 0) {
-		Player.Players.splice(Player.Players.indexOf(player), 1);
-	} 	
 }
 
 function HandleNewSocket(socket) {
@@ -60,8 +63,13 @@ function HandleNewSocket(socket) {
 
 	socket.on("end", () => HandlePlayerDisconnect(socket))
 	player = new Player(socket);
+	var buffer = Buffer.from(TelnetProtocol.ServerGetDoTelnetType);
+
+	player.socket.write(buffer, "binary");
 	if(!IsDataLoaded) player.status = "WaitingOnLoad";
 	else {
+		
+
 		const Character = require("./Character");
 		Character.DoCommands.DoHelp(player, "diku", true);
 
@@ -71,9 +79,119 @@ function HandleNewSocket(socket) {
 	socket.on("data", (buffer) => {
 		player = Player.GetPlayer(socket)
 		if(player) {
-			const message = buffer.toString("ascii").replace("\r", "");
-			player.input = player.input + message;
+			try{ 
+				var position = player.input.length;
+				
+				for(var i = 0; i < buffer.length; i++) {
+					var singlecharacter = buffer[i];
+
+					if(buffer[i] == 8 && position > 0) {
+						if(position > 1)
+							player.input = player.input.substring(0, position - 1);
+						else
+							player.input = "";
+						position--;
+					} else if(buffer[i] == 13 || buffer[i] == 10 || buffer[i] >= 32 && buffer[i] <= 126) {
+						player.input = player.input + String.fromCharCode(buffer[i]);
+					} else if (singlecharacter == TelnetProtocol.Options.InterpretAsCommand) {
+						var [newbyteindex, carryover] = TelnetProtocol.ProcessInterpretAsCommand(player, buffer, i,
+							function (sender, command) {
+								if (command.Type == TelnetProtocol.CommandTypes.WillTelnetType)
+								{
+									var buffer = Buffer.from(TelnetProtocol.ServerGetWillTelnetType);
+									player.socket.write(buffer, "binary");
+								}
+								else if (command.Type == TelnetProtocol.CommandTypes.ClientSendNegotiateType) {
+									var telnettypes;
+									if ((telnettypes = command.Values["TelnetType"]) && telnettypes && telnettypes.length > 0)
+									{
+										var ClientString = telnettypes[0];
+										const Player = require("./Player");
+										var TelnetOptionFlags =
+										[
+											{ "CMUD": [ Player.TelnetOptionFlags.Color256 ] },
+											{ "Mudlet": [ Player.TelnetOptionFlags.Color256, Player.TelnetOptionFlags.ColorRGB ] },
+											{ "Mushclient": [ Player.TelnetOptionFlags.Color256, Player.TelnetOptionFlags.ColorRGB ] },
+											{ "TRUECOLOR":  [ Player.TelnetOptionFlags.ColorRGB ] },
+											{ "256COLOR": [ Player.TelnetOptionFlags.Color256 ] },
+											{ "VT100": [ Player.TelnetOptionFlags.Ansi ] },
+											{ "ANSI": [ Player.TelnetOptionFlags.Ansi ] },
+										];
+
+										var Options = TelnetOptionFlags.FirstOrDefault(function(option) {
+											return ClientString.prefix(option) || ClientString.toUpperCase().replace(" ", "").indexOf(option) >= 0;
+										});
+
+										// if (Options)
+										// 	for (var client in Options)
+
+										// 		TelnetOptions.SETBIT(option);
+
+
+										if (player.ClientTypes.indexOf(ClientString) < 0)
+										{
+											console.log(ClientString + " client detected.");
+											player.ClientTypes.push(ClientString);
+											var buffer = Buffer.from(TelnetProtocol.ServerGetTelnetTypeNegotiate);
+											player.socket.write(buffer, "binary");
+										}
+										else {
+											var buffer = Buffer.from(TelnetProtocol.ServerGetWillMudServerStatusProtocol);
+											player.socket.write(buffer, "binary");
+										}
+									}
+									else {
+										var buffer = Buffer.from(TelnetProtocol.ServerGetWillMudServerStatusProtocol);
+										player.socket.write(buffer, "binary");
+									}
+								}  else if (command.Type == TelnetProtocol.CommandTypes.DoMUDServerStatusProtocol) {
+									const TimeSpan = require("./TimeSpan");
+									console.log("SENDING MSSP DATA");
+									var variables = {};
+									variables["NAME"] = ["CRIMSON STAINED LANDS"];
+									var pcount = 0;
+									for(var p in Player.Players)
+										if(p.status == "Playing") pcount++;
+									variables["PLAYERS"] = [pcount];
+									variables["UPTIME"] =  [new TimeSpan(Date.now() - Settings.GameStarted).totalSeconds];
+									variables["HOSTNAME"] = ["kbs-cloud.com"];
+									variables["PORT"] = [Settings.Port ];
+									//variables["SSL"] = [Settings.SSLPort ];
+									variables["CODEBASE"] = ["CUSTOM"];
+									variables["WEBSITE"] = ["https://kbs-cloud.com"];
+
+									var buffer = Buffer.from(TelnetProtocol.ServerGetNegotiateMUDServerStatusProtocol(variables));
+									player.socket.write(buffer, "binary");
+									// buffer = Buffer.from(TelnetProtocol.ServerGetWillMUDExtensionProtocol);
+									// player.socket.write(buffer, "binary");
+								}
+								else if (command.Type == TelnetProtocol.CommandTypes.DontMUDServerStatusProtocol)
+								{
+									console.log("WONT MSSP");
+									//var buffer = Buffer.from(TelnetProtocol.ServerGetWillMUDExtensionProtocol);
+									//player.socket.write(buffer, "binary");
+								}
+								else if (command.Type == TelnetProtocol.CommandTypes.DoMUDExtensionProtocol)
+								{
+									player.TelnetOptions[Player.TelnetOptionFlags.MUDeXtensionProtocol] = true;
+									console.log("MXP Enabled.");
+								}
+							}
+						);
+						if (newbyteindex > i)
+							i = newbyteindex;
+						this.ReceiveBufferBacklog = carryover;
+					}
+				}
+
+				//const message = buffer.toString("ascii").replace("\r", "");
+				//player.input = player.input + message;
+			}
+			catch(err) {
+				console.log("Error: " + err);
+			}
 		}
+		
 	});
 }
 

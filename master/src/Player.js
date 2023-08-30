@@ -22,6 +22,17 @@ const parser = new xml2js.Parser({ strict: false, trim: false });
 class Player extends Character {
 	static Players = Array();
 	static PlayersOnlineAtOnceSinceLastReboot = 0;
+
+	static TelnetOptionFlags = {
+            ColorRGB: "ColorRGB",
+            Color256: "Color256",
+            SuppressGoAhead: "SuppressGoAhead",
+            MUDeXtensionProtocol: "MUDeXtensionProtocol",
+            WontMSSP: "WontMSSP",
+            Ansi: "Ansi"
+	};
+
+	TelnetOptions = {};
 	inanimate = null;
 	RoomVNum = 0;
 	IsNPC = false;
@@ -34,6 +45,7 @@ class Player extends Character {
 	status = "GetName";
 	SittingAtPrompt = false;
 	Prompt = "";
+	ClientTypes = Array();
 
   	constructor(socket) {
 		super();
@@ -336,7 +348,10 @@ class Player extends Character {
 			}
 			
 			this.output = this.output.replace("\r", "");
+			if(!this.output.endsWith("\n"))
+				this.output += "\u00FF\u00F9";
 			this.socket.write(this.output.replace("\n", "\n\r"), "ascii");
+			
 			this.SittingAtPrompt = true;
 		}
 
@@ -347,6 +362,7 @@ class Player extends Character {
 	HandleInput() {
 		if(this.input != "")
 		{
+			this.input = this.input.replace("\r", "");
 			var index = this.input.indexOf("\n");
 			if(index != -1 && index != null)
 			{
@@ -368,16 +384,19 @@ class Player extends Character {
 					const Commands = require("./Commands");
 					for(var key in Commands) {
 						if(Utility.Prefix(key, command)) {
+							this.LastActivity = new Date();
 							Commands[key](this, args);
 							if(this.status != "Playing")
 								this.SetStatus(this.status);
 							this.SittingAtPrompt = false;
+							
 							return;
 						}
 					}
 					
 					this.send("Huh?\n\r");
 					this.SittingAtPrompt = false;
+					this.LastActivity = new Date();
 				}
 				else if(this.status != "Playing") {			
 					this.nanny(str);
@@ -782,7 +801,9 @@ class Player extends Character {
 					Character.DoCommands.DoLook(this, "", true);
 					this.Act("$n regains their animation.", null, null, null, "ToRoom");
 				}
-				
+
+				this.LastActivity = new Date();
+
 				var count = 0;
 				for(var player of Player.Players)
 					if(player.status == "Playing" && player.socket != null) 

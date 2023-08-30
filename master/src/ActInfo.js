@@ -74,7 +74,7 @@ function dolook(player, arguments, auto) {
 			player.send("   " + (items[key] > 1? ("[" + items[key] + "] ") : "") + key + "\n\r");
 		for(const other of player.Room.Characters) {
 			if (other != player)
-				player.Act(other.GetLongDescription(), other, null, null, "ToChar");
+				player.Act(other.DisplayFlags(player) + other.GetLongDescription(), other, null, null, "ToChar");
 		}
 		
 	} else {
@@ -216,8 +216,8 @@ function DoWho(ch, arguments) {
 			whoList += Utitlity.Format("[{0,4} {1}] {2}{3}{4}{5}{6}\n\r",
 				connection.Level,
 				(connection.Guild? connection.Guild.WhoName : "   "),
-				//connection.IsAFK ? "\\r(AFK)\\x" : "     ",
-				"     ",
+				connection.IsAFK ? "\\r(AFK)\\x" : "     ",
+				//"     ",
 				connection == ch ? "*" : " ",
 				connection.Name,
 				(!Utitlity.IsNullOrEmpty(connection.Title) ? (connection.Title.startsWith(",") ? connection.Title : " " + connection.Title) : ""),
@@ -359,6 +359,54 @@ function DoWhere(character, arguments) {
 	}
 }
 
+Character.DoCommands.DoToggle = function(ch, args)
+{
+	var flags = [
+		"AFK",
+		"AutoAssist",
+		"AutoSac",
+		"AutoLoot",
+		"AutoExit",
+		"AutoGold",
+		"AutoSplit",
+		"Color",
+		"Brief",
+		"NoSummon",
+		"NoFollow",
+		"NewbieChannel",
+		"WizInvis",
+		"HolyLight"
+	];
+	if (args.IsNullOrEmpty())
+	{
+		for(var flag of flags)
+		{
+			if ((flag == "HolyLight" || flag == "WizInvis") && !ch.IsImmortal) continue;
+			ch.send("{0,-20}: {1}\\x\n\r", flag, ch.Flags.IsSet(flag) ? "\\gON" : "\\rOFF");
+		}
+	}
+	else
+	{
+		for (var flag of flags)
+		{
+			if ((flag == "HolyLight" || flag == "WizInvis") && !ch.IsImmortal) continue;
+
+			if (flag.prefix(args))
+			{
+				if (ch.Flags.IsSet(flag))
+				{
+					ch.Flags.RemoveFlag(flag);
+				}
+				else
+					ch.Flags[flag] = true;
+
+				ch.send("{0,-20}: {1}\\x\n\r", flag, ch.Flags.IsSet(flag) ? "\\gON" : "\\rOFF");
+				return;
+			}
+		}
+		ch.send("Flag not found.\n\r");
+	}
+}
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoYell = DoYell;
 Character.DoCommands.DoQuit = doquit;

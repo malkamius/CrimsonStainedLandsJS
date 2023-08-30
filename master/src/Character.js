@@ -98,6 +98,7 @@ class Character {
 	MaxCarry = 100;
 	TotalWeight = 0;
 	MaxWeight = 600;
+	LastActivity = null;
 
   	constructor() {
 		Character.Characters.push(this);
@@ -1245,6 +1246,52 @@ class Character {
 		}
 
 		return RoomData.Rooms[3001];
+	}
+	get IsInactive() { 
+		const TimeSpan = require("./TimeSpan");
+		return !this.IsNPC && this.LastActivity && new TimeSpan(Date.now() - this.LastActivity).totalMinutes > 5; 
+	} 
+
+	get IsAFK() { 
+		return this.Flags.IsSet("AFK") || this.IsInactive; 
+	} 
+
+	DisplayFlags(viewer)
+	{
+		var flags = "";
+		
+
+		if (!this.IsNPC && this.IsAFK)
+			flags += "\\r(AFK)\\x";
+		if (this.inanimate)
+			flags += "(inanimate)";
+		if (this.Flags.IsSet("WizInvis"))
+			flags += "\\w(WizInvis)\\x";
+		if (this.AffectedBy.IsSet("Ghost"))
+			flags += "\\W(Ghost)\\x";
+		if (this.IsAffected("Burrow"))
+			flags += "(Burrowed)";
+		if (this.IsAffected("Camouflage"))
+			flags += "\\G(Camouflaged)\\x";
+		if (this.AffectedBy.IsSet("Hide"))
+			flags = "\\R(Hidden)\\x";
+		if (this.AffectedBy.IsSet("Invisible"))
+			flags += "(Invis)";
+		if (this.AffectedBy.IsSet("Sanctuary"))
+			flags += "\\W(White Aura)\\x";
+		if (this.AffectedBy.IsSet("Haven"))
+			flags += "(Haven)";
+		if (viewer.AffectedBy.IsSet("KnowAlignment") && this.Alignment.equals("Evil"))
+			flags += "\\r(Red Aura)\\x";
+		if (viewer.AffectedBy.IsSet("KnowAlignment") && this.Alignment.equals("Good"))
+			flags += "\\y(Golden Aura)\\x";
+		if (this.IsAffected("FaerieFire") || this.IsAffected(SkillSpell.SkillLookup("faerie fog")))
+			flags += "\\m(Purple)\\x";
+		if (this.IsAffected("Smelly"))
+			flags += "(Smelly)";
+
+		if (flags.length > 0) flags += " ";
+		return flags;
 	}
 }
 
