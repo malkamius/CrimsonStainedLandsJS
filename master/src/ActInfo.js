@@ -78,31 +78,41 @@ function dolook(player, arguments, auto) {
 		}
 		
 	} else {
+		var [inarg, newargs] = arguments.oneArgument();
+		var lookin = false;
+		var isitem = true;
+		if("in".prefix(inarg)) {
+			arguments = newargs;
+			lookin = true;
+		}
+
+		var [target, count] = Character.ItemFunctions.GetItemHere(player, arguments, 0);
+		if(!target && !lookin) {
+			[target, count] = Character.CharacterFunctions.GetCharacterHere(player, arguments, count);
+			isitem = false;
+		}
 		
-		var targetch, count;
-		[targetch, count] = Character.CharacterFunctions.GetCharacterHere(player, arguments);
-		
-		if(targetch)	{
-			if(targetch == player) {
-				player.Act("You look at yourself.", targetch, null, null, "ToChar");
-				player.Act("$n looks at $mself.", targetch, null, null, "ToRoomNotVictim");
+		if(target && target instanceof Character)	{
+			if(target == player) {
+				player.Act("You look at yourself.", target, null, null, "ToChar");
+				player.Act("$n looks at $mself.", target, null, null, "ToRoomNotVictim");
 				
-				player.Act(Utility.IsNullOrEmpty(targetch.Description)? "You see nothing special about yourself." : targetch.Description, targetch);
-				player.Act("You are wearing: ", targetch);
+				player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about yourself." : targetch.Description, targetch);
+				player.Act("You are wearing: ", target);
 			}
 			else
 			{
-				player.Act("You look at $N.", targetch, null, null, "ToChar");
-				player.Act("$n looks at $N.", targetch, null, null, "ToRoomNotVictim");
-				player.Act("$n looks at you.", targetch, null, null, "ToVictim");
+				player.Act("You look at $N.", target, null, null, "ToChar");
+				player.Act("$n looks at $N.", target, null, null, "ToRoomNotVictim");
+				player.Act("$n looks at you.", target, null, null, "ToVictim");
 
-				player.Act(Utility.IsNullOrEmpty(targetch.Description)? "You see nothing special about $N." : targetch.Description, targetch);
-				player.Act("$N is wearing: ", targetch);
+				player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about $N." : target.Description, target);
+				player.Act("$N is wearing: ", target);
 			}
 			var anyitems = false;
 			for(var slotkey in Character.WearSlots) {
 				var slot = Character.WearSlots[slotkey];
-				var item = targetch.Equipment[slotkey];
+				var item = target.Equipment[slotkey];
 				if(item) {
 					player.send(slot.Slot + item.DisplayFlags(player) + item.Display(player) + "\n\r");
 					anyitems = true;
@@ -111,8 +121,42 @@ function dolook(player, arguments, auto) {
 			}
 			if(!anyitems)
 					player.send("   nothing.\n\r");
+		} else if(target && target instanceof ItemData) {
+			if(lookin && target.ExtraFlags.IsSet("Closed")) {
+				    ch.send("{0} is closed.\n\r", target.Display(ch));
+			} else if(lookin && !target.ItemTypes.IsSet("Container")) {
+				ch.send("{0} isn't a container.\n\r", target.Display(ch));
+				return;
+			} else if(!lookin) {
+				player.Act("$n looks at $p.", null, target, null, "ToRoom");
+				player.Act("You look at $p.", null, target, null, "ToChar");
+				if(!target.Description.IsNullOrEmpty())
+				player.send(target.Description + (target.Description.replace("\r", "").endsWith("\n")? "" : "\n"));
+			}
+			
+			if(lookin || target.ItemTypes.IsSet("Container")) {
+				var items = {};
+				player.Act("$p is holding:", null, target, null, "ToChar");
+				for(i = 0; i < target.Contains.length; i++) {
+					var item = target.Contains[i];
+					var display = item.DisplayFlags(player) + item.Display(player);
+					if(items[display])
+						items[display]++;
+					else
+						items[display] = 1;
+				}
+
+				if(Object.keys(items) == 0) {
+					player.send("   nothing.\n\r");
+				} else {
+					for(key in items)
+						player.send("   " + (items[key] > 1? "[" + items[key] + "]" : "") + key + "\n\r");
+				}
+			}
+		} else if(isitem) {
+			player.send("You don't see that here.\n\r");
 		} else {
-			player.send("You don't see them.\n\r");
+			player.send("You don't see them here.\n\r");
 		}
 	}
 }
@@ -424,4 +468,5 @@ Character.DoCommands.DoWhere = DoWhere;
 Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
 Character.CharacterFunctions.GetCharacterList = GetCharacterList;
 const Player = require("./Player");
-const SkillSpell = require("./SkillSpell");
+const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
+

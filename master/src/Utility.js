@@ -384,6 +384,7 @@ Object.defineProperty( String.prototype, 'prefix', { value: function (str) { ret
 Object.defineProperty( String.prototype, 'IsName', { value: function (str) { return Utility.IsName(this, str); }} );
 Object.defineProperty( String.prototype, 'contains', { value: function (str) { return Utility.Includes(this, str); }} );
 Object.defineProperty( String.prototype, 'IsNullOrEmpty', { value: function () { return Utility.IsNullOrEmpty(this); }} );
+Object.defineProperty( String.prototype, 'ISEMPTY', { value: function () { return Utility.IsNullOrEmpty(this); }} );
 Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback) { 
 	const parser = new xml2js.Parser({ strict: false, trim: false });
 	
@@ -391,7 +392,7 @@ Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback
 	parser.parseString(this, (err, result) => {if(err) throw new Error(err); content = result;});
 	return content;
 }} );
-Object.defineProperty( String.prototype, 'isString', { value: function () { return Object.prototype.toString.call(this) === "[object String]"; }} );
+Object.defineProperty( String.prototype, 'isString', { value: function () { return this instanceof String; }} );
 
 
 Object.defineProperty( Array.prototype, 'joinWithTransform', { value: function () { return Utility.JoinArray(this, transform, separator); }} );
@@ -400,6 +401,7 @@ Object.defineProperty( Array.prototype, 'Select', { value: function (predicate) 
 Object.defineProperty( Array.prototype, 'SelectRandom', { value: function (predicate) { return Utility.SelectRandom(this, predicate) }} );
 Object.defineProperty( Array.prototype, 'FirstOrDefault', { value: function (predicate) { return Utility.FirstOrDefault(this, predicate) }} );
 Object.defineProperty( Array.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
+Object.defineProperty( Array.prototype, 'ISSET', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Array.prototype, 'IsSetAny', { value: function (flags) { return Utility.IsSetAny(this, flags) }} );
 Object.defineProperty( Array.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
 

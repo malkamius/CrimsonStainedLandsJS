@@ -19,6 +19,7 @@ Commands = {
 		"look": Character.DoCommands.DoLook,
 		"exits": Character.DoCommands.DoExits,
 		"get": Character.DoCommands.DoGet,
+		"put": Character.DoCommands.DoPut,
 		"drop": Character.DoCommands.DoDrop,
 		"wear": Character.DoCommands.DoWear,
 		"remove": Character.DoCommands.DoRemove,

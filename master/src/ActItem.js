@@ -239,7 +239,10 @@ function DoGet(player, arguments) {
     [itemName, containerName] = arguments.oneArgument();
     var fAll = Utility.Compare(itemName, "all");
     
-    if(fAll && Utility.IsNullOrEmpty(containerName)) {
+    if(itemName.ISEMPTY()) {
+        player.send("Pick what up?\n\r");
+    }
+    else if(fAll && Utility.IsNullOrEmpty(containerName)) {
         for(var i = 0; i < player.Room.Items.length; i++) {
             var item = player.Room.Items[i];
 
@@ -254,7 +257,7 @@ function DoGet(player, arguments) {
         var container = null;
         var count = 0;
         if(([container, count] = GetItemHere(player, containerName)) != null) {
-            if(container.Flag.Closed) {
+            if(container.ExtraFlags.IsSet("Closed")) {
                 player.Act("$p is closed.\n\r", null, container);
                 return;
             }
@@ -285,7 +288,7 @@ function DoGet(player, arguments) {
                         player.send("You can't pick that up.\n\r");
                 }
             } else {
-                var item = GetItemList(itemName, container.Contains)[0];
+                var item = GetItemList(player, container.Contains, itemName)[0];
 
                 if(item && item.WearFlags.Take) {
                     GetItem(player, item, container);
@@ -610,10 +613,60 @@ function DoWear(player, arguments) {
     }
 }
 
+Character.DoCommands.DoPut = function (player, arguments) {
+    var [itemname, containername] = arguments.oneArgument();
+    var fAll = itemname.startsWith("all");
+    var container;
+    if (itemname.IsNullOrEmpty() || containername.IsNullOrEmpty()) {
+        player.send("Put what in what?\n\r");
+        return;
+    } else if(!([container] = GetItemHere(player, containername, 0))) {
+        player.send("You don't see that container here.\n\r")
+    } else if(!container.ItemTypes.IsSet("Container")) {
+        player.send("That isn't a container.\n\r");
+    } else if (fAll) {
+        if(itemname.startsWith("all.")) itemname = itemname.substring(4);
+        else itemname = "";
+
+        var movedanything = false;
+        var inventory = Utility.CloneArray(player.Inventory);
+        for (var allitem in inventory) {
+            var item = inventory[allitem];
+            if(item != container && itemname.IsNullOrEmpty() || item.Name.IsName(itemname)) {
+                movedanything = true;
+                container.Contains.unshift(item);
+                player.Inventory.splice(player.Inventory.indexOf(item), 1);
+                player.Act("$n puts $p in $P.", null, item, container, "ToRoom");
+                player.Act("You puts $p in $P.", null, item, container, "ToChar");
+            }
+        }
+        
+        if (!movedanything)
+            player.send("You aren't carrying that.\n\r");
+    }
+    else {
+        var [item] = GetItemInventory(player, itemname);
+
+        if (item != container)
+        {
+            container.Contains.unshift(item);
+            player.Inventory.splice(player.Inventory.indexOf(item), 1);
+            player.Act("$n puts $p in $P.", null, item, container, "ToRoom");
+            player.Act("You puts $p in $P.", null, item, container, "ToChar");
+        }
+        else if(container == item) {
+            player.send("You cannot put anything into itself.\n\r");
+        }
+        else
+            player.send("You aren't carrying that.\n\r");
+    }
+}
+
 Character.DoCommands.DoGet = DoGet;
 Character.DoCommands.DoDrop = DoDrop;
 Character.DoCommands.DoRemove = DoRemove;
 Character.DoCommands.DoWear = DoWear;
+
 
 Character.ItemFunctions.WearItem = WearItem;
 Character.ItemFunctions.AddInventoryItem = AddInventoryItem;

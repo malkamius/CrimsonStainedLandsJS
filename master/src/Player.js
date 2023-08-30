@@ -71,12 +71,12 @@ class Player extends Character {
   	
 	send(data, ...params) {
 		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
-		this.output = this.output + Color.ColorString(data, !this.Flags.Color, false);
+		this.output = this.output + Color.ColorString(data, !this.Flags.Color, this.TelnetOptions.Color256, this.TelnetOptions.ColorRGB);
 	}
   	
 	sendnow = function(data, ...params) {
 		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
-		this.socket.write(Color.ColorString(data, false, false));
+		this.socket.write(Color.ColorString(data, !this.Flags.Color, this.TelnetOptions.Color256, this.TelnetOptions.ColorRGB));
 	};
 	Load(path) {
 		var player = this;

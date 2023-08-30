@@ -127,9 +127,12 @@ class Character {
 
 	RemoveCharacterFromRoom() {
 		if(this.Room != null) {
+			const Combat = require("./Combat");
 			var index = this.Room.Characters.indexOf(this);
 			if(index >= 0)
 				this.Room.Characters.splice(index, 1);
+			Combat.StopFighting(this, true);
+			this.Room = null;
 		}
 	}
 

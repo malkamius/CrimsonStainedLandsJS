@@ -67,8 +67,8 @@ function HandleNewSocket(socket) {
 	socket.on("end", () => HandlePlayerDisconnect(socket))
 	player = new Player(socket);
 	var buffer = Buffer.from(TelnetProtocol.ServerGetDoTelnetType);
-
 	player.socket.write(buffer, "binary");
+	
 	if(!IsDataLoaded) player.status = "WaitingOnLoad";
 	else {
 		
@@ -129,13 +129,15 @@ function HandleNewSocket(socket) {
 										];
 
 										var Options = TelnetOptionFlags.FirstOrDefault(function(option) {
-											return ClientString.prefix(option) || ClientString.toUpperCase().replace(" ", "").indexOf(option) >= 0;
+											return ClientString.prefix(Object.keys(option)[0]) || ClientString.toUpperCase().replace(" ", "").indexOf(Object.keys(option)[0]) >= 0;
 										});
 
-										// if (Options)
-										// 	for (var client in Options)
-
-										// 		TelnetOptions.SETBIT(option);
+										if (Options)
+											for (var client in Options) {
+												var options = Options[client];
+												for(var option of options)
+													player.TelnetOptions[option] = true;
+											}
 
 
 										if (player.ClientTypes.indexOf(ClientString) < 0)
@@ -339,6 +341,12 @@ function UpdateCombat() {
 				character.AffectFromChar(affect);
 			}
 		}
+
+		if(character.Fighting && character.Fighting.Room != character.Room) {
+			character.Fighting = null;
+			character.Position = "Standing";
+		}
+
 		if(character.Fighting) {
 			Combat.ExecuteRound(character);
 		}
