@@ -37,6 +37,7 @@ function DataLoaded() {
 function HandlePlayerDisconnect(socket) {
 	player = Player.GetPlayer(socket);
 	if(player != null) {
+		player.input = "";
 		console.log(`${player.Name} disconnected`);
 
 
@@ -48,6 +49,8 @@ function HandlePlayerDisconnect(socket) {
 			player.inanimate = new Date();
 		}
 		else if(player && Player.Players.indexOf(player) >= 0) {
+			if(!player.socket.destroyed)
+				player.socket.destroy();
 			Player.Players.splice(Player.Players.indexOf(player), 1);
 		} 	
 	}
@@ -80,6 +83,12 @@ function HandleNewSocket(socket) {
 		player = Player.GetPlayer(socket)
 		if(player) {
 			try{ 
+				if(buffer.length > 4200 || player.input.length > 4200) {
+					socket.write("Too much data.\n\r", "ascii");
+					HandlePlayerDisconnect(socket);
+					return;
+				}
+
 				var position = player.input.length;
 				
 				for(var i = 0; i < buffer.length; i++) {
