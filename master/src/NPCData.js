@@ -20,6 +20,7 @@ class NPCData extends Character {
 		this.ShortDescription = template.ShortDescription;
 		this.LongDescription = template.LongDescription;
 		this.Description = template.Description;
+		this.Race = template.Race;
 		this.MaxHitPoints = Utility.Roll(template.HitPointDice); 
 		this.HitPoints = this.MaxHitPoints;
 		this.AddCharacterToRoom(room);

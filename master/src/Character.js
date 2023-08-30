@@ -3,7 +3,8 @@ const AffectData = require("./AffectData");
 const PhysicalStats = require("./PhysicalStats");
 const SkillSpell = require("./SkillSpell");
 const Utility = require("./Utility");
-
+const ItemTemplateData = require("./ItemTemplateData");
+const ItemData = require("./ItemData");
 class Character {
 	static Characters = Array();
 	static WearSlots = { 
@@ -299,7 +300,7 @@ class Character {
 		else
 		{
 			for (var flag in affect.Flags)
-				AffectedBy[flag] = true;
+				this.AffectedBy[flag] = true;
 
 			if(!silent && !Utility.IsNullOrEmpty(affect.BeginMessage)) {
 				this.Act(affect.BeginMessage);
@@ -378,25 +379,25 @@ class Character {
 		}
 
 		var wield = null;
-		// TODO Check weapon weight here
-		if (!IsNPC && (wield = this.Equipment.Wield) != null &&
-			wield.Weight > (PhysicalStats.StrengthApply[GetCurrentStat(0)].Wield))
+
+		if (!this.IsNPC && (wield = this.Equipment.Wield) &&
+			wield.Weight > (PhysicalStats.StrengthApply[this.GetCurrentStat(0)].Wield))
 		{
 			Act("You drop $p.", null, wield, null, ActType.ToChar);
 			Act("$n drops $p.", null, wield, null, ActType.ToRoom);
 
-			RemoveEquipment(wield, !silent, true);
+			Character.ItemFunctions.RemoveEquipment(this, wield, !silent, true);
 
 			Room.items.Insert(0, wield);
 			wield.Room = Room;
 		}
-		if (!IsNPC && (wield = this.Equipment.DualWield) != null &&
-			wield.Weight > (PhysicalStats.StrengthApply[GetCurrentStat(0)].Wield))
+		if (!this.IsNPC && (wield = this.Equipment.DualWield) &&
+			wield.Weight > (PhysicalStats.StrengthApply[this.GetCurrentStat(0)].Wield))
 		{
 			Act("You drop $p.", null, wield, null, ActType.ToChar);
 			Act("$n drops $p.", null, wield, null, ActType.ToRoom);
 
-			RemoveEquipment(wield, !silent, true);
+			Character.ItemFunctions.RemoveEquipment(this, wield, !silent, true);
 
 			Room.items.Insert(0, wield);
 			wield.Room = Room;
@@ -415,19 +416,19 @@ class Character {
 		return this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] +this. ModifiedStats[stat] : (this.IsNPC ? 20 : 3);
 	}
 
-	AffectToChar(affect) {
+	AffectToChar(affect, show) {
 		var newaffect = new AffectData({AffectData: affect});
 		this.Affects.unshift(newaffect);
 
-		this.AffectApply(affect, false, false);
+		this.AffectApply(affect, false, !show);
 	}
 
-	AffectFromChar(affect) {
+	AffectFromChar(affect, reason = "Other", show = true) {
 		var index = this.Affects.indexOf(affect);
 		if(index >= 0)
 		this.Affects.splice(index, 1);
 
-		this.AffectApply(affect, true, false);
+		this.AffectApply(affect, true, !show);
 	}
 
 	StripAffects(params = {AffectFlag: null, SkillSpell: null}) {
@@ -474,32 +475,53 @@ class Character {
 		return found;
 	}
 
-	// FindAffects(Flag) {
-	// 	var found = false;
-	// 	found = Flags[Flag];
-	// 	if(!found)
-	// 		for(var aff of Affects) {
-	// 			if(aff.Flags[Flag]) {
-	// 				found = true;
-	// 				break;
-	// 			}
-	// 			else if(aff.SkillSpell == Flag) {
-	// 				found = true;
-	// 				break;
-	// 			}
-	// 		}
+	FindAffect(Flag) {
+				
+		for(var aff of this.Affects) {
+			if(Flag instanceof SkillSpell) {
+				if(aff.SkillSpell == Flag) return aff;
+			} else if(aff.Flags.IsSet(Flag)) {
+				return aff;
+			} else if(aff.SkillSpell && aff.SkillSpell.Name.equals(Flag)) {
+				return aff;
+			}
+		}
 		
-	// 	return found;
-	// }
+		return null;
+	}
+
+	FindAffects(Flag) {
+		var affects = Array();
+		
+		
+		for(var aff of this.Affects) {
+			if(Flag instanceof SkillSpell) {
+				if(aff.SkillSpell == Flag) affects.push(aff);
+			} else if(aff.Flags.IsSet(Flag)) {
+				affects.push(aff);
+			} else if(aff.SkillSpell == Flag || (aff.SkillSpell && aff.SkillSpell.Name.equals(flag))) {
+				affects.push(aff);
+			}
+		}
+		
+		return affects;
+	}
 
 	IsImmortal() {
 		return !this.IsNPC && this.Level > 51;
 	}
 
 	GetLevelSkillLearnedAt(skillname) {
-		if(Utility.IsNullOrEmpty(skillname)) return 60;
-		skillname = skillname.toLowerCase();
-		var skillentry = SkillSpell.GetSkill(skillname, false);
+		var skillentry;
+		if(skillname instanceof SkillSpell) {
+			skillentry = skillname;
+		}
+		else {
+			if(Utility.IsNullOrEmpty(skillname)) return 60;
+			skillname = skillname.toLowerCase();
+		
+			skillentry = SkillSpell.GetSkill(skillname, false);
+		}
 		if (Utility.IsNullOrEmpty(skillname) || !skillentry)
 			return 60;
 		else if (skillentry && !skillentry.PrerequisitesMet(this))
@@ -513,9 +535,17 @@ class Character {
 	}
 
 	GetSkillPercentage(skillname) {
-		if(Utility.IsNullOrEmpty(skillname)) return 0;
-		skillname = skillname.toLowerCase();
-		var skillentry = SkillSpell.GetSkill(skillname, false);
+		
+		var skillentry;
+		if(skillname instanceof SkillSpell) {
+			skillentry = skillname;
+		}
+		else {
+			if(Utility.IsNullOrEmpty(skillname)) return 0;
+			skillname = skillname.toLowerCase();
+		
+			skillentry = SkillSpell.GetSkill(skillname, false);
+		}
 		
 		if (Utility.IsNullOrEmpty(skillname) || !skillentry)
 			return 0;
@@ -575,8 +605,6 @@ class Character {
 		if (this.IsNPC)
 		{
 			gain = 5 + this.Level;
-			//if (IS_AFFECTED(ch, AFF_REGENERATION))
-			//    gain *= 2;
 
 			switch (this.Position)
 			{
@@ -622,43 +650,24 @@ class Character {
 				gain /= 2;
 		}
 
-		//if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
-		//    gain = (gain * 7 / 5);
-
-
 		if (this.IsAffected("Plague"))
 			gain /= 8;
-
-		//if (position == "Sleeping" && get_skill(ch, gsn_dark_dream) > 5)
-		//{
-		//    if (number_percent() < get_skill(ch, gsn_dark_dream))
-		//    {
-		//        check_improve(ch, gsn_dark_dream, TRUE, 7);
-		//        gain *= 3;
-		//        gain /= 2;
-		//    }
-		//}
-
 		if (this.IsAffected("Haste"))
 			gain /= 2;
-		if (this.IsAffected("Slow"))
-		{
+		if (this.IsAffected("Slow")) {
 			gain *= 17;
 			gain /= 10;
 		}
-		if (this.IsAffected("Burrow"))
-		{
+		if (this.IsAffected("Burrow")) {
 			gain *= 17;
 			gain /= 10;
 		}
 
-		if (this.GetSkillPercentage("slow metabolism") > 1)
-		{
+		if (this.GetSkillPercentage("slow metabolism") > 1)	{
 			gain *= 17;
 			gain /= 10;
 		}
-		if (this.IsAffected("camp"))
-		{
+		if (this.IsAffected("camp")) {
 			gain *= 2;
 		}
 		gain *= 2;
@@ -672,8 +681,6 @@ class Character {
 
 		if (!this.Room)
 			return 0;
-		//if (is_affected(ch, gsn_atrophy) || is_affected(ch, gsn_prevent_healing))
-		//    return 0;
 
 		if (!this.IsNPC && !this.IsAffected("Ghost"))
 		{
@@ -734,26 +741,10 @@ class Character {
 
 		}
 
-		//if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
-		//    gain = gain * 7 / 5;
-
 		if (this.IsAffected("Poison"))
 			gain /= 4;
-
-		//if (position ==  "Sleeping" && get_skill(ch, gsn_dark_dream) > 5)
-		//{
-		//    if (number_percent() < get_skill(ch, gsn_dark_dream))
-		//    {
-		//        check_improve(ch, gsn_dark_dream, TRUE, 5);
-		//        gain *= 3;
-		//        gain /= 2;
-		//    }
-
-		//}
-
 		if (this.IsAffected("Plague"))
 			gain /= 8;
-
 		if (this.IsAffected("Haste"))
 			gain /= 2;
 		if (this.IsAffected("Slow"))
@@ -776,8 +767,6 @@ class Character {
 
 		if (!this.Room)
 			return 0;
-		//if (is_affected(ch, gsn_atrophy) || is_affected(ch, gsn_prevent_healing))
-		//    return 0;
 
 		if (!this.IsNPC && !this.IsAffected("Ghost"))
 		{
@@ -809,22 +798,6 @@ class Character {
 
 		}
 
-		//gain = gain * ch->in_room->heal_rate / 100;
-
-		//if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
-		//    gain = gain * 6 / 5;
-
-
-		//if (ch->position == POS_SLEEPING && get_skill(ch, gsn_dark_dream) > 5)
-		//{
-		//    if (number_percent() < get_skill(ch, gsn_dark_dream))
-		//    {
-		//        check_improve(ch, gsn_dark_dream, TRUE, 8);
-		//        gain *= 3;
-		//        gain /= 2;
-		//    }
-		//}
-
 		if (this.IsAffected("Poison"))
 			gain /= 4;
 
@@ -844,14 +817,437 @@ class Character {
 		gain *= 2;
 		return Math.min(gain, this.MaxMovementPoints - this.MovementPoints);
 	} // end MovementPointsGain
+
+	StopFollowing()	{
+		if (this.Following != null)
+		{
+			this.send("You stop following " + (Following.Display(this)) + ".\n\r");
+			Following.send(this.Display(Following) + " stops following you.\n\r");
+			
+			if (this.Following.Pet == this) {
+				this.Following.Pet = null;
+			}
+			this.Following = null;
+			this.Leader = null;
+		}
+	}
+
+	WaitState(count) {
+		this.Wait += count;
+	}
+
+	DeathCry()
+	{
+		var msg = "You hear $n's death cry."; ;
+		var vnum = 0;
+
+		var parts = this.Race.Part;
+		//if (Form != null) parts = Form.Parts;
+		switch (Utility.Random(0, 7))
+		{
+			default:
+			case 0: msg = "$n hits the ground ... DEAD."; break;
+			case 1:
+				msg = "$n splatters blood on your armor.";
+				break;
+			case 2:
+				if (parts["Guts"])
+				{
+					msg = "$n spills their guts all over the floor.";
+					vnum = 11;
+				}
+				break;
+			case 3:
+				if (parts["Head"])
+				{
+					msg = "$n's severed head plops on the ground.";
+					vnum = 7;
+				}
+				break;
+			case 4:
+				if (parts["Heart"])
+				{
+					msg = "$n's heart is torn from their chest.";
+					vnum = 8;
+				}
+				break;
+			case 5:
+				if (parts["Arms"])
+				{
+					msg = "$n's arm is sliced from their dead body.";
+					vnum = 9;
+				}
+				break;
+			case 6:
+				if (parts["Legs"])
+				{
+					msg = "$n's leg is sliced from their dead body.";
+					vnum = 10;
+				}
+				break;
+			case 7:
+				if (parts["Brains"])
+				{
+					msg = "$n's head is shattered, and their brains splash all over you.";
+					vnum = 12;
+				}
+				break;
+		} // switch/select random part
+
+		this.Act(msg, null, null, null, "ToRoom");
+		var template;
+		if (vnum != 0 &&  (template = ItemTemplateData.ItemTemplates[vnum]) && this.Room != null)
+		{
+			var item = new ItemData(template, this.Room);
+			item.Timer = Utility.Random(4, 7)
+			item.ShortDescription = Utility.Format(item.ShortDescription, this.GetShortDescription(null));
+			item.LongDescription = Utility.Format(item.LongDescription, this.GetShortDescription(null));
+			item.Description = Utility.Format(item.Description, this.GetShortDescription(null));
+		}
+
+		if (!this.IsNPC)
+			msg = "You hear something's death cry.";
+		else
+			msg = "You hear someone's death cry.";
+
+		if (this.Room)
+			// send death cry to surrounding rooms
+			for (var exit of this.Room.Exits)
+			{
+				if (exit && exit.Destination != null && exit.Destination != this.Room)
+				{
+					for (var other of exit.Destination.Characters)
+					{
+						other.send(msg + "\n\r");
+					}
+				}
+			}
+	} // end of deathcry
+
+	 IsSameGroup(bch)
+	{
+		var ach = this;
+		var bch;
+
+		if (!bch)
+			return false;
+		if (bch == ach) return true;
+		
+		if (ach.Leader) ach = ach.Leader;
+		if (bch.Leader) bch = bch.Leader;
+		return ach == bch;
+	}
+
+	ExperienceCompute(victim, group_amount, glevel)
+	{
+		var xp, base_exp;
+		var level_range;
+		var mult;
+
+		mult = (this.Level / glevel) * group_amount;
+		if (mult >= 1)
+		{
+			mult = (1 + mult) / 2;
+		}
+		else
+		{
+			mult *= mult;
+		}
+		mult = Utility.URANGE(.25, mult, 1.1);
+
+		level_range = victim.Level - this.Level;
+
+		/* compute the base exp */
+		switch (level_range)
+		{
+			default: base_exp = 0; break;
+			case -9: base_exp = 2; break;
+			case -8: base_exp = 4; break;
+			case -7: base_exp = 7; break;
+			case -6: base_exp = 12; break;
+			case -5: base_exp = 14; break;
+			case -4: base_exp = 25; break;
+			case -3: base_exp = 36; break;
+			case -2: base_exp = 55; break;
+			case -1: base_exp = 70; break;
+			case 0: base_exp = 88; break;
+			case 1: base_exp = 110; break;
+			case 2: base_exp = 131; break;
+			case 3: base_exp = 153; break;
+			case 4: base_exp = 165; break;
+		}
+
+		if (level_range > 4)
+			base_exp = 165 + 20 * (level_range - 4);
+
+		if (mult < 1 && level_range > 4)
+			base_exp = (4 * base_exp + 165) / 3;
+
+		base_exp *= 3;
+
+		if (victim.Flags.IsSet("NoAlign"))
+			xp = base_exp;
+
+		else if (this.Alignment == "Good")
+		{
+			if (victim.Alignment == "Evil")
+				xp = (base_exp * 4) / 3;
+
+			else if (victim.Alignment == "Good")
+				xp = -30;
+
+			else
+				xp = base_exp;
+		}
+		else if (this.Alignment == "Evil") /* for baddies */
+		{
+			if (victim.Alignment == "Good")
+				xp = (base_exp * 4) / 3;
+
+			else if (victim.Alignment == "Evil")
+				xp = base_exp / 2;
+
+			else
+				xp = base_exp;
+		}
+		else /* neutral */
+		{
+			xp = base_exp;
+		}
+
+		xp = (xp * 2) / 3;
+
+		xp *= mult;
+		xp = Utility.Random(xp, xp * 5 / 4);
+
+		/* adjust for grouping */
+		if (group_amount == 2)
+			xp = (xp * 5) / 3;
+		if (group_amount == 3)
+			xp = (xp * 7) / 3;
+		if (group_amount > 3)
+			xp /= (group_amount - 2);
+
+		return xp; //(int)(xp * BonusInfo.ExperienceBonus);
+	}
+	
+	GroupGainExperience(victim)
+	{
+		var xp;
+		var members = 0;
+		//int group_levels = 0;
+		//Character lch;
+		if (victim.Room == null) return;
+		for (var gch of victim.Room.Characters)
+		{
+			if (this.IsSameGroup(gch))
+			{
+				if (!gch.IsNPC) members++;
+
+				//group_levels += gch.level;
+
+				//if (gch.isNPC) group_levels += gch.level;
+			}
+		}
+
+		if (members == 0)
+		{
+			members = 1;
+		}
+
+		//lch = Leader ?? this;
+
+		for (var gch of victim.Room.Characters)
+		{
+
+			if (!this.IsSameGroup(gch) || gch.IsNPC)
+				continue;
+
+			xp = gch.ExperienceCompute(victim, members, gch.Level); // group_levels);
+			var buf = Utility.Format("\\CYou receive \\W{0}\\C experience points.\\x\n\r", xp);
+			gch.send(buf);
+			gch.GainExperience(xp);
+		}
+	}
+
+	GainExperience(gain)
+	{
+		if (this.IsNPC)
+			return;
+
+		/*ch->exp = UMAX( exp_per_level(ch,ch->pcdata->points), ch->exp + gain );*/
+		if (this.Level < 51)
+		this.Xp += gain;
+
+		if (this.Xp > this.XpTotal)
+			this.XpTotal = Xp;
+
+		while (this.Level < 51 && this.Xp >=
+			this.XpToLevel * (this.Level))
+		{
+			this.AdvanceLevel();
+		}
+
+		return;
+	}
+
+	AdvanceLevel(show = true)
+	{
+		if (show)
+			send("\\gYou raise a level!!  \\x\n\r");
+		this.Level += 1;
+		
+		//WizardNet.Wiznet(WizardNet.Flags.Levels, "{0} gained level {1}", null, null, Name, Level);
+
+		this.GiveAdvanceLevelGains(show);
+		if (!this.IsNPC && this.Guild)
+		{
+			var title;
+			if (this.Guild && (title = this.Guild.Titles[Level]))
+			{
+				if (this.Sex == "Female")
+				{
+					this.Title = "the " + title.FemaleTitle;
+				}
+				else
+					this.Title = "the " + title.MaleTitle;
+
+			}
+			this.SaveCharacterFile();
+		}
+
+		if (!this.IsNPC)
+		{
+			// foreach (var questprogress in ((Player)this).Quests)
+			// {
+			// 	if (questprogress.Status == Quest.QuestStatus.InProgress && Level > questprogress.Quest.EndLevel)
+			// 	{
+			// 		QuestProgressData.FailQuest(this, questprogress.Quest);
+			// 	}
+			// }
+		}
+	}
+
+	GiveAdvanceLevelGains(show)
+	{
+		var add_hp;
+		var add_mana;
+		var add_move;
+		var add_prac;
+
+		add_hp = PhysicalStats.ConstitutionApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution)].Hitpoints + 
+			(this.Guild != null ? Utility.Random(
+				this.Guild.HitpointGain,
+				this.Guild.HitpointGainMax) : 3);
+
+		var int_mod = GetCurrentStat(PhysicalStatTypes.Intelligence) - 2;
+
+		add_mana = Math.min(1 + Utility.Random(int_mod / 2, int_mod), 16);
+		
+		add_move = Utility.Random(1, (GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution)
+			+ GetCurrentStat(PhysicalStatTypes.Dexterity)) / 6);
+		
+		add_prac = PhysicalStats.WisdomApply[GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice;
+		//add_prac = 3;
+		if (!this.Guild.Name.equals("warrior"))
+		{
+			add_hp += Utility.Random(1, 4);
+			add_hp = Math.min(add_hp, 24);
+		}
+		else if (!this.Guild.Name.equals("paladin"))
+		{
+			add_hp = Math.min(add_hp, 17);
+		}
+		else if (!this.Guild.Name.equals("healer"))
+		{
+			add_hp = Math.min(add_hp, 15);
+		}
+		else if (!this.Guild.Name.equals("mage"))
+		{
+			add_hp = Math.min(add_hp, 11);
+		}
+		else if (!this.Guild.Name.equals("shapeshifter"))
+		{
+			add_hp = Math.min(add_hp, 11);
+		}
+		else
+			add_hp = Math.min(add_hp, 15);
+
+		add_hp = Math.max(2, add_hp);
+		add_mana = Math.max(2, add_mana);
+		add_move = Math.max(6, add_move);
+
+		this.MaxHitPoints += add_hp;
+		this.MaxManaPoints += add_mana;
+		this.MaxMovementPoints += add_move;
+
+		// restore on level up
+		this.HitPoints = MaxHitPoints;
+		this.ManaPoints = MaxManaPoints;
+		this.MovementPoints = MaxMovementPoints;
+
+		this.Practices += add_prac;
+		if (this.Level % 5 == 0)
+			this.Trains += 1;
+
+		if (show)
+		{
+			send("\\gYou gain {0}/{1} hp, {2}/{3} mana, {4}/{5} move, and {6}/{7} practices.\\x\n\r",
+				add_hp, this.MaxHitPoints, add_mana, this.MaxManaPoints,
+				add_move, this.MaxMovementPoints, add_prac, this.Practices);
+
+			if (this.Level % 5 == 0)
+				send("\\YYou gain a train.\\x\n\r");
+
+			if (!this.IsNPC && this.Level % 20 == 0 && this.Guild.Name.equals("warrior"))
+			{
+				send("\\YYou gain a weapon specialization.\\x\n\r");
+				this.WeaponSpecializations++;
+			}
+
+			// if (this is Player && this.Guild != null && this.Guild.name == "shapeshifter" && (((Player)this).ShapeFocusMajor == ShapeshiftForm.FormType.None
+			// 	|| ((Player)this).ShapeFocusMinor == ShapeshiftForm.FormType.None))
+			// {
+			// 	send("\\RYou have not chosen both of your shapefocuses yet. Type shapefocus major/minor to set it.\\x\n\r");
+			// }
+		}
+
+		// if (this is Player && this.Guild != null && this.Guild.name == "shapeshifter")
+		// 	ShapeshiftForm.CheckGainForm(this);
+		
+		return;
+	}
+
+	GetRecallRoom()
+	{
+		var recallroom = null;
+		if (Alignment.equals("Good"))
+		{
+			if ((recallroom = RoomData.Rooms[19089]))
+			{
+				return recallroom;
+			}
+		}
+		else if (Alignment.equals("Evil"))
+		{
+			if ((recallroom = RoomData.Rooms[19090]))
+			{
+				return recallroom;
+			}
+		}
+		else
+		{
+			if ((recallroom = RoomData.Rooms[19091]))
+			{
+				return recallroom;
+			}
+		}
+
+		return RoomData.Rooms[3001];
+	}
 }
 
-
-
-
-
 module.exports = Character;
-
 
 ActInfo = require("./ActInfo");
 ActMovement = require("./ActMovement");

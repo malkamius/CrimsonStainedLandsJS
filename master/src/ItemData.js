@@ -44,7 +44,12 @@ class ItemData {
     Spells = Array();
 
     constructor(vnum, room, character) {
-        var template = ItemTemplateData.ItemTemplates[vnum];
+        var template;
+        if(vnum instanceof ItemTemplateData)
+            template = vnum;
+        else
+            template = ItemTemplateData.ItemTemplates[vnum];
+        
         if(template) {
             this.Template = template;
             this.VNum = template.VNum;

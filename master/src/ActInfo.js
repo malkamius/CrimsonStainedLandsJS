@@ -15,6 +15,16 @@ function dosay(player, arguments) {
 	player.send("\\yYou say '{0}\\x\\y'\\x\n", arguments);
 }
 
+function DoYell(player, args) {
+	for (const otherplayer of Character.Characters) {
+		if(otherplayer.Room && otherplayer.Room.Area == player.Room.Area) {
+			otherplayer.send("\\r{0} yells '{1}\\x\\r'\\x\n", Utility.Capitalize(player.Display(otherplayer)), args);
+		}
+	}
+
+	player.send("\\rYou yell '{0}\\x\\r'\\x\n", args);
+}
+
 function doquit(player, arguments) {
 	player.Act("The form of $n slowly fades away!", null, null, null, "ToRoom");
 	player.sendnow("Alas, all good things must come to an end.\n\r");
@@ -69,7 +79,8 @@ function dolook(player, arguments, auto) {
 		
 	} else {
 		
-		var targetch = Character.CharacterFunctions.GetCharacterHere(player, arguments);
+		var targetch, count;
+		[targetch, count] = Character.CharacterFunctions.GetCharacterHere(player, arguments);
 		
 		if(targetch)	{
 			if(targetch == player) {
@@ -179,10 +190,10 @@ function GetCharacterList(player, list, arguments, count = 0) {
 	return [null, count, ""];
 }
 
-function GetCharacterHere(player, arguments) {
-	var results = GetCharacterList(player, player.Room.Characters, arguments);
+function GetCharacterHere(player, arguments, count = 0) {
+	var results = GetCharacterList(player, player.Room.Characters, arguments, count);
 
-	return results[0];
+	return results;
 
 }
 
@@ -349,6 +360,7 @@ function DoWhere(character, arguments) {
 }
 
 Character.DoCommands.DoSay = dosay;
+Character.DoCommands.DoYell = DoYell;
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
 Character.DoCommands.DoLook = dolook;

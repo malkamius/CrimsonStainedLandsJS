@@ -371,7 +371,7 @@ function DoDrop(player, arguments) {
     }
 }
 
-function RemoveEquipment(player, item, sendmessage) {
+function RemoveEquipment(player, item, sendmessage = true, force = false) {
     var slot = null;
     for(slotkey in player.Equipment) {
         if(player.Equipment[slotkey] == item)
@@ -380,7 +380,7 @@ function RemoveEquipment(player, item, sendmessage) {
     if (!item || !slot) {
         if(sendmessage)
         player.send("You aren't wearing that.\n\r");
-    } else if(item.ExtraFlags.NoRemove) {
+    } else if(item.ExtraFlags.NoRemove && !force) {
         if(sendmessage)
         player.Act("You can't remove $p.\n\r", null, item, null, "ToChar");
     } else {
@@ -622,3 +622,4 @@ Character.ItemFunctions.GetItemEquipment = GetItemEquipment;
 Character.ItemFunctions.GetItemHere = GetItemHere;
 Character.ItemFunctions.GetItemList = GetItemList;
 Character.ItemFunctions.GetItem = GetItem;
+Character.ItemFunctions.RemoveEquipment = RemoveEquipment;

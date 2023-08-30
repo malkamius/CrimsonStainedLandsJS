@@ -1,6 +1,7 @@
 Utility = require("./Utility");
 
 class ItemTemplateData {
+    static ItemTemplates = {};
     VNum = 0;
     Name = "";
     ShortDescription = "";
@@ -73,6 +74,4 @@ class ItemTemplateData {
     }
 }
 
-ItemTemplateData.ItemTemplates = {};
 module.exports = ItemTemplateData;
-module.exports.ItemTemplates = {};

@@ -29,6 +29,8 @@ Commands = {
 		"kill": Combat.DoKill,
 		"flee": Combat.DoFlee,
 		"peace": Character.DoCommands.DoPeace,
+		"slay": Character.DoCommands.DoSlay,
+		"dirtkick": Combat.DoDirtKick,
 		"delete": Character.DoCommands.DoDelete
 	};
 

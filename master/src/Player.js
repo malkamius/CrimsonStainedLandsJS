@@ -803,4 +803,3 @@ class Player extends Character {
 }
 
 module.exports = Player;
-//module.exports.Players = Players;

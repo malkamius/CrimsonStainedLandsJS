@@ -1,22 +1,24 @@
 class Utility {
 	static Compare (str1, str2) {
-		return str1 && str2 && str1.toLowerCase() == str2.toLowerCase();
+		return str1 && str2 && str1.isString() && str2.isString() && str1.toLowerCase() == str2.toLowerCase();
 	};
 
 	static Prefix (str1, str2) {
-		return str1 && str2 && str1.length >= str2.length && str1.toLowerCase().startsWith(str2.toLowerCase());
+		return str1 && str2 && str1.isString() && str2.isString() && str1.length >= str2.length && str1.toLowerCase().startsWith(str2.toLowerCase());
 	};
 
 	static Includes(str1, str2) {
-		return str1 && str2 && str1.toLowerCase().includes(str2.toLowerCase());
+		return str1 && str2 && str1.isString() && str2.isString() && str1.toLowerCase().includes(str2.toLowerCase());
 	};
 
 	static Capitalize(str) {
-		return str && str.length > 1? (str[0].toUpperCase() + str.substr(1)) : (str? str.toUpperCase() : "");
+		return str && str.isString() && str.length > 1? (str[0].toUpperCase() + str.substr(1)) : (str? str.toUpperCase() : "");
 	}
+	
+	static URANGE(a, b, c) { return ((b) < (a) ? (a) : ((b) > (c) ? (c) : (b))); }
 
 	static TrimStart(text, characters) {
-		if(!text || text.length == 0)
+		if(!text ||  text.length == 0)
 			return "";
 
 		if(!characters || characters.length == 0) 
@@ -300,14 +302,32 @@ class Utility {
 		return results[Utility.Random(0, results.length - 1)];
 	}
 
+	static FirstOrDefault(arr, predicate) {
+		if(!arr) return null;
+
+		for(var key in arr) {
+			var item = arr[key];
+			if(!predicate || predicate(item, key))
+				return item;
+		}
+		return null;
+	}
+
 	static IsSet(obj, flag) {
 		var found = false;
-		
-		found = obj[flag];
-		if(!found) {
-			for(var setflag in obj) { // case insensitive search
+		if(Array.isArray(obj)) {
+			for(var setflag of obj) {
 				if(setflag.equals(flag)) {
-					return obj[setflag];
+					return setflag;
+				}
+			}
+		} else {
+			found = obj[flag];
+			if(!found) {
+				for(var setflag in obj) { // case insensitive search
+					if(setflag.equals(flag)) {
+						return obj[setflag];
+					}
 				}
 			}
 		}
@@ -315,16 +335,42 @@ class Utility {
 	}
 
 	static IsSetAny(obj, flags) {
-		
-		for(var setflag in obj) { // case insensitive search
-			for(var flag of flags) {
-				if(setflag.equals(flag)) {
-					return obj[setflag];
+		if(Array.isArray(obj)) {
+			for(var setflag of obj) {
+				for(var flag of flags) {
+					if(setflag.equals(flag)) {
+						return flag;
+					}
+				}
+			}
+		} else {
+			for(var setflag in obj) { // case insensitive search
+				for(var flag of flags) {
+					if(setflag.equals(flag)) {
+						return obj[setflag];
+					}
 				}
 			}
 		}
-	
 		return false;
+	}
+
+	static RemoveFlag(obj, flag) {
+		if(Array.isArray(obj)) {
+			obj.find(function(setflag, index) {
+				if(setflag.equals(flag)) {
+					obj.splice(index, 1);
+					return true;
+				}
+				return false;
+			})
+		} else {
+			for(var setflag in obj) { // case insensitive search
+				if(setflag.equals(flag)) {
+					delete obj[setflag];
+				}
+			}
+		}
 	}
 }
 
@@ -345,13 +391,26 @@ Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback
 	parser.parseString(this, (err, result) => {if(err) throw new Error(err); content = result;});
 	return content;
 }} );
+Object.defineProperty( String.prototype, 'isString', { value: function () { return Object.prototype.toString.call(this) === "[object String]"; }} );
 
 
 Object.defineProperty( Array.prototype, 'joinWithTransform', { value: function () { return Utility.JoinArray(this, transform, separator); }} );
+Object.defineProperty( Array.prototype, 'CloneArray', { value: function () { return Utility.CloneArray(this) }} );
 Object.defineProperty( Array.prototype, 'Select', { value: function (predicate) { return Utility.Select(this, predicate) }} );
 Object.defineProperty( Array.prototype, 'SelectRandom', { value: function (predicate) { return Utility.SelectRandom(this, predicate) }} );
-
+Object.defineProperty( Array.prototype, 'FirstOrDefault', { value: function (predicate) { return Utility.FirstOrDefault(this, predicate) }} );
+Object.defineProperty( Array.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
+Object.defineProperty( Array.prototype, 'IsSetAny', { value: function (flags) { return Utility.IsSetAny(this, flags) }} );
+Object.defineProperty( Array.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
 
 Object.defineProperty( Object.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Object.prototype, 'IsSetAny', { value: function (flags) { return Utility.IsSetAny(this, flags) }} );
+Object.defineProperty( Object.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
+Object.defineProperty( Object.prototype, 'isString', { value: function () { return Object.prototype.toString.call(this) === "[object String]"; }} );
+Object.defineProperty( Object.prototype, 'Clone', { value: function () { 
+	var result = {};
+	Object.assign(result, this); 
+	return result;
+}} );
+
 module.exports = Utility;

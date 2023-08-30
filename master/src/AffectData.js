@@ -11,11 +11,11 @@ class AffectData {
     Name = "";
     DisplayName = "";
     Where = "";
-    DamageTypes = Array();
+    DamageTypes = {};
     Level = 0;
     Duration = 0;
-    Frequency = "";
-    Location = "";
+    Frequency = "Tick";
+    Location = "None";
     Flags = {};
     Modifier = 0;
     Hidden = false;
@@ -30,7 +30,8 @@ class AffectData {
     //ExtraState = "";
 
     constructor(params) {
-        if(params.AffectData) {
+        
+        if(params && params.AffectData) {
             this.OwnerName = params.AffectData.OwnerName;
             this.Name = params.AffectData.Name;
             this.DisplayName = params.AffectData.DisplayName;
@@ -49,10 +50,10 @@ class AffectData {
             this.BeginMessageToRoom = params.AffectData.BeginMessageToRoom;
             this.TickProgram = params.AffectData.TickProgram;
             this.EndProgram = params.AffectData.EndProgram;
-            this.DamageTypes = Utility.CloneArray(params.AffectData.DamageTypes);
-            this.Flags = Utility.CloneArray(params.AffectData.Flags);
+            this.DamageTypes = params.AffectData.DamageTypes.Clone();
+            this.Flags = params.AffectData.Flags.Clone(); //Utility.CloneArray(params.AffectData.Flags);
             //this.ExtraState = params.AffectData.ExtraState;
-         } else if(params.Xml) {
+         } else if(params && params.Xml) {
             this.OwnerName = XmlHelper.GetAttributeValue(params.Xml,"OwnerName");
             this.Name = XmlHelper.GetAttributeValue(params.Xml,"Name");
             this.DisplayName = XmlHelper.GetAttributeValue("DisplayName");
@@ -71,10 +72,10 @@ class AffectData {
             this.BeginMessageToRoom = XmlHelper.GetAttributeValue(params.Xml, "BeginMessageToRoom");
             this.TickProgram = XmlHelper.GetAttributeValue(params.Xml, "TickProgram");
             this.EndProgram = XmlHelper.GetAttributeValue(params.Xml, "EndProgram");
-            var dtypes = {};
-            Utility.ParseFlags(dtypes, XmlHelper.GetAttributeValue(params.Xml, "DamageTypes"));
-            for(var dtype in dtypes)
-                this.DamageTypes.push(dtype);
+            //var dtypes = {};
+            Utility.ParseFlags(this.DamageTypes, XmlHelper.GetAttributeValue(params.Xml, "DamageTypes"));
+            //for(var dtype in dtypes)
+            //    this.DamageTypes.push(dtype);
             Utility.ParseFlags(this.Flags, XmlHelper.GetAttributeValue(params.Xml, "Flags"));
 
             //this.ExtraState = params.Xml.EXTRASTATE; //XmlHelper.GetElementValue("ExtraState");

@@ -118,6 +118,9 @@ class SkillSpell {
         }
     }
 
+    static SkillLookup(name, prefix = true) {
+        return this.GetSkill(name, prefix);
+    }
     GetManaCost(ch)
     {
         if (ch.Guild && this.SkillLevel[ch.Guild.Name] && ch.Level + 2 <= this.SkillLevel[ch.Guild.Name])

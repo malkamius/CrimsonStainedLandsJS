@@ -62,6 +62,7 @@ function HandleNewSocket(socket) {
 	player = new Player(socket);
 	if(!IsDataLoaded) player.status = "WaitingOnLoad";
 	else {
+		const Character = require("./Character");
 		Character.DoCommands.DoHelp(player, "diku", true);
 
 		player.send("Please enter your name: ");
@@ -91,6 +92,7 @@ function pulse()
 		try{
 			if(player.status == "WaitingOnLoad" && !player.socket.destroyed) {
 				player.status = "GetName";
+				const Character = require("./Character");
 				Character.DoCommands.DoHelp(player, "diku", true);
 
 				player.send("Please enter your name: ");
@@ -171,10 +173,10 @@ function Update() {
 }
 
 function UpdateTick() {
-
+	const Character = require("./Character");
 	for(var character of Utility.CloneArray(Character.Characters)) { 
 		for(var affect of character.Affects) {
-			if(affect.Frequency == "Tick" && affect.Duration > 0 && --affect.Duration == 0) {
+			if(affect.Frequency == "Tick" && (affect.Duration == 0 || (affect.Duration > 0 && --affect.Duration == 0))) {
 				character.AffectFromChar(affect);
 			}
 		}
@@ -201,6 +203,7 @@ function UpdateTick() {
 }
 
 function UpdateCombat() {
+	const Character = require("./Character");
 	const Combat = require("./Combat");
 	for(var character of Utility.CloneArray(Character.Characters)) {
 		for(var affect of character.Affects) {
@@ -215,7 +218,8 @@ function UpdateCombat() {
 }
 
 function UpdateAggro() {
+	const Character = require("./Character");
 	for(var character of Utility.CloneArray(Character.Characters)) { 
-
+		if(character.Wait > 0) character.Wait--;
 	}
 }
