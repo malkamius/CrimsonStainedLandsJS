@@ -1220,15 +1220,16 @@ class Character {
 
 	GetRecallRoom()
 	{
+		const RoomData = require("./RoomData");
 		var recallroom = null;
-		if (Alignment.equals("Good"))
+		if (this.Alignment.equals("Good"))
 		{
 			if ((recallroom = RoomData.Rooms[19089]))
 			{
 				return recallroom;
 			}
 		}
-		else if (Alignment.equals("Evil"))
+		else if (this.Alignment.equals("Evil"))
 		{
 			if ((recallroom = RoomData.Rooms[19090]))
 			{

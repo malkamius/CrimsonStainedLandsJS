@@ -288,9 +288,9 @@ class Combat {
 
                     if (value)
                     {
-                        Character.ItemFunctions.RemoveEquipment(victim, key, false, true);
-                        if (victim.Inventory.Contains(value))
-                            victim.Inventory.Remove(value);
+                        Character.ItemFunctions.RemoveEquipment(victim, value, false, true);
+                        if (victim.Inventory.indexOf(value) >= 0)
+                            victim.Inventory.splice(victim.Inventory.indexOf(value), 1);
                         newCorpse.Contains.push(value);
                         value.CarriedBy = null;
                         value.Container = newCorpse;
@@ -305,10 +305,10 @@ class Combat {
                 }
 
                 // Transfer inventory to the corpse
-                for (var item in victim.Inventory.Clone())
+                for (var item of victim.Inventory.CloneArray())
                 {
                     victim.Inventory.splice(victim.Inventory.indexOf(item), 1);
-                    newCorpse.Contains.unshift(item);
+                    newCorpse.Contains.push(item);
                     item.Container = newCorpse;
                     item.CarriedBy = null;
                     if (item.ExtraFlags.IsSet("VisDeath"))
@@ -373,8 +373,8 @@ class Combat {
                 victim.HitPoints = victim.MaxHitPoints / 2;
                 victim.ManaPoints = victim.MaxManaPoints / 2;
                 victim.MovementPoints = victim.MaxMovementPoints / 2;
-                victim.Position = Positions.Resting;
-                victim.ModifiedStats = new PhysicalStats(0, 0, 0, 0, 0, 0);
+                victim.Position = "Resting";
+                victim.ModifiedStats = Array(0, 0, 0, 0, 0, 0);
                 victim.Affects = Array();
                 victim.AffectedBy = {};
                 // if (victim.Race != null)
