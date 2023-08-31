@@ -45,6 +45,7 @@ Commands = {
 		"time": {Command: Character.DoCommands.DoTime, MinimumPosition: "Dead" },
 		"weather": {Command: Character.DoCommands.DoWeather, MinimumPosition: "Dead" },
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
+		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};
 

@@ -1,7 +1,4 @@
-const path = require('path')
-const fs = require('fs');
-const xml2js = require('xml2js');
-const parser = new xml2js.Parser({ strict: false, trim: false });
+
 const Settings = require("./Settings");
 
 
@@ -18,6 +15,9 @@ class AreaData {
 	ItemTemplates = {};
 	Resets = Array();
 	helps = {};
+	Timer = 0;
+	LastPeopleCount = 0;
+
 	constructor(xml) { 
 		var reset = null;
 		this.Name = xml.AREADATA[0].NAME[0];
@@ -66,6 +66,10 @@ class AreaData {
 		
 	} // end constructor
 	static LoadAllAreas(callback) {
+		const path = require('path')
+		const fs = require('fs');
+		const xml2js = require('xml2js');
+		const parser = new xml2js.Parser({ strict: false, trim: false });
 		var counter = 0;
 		var areasdirectory = Settings.AreaDataPath;
 		fs.readdir(areasdirectory, function(err, filenames) {
@@ -100,6 +104,79 @@ class AreaData {
 		});
 		
 	}
+
+	static ResetAreas(force = false) {
+		for(var areakey in AreaData.AllAreas)
+		{
+			var area = AreaData.AllAreas[areakey];
+			
+			area.ResetArea(force);
+			//console.log("Reset area " + area.Name);
+		}
+	}
+
+	ResetArea(force = false) {
+		const Character = require("./Character");
+		if (force) this.Timer = 1;
+
+		if (this.Timer > 0)
+			this.Timer--;
+		else
+		this.Timer = 0;
+		
+		var people = Character.Characters.Select(function(ch) {!ch.IsNPC && ch.Room && ch.Room.Area == this});
+
+		if (this.LastPeopleCount > 0 && people.length == 0 && this.Timer > 3)
+		{
+			this.Timer = 3;// game.PULSE_AREA;
+		}
+		else if (people.length == 0 && this.Timer > 3) //game.PULSE_AREA)
+		{
+			this.Timer = 3;
+		}
+		else if (this.LastPeopleCount == 0 && people.length > 0)
+		{
+			this.Timer = Utility.Random(7, 16);
+		}
+		this.LastPeopleCount = people.length;
+		// RESET Every PULSE if empty, otherwise every 3 PULSEs
+		if (this.Timer <= 0)// || (this.people.Count == 0 && timer <= (game.PULSE_AREA * 4)))
+		{
+			//RandomizeExits();
+			if (people.length > 0)
+			this.Timer = Utility.Random(7, 16);//  game.PULSE_AREA * 5;
+			else
+			this.Timer = 3;// game.PULSE_AREA;
+			console.log("RESET AREA :: " + this.Name);
+
+			for(var i = 0; i < this.Resets.length; i++) {
+				var reset = this.Resets[i];
+				reset.Execute();
+			}
+
+			for(var roomkey in this.Rooms)
+			{
+				var room = this.Rooms[roomkey];
+				for (var exit of room.Exits)
+				{
+					if (exit != null)
+					{
+						exit.Flags = Utility.CloneArray(exit.OriginalFlags);
+					}
+				}
+
+				for (var item of room.Items)
+				{
+					if (!item.WearFlags.ISSET("Take") && item.Template  && item.Template.ExtraFlags.ISSET("Closed") && !item.ExtraFlags.ISSET("Closed"))
+					{
+						item.ExtraFlags["Closed"] = true;;
+					}
+				}
+			}
+
+		}
+		
+	}
 	
 }
 
@@ -113,3 +190,4 @@ const NPCTemplateData = require('./NPCTemplateData');
 const ItemTemplateData = require('./ItemTemplateData');
 const ResetData = require('./ResetData');
 const HelpData = require("./HelpData");
+const Utility = require("./Utility");

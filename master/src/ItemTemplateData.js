@@ -1,4 +1,6 @@
-Utility = require("./Utility");
+const XmlHelper = require("./XmlHelper");
+
+const Utility = require("./Utility");
 
 class ItemTemplateData {
     static ItemTemplates = {};

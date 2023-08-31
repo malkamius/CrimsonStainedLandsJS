@@ -16,6 +16,9 @@ class NPCData extends Character {
 	if(!template) {
   		Character.Characters.splice(Character.Characters.indexOf(this), 1);
 	} else {
+		template.ResetCount++;
+		this.Template = template;
+		this.VNum = VNum;
 		this.Name = template.Name;
 		this.ShortDescription = template.ShortDescription;
 		this.LongDescription = template.LongDescription;

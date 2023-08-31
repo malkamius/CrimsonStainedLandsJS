@@ -1,3 +1,4 @@
+const AreaData = require("./AreaData");
 const Character = require("./Character");
 
 const Combat = require("./Combat");
@@ -26,4 +27,9 @@ Character.DoCommands.DoSlay = function(character, args) {
     } else {
         character.send("You don't see them here.\n\r");
     }
+}
+
+Character.DoCommands.DoResetAreas = function(character, args) {
+    AreaData.ResetAreas(true);
+    character.send("OK.\n\r");
 }

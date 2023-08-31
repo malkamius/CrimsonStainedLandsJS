@@ -178,8 +178,11 @@ class Combat {
 
             Combat.StopFighting(victim, true);
 
-            if (victim.IsNPC)
+            if (victim.IsNPC) {
                 victim.StopFollowing();
+                Character.Characters.splice(Character.Characters.indexOf(victim), 1);
+                if(victim.Template && victim.Template.ResetCount > 0) victim.Template.ResetCount--;
+            }
 
             // Remove affects from the victim
             for (var aff of victim.Affects.CloneArray())

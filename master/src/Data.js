@@ -6,6 +6,7 @@ const SkillSpell = require("./SkillSpell");
 const Settings = require("./Settings");
 const DamageMessage = require("./DamageMessage");
 const SkillGroup = require("./SkillGroup");
+const ResetData = require("./ResetData");
 
 function LoadData(callback) {
 	Settings.Load();
@@ -31,7 +32,7 @@ function LoadAreas(callback) {
 
 	AreaData.LoadAllAreas(function() { 	
 		fixExits();
-
+		ResetData.FixMaxCounts();
 		AllLoaded(callback);
 	} );
 
@@ -45,17 +46,10 @@ function AllLoaded(callback) {
 	console.log(Object.keys(AreaData.AllRooms).length + " rooms loaded.");
 	console.log(Object.keys(AreaData.AllHelps).length + " helps loaded.");
 	console.log(Object.keys(AreaData.AllAreas).length + " areas loaded.");
+	console.log(Object.keys(ResetData.Resets).length + " resets loaded.");
 
-	for(var areakey in AreaData.AllAreas)
-	{
-		var area = AreaData.AllAreas[areakey];
-		
-		for(var i = 0; i < area.Resets.length; i++) {
-			reset = area.Resets[i];
-			reset.Execute();
-		}
-		//console.log("Reset area " + area.Name);
-	}
+	AreaData.ResetAreas();
+	
     callback();
 }
 

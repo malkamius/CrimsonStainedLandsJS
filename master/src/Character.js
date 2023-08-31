@@ -5,6 +5,7 @@ const SkillSpell = require("./SkillSpell");
 const Utility = require("./Utility");
 const ItemTemplateData = require("./ItemTemplateData");
 const ItemData = require("./ItemData");
+const NPCTemplateData = require("./NPCTemplateData");
 class Character {
 	static Characters = Array();
 	static WearSlots = { 
@@ -102,7 +103,8 @@ class Character {
 	MaxWeight = 600;
 	LastActivity = null;
 
-  	constructor() {
+  	constructor(add = true) {
+		if(add)
 		Character.Characters.push(this);
 	}
 

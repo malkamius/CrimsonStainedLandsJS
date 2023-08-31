@@ -291,6 +291,7 @@ var UpdateTickCounter = Game.PULSE_PER_TICK;
 function Update() {
 
 	if(--UpdateTickCounter <= 0) {
+		AreaData.ResetAreas();
 		UpdateWeather();
 		UpdateTick();
 		UpdateTickCounter = Game.PULSE_PER_TICK;
