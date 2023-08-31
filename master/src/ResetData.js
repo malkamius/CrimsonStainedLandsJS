@@ -17,10 +17,10 @@ class ResetData {
 
   constructor(area, xml) {
     this.Type = XmlHelper.GetElementValue(xml, "type", XmlHelper.GetAttributeValue(xml, "type"));
-    this.Destination = XmlHelper.GetElementValue(xml, "destination", XmlHelper.GetAttributeValue(xml, "destination"));
-    this.Count = XmlHelper.GetElementValue(xml, "count", XmlHelper.GetAttributeValue(xml, "count"));
-    this.Max = XmlHelper.GetElementValue(xml, "max", XmlHelper.GetAttributeValue(xml, "max"));
-    this.VNum = XmlHelper.GetElementValue(xml, "vnum", XmlHelper.GetAttributeValue(xml, "vnum"));
+    this.Destination = XmlHelper.GetElementValueInt(xml, "destination", XmlHelper.GetAttributeValue(xml, "destination"));
+    this.Count = XmlHelper.GetElementValueInt(xml, "count", XmlHelper.GetAttributeValue(xml, "count"));
+    this.Max = XmlHelper.GetElementValueInt(xml, "max", XmlHelper.GetAttributeValue(xml, "max"));
+    this.VNum = XmlHelper.GetElementValueInt(xml, "vnum", XmlHelper.GetAttributeValue(xml, "vnum"));
     
     area.Resets.push(this);
     ResetData.Resets.push(this);
@@ -37,7 +37,7 @@ class ResetData {
           var template = NPCTemplateData.NPCTemplates[reset.VNum];
 
           if(template) {
-            template.ResetMaxCount += Math.max(reset.Max, 1);
+            template.ResetMaxCount += 1; //Math.max(reset.Max, 1);
           }
         }
       }
