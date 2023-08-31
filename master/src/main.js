@@ -89,26 +89,20 @@ function HandleNewSocket(socket) {
 					Player.Players.splice(Player.Players.indexOf(player), 1);
 					return;
 				}
-				const message = buffer.toString("ascii");
-				
+				// const message = buffer.toString("ascii");
+				// console.log(buffer);
+				// console.log(message);
 				var position = player.input.length;
 				
 				for(var i = 0; i < buffer.length; i++) {
 					var singlecharacter = buffer[i];
 
-					if(buffer[i] == 8 && position > 0) {
-						if(position > 1)
-							player.input = player.input.substring(0, position - 1);
-						else
-							player.input = "";
-						position--;
-					} else if(buffer[i] == 13 || buffer[i] == 10 || buffer[i] >= 32 && buffer[i] <= 126) {
-						player.input = player.input + String.fromCharCode(buffer[i]);
-					} else if (singlecharacter == TelnetProtocol.Options.InterpretAsCommand) {
+					if (singlecharacter == TelnetProtocol.Options.InterpretAsCommand) {
 						var [newbyteindex, carryover] = TelnetProtocol.ProcessInterpretAsCommand(player, buffer, i,
 							function (sender, command) {
 								if (command.Type == TelnetProtocol.CommandTypes.WillTelnetType)
 								{
+									console.log("WillTelnetType");
 									var buffer = Buffer.from(TelnetProtocol.ServerGetWillTelnetType);
 									player.socket.write(buffer, "binary");
 								}
@@ -192,11 +186,17 @@ function HandleNewSocket(socket) {
 							}
 						);
 						if (newbyteindex > i)
-							i = newbyteindex;
-						if(newbyteindex > buffer.length)
-						 console.log("!!!");
-						this.ReceiveBufferBacklog = carryover;
-					}
+							i = newbyteindex - 1;
+						this.ReceiveBufferBacklog = carryover; // not supported yet
+					} else if(buffer[i] == 8 && position > 0) {
+						if(position > 1)
+							player.input = player.input.substring(0, position - 1);
+						else
+							player.input = "";
+						position--;
+					} else if(buffer[i] == 13 || buffer[i] == 10 || buffer[i] >= 32 && buffer[i] <= 126) {
+						player.input = player.input + String.fromCharCode(buffer[i]);
+					} 
 				}
 
 				//const message = buffer.toString("ascii").replace("\r", "");
