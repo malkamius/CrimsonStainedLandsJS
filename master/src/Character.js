@@ -67,6 +67,7 @@ class Character {
 	MovementPoints = 100;
 	MaxMovementPoints = 100;
 	HitPointDice = Array(0,0,0);
+	DamageDice = Array(0,0,0);
 	Xp = 0;
 	XpTotal = 0;
 	_fighting = null;
@@ -155,7 +156,14 @@ class Character {
 	}
 
 	GetPrompt() {
-		return `<${this.HitPoints}/${this.MaxHitPoints}hp ${this.ManaPoints}/${this.MaxManaPoints}m ${this.MovementPoints}/${this.MaxMovementPoints}mv> `
+		return Utility.Format("<{0}{1}\\x/{2} {3}{4}\\x/{5} {6}{7}\\x/{8} \\mvnum \\c{9}\\x> ",
+			this.HitPoints < this.MaxHitPoints * 0.25? "\\r" : this.HitPoints < this.MaxHitPoints * 0.75? "\\y" : "\\g", 
+			this.HitPoints.toFixed(2), this.MaxHitPoints.toFixed(2), 
+			this.ManaPoints < this.MaxManaPoints * 0.25? "\\r" : this.ManaPoints < this.MaxManaPoints * 0.75? "\\y" : "\\g",
+			this.ManaPoints.toFixed(2), this.MaxManaPoints.toFixed(2),
+			this.MovementPoints < this.MaxMovementPoints * 0.25? "\\r" : this.MovementPoints < this.MaxMovementPoints * 0.75? "\\y" : "\\g",
+			this.MovementPoints.toFixed(2), this.MaxMovementPoints.toFixed(2), 
+			 this.Room.VNum);
 	}
 
 	Act(message, victim = null, item = null, item2 = null, acttype = "ToChar", ...params) {
@@ -259,7 +267,7 @@ class Character {
 				output +=message[i];
 	
 		}
-		if (!output.endsWith("\n\r"))
+		if (!output.endsWith("\n\r") && !output.endsWith("\n"))
 			output += "\n\r";
 		
 		if (output && output.length > 1)

@@ -4,6 +4,10 @@ const Character = require("./Character");
 NPCTemplates = {};
 
 class NPCTemplateData extends Character {
+  HitPointDice = Array(0,0,0);
+  ManaPointDice = Array(0,0,0);
+  
+
   constructor(area, xml) {
     super();
         
@@ -16,6 +20,16 @@ class NPCTemplateData extends Character {
     this.HitPointDice[0] = XmlHelper.GetElementValueInt(xml, "HitPointDiceSides");
     this.HitPointDice[1] = XmlHelper.GetElementValueInt(xml, "HitPointDiceCount");
     this.HitPointDice[2] = XmlHelper.GetElementValueInt(xml, "HitPointDiceBonus");
+    this.ManaPointDice[0] = XmlHelper.GetElementValueInt(xml, "ManaPointDiceSides");
+    this.ManaPointDice[1] = XmlHelper.GetElementValueInt(xml, "ManaPointDiceCount");
+    this.ManaPointDice[2] = XmlHelper.GetElementValueInt(xml, "ManaPointDiceBonus");
+
+    this.DamageDice[0] = XmlHelper.GetElementValueInt(xml, "DamageDiceSides");
+    this.DamageDice[1] = XmlHelper.GetElementValueInt(xml, "DamageDiceCount");
+    this.DamageDice[2] = XmlHelper.GetElementValueInt(xml, "DamageDiceBonus");
+
+    this.WeaponDamageMessage = xml.GetElementValue("WeaponDamageMessage");
+
     this.Race = RaceData.LookupRace(XmlHelper.GetElementValue(xml, "Race", "human"));
 
     if(!area.NPCTemplates[this.VNum])

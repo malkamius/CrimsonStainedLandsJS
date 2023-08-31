@@ -5286,7 +5286,7 @@ knowledge and mastery of magic is undeniable.</description>
       <vulnerable></vulnerable>
       <affectedBy>DetectInvis DetectHidden Sanctuary DetectIllusion</affectedBy>
       <WiznetFlags></WiznetFlags>
-      <WeaponDamageMessage>punch</WeaponDamageMessage>
+      <WeaponDamageMessage>beating</WeaponDamageMessage>
       <DamageDiceSides>6</DamageDiceSides>
       <DamageDiceCount>8</DamageDiceCount>
       <DamageDiceBonus>16</DamageDiceBonus>

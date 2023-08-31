@@ -23,6 +23,13 @@ class NPCData extends Character {
 		this.Race = template.Race;
 		this.MaxHitPoints = Utility.Roll(template.HitPointDice); 
 		this.HitPoints = this.MaxHitPoints;
+		this.MaxManaPoints = Utility.Roll(template.ManaPointDice); 
+		this.ManaPoints = this.MaxManaPoints;
+		this.MovementPoints = 100;
+		this.WeaponDamageMessage = template.WeaponDamageMessage;
+		
+		this.DamageDice = Utility.CloneArray(template.DamageDice);
+		
 		this.AddCharacterToRoom(room);
 	}
 

@@ -71,7 +71,7 @@ class Player extends Character {
   	
 	send(data, ...params) {
 		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
-		this.output = this.output + Color.ColorString(data, !this.Flags.Color, this.TelnetOptions.Color256, this.TelnetOptions.ColorRGB);
+		this.output = this.output + data;
 	}
   	
 	sendnow = function(data, ...params) {
@@ -115,12 +115,12 @@ class Player extends Character {
 		this.AffectedBy = {};
 		Utility.ParseFlags(this.AffectedBy, XmlHelper.GetElementValue("AffectedBy"));
 
-		this.HitPoints = XmlHelper.GetElementValueInt(xml,"HitPoints");
-		this.MaxHitPoints = XmlHelper.GetElementValueInt(xml,"MaxHitPoints");
-		this.ManaPoints = XmlHelper.GetElementValueInt(xml,"ManaPoints");
-		this.MaxManaPoints = XmlHelper.GetElementValueInt(xml,"MaxManaPoints");
-		this.MovementPoints = XmlHelper.GetElementValue(xml,"MovementPoints");
-		this.MaxMovementPoints = XmlHelper.GetElementValue(xml,"MaxMovementPoints");
+		this.HitPoints = XmlHelper.GetElementValueFloat(xml,"HitPoints");
+		this.MaxHitPoints = XmlHelper.GetElementValueFloat(xml,"MaxHitPoints");
+		this.ManaPoints = XmlHelper.GetElementValueFloat(xml,"ManaPoints");
+		this.MaxManaPoints = XmlHelper.GetElementValueFloat(xml,"MaxManaPoints");
+		this.MovementPoints = XmlHelper.GetElementValueFloat(xml,"MovementPoints");
+		this.MaxMovementPoints = XmlHelper.GetElementValueFloat(xml,"MaxMovementPoints");
 		var race = XmlHelper.GetElementValue(xml,"Race", "human");
 		if(!(this.Race = RaceData.LookupRace(race)))
 			console.log(`Race ${race} not found`);
@@ -340,7 +340,8 @@ class Player extends Character {
 					else
 						health = "is dead.";
 					//output.Append(fighting.Display(this) + " " + health + "\n\r");
-					this.Act("$N " + health + "\n", this.Fighting);
+					this.Act("$N " + health, this.Fighting);
+					//this.send("{0} {1}", Utility.Capitalize(this.Fighting.Display(this)), health);
 				}
 				this.output = this.output + (!this.output.endsWith("\n\n")? "\n" : "") + this.GetPrompt();
 				if (this.SittingAtPrompt && !this.output.startsWith("\n"))
@@ -350,7 +351,7 @@ class Player extends Character {
 			this.output = this.output.replace("\r", "");
 			if(!this.output.endsWith("\n"))
 				this.output += "\u00FF\u00F9";
-			this.socket.write(this.output.replace("\n", "\n\r"), "ascii");
+			this.socket.write(Color.ColorString(this.output.replace("\n", "\n\r"), !this.Flags.Color, this.TelnetOptions.Color256, this.TelnetOptions.ColorRGB), "ascii");
 			
 			this.SittingAtPrompt = true;
 		}

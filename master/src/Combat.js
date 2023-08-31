@@ -488,6 +488,7 @@ class Combat {
 
     static OneHit(character, victim, weapon) {
         var damage = Math.floor(Math.random() * 10);
+
         var damagemessage = DamageMessage.DamageMessages["punch"];
         var damagetype = "Bash";
         var damagenoun = "punch";
@@ -496,12 +497,18 @@ class Combat {
             damage = Utility.Roll(weapon.DamageDice);
             if(damage != 0) damage += character.DamageRoll;
             damagemessage = DamageMessage.DamageMessages[weapon.WeaponDamageType];
+        } else {
+            if(character.IsNPC && character.DamageDice) {
+                if(character.WeaponDamageMessage && DamageMessage.DamageMessages[character.WeaponDamageMessage])
+                    damagemessage = DamageMessage.DamageMessages[character.WeaponDamageMessage];
+                damage = Utility.Roll(character.DamageDice);
+            }
         }
         
         if(damagemessage) {
             damagetype = damagemessage.Type;
             damagenoun = damagemessage.Message;
-    }
+        }
     
         if(character.Fighting && character.Fighting == victim && character.Fighting.Room != victim.Room) {
             character.Fighting = null;
@@ -514,23 +521,24 @@ class Combat {
                 victim.Fighting = character;
             victim.Position = "Fighting";
 
-            Combat.ShowDamageMessage(character, victim, damage, damagenoun, damagetype, false);
+            Combat.Damage(character, victim, damage, damagenoun, damagetype, character.Name, weapon, true, true);
+            // Combat.ShowDamageMessage(character, victim, damage, damagenoun, damagetype, false);
             
-            victim.HitPoints -= damage;
-            if(victim.HitPoints < -15) {
-                victim.Position = "Dead";
-                character.Act("$N has been killed!", victim, null, null, "ToRoomNotVictim");
-                character.Act("You have been killed!", victim, null, null, "ToVictim");
-                character.Act("$N is DEAD!", victim, null, null, "ToChar");
+            // victim.HitPoints -= damage;
+            // if(victim.HitPoints < -15) {
+            //     victim.Position = "Dead";
+            //     character.Act("$N has been killed!", victim, null, null, "ToRoomNotVictim");
+            //     character.Act("You have been killed!", victim, null, null, "ToVictim");
+            //     character.Act("$N is DEAD!", victim, null, null, "ToChar");
                 
-                for(var other of victim.Room.Characters) {
-                    if(other.Fighting == victim) {
-                        other.Fighting = null;
-                        character.Position = "Standing";
-                    }
-                }
-                victim.Fighting = null;
-            }
+            //     for(var other of victim.Room.Characters) {
+            //         if(other.Fighting == victim) {
+            //             other.Fighting = null;
+            //             character.Position = "Standing";
+            //         }
+            //     }
+            //     victim.Fighting = null;
+            // }
         }
     }
 
