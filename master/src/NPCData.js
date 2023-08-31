@@ -30,9 +30,32 @@ class NPCData extends Character {
 		this.ManaPoints = this.MaxManaPoints;
 		this.MovementPoints = 100;
 		this.WeaponDamageMessage = template.WeaponDamageMessage;
-		
+		this.Guild = template.Guild;
+		this.Level = template.Level;
+		const SkillSpell = require("./SkillSpell");
+		if(this.Guild) {
+			for(var skillname in SkillSpell.Skills)
+			{
+				var skill = SkillSpell.Skills[skillname];
+				var percent = this.GetSkillPercentage(skill.Name);
+				var lvl = this.GetLevelSkillLearnedAt(skill.Name);
+				var learnastype = {Skill: true};
+				if(skill.SkillTypes["Skill"]) learnastype = {Skill: true};
+				else if(skill.SkillTypes["Supplication"] && this.Guild.CastType == "Commune") learnastype = {Supplication: true};
+				else if(skill.SkillTypes["Spell"] && this.Guild.CastType == "Cast") learnastype = {Spell: true};
+				else if(skill.SkillTypes["Song"] && this.Guild.CastType == "Sing") learnastype = {Song: true};
+
+				if (lvl <= this.Level && (!this.Learned[skill.Name] || this.Learned[skill.Name].Percent <= 1)) 
+				{
+					this.Learned[skill.Name] = {Name: skill.Name, Percent: 80, Level: lvl, LearnedAs: learnastype};
+				}
+				
+			}
+		}
+
 		this.DamageDice = Utility.CloneArray(template.DamageDice);
 		this.Flags = Utility.CloneArray(template.Flags);
+		
 		this.AddCharacterToRoom(room);
 	}
 

@@ -458,8 +458,8 @@ class Magic {
         }
         else if (MethodUsed == "Commune")
         {
-            ch.Act("$n closes their eyes for a moment.", null, null, null, ActType.ToRoom);
-            ch.Act("You close your eyes for a moment as you pray to your diety.", null, null, null, ActType.ToChar);
+            ch.Act("$n closes their eyes for a moment.", null, null, null, "ToRoom");
+            ch.Act("You close your eyes for a moment as you pray to your diety.", null, null, null, "ToChar");
         }
         ch.WaitState(spell.WaitTime);
 
@@ -697,6 +697,41 @@ class Magic {
             victim.AffectToChar(affect);
             victim.send("You are surrounded by armor.\n\r");
             victim.Act("$n is surrounded by armor.\n\r", null, null, null, "ToRoom");
+        }
+    }
+
+    static SpellSanctuary(castType, spell, level, ch, victim, item, args, target)
+    {
+        var affect;
+        if (victim == null)
+            victim = ch;
+
+        if ((affect = victim.FindAffect(spell)) != null || victim.IsAffected("Sanctuary"))
+        {
+            if (victim != ch)
+                ch.send("They are already protected by a white aura.\n\r");
+            else
+                ch.send("You are already protected by a white aura.");
+            return;
+        }
+        else
+        {
+            //if (victim.IsAffected(AffectFlags.Haven)) victim.AffectFromChar(victim.FindAffect("Haven"), AffectRemoveReason.WoreOff);
+            victim.send("A white aura surrounds you.\n\r");
+            victim.Act("A white aura surrounds $n.", null, null, null, "ToRoom");
+            affect = new AffectData();
+            affect.SkillSpell = spell;
+            affect.Level = level;
+            affect.Location = "None";
+            affect.Where = "ToAffects";
+            affect.Flags["Sanctuary"] = true;
+            affect.Duration = 10 + level / 4;
+            affect.DisplayName = "sanctuary";
+            affect.EndMessage = "Your white aura fades.\n\r";
+            affect.EndMessageToRoom = "$n's white aura fades.\n\r";
+            affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
+            victim.AffectToChar(affect);
+
         }
     }
 }

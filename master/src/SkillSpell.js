@@ -111,7 +111,8 @@ class SkillSpell {
         this.SpellFuncType = XmlHelper.GetAttributeValue(xml, "SpellFuncType");
         this.SpellFuncName = XmlHelper.GetAttributeValue(xml, "SpellFuncName");
         this.TargetType = xml.GetAttributeValue("TargetType", "TargetIgnore");
-
+        this.AutoCastScript = xml.GetAttributeValue("AutoCastScript");
+        
         if(!this.SpellFuncName.IsNullOrEmpty() && !this.SpellFuncType.IsNullOrEmpty()) {
             try{
                 if(!SkillSpell.containers[this.SpellFuncType])
@@ -262,11 +263,12 @@ class SkillSpell {
             var tempskill = SkillSpell.Skills[skillentry];
             if (((tempskill.SkillTypes.IsSet("Skill") ||
             tempskill.SkillTypes.IsSet("Spell") ||
-            tempskill.SkillTypes.IsSet("Commune") ||
+            tempskill.SkillTypes.IsSet("Supplication") ||
             tempskill.SkillTypes.IsSet("Song") ||
             (tempskill.SkillTypes.IsSet("InForm"))) && tempskill.SpellFun)
+            && tempskill.Name.prefix(name)
             && (ch.Level >= ch.GetLevelSkillLearnedAt(tempskill) && ch.GetSkillPercentage(tempskill) >= 1)
-            && tempskill.Name.prefix(name)) {
+            ) {
                 results.push(tempskill);
             }
         }

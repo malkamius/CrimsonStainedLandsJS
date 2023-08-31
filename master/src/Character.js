@@ -530,6 +530,7 @@ class Character {
 		var skillentry;
 		if(skillname instanceof SkillSpell) {
 			skillentry = skillname;
+			skillname = skillentry.Name;
 		}
 		else {
 			if(Utility.IsNullOrEmpty(skillname)) return 60;
@@ -554,6 +555,7 @@ class Character {
 		var skillentry;
 		if(skillname instanceof SkillSpell) {
 			skillentry = skillname;
+			skillname = skillentry.Name;
 		}
 		else {
 			if(Utility.IsNullOrEmpty(skillname)) return 0;

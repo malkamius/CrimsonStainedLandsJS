@@ -222,6 +222,8 @@ function startListening(port) {
 
 function pulse()
 {
+	//console.time("PULSE");
+	var startpulse = new Date();
 	var player;
 	for(player of Utility.CloneArray(Player.Players))
 	{
@@ -280,9 +282,14 @@ function pulse()
 		}
 
 	}
+	var totalpulse = new Date() - startpulse;
 	setTimeout(function () {
 		pulse();
-	}, 250);
+	}, Math.min(Math.max(250 - totalpulse, 1), 250));
+	
+	if(totalpulse > 250) console.log("PULSE TOOK " + totalpulse + "ms");
+	//console.timeEnd("PULSE");
+	//console.log(totalpulse);
 }
 
 var UpdateCombatCounter = Game.PULSE_PER_VIOLENCE;
@@ -451,7 +458,30 @@ function UpdateTick() {
 function UpdateCombat() {
 	const Character = require("./Character");
 	const Combat = require("./Combat");
+	const SkillSpell = require("./SkillSpell");
+	const Magic = require("./Magic");
 	for(var character of Utility.CloneArray(Character.Characters)) {
+		if(character.IsNPC && character.Wait == 0) {
+			for(var learnedkey in character.Learned) {
+				var learned = character.Learned[learnedkey];
+				var skill = SkillSpell.GetSkill(learnedkey);
+
+				if(learned && skill && skill.TargetType.equals("targetCharDefensive")) {
+					if(!skill.AutoCastScript.ISEMPTY()) {
+						var victim = character;
+						var result =  eval(skill.AutoCastScript);
+						if(result) {
+							if(character.Guild && character.Guild.CastType) {
+								Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
+								//console.log(Utility.Format("{0} {1}", character.Guild.CastType, "'" + skill.Name + "'"))
+							}
+						}
+						
+					}
+				}
+			}
+		}
+
 		for(var affect of character.Affects) {
 			if(affect.Frequency == "Violence" && affect.Duration > 0 && --affect.Duration == 0) {
 				character.AffectFromChar(affect);

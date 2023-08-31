@@ -16,8 +16,10 @@ class NPCTemplateData extends Character {
     super(false);
         
     const RaceData = require("./RaceData");
+    const GuildData = require("./GuildData");
     this.Area = area;
-    this.VNum = XmlHelper.GetElementValue(xml, "vnum");
+    this.VNum = XmlHelper.GetElementValueInt(xml, "vnum");
+    this.Level = XmlHelper.GetElementValueInt(xml, "Level");
     this.Name = XmlHelper.GetElementValue(xml, "Name");
     this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription");
     this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription");
@@ -39,6 +41,10 @@ class NPCTemplateData extends Character {
     this.WeaponDamageMessage = xml.GetElementValue("WeaponDamageMessage");
 
     this.Race = RaceData.LookupRace(XmlHelper.GetElementValue(xml, "Race", "human"));
+    this.Guild = GuildData.Lookup(xml.GetElementValue("Guild"), false);
+    
+    if(this.Flags.IsSet("Healer") && !this.Guild)
+      this.Guild = GuildData.Lookup("healer");
 
     if(!area.NPCTemplates[this.VNum])
       area.NPCTemplates[this.VNum] = this;
