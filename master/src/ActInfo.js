@@ -99,7 +99,8 @@ function dolook(player, arguments, auto) {
 				player.Act("You look at yourself.", target, null, null, "ToChar");
 				player.Act("$n looks at $mself.", target, null, null, "ToRoomNotVictim");
 				
-				player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about yourself." : targetch.Description, targetch);
+				player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about yourself." : target.Description, target);
+				target.DisplayHealth(player);
 				player.Act("You are wearing: ", target);
 			}
 			else
@@ -109,6 +110,7 @@ function dolook(player, arguments, auto) {
 				player.Act("$n looks at you.", target, null, null, "ToVictim");
 
 				player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about $N." : target.Description, target);
+				target.DisplayHealth(player);
 				player.Act("$N is wearing: ", target);
 			}
 			var anyitems = false;

@@ -734,6 +734,135 @@ class Magic {
 
         }
     }
+
+    static SpellCureLight(CastType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+            victim = ch;
+
+        var heal = (ch.Level * 1.5) + Utility.Random(ch.Level / 2, ch.Level);
+
+        victim.HitPoints = Math.min(victim.HitPoints + heal, victim.MaxHitPoints);
+        if (Character.Positions.indexOf(victim.Position) <= Character.Positions.indexOf("Stunned"))
+            Combat.UpdatePosition(victim);
+        victim.send("Your wounds are slightly healed.\n\r");
+        victim.Act("$n's wounds are slightly healed.\n\r", null, null, null, "ToRoom");
+    }
+    static SpellMendWounds(CastType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+            victim = ch;
+
+        var heal = ch.GetDamage(Math.min(level, 17), 1, 1, 20);
+        victim.HitPoints = Math.min(victim.HitPoints + heal, victim.MaxHitPoints);
+        if (Character.Positions.indexOf(victim.Position) <= Character.Positions.indexOf("Stunned"))
+            Combat.UpdatePosition(victim);
+        victim.Act("Your wounds are healed.\n\r", victim);
+        victim.Act("$n's wounds are healed.\n\r", null, null, null, "ToRoom");
+    }
+    static SpellCureSerious(CastType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+            victim = ch;
+
+        var heal = (ch.Level * 2.5) + Utility.Random(ch.Level / 2, ch.Level);
+        victim.HitPoints = Math.min(victim.HitPoints + heal, victim.MaxHitPoints);
+        if (Character.Positions.indexOf(victim.Position) <= Character.Positions.indexOf("Stunned"))
+            Combat.UpdatePosition(victim);
+        victim.send("Your wounds are greatly healed.\n\r");
+        victim.Act("$n's wounds are greatly healed.\n\r", null, null, null, "ToRoom");
+    }
+
+    static SpellCureCritical(CastType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+            victim = ch;
+
+        var heal = (ch.Level * 4) + Utility.Random(ch.Level / 2, ch.Level);
+        victim.HitPoints = Math.min(victim.HitPoints + heal, victim.MaxHitPoints);
+        if (Character.Positions.indexOf(victim.Position) <= Character.Positions.indexOf("Stunned"))
+            Combat.UpdatePosition(victim);
+        victim.send("Your wounds are immensely healed.\n\r");
+        victim.Act("$n's wounds are immensely healed.\n\r", null, null, null, "ToRoom");
+    }
+    static SpellHeal(CastType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+            victim = ch;
+
+        var heal = (ch.Level * 5) + Utility.Random(ch.Level / 2, ch.Level);
+        victim.HitPoints = Math.min(victim.HitPoints + heal, victim.MaxHitPoints);
+        if (Character.Positions.indexOf(victim.Position) <= Character.Positions.indexOf("Stunned"))
+            Combat.UpdatePosition(victim);
+        victim.send("Your wounds are healed.\n\r");
+        victim.Act("$n's wounds are healed.\n\r", null, null, null, "ToRoom");
+    }
+    static SpellRejuvenate(CastType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+            victim = ch;
+
+        var heal = (ch.Level * 6) + Utility.Random(ch.Level / 2, ch.Level);
+        victim.HitPoints = Math.min(victim.HitPoints + heal, victim.MaxHitPoints);
+        if (Character.Positions.indexOf(victim.Position) <= Character.Positions.indexOf("Stunned"))
+            Combat.UpdatePosition(victim);
+        victim.send("Your wounds are healed.\n\r");
+        victim.Act("$n's wounds are healed.\n\r", null, null, null, "ToRoom");
+    }
+    static SpellBless(CastType, spell, level, ch, victim, item, args, target)
+    {
+        var affect;
+        if (victim == null)
+            victim = ch;
+
+        if ((affect = victim.FindAffect(spell)) != null)
+        {
+            ch.send("They are already blessed.\n\r");
+            return;
+        }
+        else
+        {
+
+            affect = new AffectData();
+            affect.SkillSpell = spell;
+            affect.Level = level;
+            affect.Where = AffectWhere.ToAffects;
+            affect.Location = ApplyTypes.Hitroll;
+            affect.Duration = 10 + level / 4;
+            affect.Modifier = Math.Max(3, level / 3);
+            affect.DisplayName = "blessed";
+            affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
+            victim.AffectToChar(affect);
+
+            affect = new AffectData();
+            affect.SkillSpell = spell;
+            affect.Level = level;
+            affect.Where = AffectWhere.ToAffects;
+            affect.Location = ApplyTypes.Damroll;
+            affect.Duration = 10 + level / 4;
+            affect.Modifier = Math.Max(3, level / 3);
+            affect.DisplayName = "blessed";
+            affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
+            victim.AffectToChar(affect);
+
+            affect = new AffectData();
+            affect.SkillSpell = spell;
+            affect.Level = level;
+            affect.Where = AffectWhere.ToAffects;
+            affect.Location = ApplyTypes.Saves;
+            affect.Duration = 10 + level / 4;
+            affect.Modifier = -(Math.Max(5, level / 3));
+            affect.DisplayName = "blessed";
+            affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
+            victim.AffectToChar(affect);
+
+            affect.EndMessage = "The blessing surrounding you fades.\n\r";
+            affect.EndMessageToRoom = "The blessing surrounding $n fades.\n\r";
+
+            victim.send("You are surrounded by a blessing.\n\r");
+            victim.Act("$n is surrounded by a blessing.", null, null, null, "ToRoom");
+        }
+    }
 }
 
 module.exports = Magic;

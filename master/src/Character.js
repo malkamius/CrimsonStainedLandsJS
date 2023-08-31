@@ -1317,6 +1317,33 @@ class Character {
 		this.Room.Sector != "Underwater"; 
 	}
 	get IsAwake() { return this.Position != "Sleeping"; }
+
+	DisplayHealth(to) {
+		var health = "";
+		var hp = parseInt(this.HitPoints) / parseInt(this.MaxHitPoints);
+		if (hp == 1)
+			health = (to == this? "are" : "is") + " in perfect health.";
+		else if (hp > .8)
+			health = (to == this? "are" : "is") + " covered in small scratches.";
+		else if (hp > .7)
+			health = (to == this? "have" : "has") + " some small wounds.";
+		else if (hp > .6)
+			health = (to == this? "have" : "has") + " some larger wounds.";
+		else if (hp > .5)
+			health = (to == this? "are" : "is") + " bleeding profusely.";
+		else if (hp > .4)
+			health = (to == this? "are" : "is") + " writhing in agony.";
+		else if (hp > 0)
+			health = (to == this? "are" : "is") + " convulsing on the ground.";
+		else
+			health = (to == this? "are" : "is") + " dead.";
+		
+		if(to == this)
+			to.Act("You " + health, this);
+		else
+			to.Act("$N " + health, this);
+		
+	}
 }
 
 module.exports = Character;

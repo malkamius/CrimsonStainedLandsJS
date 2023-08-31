@@ -319,30 +319,8 @@ class Player extends Character {
 		{
 			this.output = this.output.replace("\r", "");
 			if(this.status == "Playing") {
-				if (this.Fighting)
-				{
-					var health = "";
-					var hp = parseInt(this.Fighting.HitPoints) / parseInt(this.Fighting.MaxHitPoints);
-					if (hp == 1)
-						health = "is in perfect health.";
-					else if (hp > .8)
-						health = "is covered in small scratches.";
-					else if (hp > .7)
-						health = "has some small wounds.";
-					else if (hp > .6)
-						health = "has some larger wounds.";
-					else if (hp > .5)
-						health = "is bleeding profusely.";
-					else if (hp > .4)
-						health = "writhing in agony.";
-					else if (hp > 0)
-						health = "convulsing on the ground.";
-					else
-						health = "is dead.";
-					//output.Append(fighting.Display(this) + " " + health + "\n\r");
-					this.Act("$N " + health, this.Fighting);
-					//this.send("{0} {1}", Utility.Capitalize(this.Fighting.Display(this)), health);
-				}
+				if(this.Fighting)
+				this.Fighting.DisplayHealth(this);
 				this.output = this.output + (!this.output.endsWith("\n\n")? "\n" : "") + this.GetPrompt();
 				if (this.SittingAtPrompt && !this.output.startsWith("\n"))
 				this.output = "\n" + this.output;
