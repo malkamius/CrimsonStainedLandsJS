@@ -14,7 +14,7 @@ class Settings {
     
     static SettingsPath = Settings.DataPath + "/settings.xml";
 
-    static GameStarted = new Date();
+    
     
     static Load() {
         if(!fs.existsSync(this.SettingsPath))

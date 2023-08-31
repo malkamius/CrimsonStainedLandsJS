@@ -193,13 +193,14 @@ class Utility {
 
 	static Roll(dice) {
 		var result = 0;
-		if(dice[0] <= 1) return dice[1] + dice[2];
-		for(var i = 0; i < dice[1]; i++) {
-			result += Math.max(1, Math.ceil(Math.random() * Math.max(1, dice[0])));
-		}
-		result += dice[2];
+		// if(dice[0] <= 1) return dice[1] + dice[2];
+		// for(var i = 0; i < dice[1]; i++) {
+		// 	result += Math.max(1, Math.ceil(Math.random() * Math.max(1, dice[0])));
+		// }
+		// result += dice[2];
+
 		// Roll a random number between 1 * DiceSides and DiceSides + 1 * DiceCount, add DiceBonus
-		// result = Math.random() * (dice[0] * dice[1]) + dice[1] + dice[2];
+		result = Utility.Random(dice[1], dice[0] * dice[1]) + dice[2];
 		return result;
 	}
 
@@ -209,7 +210,7 @@ class Utility {
 			num1 = num2;
 			num2 = temp;
 		}
-		var result = Math.floor(Math.random() * (num2 - num1)) + num1;
+		var result = Math.round(Math.random() * (num2 - num1)) + num1;
 		return result;
 	}
 

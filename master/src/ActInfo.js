@@ -1,9 +1,11 @@
+const FileSystem = require("fs");
+
 const RoomData = require("./RoomData");
 const AreaData = require("./AreaData");
 const Character = require("./Character");
 const Utitlity = require("./Utility");
 const Settings = require("./Settings");
-const FileSystem = require("fs");
+
 
 function dosay(player, arguments) {
 	player.Act("\\y$n says '{0}\\x\\y'\\x\n", null, null, null, "ToRoom", arguments);
@@ -527,6 +529,66 @@ Character.DoCommands.DoToggle = function(ch, args)
 		ch.send("Flag not found.\n\r");
 	}
 }
+
+Character.DoCommands.DoTime = function(ch, args) {
+	const TimeInfo = require("./TimeInfo");
+	const Game = require("./Game");
+	const TimeSpan = require("./TimeSpan");
+	var suf;
+	var day = Math.ceil(TimeInfo.Day) + 1;
+
+	if (day > 4 && day < 20) suf = "th";
+	else if (day % 10 == 1) suf = "st";
+	else if (day % 10 == 2) suf = "nd";
+	else if (day % 10 == 3) suf = "rd";
+	else suf = "th";
+
+	ch.send("It is {0} o'clock {1}, Day of {2}, {3}{4} of the Month of {5}.\n\r",
+		(TimeInfo.Hour % 12 == 0) ? 12 : TimeInfo.Hour % 12,
+		TimeInfo.Hour >= 12 ? "pm" : "am",
+		TimeInfo.DayName,
+		day, suf,
+		TimeInfo.MonthName);
+
+	var runningtime = new TimeSpan(new Date() - Game.GameStarted);
+
+	ch.send("Server started at {0}.\n\rThe system time is {1}.\n\rGame has been running for {2} days, {3} hours and {4} minutes.\n\r",
+		Game.GameStarted.toString(), new Date().toString(), runningtime.days, runningtime.hours, runningtime.minutes);
+
+	// if (ch is Player)
+	// {
+	// 	var player = ch as Player;
+	// 	ch.send("Total Time played: {0}\n\r", (player.TotalPlayTime + (DateTime.Now - player.LastSaveTime)));
+	// }
+	return;
+}
+
+Character.DoCommands.DoWeather = function(ch, args) {
+	const WeatherInfo = require("./WeatherInfo");
+
+	var buf;
+
+	var sky_look =
+	{
+		"Cloudless": "cloudless",
+		"Cloudy": "cloudy",
+		"Raining": "rainy",
+		"Lightning": "lit by flashes of lightning"
+	};
+
+	if (!ch.IsOutside)
+	{
+		ch.send("You can't see the weather here.\n\r");
+		return;
+	}
+
+	buf = Utility.Format("The sky is {0} and {1}.\n\r",
+		sky_look[WeatherInfo.Sky],
+		WeatherInfo.change >= 0 ? "a warm southerly breeze blows" : "a cold northern gust blows");
+	ch.send(buf);
+	return;
+}
+
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoYell = DoYell;
 Character.DoCommands.DoQuit = doquit;
@@ -545,4 +607,5 @@ Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
 Character.CharacterFunctions.GetCharacterList = GetCharacterList;
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
+const Utility = require("./Utility");
 

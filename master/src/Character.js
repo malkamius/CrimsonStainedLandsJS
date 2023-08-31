@@ -1305,6 +1305,14 @@ class Character {
 		if (flags.length > 0) flags += " ";
 		return flags;
 	}
+
+	get IsOutside() {return this.Room && !this.Room.Flags.IsSet("Indoors") && 
+		this.Room.Sector != "Inside" && 
+		this.Room.Sector != "Cave" && 
+		this.Room.Sector != "Underground" &&
+		this.Room.Sector != "Underwater"; 
+	}
+	get IsAwake() { return this.Position != "Sleeping"; }
 }
 
 module.exports = Character;

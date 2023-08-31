@@ -11,6 +11,9 @@ const Data = require('./Data');
 const Color = require("./Color");
 const Settings = require("./Settings");
 const TelnetProtocol = require("./TelnetProtocol");
+const WeatherInfo = require("./WeatherInfo");
+const TimeInfo = require("./TimeInfo");
+const Game = require("./Game");
 
 var server = startListening(Settings.Port); 
 var IsDataLoaded = false;
@@ -160,7 +163,7 @@ function HandleNewSocket(socket) {
 									for(var p in Player.Players)
 										if(p.status == "Playing") pcount++;
 									variables["PLAYERS"] = [pcount];
-									variables["UPTIME"] =  [new TimeSpan(Date.now() - Settings.GameStarted).totalSeconds];
+									variables["UPTIME"] =  [new TimeSpan(Date.now() - Game.GameStarted).totalSeconds];
 									variables["HOSTNAME"] = ["kbs-cloud.com"];
 									variables["PORT"] = [Settings.Port ];
 									//variables["SSL"] = [Settings.SSLPort ];
@@ -282,27 +285,136 @@ function pulse()
 	}, 250);
 }
 
-
-const PULSE_PER_SECOND = 4;	
-const PULSE_PER_VIOLENCE = PULSE_PER_SECOND * 3;
-const PULSE_PER_TICK = PULSE_PER_SECOND * 30;
-
-var UpdateCombatCounter = PULSE_PER_VIOLENCE;
-var UpdateTickCounter = PULSE_PER_TICK;
+var UpdateCombatCounter = Game.PULSE_PER_VIOLENCE;
+var UpdateTickCounter = Game.PULSE_PER_TICK;
 
 function Update() {
 
 	if(--UpdateTickCounter <= 0) {
+		UpdateWeather();
 		UpdateTick();
-		UpdateTickCounter = PULSE_PER_TICK;
+		UpdateTickCounter = Game.PULSE_PER_TICK;
 	}
 
 	if(--UpdateCombatCounter <= 0) {
 		UpdateCombat();
-		UpdateCombatCounter = PULSE_PER_VIOLENCE;
+		UpdateCombatCounter = Game.PULSE_PER_VIOLENCE;
 	}
 
 	UpdateAggro();
+}
+var _lasthour = TimeInfo.Hour;
+function UpdateWeather() {
+	var buf = "";
+	var diff = 0;
+
+	if (_lasthour != TimeInfo.Hour)
+		switch (TimeInfo.Hour)
+		{
+			case 5:
+				buf += "The day has begun.\n\r";
+				break;
+
+			case 6:
+				buf += "The sun rises in the east.\n\r";
+				break;
+
+			case 19:
+				buf += "The sun slowly disappears in the west.\n\r";
+				break;
+
+			case 20:
+				buf += "The night has begun.\n\r";
+				break;
+		}
+
+	_lasthour = TimeInfo.Hour;
+
+	/*
+	* Weather change.
+	*/
+	if (TimeInfo.Month >= 9 && TimeInfo.Month <= 16)
+		diff = WeatherInfo.mmhg > 985 ? -2 : 2;
+	else
+		diff = WeatherInfo.mmhg > 1015 ? -2 : 2;
+
+	WeatherInfo.change += diff * Utility.Roll([1, 4, 0]) + Utility.Roll([2, 6, 0]) - Utility.Roll([2, 6, 0]);
+	WeatherInfo.change = Math.max(WeatherInfo.change, -12);
+	WeatherInfo.change = Math.min(WeatherInfo.change, 12);
+
+	WeatherInfo.mmhg += WeatherInfo.change;
+	WeatherInfo.mmhg = Math.max(WeatherInfo.mmhg, 960);
+	WeatherInfo.mmhg = Math.min(WeatherInfo.mmhg, 1040);
+
+	switch (WeatherInfo.Sky)
+	{
+		default:
+			console.log("Weather_update: bad sky " + WeatherInfo.Sky + ".");
+			WeatherInfo.Sky = "Cloudless";
+			break;
+
+		case "Cloudless":
+			if (WeatherInfo.mmhg < 990
+				|| (WeatherInfo.mmhg < 1010 && Utility.Random(0, 2) == 0))
+			{
+				buf += "The sky is getting cloudy.\n\r";
+				WeatherInfo.Sky = "Cloudy";
+			}
+			break;
+
+		case "Cloudy":
+			if (WeatherInfo.mmhg < 970
+				|| (WeatherInfo.mmhg < 990 && Utility.Random(0, 2) == 0))
+			{
+				buf += "It starts to rain.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Raining;
+			}
+
+			if (WeatherInfo.mmhg > 1030 && Utility.Random(0, 2) == 0)
+			{
+				buf += "The clouds disappear.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Cloudless;
+			}
+			break;
+
+		case "Raining":
+			if (WeatherInfo.mmhg < 970 && Utility.Random(0, 2) == 0)
+			{
+				buf += "Lightning flashes in the sky.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Lightning;
+			}
+
+			if (WeatherInfo.mmhg > 1030
+				|| (WeatherInfo.mmhg > 1010 && Utility.Random(0, 2) == 0))
+			{
+				buf += "The rain stopped.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Cloudy;
+			}
+			break;
+
+		case "Lightning":
+			if (WeatherInfo.mmhg > 1010
+				|| (WeatherInfo.mmhg > 990 && Utility.Random(0, 2) == 0))
+			{
+				buf += "The lightning has stopped.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Raining;
+				break;
+			}
+			break;
+	}
+
+	if (buf.length > 0)
+	{
+		for (var player of Player.Players)
+		{
+			if (player.status == "Playing"
+				&& player.IsOutside
+				&& player.IsAwake)
+				player.send(buf);
+		}
+	}
+
+	return;
 }
 
 function UpdateTick() {
