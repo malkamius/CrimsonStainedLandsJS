@@ -322,7 +322,7 @@ class Magic {
                 vo = victim;
                 break;
             case "targetchardefensive":
-                if (string.IsNullOrEmpty(arg2))
+                if (arg2.IsNullOrEmpty())
                     victim = ch;
                 else if (([victim, count] = Character.CharacterFunctions.GetCharacterHere(ch, targetName, count)) && !victim)
                 {
@@ -333,7 +333,7 @@ class Magic {
                 vo = victim;
                 break;
             case "targetcharself":
-                if (!string.IsNullOrEmpty(arg2) && !targetName.IsName(ch.Name) && !arg2.equals("self"))
+                if (!arg2.IsNullOrEmpty() && !targetName.IsName(ch.Name) && !arg2.equals("self"))
                 {
                     ch.send("You cannot cast this spell on another.\n\r");
                     return;

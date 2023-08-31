@@ -110,11 +110,13 @@ class SkillSpell {
         this.AutoCast = Utility.Compare(XmlHelper.GetAttributeValue(xml, "AutoCast"), "True");
         this.SpellFuncType = XmlHelper.GetAttributeValue(xml, "SpellFuncType");
         this.SpellFuncName = XmlHelper.GetAttributeValue(xml, "SpellFuncName");
+        this.TargetType = xml.GetAttributeValue("TargetType", "TargetIgnore");
+
         if(!this.SpellFuncName.IsNullOrEmpty() && !this.SpellFuncType.IsNullOrEmpty()) {
             try{
                 if(!SkillSpell.containers[this.SpellFuncType])
                     SkillSpell.containers[this.SpellFuncType] = require("./" + this.SpellFuncType);
-            this.SpellFun = SkillSpell.containers[this.SpellFuncType][this.SpellFuncName];
+                this.SpellFun = SkillSpell.containers[this.SpellFuncType][this.SpellFuncName];
             } catch(err) {
                 
             }
@@ -237,8 +239,7 @@ class SkillSpell {
                 {
                     var skill;
                     [skill, prereqs] = prereqs.oneArgument();
-                    var skill = args[0];
-                    prereqs = args[1];
+                    
                     var learned;
                     
                     if ((learned = ch.Learned[skill]) && learned.Percent >= this.GuildPreRequisiteSkillPercentage[ch.Guild.Name])
@@ -263,7 +264,7 @@ class SkillSpell {
             tempskill.SkillTypes.IsSet("Spell") ||
             tempskill.SkillTypes.IsSet("Commune") ||
             tempskill.SkillTypes.IsSet("Song") ||
-            (tempskill.SkillTypes.IsSet("InForm"))) && tempskill.SpellFun != null)
+            (tempskill.SkillTypes.IsSet("InForm"))) && tempskill.SpellFun)
             && (ch.Level >= ch.GetLevelSkillLearnedAt(tempskill) && ch.GetSkillPercentage(tempskill) >= 1)
             && tempskill.Name.prefix(name)) {
                 results.push(tempskill);
