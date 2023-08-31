@@ -41,6 +41,7 @@ Commands = {
 		"sing": {Command: Magic.DoSing, MinimumPosition: "Resting" },
 		"toggle": {Command: Character.DoCommands.DoToggle, MinimumPosition: "Dead" },
 		"dirtkick": {Command:Combat.DoDirtKick, MinimumPosition: "Standing" },
+		"affects": {Command: Character.DoCommands.DoAffects, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};
 

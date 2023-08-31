@@ -460,6 +460,25 @@ Character.DoCommands.DoSleep = function(ch, args) {
 		ch.send("You're already sleeping.\n\r");
 	}
 }
+
+Character.DoCommands.DoAffects = function(ch, args) {
+	var any = false;
+	ch.send("You are affected by:\n\r");
+	for(var affect of ch.Affects) {
+		if(!affect.Hidden) {
+			any = true;
+			if (affect.Modifier != 0) {
+				ch.send("{0,20} {1,-15} {2,-5} for {3} {4}.\n\r", affect.DisplayName + ":", affect.Location, ((affect.Modifier > 0 ? "+" : " ") + affect.Modifier.toString()),
+				 affect.Duration, (affect.Frequency == "Tick" ? "hours" : "rounds"));
+			}
+			else {
+				ch.send("{0,41} for {1} {2}.\n\r", affect.DisplayName + ":", affect.Duration, (affect.Frequency == "Tick" ? "hours" : "rounds"));
+			}
+		}
+	}
+	if(!any)
+		ch.send("    nothing.\n\r");
+}
 Character.DoCommands.DoToggle = function(ch, args)
 {
 	var flags = [
