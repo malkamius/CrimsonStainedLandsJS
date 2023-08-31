@@ -29,7 +29,7 @@ class NPCData extends Character {
 		this.WeaponDamageMessage = template.WeaponDamageMessage;
 		
 		this.DamageDice = Utility.CloneArray(template.DamageDice);
-		
+		this.Flags = Utility.CloneArray(template.Flags);
 		this.AddCharacterToRoom(room);
 	}
 

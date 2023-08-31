@@ -174,11 +174,17 @@ class Utility {
 	}
 
 	static CloneArray(arraytoclone) {
-		var result = Array();
-		//Object.assign(result, array);
-		for(var i = 0; i < arraytoclone.length; i++)
-			result.push(arraytoclone[i]);
-		return result;
+		if(arraytoclone instanceof Array) {
+			var result = Array();
+			//Object.assign(result, array);
+			for(var i = 0; i < arraytoclone.length; i++)
+				result.push(arraytoclone[i]);
+			return result;
+		} else {
+			var result = {};
+			Object.assign(result, arraytoclone); 
+			return result;
+		}
 	}
 
 	static JoinArray(arraytojoin, transform, separator = ", ") {
@@ -342,7 +348,8 @@ class Utility {
 		return found;
 	}
 
-	static IsSetAny(obj, flags) {
+	static IsSetAny(obj, ...flags) {
+		if(flags && flags.length == 1 && Array.isArray(flags[0])) flags = flags[0];
 		if(Array.isArray(obj)) {
 			for(var setflag of obj) {
 				for(var flag of flags) {
@@ -413,11 +420,11 @@ Object.defineProperty( Array.prototype, 'SelectRandom', { value: function (predi
 Object.defineProperty( Array.prototype, 'FirstOrDefault', { value: function (predicate) { return Utility.FirstOrDefault(this, predicate) }} );
 Object.defineProperty( Array.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Array.prototype, 'ISSET', { value: function (flag) { return Utility.IsSet(this, flag) }} );
-Object.defineProperty( Array.prototype, 'IsSetAny', { value: function (flags) { return Utility.IsSetAny(this, flags) }} );
+Object.defineProperty( Array.prototype, 'IsSetAny', { value: function (...flags) { return Utility.IsSetAny(this, flags) }} );
 Object.defineProperty( Array.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
 
 Object.defineProperty( Object.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
-Object.defineProperty( Object.prototype, 'IsSetAny', { value: function (flags) { return Utility.IsSetAny(this, flags) }} );
+Object.defineProperty( Object.prototype, 'IsSetAny', { value: function (...flags) { return Utility.IsSetAny(this, flags) }} );
 Object.defineProperty( Object.prototype, 'ISSET', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Object.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
 Object.defineProperty( Object.prototype, 'isString', { value: function () { return Object.prototype.toString.call(this) === "[object String]"; }} );

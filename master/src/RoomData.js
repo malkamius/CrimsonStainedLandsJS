@@ -13,13 +13,15 @@ class RoomData {
 	Characters = Array();
 	Items = Array();
 	Flags = {};
+	Sector = "Inside";
 
 	constructor(area, roomxml) {
 		const ExitData = require('./ExitData');
 		this.Area = area;
-		this.VNum = roomxml.VNUM;
-		this.Name = roomxml.NAME;
-		this.Description = roomxml.DESCRIPTION;
+		this.VNum = roomxml.GetElementValueInt("VNum");
+		this.Name = roomxml.GetElementValue("Name");
+		this.Description = roomxml.GetElementValue("Description");
+		this.Sector = roomxml.GetElementValue("Sector");
 		Utility.ParseFlags(this.Flags, roomxml.GetElementValue("Flags"));
 
 		this.Exits = Array(null, null, null, null, null, null);

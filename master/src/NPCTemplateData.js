@@ -1,5 +1,6 @@
 const XmlHelper = require("./XmlHelper");
 const Character = require("./Character");
+const Utility = require("./Utility");
 
 NPCTemplates = {};
 
@@ -27,7 +28,8 @@ class NPCTemplateData extends Character {
     this.DamageDice[0] = XmlHelper.GetElementValueInt(xml, "DamageDiceSides");
     this.DamageDice[1] = XmlHelper.GetElementValueInt(xml, "DamageDiceCount");
     this.DamageDice[2] = XmlHelper.GetElementValueInt(xml, "DamageDiceBonus");
-
+    Utility.ParseFlags(this.Flags, xml.GetElementValue("Flags"));
+    
     this.WeaponDamageMessage = xml.GetElementValue("WeaponDamageMessage");
 
     this.Race = RaceData.LookupRace(XmlHelper.GetElementValue(xml, "Race", "human"));

@@ -1321,4 +1321,4 @@ ActInfo = require("./ActInfo");
 ActMovement = require("./ActMovement");
 ActItem = require("./ActItem");
 ActWiz = require("./ActWiz");
-
+Mapper = require("./Mapper");
