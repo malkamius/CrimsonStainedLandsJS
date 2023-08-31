@@ -195,12 +195,12 @@ class Utility {
 		var result = 0;
 		if(dice[0] <= 1) return dice[1] + dice[2];
 		for(var i = 0; i < dice[1]; i++) {
-			result += Math.max(1, Math.round(Math.random() * dice[0]));
+			result += Math.max(1, Math.ceil(Math.random() * Math.max(1, dice[0])));
 		}
 		result += dice[2];
 		// Roll a random number between 1 * DiceSides and DiceSides + 1 * DiceCount, add DiceBonus
 		// result = Math.random() * (dice[0] * dice[1]) + dice[1] + dice[2];
-		return Math.round(result);
+		return result;
 	}
 
 	static Random(num1, num2) {
