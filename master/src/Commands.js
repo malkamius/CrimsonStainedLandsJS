@@ -1,10 +1,8 @@
 //ActInfo = require("./ActInfo");
 const Character = require("./Character");
 const Combat = require("./Combat");
-ActInfo = require("./ActInfo");
-ActMovement = require("./ActMovement");
-ActItem = require("./ActItem");
-ActWiz = require("./ActWiz");
+const Magic = require("./Magic");
+
 Commands = {
 		"north": {Command: Character.DoCommands.DoNorth, MinimumPosition: "Standing" },
 		"east": {Command: Character.DoCommands.DoEast, MinimumPosition: "Standing" },
@@ -38,6 +36,9 @@ Commands = {
 		"flee": {Command:Combat.DoFlee, MinimumPosition: "Fighting" },
 		"peace": {Command: Character.DoCommands.DoPeace, MinimumPosition: "Resting" },
 		"slay": {Command: Character.DoCommands.DoSlay, MinimumPosition: "Standing" },
+		"cast": {Command: Magic.DoCast, MinimumPosition: "Standing" },
+		"commune": {Command: Magic.DoCommune, MinimumPosition: "Standing" },
+		"sing": {Command: Magic.DoSing, MinimumPosition: "Resting" },
 		"toggle": {Command: Character.DoCommands.DoToggle, MinimumPosition: "Dead" },
 		"dirtkick": {Command:Combat.DoDirtKick, MinimumPosition: "Standing" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },

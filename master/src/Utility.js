@@ -379,8 +379,11 @@ const xml2js = require('xml2js');
 // https://stackoverflow.com/a/59102181
 Object.defineProperty( String.prototype, 'oneArgument', { value: function () { return Utility.OneArgument(this); }} );
 Object.defineProperty( String.prototype, 'numberArgument', { value: function () { return Utility.NumberArgument(this); }} );
+Object.defineProperty( String.prototype, 'OneArgument', { value: function () { return Utility.OneArgument(this); }} );
+Object.defineProperty( String.prototype, 'NumberArgument', { value: function () { return Utility.NumberArgument(this); }} );
 Object.defineProperty( String.prototype, 'equals', { value: function (str1) { return Utility.Compare(this, str1); }} );
 Object.defineProperty( String.prototype, 'prefix', { value: function (str) { return Utility.Prefix(this, str); }} );
+Object.defineProperty( String.prototype, 'StrPrefix', { value: function (str) { return Utility.Prefix(this, str); }} );
 Object.defineProperty( String.prototype, 'IsName', { value: function (str) { return Utility.IsName(this, str); }} );
 Object.defineProperty( String.prototype, 'contains', { value: function (str) { return Utility.Includes(this, str); }} );
 Object.defineProperty( String.prototype, 'IsNullOrEmpty', { value: function () { return Utility.IsNullOrEmpty(this); }} );
@@ -407,6 +410,7 @@ Object.defineProperty( Array.prototype, 'RemoveFlag', { value: function (flag) {
 
 Object.defineProperty( Object.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Object.prototype, 'IsSetAny', { value: function (flags) { return Utility.IsSetAny(this, flags) }} );
+Object.defineProperty( Object.prototype, 'ISSET', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Object.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
 Object.defineProperty( Object.prototype, 'isString', { value: function () { return Object.prototype.toString.call(this) === "[object String]"; }} );
 Object.defineProperty( Object.prototype, 'Clone', { value: function () { 

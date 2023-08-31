@@ -208,7 +208,7 @@ class TelnetProtocol
                     }
                     callback(sender, new Command(TelnetProtocol.CommandTypes.ClientSendNegotiateType, { "TelnetType": [ClientString]}));
 
-                    newposition = position + TerminalTypeResponse.length + TelnetProtocol.ClientNegotiateTelnetType.length + 1;
+                    newposition = position + TerminalTypeResponse.length + TelnetProtocol.ClientNegotiateTelnetType.length + 2;
                     carryover = null;
                     return [newposition, carryover];
                 }

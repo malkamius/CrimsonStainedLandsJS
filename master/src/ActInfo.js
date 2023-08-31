@@ -327,7 +327,7 @@ function DoSkills(ch, arguments) {
 			var percent = ch.GetSkillPercentage(skill.Name);
 			var lvl = ch.GetLevelSkillLearnedAt(skill.Name);
 
-			if ((lvl < 52 || ch.IsImmortal()) || percent > 1)  //if (lvl > 0 || percent > 1 || (ch.Level > lvl && lvl > 0))
+			if ((lvl < 52 || ch.IsImmortal) || percent > 1)  //if (lvl > 0 || percent > 1 || (ch.Level > lvl && lvl > 0))
 			{
 				if (lvl != lastLevel)
 				{
@@ -427,7 +427,7 @@ Character.DoCommands.DoSit = function(ch, args) {
 		ch.Act("You begin sitting.", null, null, null, "ToChar");
 		ch.Position = "Sitting";
 	} else if(ch.Position == "Fighting") {
-		ch.send("No way! You're too busy fighting.\n\r");
+		ch.send("No way! You are still fighting!\n\r");
 	} else if(ch.Position == "Sitting") {
 		ch.send("You're already sitting.\n\r");
 	}
@@ -443,7 +443,7 @@ Character.DoCommands.DoRest = function(ch, args) {
 		ch.Act("You begin resting.", null, null, null, "ToChar");
 		ch.Position = "Resting";
 	} else if(ch.Position == "Fighting") {
-		ch.send("No way! You're too busy fighting.\n\r");
+		ch.send("No way! You are still fighting!\n\r");
 	} else if(ch.Position == "Resting") {
 		ch.send("You're already resting.\n\r");
 	}
@@ -455,7 +455,7 @@ Character.DoCommands.DoSleep = function(ch, args) {
 		ch.Act("You lay down and go to sleep.", null, null, null, "ToChar");
 		ch.Position = "Sleeping";
 	} else if(ch.Position == "Fighting") {
-		ch.send("No way! You're too busy fighting.\n\r");
+		ch.send("No way! You are still fighting!\n\r");
 	} else if(ch.Position == "Sleeping") {
 		ch.send("You're already sleeping.\n\r");
 	}

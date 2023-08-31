@@ -284,7 +284,7 @@ class Player extends Character {
 		xmlelement.ele("Flags", Utility.JoinFlags(this.Flags));
 
 		if(this.Affects && this.Affects.length > 0) {
-			var affectselement = itemele.ele("Affects");
+			var affectselement = xmlelement.ele("Affects");
 			for(var affect of this.Affects) {
 				affect.Element(affectselement);
 			}

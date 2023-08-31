@@ -6,7 +6,33 @@ const Utility = require("./Utility");
 
 class SkillSpell {
     static Skills = {};
-    
+    static SkillSpellTypes = [
+        "None",
+        "Skill",
+        "Spell",
+        "Commune",
+        "Power",
+        "Song",
+        "Form",
+        "InForm",
+        "WarriorSpecialization",
+    ];
+    static TargetTypes = {
+        targetIgnore: 1,
+        targetCharOffensive: 2,
+        targetCharDefensive: 3,
+        targetCharSelf: 4,
+        targetItemInventory: 5,
+        targetItemCharDef: 6,
+        targetItemCharOff: 7
+    }
+
+    static TargetIsType = {
+        targetChar: 1,
+        targetItem: 2,
+        targetRoom: 3,
+        targetNone: 4
+    }
     Name = "";
     LearnedLevel = {};
     Rating = {};
@@ -73,7 +99,7 @@ class SkillSpell {
             });
         }
     }
-
+    static containers = {};
     constructor(xml) {
         this.Name = XmlHelper.GetAttributeValue(xml, "Name");
         
@@ -84,6 +110,15 @@ class SkillSpell {
         this.AutoCast = Utility.Compare(XmlHelper.GetAttributeValue(xml, "AutoCast"), "True");
         this.SpellFuncType = XmlHelper.GetAttributeValue(xml, "SpellFuncType");
         this.SpellFuncName = XmlHelper.GetAttributeValue(xml, "SpellFuncName");
+        if(!this.SpellFuncName.IsNullOrEmpty() && !this.SpellFuncType.IsNullOrEmpty()) {
+            try{
+                if(!SkillSpell.containers[this.SpellFuncType])
+                    SkillSpell.containers[this.SpellFuncType] = require("./" + this.SpellFuncType);
+            this.SpellFun = SkillSpell.containers[this.SpellFuncType][this.SpellFuncName];
+            } catch(err) {
+                
+            }
+        }
         this.Lyrics = XmlHelper.GetElementValue(xml, "Lyrics");
         this.Prerequisites = XmlHelper.GetAttributeValue(xml, "Prerequisites");
         this.PrerequisitePercentage = XmlHelper.GetAttributeValueInt(xml, "PrerequisitePercentage");
@@ -123,12 +158,12 @@ class SkillSpell {
     }
     GetManaCost(ch)
     {
-        if (ch.Guild && this.SkillLevel[ch.Guild.Name] && ch.Level + 2 <= this.SkillLevel[ch.Guild.Name])
+        if (ch.Guild && this.LearnedLevel[ch.Guild.Name] && ch.Level + 2 <= this.LearnedLevel[ch.Guild.Name])
             return 50;
-        else if (ch.Guild != null && this.SkillLevel[ch.Guild.Name])
+        else if (ch.Guild != null && this.LearnedLevel[ch.Guild.Name])
             return Math.max(
             this.MinimumMana,
-            100 / (2 + ch.Level - this.SkillLevel[ch.Guild.Name]));
+            100 / (2 + ch.Level - this.LearnedLevel[ch.Guild.Name]));
         else
             return 50;
     }
@@ -143,7 +178,7 @@ class SkillSpell {
 
     PrerequisitesMet(ch)
     {
-        if (ch.IsImmortal() || ch.IsNPC) return true;
+        if (ch.IsImmortal || ch.IsNPC) return true;
 
         var prereqs = this.Prerequisites;
         var prereq = "";
@@ -217,6 +252,27 @@ class SkillSpell {
         }
         
         return true;
+    }
+
+    static FindSpell(ch, name)
+    {
+        var results = Array();
+        for(var skillentry in SkillSpell.Skills) {
+            var tempskill = SkillSpell.Skills[skillentry];
+            if (((tempskill.SkillTypes.IsSet("Skill") ||
+            tempskill.SkillTypes.IsSet("Spell") ||
+            tempskill.SkillTypes.IsSet("Commune") ||
+            tempskill.SkillTypes.IsSet("Song") ||
+            (tempskill.SkillTypes.IsSet("InForm"))) && tempskill.SpellFun != null)
+            && (ch.Level >= ch.GetLevelSkillLearnedAt(tempskill) && ch.GetSkillPercentage(tempskill) >= 1)
+            && tempskill.Name.prefix(name)) {
+                results.push(tempskill);
+            }
+        }
+        if(results.length > 0) {
+        results.sort((sk1, sk2) => (lvl1 = ch.GetLevelSkillLearnedAt(sk1)) < (lvl2 = ch.GetLevelSkillLearnedAt(sk2))? -1 : lvl1 > lvl2? 1 : 0);
+        return results[0];
+        } else return null;
     }
 }
 

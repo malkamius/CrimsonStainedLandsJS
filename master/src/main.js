@@ -68,7 +68,7 @@ function HandleNewSocket(socket) {
 	player = new Player(socket);
 	var buffer = Buffer.from(TelnetProtocol.ServerGetDoTelnetType);
 	player.socket.write(buffer, "binary");
-	
+
 	if(!IsDataLoaded) player.status = "WaitingOnLoad";
 	else {
 		
@@ -89,7 +89,8 @@ function HandleNewSocket(socket) {
 					Player.Players.splice(Player.Players.indexOf(player), 1);
 					return;
 				}
-
+				const message = buffer.toString("ascii");
+				
 				var position = player.input.length;
 				
 				for(var i = 0; i < buffer.length; i++) {
@@ -192,6 +193,8 @@ function HandleNewSocket(socket) {
 						);
 						if (newbyteindex > i)
 							i = newbyteindex;
+						if(newbyteindex > buffer.length)
+						 console.log("!!!");
 						this.ReceiveBufferBacklog = carryover;
 					}
 				}

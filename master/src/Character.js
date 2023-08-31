@@ -512,7 +512,7 @@ class Character {
 		return affects;
 	}
 
-	IsImmortal() {
+	get IsImmortal() {
 		return !this.IsNPC && this.Level > 51;
 	}
 
@@ -554,7 +554,7 @@ class Character {
 		
 		if (Utility.IsNullOrEmpty(skillname) || !skillentry)
 			return 0;
-		else if (this.IsImmortal())
+		else if (this.IsImmortal)
 			return 100;
 		else if ((this.IsNPC || this.Level < 60) &&  this.GetLevelSkillLearnedAt(skillname) == 60)
 			return 0;
