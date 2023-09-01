@@ -292,8 +292,8 @@ function pulse()
 	//console.log(totalpulse);
 }
 
-var UpdateCombatCounter = Game.PULSE_PER_VIOLENCE;
-var UpdateTickCounter = Game.PULSE_PER_TICK;
+var UpdateCombatCounter = 0; // Game.PULSE_PER_VIOLENCE;
+var UpdateTickCounter = 0; //Game.PULSE_PER_TICK;
 
 function Update() {
 
@@ -461,32 +461,38 @@ function UpdateCombat() {
 	const SkillSpell = require("./SkillSpell");
 	const Magic = require("./Magic");
 	for(var character of Utility.CloneArray(Character.Characters)) {
-		if(character.IsNPC && character.Wait == 0) {
-			for(var learnedkey in character.Learned) {
-				var learned = character.Learned[learnedkey];
-				var skill = SkillSpell.GetSkill(learnedkey);
-
-				if(learned && skill && skill.TargetType.equals("targetCharDefensive")) {
-					if(!skill.AutoCastScript.ISEMPTY()) {
-						var victim = character;
-						var result =  eval(skill.AutoCastScript);
-						if(result) {
-							if(character.Guild && character.Guild.CastType) {
-								Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
-								//console.log(Utility.Format("{0} {1}", character.Guild.CastType, "'" + skill.Name + "'"))
-							}
-						}
-						
-					}
-				}
-			}
-		}
-
 		for(var affect of character.Affects) {
-			if(affect.Frequency == "Violence" && affect.Duration > 0 && --affect.Duration == 0) {
+			if(affect.Frequency == "Violence" && (affect.Duration == 0 || (affect.Duration > 0 && --affect.Duration == 0))) {
 				character.AffectFromChar(affect);
 			}
 		}
+		
+		if(character.IsNPC && character.Wait == 0) {
+			//for(var learnedkey in character.Learned) {
+				//var learned = character.Learned[learnedkey];
+				var learned = Utility.SelectRandom(character.Learned, function(item) { var skill;
+					return (skill = SkillSpell.GetSkill(item.Name, false)) && skill.AutoCast == true && !skill.AutoCastScript.ISEMPTY()});
+				if(learned) {
+					var skill = SkillSpell.GetSkill(learned.Name, false);
+
+					if(learned && skill && skill.TargetType.equals("targetCharDefensive")) {
+						if(!skill.AutoCastScript.ISEMPTY()) {
+							var victim = character;
+							var result =  eval(skill.AutoCastScript);
+							if(result) {
+								if(character.Guild && character.Guild.CastType) {
+									Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
+									//console.log(Utility.Format("{0} {1}", character.Guild.CastType, "'" + skill.Name + "'"))
+								}
+							}
+							
+						}
+					}
+				}
+			//}
+		}
+
+		
 
 		if(character.Fighting && character.Fighting.Room != character.Room) {
 			character.Fighting = null;

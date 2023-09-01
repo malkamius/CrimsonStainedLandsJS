@@ -1,5 +1,9 @@
 {
-  "main": "src/main.js",	
+  "name": "CrimsonStainedLandsJS",
+  "version": "1.0.0",
+  "author": "Christopher King <cking999@gmail.com>",
+  "main": "src/main.js",
+  "bin": "src/main.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/malkamius/CrimsonStainedLandsJS.git"

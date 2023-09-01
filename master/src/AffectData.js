@@ -7,6 +7,7 @@ const Utility = require("./Utility");
  * @class AffectData
  */
 class AffectData {
+    
     OwnerName = "";
     Name = "";
     DisplayName = "";
@@ -28,7 +29,167 @@ class AffectData {
     TickProgram = "";
     EndProgram = "";
     //ExtraState = "";
+    static AffectFlags = {
+        "Blind": "Blind",
+        "Invisible": "Invisible",
+        "DetectEvil": "DetectEvil",
+        "DetectInvis": "DetectInvis",
+        "DetectMagic": "DetectMagic",
+        "DetectHidden": "DetectHidden",
+        "AcuteVision": "AcuteVision",
+        "DetectGood": "DetectGood",
+        "DetectIllusion": "DetectIllusion",
+        "Sanctuary": "Sanctuary",
+        "AnthemOfResistance": "AnthemOfResistance",
+        "FaerieFire": "FaerieFire",
+        "Infrared": "Infrared",
+        "Curse": "Curse",
+        "Poison": "Poison",
+        "ProtectionEvil": "ProtectionEvil",
+        "ProtectionGood": "ProtectionGood",
+        "Sneak": "Sneak",
+        "Hide": "Hide",
+        "Sleep": "Sleep",
+        "Charm": "Charm",
+        "Flying": "Flying",
+        "PassDoor": "PassDoor",
+        "Haste": "Haste",
+        "Calm": "Calm",
+        "Plague": "Plague",
+        "Weaken": "Weaken",
+        "DarkVision": "DarkVision",
+        "NightVision": "NightVision",
+        "Berserk": "Berserk",
+        "Swim": "Swim",
+        "Regeneration": "Regeneration",
+        "Slow": "Slow",
+        "Camouflage": "Camouflage",
+        "Burrow": "Burrow",
+        "Rabies": "Rabies",
+        "FastRunning": "FastRunning",
+        "PlayDead": "PlayDead",
+        "Bloodthirst": "Bloodthirst",
+        "WaterBreathing": "WaterBreathing",
+        "Retract": "Retract",
+        "Deafen": "Deafen",
+        "EnhancedFastHealing": "EnhancedFastHealing",
+        
+        "GrandNocturne": "GrandNocturne",
+        "SuddenDeath": "SuddenDeath",
+        "Distracted": "Distracted",
+        "Silenced": "Silenced",
+        "BindHands": "BindHands",
+        "BindLegs": "BindLegs",
+        "Greased": "Greased",
+        "Smelly": "Smelly",
+        "ArcaneVision": "ArcaneVision",
+        "Lightning": "Lightning",
+        "Shield": "Shield",
+        "Watershield": "Watershield",
+        "Airshield": "Airshield",
+        "Fireshield": "Fireshield",
+        "Lightningshield": "Lightningshield",
+        "Frostshield": "Frostshield",
+        "Earthshield": "Earthshield",
+        "Immolation": "Immolation",
+        "BestialFury": "BestialFury",
+        "SkinOfTheDisplacer": "SkinOfTheDisplacer",
+        "ZigZagFeint": "ZigZagFeint",
+        "Sated": "Sated",
+        "Quenched": "Quenched",
+        "Haven": "Haven",
+        "Ghost": "Ghost",
+        "KnowAlignment": "KnowAlignment",
+        "Protection": "Protection",
+        "DuelChallenge": "DuelChallenge",
+        "DuelChallenged": "DuelChallenged",
+        "DuelStarting": "DuelStarting",
+        "DuelInProgress": "DuelInProgress",
+        "DuelCancelling": "DuelCancelling",
+        "ApplyingFirstAid": "ApplyingFirstAid",
+        "FirstAidBeingApplied": "FirstAidBeingApplied",
+        "ProtectEvil": "ProtectionEvil",
+        "ProtectGood": "ProtectionGood",
+    }
 
+    static AffectRemoveReason =
+    {
+        "Cleansed": "Cleansed",
+        "Moved": "Moved",
+        "Died": "Died",
+        "ChangedPosition": "ChangedPosition",
+        "WoreOff": "WoreOff",
+        "Other": "Other",
+        "Stripped": "Stripped",
+        "Combat": "Combat"
+    };
+
+    static ApplyTypes =
+    {
+        "None": "None",
+        "Armor": "Armor",
+        "Strength": "Strength",
+        "Dexterity": "Dexterity",
+        "Intelligence": "Intelligence",
+        "Wisdom": "Wisdom",
+        "Constitution": "Constitution",
+        "Height": "Height",
+        "Weight": "Weight",
+        "Mana": "Mana",
+        "Hitroll": "Hitroll",
+        "DamageRoll": "DamageRoll",
+        "Saves": "Saves",
+        "SavingParalysis": "SavingParalysis",
+        "SavingRod": "SavingRod",
+        "SavingPetrification": "SavingPetrification",
+        "Breath": "Breath",
+        "Hitpoints": "Hitpoints",
+        "SavingSpell": "SavingSpell",
+        "SavingBreath": "SavingBreath",
+        "Move": "Move",
+        "Sex": "Sex",
+        "Charisma": "Charisma",
+        "Age": "Age",
+        "Str": "Strength",
+        "Wis": "Wisdom",
+        "Int": "Intelligence",
+        "Dex": "Dexterity",
+        "Con": "Constitution",
+        "Chr": "Charisma",
+        "Damroll": "DamageRoll",
+        "Hp": "Hitpoints",
+        "AC": "Armor",
+        "SavingPetri": "SavingPetrification"
+    };
+
+    static AffectWhere =
+    {
+        "ToAffects": "ToAffects",
+        "ToObject": "ToObject",
+        "ToImmune": "ToImmune",
+        "ToResist": "ToResist",
+        "ToVulnerabilities": "ToVulnerabilities",
+        "ToWeapon": "ToWeapon",
+        "ToForm": "ToForm",
+        "ToSkill": "ToSkill",
+        "ToDamageNoun": "ToDamageNoun",
+    };
+
+    static AffectTypes =
+    {
+        "None": "None",
+        "Spell": "Spell",
+        "Skill": "Skill",
+        "Power": "Power",
+        "Malady": "Malady",
+        "Commune": "Commune",
+        "Invis": "Invis",
+        "Song": "Song",
+        "DispelAtDeath": "DispelAtDeath",
+        "Strippable": "Strippable",
+        "GreaterEnliven": "GreaterEnliven"
+    };
+    
     constructor(params) {
         
         if(params && params.AffectData) {

@@ -33,6 +33,7 @@ class Character {
 	};
 	static Sizes = ["Tiny", "Small", "Medium", "Large", "Huge", "Giant"];
 	static Positions = ["Dead", "Mortal", "Incapacitated", "Stunned", "Sleeping", "Resting", "Sitting", "Fighting", "Standing"];
+	static ActType = {"ToRoom": "ToRoom", "ToRoomNotVictim": "ToRoomNotVictim", "ToVictim": "ToVictim", "ToChar": "ToChar", "ToAll": "ToAll", "ToGroupInRoom": "ToGroupInRoom", "GlobalNotVictim": "GlobalNotVictim" };
 	static DoCommands = {};
     static ItemFunctions = {};
     static CharacterFunctions = {};
@@ -284,6 +285,13 @@ class Character {
 		return output;
 	} // end format act message
 
+	/**
+	 * 
+	 * @param {AffectData} affect to be applied or removed
+	 * @param {Boolean} remove is it being applied or removed
+	 * @param {Boolean} silent show end or begin messages
+	 * @returns null
+	 */
 	AffectApply(affect, remove = false, silent = false) {
 		if (affect.Where == "ToWeapon") {
                 return;
@@ -299,16 +307,16 @@ class Character {
 				this.Act(affect.EndMessageToRoom, null, null, null, "ToRoom");
 			}
 
-			if (affect.Flags.length > 0)
+			if (Object.keys(affect.Flags).length > 0)
 			{
-				for (var flag of affect.Flags)
+				for (var flag in affect.Flags)
 				{
 					
 					// don't remove affect provided by another debuff( for example, blinded then dirt kicked, dirt kick won't remove blind of blindness )
-					if (Affects.findIndex((aff) => affect != aff && affect.Flags[flag]) >= 0)
+					if (this.Affects.findIndex((aff) => affect != aff && aff.Flags.IsSet(flag)) >= 0)
 						continue;
-					else if(AffectedBy[flag])
-						delete AffectedBy[flag];
+					else if(this.AffectedBy.IsSet(flag))
+						this.AffectedBy.RemoveFlag(flag);
 				}
 			}
 		}
@@ -395,7 +403,7 @@ class Character {
 
 		var wield = null;
 
-		if (!this.IsNPC && (wield = this.Equipment.Wield) &&
+		if ((wield = this.Equipment.Wield) &&
 			wield.Weight > (PhysicalStats.StrengthApply[this.GetCurrentStat(0)].Wield))
 		{
 			Act("You drop $p.", null, wield, null, ActType.ToChar);
@@ -406,7 +414,7 @@ class Character {
 			Room.items.Insert(0, wield);
 			wield.Room = Room;
 		}
-		if (!this.IsNPC && (wield = this.Equipment.DualWield) &&
+		if ((wield = this.Equipment.DualWield) &&
 			wield.Weight > (PhysicalStats.StrengthApply[this.GetCurrentStat(0)].Wield))
 		{
 			Act("You drop $p.", null, wield, null, ActType.ToChar);
@@ -1344,6 +1352,26 @@ class Character {
 			to.Act("$N " + health, this);
 		
 	}
+
+	GetDamage(level, LowEndMultiplier = 1, HighEndMultiplier = 2, bonus = 0)
+	{
+		var dam_each =
+		[
+			0,
+			4,  5,  6,  7,  8,  10, 13, 15, 20, 25,
+			30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
+			58, 58, 59, 60, 61, 61, 62, 63, 64, 64,
+			65, 66, 67, 67, 68, 69, 70, 70, 71, 72,
+			73, 73, 74, 75, 76, 76, 77, 78, 79, 79,
+			90,110,120,150,170,200,230,500,500,500
+		];
+
+		if (this.IsNPC)
+			level = Math.Min(level, 51);
+		level = Math.min(level, dam_each.length - 1);
+		level = Math.max(0, level);
+		return Utility.Random(dam_each[level] * LowEndMultiplier + bonus, dam_each[level] * HighEndMultiplier + bonus);
+	} // end get damage
 }
 
 module.exports = Character;

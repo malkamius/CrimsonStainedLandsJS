@@ -302,7 +302,7 @@ class Utility {
 
 	static SelectRandom(arr, predicate) {
 		if(!arr) return null;
-		if(!predicate) {
+		if(predicate) {
 			var results = Array();
 			for(var key in arr) {
 				var item = arr[key];
@@ -310,7 +310,11 @@ class Utility {
 					results.push(item);
 			}
 		} else {
-			results = arr;
+			var results = Array();
+			for(var key in arr) {
+				var item = arr[key];
+				results.push(item);
+			}
 		}
 		if(results.length == 0) return null;
 		return results[Utility.Random(0, results.length - 1)];

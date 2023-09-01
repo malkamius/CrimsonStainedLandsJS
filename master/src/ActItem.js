@@ -662,6 +662,12 @@ Character.DoCommands.DoPut = function (player, arguments) {
     }
 }
 
+Character.ItemFunctions.GetEquipmentWearSlot = function(ch, item) {
+    for(key in ch.Equipment) {
+        if(ch.Equipment[key] == item) return key;
+    }
+}
+
 Character.DoCommands.DoGet = DoGet;
 Character.DoCommands.DoDrop = DoDrop;
 Character.DoCommands.DoRemove = DoRemove;

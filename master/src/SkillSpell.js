@@ -17,6 +17,14 @@ class SkillSpell {
         "InForm",
         "WarriorSpecialization",
     ];
+    static CastType =
+    {
+        "None" : "None",
+        "Cast" : "Cast",
+        "Commune" : "Commune",
+        "Sing" : "Sing",
+        "Invoke" : "Invoke"
+    };
     static TargetTypes = {
         targetIgnore: 1,
         targetCharOffensive: 2,
@@ -111,6 +119,7 @@ class SkillSpell {
         this.SpellFuncType = XmlHelper.GetAttributeValue(xml, "SpellFuncType");
         this.SpellFuncName = XmlHelper.GetAttributeValue(xml, "SpellFuncName");
         this.TargetType = xml.GetAttributeValue("TargetType", "TargetIgnore");
+        this.AutoCast = xml.GetAttributeValue("AutoCast").equals("true");
         this.AutoCastScript = xml.GetAttributeValue("AutoCastScript");
         
         if(!this.SpellFuncName.IsNullOrEmpty() && !this.SpellFuncType.IsNullOrEmpty()) {
@@ -273,7 +282,12 @@ class SkillSpell {
             }
         }
         if(results.length > 0) {
-        results.sort((sk1, sk2) => (lvl1 = ch.GetLevelSkillLearnedAt(sk1)) < (lvl2 = ch.GetLevelSkillLearnedAt(sk2))? -1 : lvl1 > lvl2? 1 : 0);
+        results.sort(function (sk1, sk2) {
+             var lvl1 = ch.GetLevelSkillLearnedAt(sk1);
+             var lvl2 = ch.GetLevelSkillLearnedAt(sk2);
+             return lvl1 < lvl2? -1 : lvl1 > lvl2? 1 : 0;
+            });
+        
         return results[0];
         } else return null;
     }
