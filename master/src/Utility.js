@@ -206,7 +206,7 @@ class Utility {
 		// result += dice[2];
 
 		// Roll a random number between 1 * DiceSides and DiceSides + 1 * DiceCount, add DiceBonus
-		result = Utility.Random(dice[1], dice[0] * dice[1]) + dice[2];
+		result = Utility.Random(dice[1], dice[0] * dice[1]) + dice[2]? dice[2] : 0;
 		return result;
 	}
 

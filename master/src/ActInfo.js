@@ -357,6 +357,94 @@ function DoSkills(ch, arguments) {
 	}
 }
 
+function ShowSpells(ch, args, type = "Spell") {
+	var typename = type == "Spell"? "spell" : type == "Supplication"? "supplication" : "song";
+	if (!Utitlity.IsNullOrEmpty(args))
+	{
+		var skills = [];
+		for(var skillname in SkillSpell.Skills) {
+			if(Utitlity.Prefix(skillname, args) && SkillSpell.Skills[skillname].SkillTypes.ISSET(type)) {
+				skills.push(SkillSpell.Skills[skillname]);
+			}
+		}
+
+		if (skills.length == 0)
+		{
+			ch.send("You don't know any {0}s by that name", typename);
+			return;
+		}
+		else
+		{
+			for(var skill of skills)
+			{
+				var percent = ch.GetSkillPercentage(skill.Name);
+				var lvl = ch.GetLevelSkillLearnedAt(skill.Name);
+				if (ch.Level < lvl)
+				{
+					ch.send("You haven't learned that {0} yet.", typename);
+					return;
+				}
+
+				ch.send(skill.Name + " " + percent + "%" + " " + skill.MinimumMana + " mana" + "\n\r");
+			}
+		}
+	} else {
+		var lastLevel = 0;
+		var column = 0;
+		var skills = [];
+		var text = "";
+		for(var skillname in SkillSpell.Skills) {
+			if(SkillSpell.Skills[skillname].SkillTypes.ISSET(type)) {
+				skills.push(SkillSpell.Skills[skillname]);
+			}
+		}
+
+		skills.sort((a,b) => ch.GetLevelSkillLearnedAt(a.Name) < ch.GetLevelSkillLearnedAt(b.Name)? -1 : 
+							 (ch.GetLevelSkillLearnedAt(a.Name) == ch.GetLevelSkillLearnedAt(b.Name)? 0 : 1));
+		
+		for(var skill of skills)
+		{
+			var percent = ch.GetSkillPercentage(skill.Name);
+			var lvl = ch.GetLevelSkillLearnedAt(skill.Name);
+
+			if ((lvl < 52 || ch.IsImmortal) || percent > 1)  //if (lvl > 0 || percent > 1 || (ch.Level > lvl && lvl > 0))
+			{
+				if (lvl != lastLevel)
+				{
+					lastLevel = lvl;
+					column = 0;
+					text += "\n\r";
+					text += ("Lvl " + lvl + ": ").padEnd(8);
+					text += "\n\r";
+				}
+
+				text += ("    " + (skill.Name + " " + (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A") + " " + skill.MinimumMana + " mana").padStart(30).padEnd(35));
+
+				if (column == 1)
+				{
+					text += "\n\r";
+					column = 0;
+				}
+				else
+					column++;
+			}
+		}
+		ch.send(text + "\n\r");
+	}
+}
+
+Character.DoCommands.DoSpells = function(ch, args) {
+	ShowSpells(ch, args, "Spell");
+}
+
+Character.DoCommands.DoSupplications = function(ch, args) {
+	ShowSpells(ch, args, "Supplication");
+}
+
+Character.DoCommands.DoSongs = function(ch, args) {
+	ShowSpells(ch, args, "Song");
+}
+
 function DoDelete(character, arguments) {
 	if(!character.Flags["ConfirmDelete"]) {
 		character.Flags["ConfirmDelete"] = true;
