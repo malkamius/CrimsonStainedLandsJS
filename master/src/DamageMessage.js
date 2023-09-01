@@ -90,5 +90,10 @@ class DamageMessage {
         this.Type = XmlHelper.GetAttributeValue(xml, "Type");
     }
 
+    static GetWeaponDamageMessage(keyword) {
+        for(var key in DamageMessage.DamageMessages) {
+            if(key.equals(keyword)) return DamageMessage.DamageMessages[key];
+        }
+    }
 }
 module.exports = DamageMessage;

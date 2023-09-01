@@ -3,6 +3,7 @@ const xml2js = require('xml2js');
 const Settings = require("./Settings");
 const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility");
+const Game = require("./Game");
 
 class SkillSpell {
     static Skills = {};
@@ -111,9 +112,9 @@ class SkillSpell {
     constructor(xml) {
         this.Name = XmlHelper.GetAttributeValue(xml, "Name");
         
-        this.MinimumPosition = XmlHelper.GetAttributeValue(xml, "MinimumPosition");
+        this.MinimumPosition = XmlHelper.GetAttributeValue(xml, "MinimumPosition", "Standing");
         this.MinmumMana = XmlHelper.GetAttributeValueInt(xml, "MinmumMana");
-        this.WaitTime = XmlHelper.GetAttributeValueInt(xml, "WaitTime");
+        this.WaitTime = XmlHelper.GetAttributeValueInt(xml, "WaitTime", Game.PULSE_PER_VIOLENCE);
         this.NounDamage = XmlHelper.GetAttributeValue(xml, "NounDamage");
         this.AutoCast = Utility.Compare(XmlHelper.GetAttributeValue(xml, "AutoCast"), "True");
         this.SpellFuncType = XmlHelper.GetAttributeValue(xml, "SpellFuncType");

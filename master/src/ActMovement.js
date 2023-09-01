@@ -91,21 +91,12 @@ function dodown(player, arguments) {
 	movechar(player, 5);
 }
 
-function GetExit(character, keyword, count = 0) {
-	var number = 0;
-	var [number, keyword] = keyword.numberArgument();
-	for(var exit of character.Room.Exits) {
-		if(exit && (exit.Keywords.IsName(keyword) || exit.Direction.prefix(keyword)) && ++count > number) {
-			return [exit, count];
-		}
-	}
-	return [null, count];
-}
 
-function DoOpen(character, arguments) {
+
+function DoOpen(character, args) {
 	var item, count;
-	var [exit, count] = GetExit(character, arguments, count);
-	var [item, count] = Character.ItemFunctions.GetItemHere(character, arguments, count);
+	var [exit, count] = Character.Room.GetExit(args, count);
+	var [item, count] = Character.ItemFunctions.GetItemHere(character, args, count);
 	
 	if(exit) {
 		if(exit.Flags.Locked) {
@@ -142,10 +133,10 @@ function DoOpen(character, arguments) {
 	}
 }
 
-function DoClose(character, arguments) {
+function DoClose(character, args) {
 	var item, count;
-	var [exit, count] = GetExit(character, arguments, count);
-	var [item, count] = Character.ItemFunctions.GetItemHere(character, arguments, count);
+	var [exit, count] = Character.Room.GetExit(args, count);
+	var [item, count] = Character.ItemFunctions.GetItemHere(character, args, count);
 	
 	if(exit) {
 		

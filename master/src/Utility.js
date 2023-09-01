@@ -391,6 +391,10 @@ class Utility {
 			}
 		}
 	}
+
+	static SETBIT(flags, flag) {
+		flags[flag] = flag;
+	}
 }
 
 const xml2js = require('xml2js');
@@ -430,6 +434,7 @@ Object.defineProperty( Array.prototype, 'RemoveFlag', { value: function (flag) {
 Object.defineProperty( Object.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Object.prototype, 'IsSetAny', { value: function (...flags) { return Utility.IsSetAny(this, flags) }} );
 Object.defineProperty( Object.prototype, 'ISSET', { value: function (flag) { return Utility.IsSet(this, flag) }} );
+Object.defineProperty( Object.prototype, 'SETBIT', { value: function (flag) { return Utility.SETBIT(this, flag) }} );
 Object.defineProperty( Object.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
 Object.defineProperty( Object.prototype, 'isString', { value: function () { return Object.prototype.toString.call(this) === "[object String]"; }} );
 Object.defineProperty( Object.prototype, 'Clone', { value: function () { 

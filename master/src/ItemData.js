@@ -8,6 +8,85 @@ const AffectData = require("./AffectData");
  * @class ItemData
  */
 class ItemData {
+    static Items = Array();
+
+    static WearFlags =
+    {
+        "Take": "Take",
+        "Finger": "Finger",
+        "About": "About",
+        "Neck": "Neck",
+        "Head": "Head",
+        "Legs": "Legs",
+        "Feet": "Feet",
+        "Hands": "Hands",
+        "Wield": "Wield",
+        "Hold": "Hold",
+        "Float": "Float",
+        "Tattoo": "Tattoo",
+        "Body": "Body",
+        "Waist": "Waist",
+        "Wrist": "Wrist",
+        "Arms": "Arms",
+        "Shield": "Shield",
+        "NoSac": "NoSac",
+
+        "WearFloat": "Float",
+        "Brand": "Tattoo"
+    }
+
+    static ItemTypes =
+    {
+        "Armor": "Armor",
+        "Boat": "Boat",
+        "Cabal": "Cabal",
+        "Clothing": "Clothing",
+        "Container": "Container",
+        "Corpse": "Corpse",
+        "DrinkContainer": "DrinkContainer",
+        "Food": "Food",
+        "Fountain": "Fountain",
+        "Furniture": "Furniture",
+        "Gem": "Gem",
+        "Gold": "Gold",
+        "Instrument": "Instrument",
+        "Jewelry": "Jewelry",
+        "Key": "Key",
+        "Light": "Light",
+        "Map": "Map",
+        "Money": "Money",
+        "NPCCorpse": "NPCCorpse",
+        "Pill": "Pill",
+        "Portal": "Portal",
+        "Potion": "Potion",
+        "RoomKey": "RoomKey",
+        "Scroll": "Scroll",
+        "Silver": "Silver",
+        "Skeleton": "Skeleton",
+        "Staff": "Staff",
+        "Trash": "Trash",
+        "Treasure": "Treasure",
+        "Wand": "Wand",
+        "Weapon": "Weapon",
+        "WarpStone": "WarpStone",
+        "PC_Corpse": "Corpse",
+        "Talisman": "Staff",
+        "ThiefPick": "ThiefPick"
+    }
+    static WeaponTypes =
+    {
+        "None": "None",
+        "Sword": "Sword",
+        "Axe": "Axe",
+        "Dagger": "Dagger",
+        "Mace": "Mace",
+        "Staff": "Staff",
+        "Spear": "Spear",
+        "Whip": "Whip",
+        "Flail": "Flail",
+        "Polearm": "Polearm",
+        "Exotic": "Exotic"
+    }
     Template = null;
     VNum = 0;
     Name = "";
@@ -18,7 +97,7 @@ class ItemData {
     Contains = Array();
     Affects = Array();
     Room = null;
-    HelbBy = null;
+    CarriedBy = null;
     ContainedIn = null;
     WearFlags = {};
     WeaponType = "";
@@ -80,7 +159,9 @@ class ItemData {
 
             if(room) {
                 room.Items.unshift(this);
+                this.Room = room;
             }
+            ItemData.Items.unshift(this);
         } else {
             console.log("Item " + this.VNum + " not found")
         }
@@ -200,6 +281,20 @@ class ItemData {
             this.Contains[i].Element(contains)
         }
         return itemele;
+    }
+
+    Dispose() {
+        if(this.CarriedBy) {
+            var slot;
+            if(this.CarriedBy.Inventory.indexOf(this) != -1)
+                this.CarriedBy.Inventory.splice(this.CarriedBy.Inventory.indexOf(item), 1);
+            else if((slot = Character.ItemFunctions.GetEquipmentWearSlot(this.CarriedBy, item)))
+                delete this.CarriedBy.Equipment[slot];
+        }
+
+        if(this.Room) {
+            this.Room.Items.splice(this.Room.Items.indexOf(this), 1);
+        }
     }
 }
 

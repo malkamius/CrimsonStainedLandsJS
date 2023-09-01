@@ -4,7 +4,71 @@ const XmlHelper = require("./XmlHelper");
 class RoomData {
 	static Rooms = {};
 	static Directions = Array("north", "east", "south", "west", "up", "down");
+	static ExitFlags =
+    {
+        "Door": "Door",
+        "Closed": "Closed",
+        "Locked": "Locked",
+        "Window": "Window",
+        "PickProof": "PickProof",
+        "NoPass": "NoPass",
+        "NoBash": "NoBash",
+        "Hidden": "Hidden",
+        "HiddenWhileClosed": "HiddenWhileClosed",
+        "MustUseKeyword": "MustUseKeyword",
+        "NoRandomize": "NoRandomize",
+        "NonObvious": "Hidden",
+    };
 
+    static SectorTypes =
+    {
+        "Inside = 0": "Inside = 0",
+        "City = 1": "City = 1",
+        "Forest": "Forest",
+        "Field": "Field",
+        "Hills": "Hills",
+        "Mountain": "Mountain",
+        "Swamp": "Swamp",
+        "Desert": "Desert",
+        "Cave": "Cave",
+        "Underground": "Underground",
+        "WaterSwim": "WaterSwim",
+        "WaterNoSwim": "WaterNoSwim",
+        "River": "River",
+        "Ocean": "Ocean",
+        "Air": "Air",
+        "Road": "Road",
+        "Trail": "Trail",
+        "Underwater": "Underwater",
+        "NoSwim": "WaterNoSwim",
+        "Swim": "WaterSwim"
+    };
+
+    static RoomFlags =
+    {
+        "Dark": "Dark",
+        "NoMob": "NoMob",
+        "Indoors": "Indoors",
+        "Cabal": "Cabal",
+        "Private": "Private",
+        "Safe": "Safe",
+        "Solitary": "Solitary",
+        "PetShop": "PetShop",
+        "NoRecall": "NoRecall",
+        "ImplementorOnly": "ImplementorOnly",
+        "HeroesOnly": "HeroesOnly",
+        "NewbiesOnly": "NewbiesOnly",
+        "Law": "Law",
+        "Nowhere": "Nowhere",
+        "NoGate": "NoGate",
+        "Consecrated": "Consecrated",
+        "NoSummon": "NoSummon",
+        "NoConsecrate": "NoConsecrate",
+        "NoMagic": "NoMagic",
+        "GlobeDarkness": "GlobeDarkness",
+        "RandomExits" : "RandomExits"
+    };
+	
 	Area = null;
 	VNum = 0;
 	Name = "";
@@ -34,6 +98,17 @@ class RoomData {
 			}
 		}
 		RoomData.Rooms[this.VNum] = this;
+	}
+
+	GetExit(keyword, count = 0) {
+		var number = 0;
+		var [number, keyword] = keyword.numberArgument();
+		for(var exit of this.Exits) {
+			if(exit && (exit.Keywords.IsName(keyword) || exit.Direction.prefix(keyword)) && ++count > number) {
+				return [exit, count];
+			}
+		}
+		return [null, count];
 	}
 }
 

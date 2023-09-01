@@ -13,7 +13,7 @@ class ItemTemplateData {
     Contains = Array();
     Affects = Array();
     Room = null;
-    HelbBy = null;
+    CarriedBy = null;
     ContainedIn = null;
     WearFlags = {};
     WeaponType = "";

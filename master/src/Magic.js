@@ -4,6 +4,9 @@ const Character = require("./Character");
 const SkillSpell = require("./SkillSpell");
 const AffectData = require("./AffectData");
 const DamageMessage = require("./DamageMessage");
+const RoomData = require("./RoomData");
+const ItemData = require("./ItemData");
+const Game = require("./Game");
 
 class Magic {
     static CastType =
@@ -489,7 +492,7 @@ class Magic {
             {
                 ch.send("Your song falls on deaf ears.\n\r");
                 ch.CheckImprove("sing", false, 1);
-                if (held == null || !held.ItemType.ISSET(ItemTypes.Instrument))
+                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypes.Instrument))
                 {
                     ch.CheckImprove("a cappella", false, 1);
                 }
@@ -510,7 +513,7 @@ class Magic {
             if (MethodUsed == "Sing")
             {
                 ch.CheckImprove("sing", true, 1);
-                if (held == null || !held.ItemType.ISSET(ItemTypes.Instrument))
+                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypes.Instrument))
                 {
                     ch.CheckImprove("a cappella", true, 1);
                 }
@@ -740,7 +743,7 @@ class Magic {
         }
         else
         {
-            //if (victim.IsAffected(AffectFlags.Haven)) victim.AffectFromChar(victim.FindAffect("Haven"), AffectRemoveReason.WoreOff);
+            if (victim.IsAffected(AffectData.AffectFlags.Haven)) victim.AffectFromChar(victim.FindAffect("Haven"), AffectData.AffectRemoveReason.WoreOff);
             victim.send("A white aura surrounds you.\n\r");
             victim.Act("A white aura surrounds $n.", null, null, null, "ToRoom");
             affect = new AffectData();
@@ -759,7 +762,7 @@ class Magic {
         }
     }
 
-    static SpellCureLight(CastType, spell, level, ch, victim, item, args, target)
+    static SpellCureLight(castType, spell, level, ch, victim, item, args, target)
     {
         if (victim == null)
             victim = ch;
@@ -772,7 +775,7 @@ class Magic {
         victim.send("Your wounds are slightly healed.\n\r");
         victim.Act("$n's wounds are slightly healed.\n\r", null, null, null, "ToRoom");
     }
-    static SpellMendWounds(CastType, spell, level, ch, victim, item, args, target)
+    static SpellMendWounds(castType, spell, level, ch, victim, item, args, target)
     {
         if (victim == null)
             victim = ch;
@@ -784,7 +787,7 @@ class Magic {
         victim.Act("Your wounds are healed.\n\r", victim);
         victim.Act("$n's wounds are healed.\n\r", null, null, null, "ToRoom");
     }
-    static SpellCureSerious(CastType, spell, level, ch, victim, item, args, target)
+    static SpellCureSerious(castType, spell, level, ch, victim, item, args, target)
     {
         if (victim == null)
             victim = ch;
@@ -797,7 +800,7 @@ class Magic {
         victim.Act("$n's wounds are greatly healed.\n\r", null, null, null, "ToRoom");
     }
 
-    static SpellCureCritical(CastType, spell, level, ch, victim, item, args, target)
+    static SpellCureCritical(castType, spell, level, ch, victim, item, args, target)
     {
         if (victim == null)
             victim = ch;
@@ -809,7 +812,7 @@ class Magic {
         victim.send("Your wounds are immensely healed.\n\r");
         victim.Act("$n's wounds are immensely healed.\n\r", null, null, null, "ToRoom");
     }
-    static SpellHeal(CastType, spell, level, ch, victim, item, args, target)
+    static SpellHeal(castType, spell, level, ch, victim, item, args, target)
     {
         if (victim == null)
             victim = ch;
@@ -821,7 +824,7 @@ class Magic {
         victim.send("Your wounds are healed.\n\r");
         victim.Act("$n's wounds are healed.\n\r", null, null, null, "ToRoom");
     }
-    static SpellRejuvenate(CastType, spell, level, ch, victim, item, args, target)
+    static SpellRejuvenate(castType, spell, level, ch, victim, item, args, target)
     {
         if (victim == null)
             victim = ch;
@@ -833,7 +836,7 @@ class Magic {
         victim.send("Your wounds are healed.\n\r");
         victim.Act("$n's wounds are healed.\n\r", null, null, null, "ToRoom");
     }
-    static SpellBless(CastType, spell, level, ch, victim, item, args, target)
+    static SpellBless(castType, spell, level, ch, victim, item, args, target)
     {
         var affect;
         if (victim == null)
@@ -850,10 +853,10 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Hitroll;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Hitroll;
             affect.Duration = 10 + level / 4;
-            affect.Modifier = Math.Max(3, level / 3);
+            affect.Modifier = Math.max(3, level / 3);
             affect.DisplayName = "blessed";
             affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
             victim.AffectToChar(affect);
@@ -861,10 +864,10 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Damroll;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Damroll;
             affect.Duration = 10 + level / 4;
-            affect.Modifier = Math.Max(3, level / 3);
+            affect.Modifier = Math.max(3, level / 3);
             affect.DisplayName = "blessed";
             affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
             victim.AffectToChar(affect);
@@ -872,10 +875,10 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Saves;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Saves;
             affect.Duration = 10 + level / 4;
-            affect.Modifier = -(Math.Max(5, level / 3));
+            affect.Modifier = -(Math.max(5, level / 3));
             affect.DisplayName = "blessed";
             affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
             victim.AffectToChar(affect);
@@ -904,7 +907,7 @@ class Magic {
                 affect.Where = "ToAffects";
                 affect.Location = "Hitroll";
                 affect.Duration = 10 + level / 4;
-                affect.Modifier = Math.Max(3, level / 3);
+                affect.Modifier = Math.max(3, level / 3);
                 affect.DisplayName = "blessed";
                 affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
                 GroupMember.AffectToChar(affect);
@@ -915,7 +918,7 @@ class Magic {
                 affect.Where = "ToAffects";
                 affect.Location = "Damroll";
                 affect.Duration = 10 + level / 4;
-                affect.Modifier = Math.Max(3, level / 3);
+                affect.Modifier = Math.max(3, level / 3);
                 affect.DisplayName = "blessed";
                 affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
                 GroupMember.AffectToChar(affect);
@@ -924,9 +927,9 @@ class Magic {
                 affect.SkillSpell = spell;
                 affect.Level = level;
                 affect.Where = "ToAffects";
-                affect.Location = ApplyTypes.Saves;
+                affect.Location = AffectData.ApplyTypes.Saves;
                 affect.Duration = 10 + level / 4;
-                affect.Modifier = -(Math.Max(5, level / 3));
+                affect.Modifier = -(Math.max(5, level / 3));
                 affect.DisplayName = "blessed";
                 affect.AffectType = castType == "Cast" ? "Spell" : "Commune";
                 GroupMember.AffectToChar(affect);
@@ -961,8 +964,8 @@ class Magic {
             affect.Level = ch_level;
             affect.Where = "ToAffects";
             affect.Location = "Hitroll";
-            affect.Flags.Add(AffectFlags.Blind);
-            affect.Duration = Math.Max(3, ch_level / 3);
+            affect.Flags[AffectFlags.Blind] = true;
+            affect.Duration = Math.max(3, ch_level / 3);
             affect.Modifier = -4;
             affect.DisplayName = "Blinded";
             affect.EndMessage = "You can see again.\n\r";
@@ -1330,16 +1333,17 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.None;
-            affect.Where = AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
             affect.DisplayName = "shield cooldown";
             affect.Duration = 24;
             affect.EndMessage = "You feel ready to cast shield again.";
             victim.AffectToChar(affect);
 
-            affect.Flags.Add(AffectData.AffectFlags.Shield);
+            affect.Flags[AffectData.AffectFlags.Shield] = true;
             affect.Duration = 12 + level / 6;
-            affect.Location = ApplyTypes.AC;
+            affect.DisplayName = "shield";
+            affect.Location = AffectData.ApplyTypes.AC;
             affect.Modifier = -30 - level / 5;
             affect.EndMessage = "Your magical shield fades.\n\r";
             affect.EndMessageToRoom = "$n's magical shield fades.\n\r";
@@ -1374,8 +1378,8 @@ class Magic {
             affect.EndMessage = "Your magical shield of water fades.\n\r";
             affect.EndMessageToRoom = "$n's magical shield of water fades.\n\r";
             affect.EndMessage = "You feel ready to cast water shield again.";
-            affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Drowning);
-            affect.Where = AffectWhere.ToImmune;
+            affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Drowning);
+            affect.Where = AffectData.AffectWhere.ToImmune;
             victim.AffectToChar(affect);
         }
     }
@@ -1405,8 +1409,8 @@ class Magic {
             affect.EndMessage = "Your magical shield of earth fades.\n\r";
             affect.EndMessageToRoom = "$n's magical shield of earth fades.\n\r";
             affect.EndMessage = "You feel ready to cast earth shield again.";
-            affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Bash);
-            affect.Where = AffectWhere.ToImmune;
+            affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Bash);
+            affect.Where = AffectData.AffectWhere.ToImmune;
             victim.AffectToChar(affect);
         }
     }
@@ -1436,8 +1440,8 @@ class Magic {
             affect.EndMessage = "Your magical shield of air fades.\n\r";
             affect.EndMessageToRoom = "$n's magical shield of air fades.\n\r";
             affect.EndMessage = "You feel ready to cast air shield again.";
-            affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Air);
-            affect.Where = AffectWhere.ToImmune;
+            affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Air);
+            affect.Where = AffectData.AffectWhere.ToImmune;
             victim.AffectToChar(affect);
         }
     }
@@ -1467,8 +1471,8 @@ class Magic {
             affect.EndMessage = "Your magical shield of fire fades.\n\r";
             affect.EndMessageToRoom = "$n's magical shield of fire fades.\n\r";
             affect.EndMessage = "You feel ready to cast fire shield again.";
-            affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Fire);
-            affect.Where = AffectWhere.ToImmune;
+            affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Fire);
+            affect.Where = AffectData.AffectWhere.ToImmune;
             victim.AffectToChar(affect);
         }
     }
@@ -1498,8 +1502,8 @@ class Magic {
             affect.EndMessage = "Your magical shield of lightning fades.\n\r";
             affect.EndMessageToRoom = "$n's magical shield of lightning fades.\n\r";
             affect.EndMessage = "You feel ready to cast lightning shield again.";
-            affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Lightning);
-            affect.Where = AffectWhere.ToImmune;
+            affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Lightning);
+            affect.Where = AffectData.AffectWhere.ToImmune;
             victim.AffectToChar(affect);
         }
     }
@@ -1529,17 +1533,21 @@ class Magic {
             affect.EndMessage = "Your magical shield of frost fades.\n\r";
             affect.EndMessageToRoom = "$n's magical shield of frost fades.\n\r";
             affect.EndMessage = "You feel ready to cast frost shield again.";
-            affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Cold);
-            affect.Where = AffectWhere.ToImmune;
+            affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Cold);
+            affect.Where = AffectData.AffectWhere.ToImmune;
             victim.AffectToChar(affect);
         }
     }
     static SpellCureBlindness(castType, spell, ch_level, ch, victim, item, args, target)
     {
-    /*
+    
         if (victim == null) victim = ch;
 
-        var blindness = (from aff of victim.AffectsList where aff.Flags.ISSET(AffectData.AffectFlags.Blind) && (aff.AffectType == AffectData.AffectTypes.Malady || aff.AffectType == AffectData.AffectTypes.Spell || aff.AffectType == AffectData.AffectTypes.Commune) select aff).FirstOrDefault();
+        var blindness = victim.Affects.FirstOrDefault((aff) => 
+            aff.Flags.ISSET(AffectData.AffectFlags.Blind) && 
+            (aff.AffectType == AffectData.AffectTypes.Malady || 
+                aff.AffectType == AffectData.AffectTypes.Spell ||
+                 aff.AffectType == AffectData.AffectTypes.Commune));
 
         if (blindness != null)
         {
@@ -1555,8 +1563,8 @@ class Magic {
                 ch.send("OK.\n\r");
         }
         else
-            ch.Act("$N isn't blinded of a way you can cure.", victim, Character.ActType.ToChar);
-    */
+            ch.Act("$N isn't blinded in a way you can cure.", victim, Character.ActType.ToChar);
+    
     }
 
     static SpellPassDoor(castType, spell, level, ch, victim, item, args, target)
@@ -1580,9 +1588,9 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.None;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Flags.Add(AffectData.AffectFlags.PassDoor);
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Flags[AffectData.AffectFlags.PassDoor] = true;
             affect.Duration = 5 + level / 3;
             affect.DisplayName = "pass door";
             affect.EndMessage = "Your feel less translucent.\n\r";
@@ -1665,18 +1673,18 @@ class Magic {
             || victim == ch
             || victim.Room == null
             || (!victim.IsNPC && victim.Room.Area != ch.Room.Area)
-            || ch.Room.Flags.ISSET(RoomFlags.Safe)
+            || ch.Room.Flags.ISSET(RoomData.RoomFlags.Safe)
             || (victim.IsNPC && victim.IsAffected(AffectData.AffectFlags.Charm) && victim.Room.Area != ch.Room.Area)
-            || victim.Room.Flags.ISSET(RoomFlags.Safe)
-            || victim.Room.Flags.ISSET(RoomFlags.Private)
-            || victim.Room.Flags.ISSET(RoomFlags.Solitary)
-            || victim.Room.Flags.ISSET(RoomFlags.NoRecall)
-            || ch.Room.Flags.ISSET(RoomFlags.NoRecall)
-            || (victim.IsNPC && victim.Flags.ISSET(ActFlags.Aggressive))
+            || victim.Room.Flags.ISSET(RoomData.RoomFlags.Safe)
+            || victim.Room.Flags.ISSET(RoomData.RoomFlags.Private)
+            || victim.Room.Flags.ISSET(RoomData.RoomFlags.Solitary)
+            || victim.Room.Flags.ISSET(RoomData.RoomFlags.NoRecall)
+            || ch.Room.Flags.ISSET(RoomData.RoomFlags.NoRecall)
+            || (victim.IsNPC && victim.Flags.ISSET(Character.ActFlags.Aggressive))
             || victim.Level >= (level + 10)
             || (!victim.IsNPC && victim.Level >= Game.LEVEL_IMMORTAL)
             || victim.Fighting != null
-            || (victim.IsNPC && victim.Flags.ISSET(ActFlags.Shopkeeper))
+            || (victim.IsNPC && victim.Flags.ISSET(Character.ActFlags.Shopkeeper))
             || (Magic.SavesSpell(level, victim, DamageMessage.WeaponDamageTypes.Other)))
         {
             ch.send("You failed.\n\r");
@@ -1794,7 +1802,7 @@ class Magic {
 
         ch.Act("You emit a soundless scream as waves of heat roll out from your mouth.", null, null, null, Character.ActType.ToChar);
         ch.Act("With hands outstretched and face to the sky, " +
-            "$n opens his mouth of a soundless scream as waves of heat roll out from $s.".WrapText(), null, null, null, Character.ActType.ToRoom);
+            "$n opens his mouth in a soundless scream as waves of heat roll out from $s.".WrapText(), null, null, null, Character.ActType.ToRoom);
 
         for (var vict of Utility.CloneArray(ch.Room.Characters))
         {
@@ -1878,9 +1886,9 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.None;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Flags.Add(AffectData.AffectFlags.DetectMagic);
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Flags[AffectData.AffectFlags.DetectMagic] = true;
             affect.Duration = 10;
             affect.DisplayName = "detect magic";
             affect.EndMessage = "You can no longer sense magic.\n\r";
@@ -2020,7 +2028,7 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.Armor;
+            affect.Location = AffectData.ApplyTypes.Armor;
             affect.Duration = 10 + level / 4;
             affect.Modifier = -30 - ((level / 2) - 10);
             affect.DisplayName = "stoneskin";
@@ -2051,7 +2059,7 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.Armor;
+            affect.Location = AffectData.ApplyTypes.Armor;
             affect.Duration = 10 + level / 4;
             affect.Modifier = -60 - ((level / 2) - 20);
             affect.DisplayName = "Sheen of Stone";
@@ -2082,11 +2090,11 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.None;
             affect.Duration = level / 2;
             affect.Modifier = 0;
-            affect.Flags.SETBIT(AffectData.AffectFlags.Flying);
+            affect.Flags[AffectData.AffectFlags.Flying] = true;
             affect.DisplayName = "fly";
             affect.EndMessage = "You fall back to the ground.\n\r";
             affect.EndMessageToRoom = "$n falls back to the ground.\n\r";
@@ -2115,11 +2123,11 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.None;
             affect.Duration = level / 2;
             affect.Modifier = 0;
-            affect.Flags.SETBIT(AffectData.AffectFlags.WaterBreathing);
+            affect.Flags[AffectData.AffectFlags.WaterBreathing] = true;
             affect.DisplayName = "water breathing";
             affect.EndMessage = "Your gills disappear, preventing you from breath underwater anymore.\n\r";
             affect.EndMessageToRoom = "$n's gills disappear.\n\r";
@@ -2149,8 +2157,8 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.Strength;
-            affect.Where = AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Strength;
+            affect.Where = AffectData.AffectWhere.ToAffects;
             affect.Duration = level / 2;
             affect.Modifier = 3 + (level / 7);
             affect.DisplayName = "giant strength";
@@ -2186,10 +2194,10 @@ class Magic {
             affect.OwnerName = ch.Name;
             affect.SkillSpell = spell;
             affect.Level = ch_level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Strength;
-            affect.Flags.Add(AffectData.AffectFlags.Plague);
-            affect.Duration = Math.Max(3, ch_level / 4);
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Strength;
+            affect.Flags[AffectData.AffectFlags.Plague] = true;
+            affect.Duration = Math.max(3, ch_level / 4);
             affect.Modifier = -5;
             affect.DisplayName = "plague";
             affect.EndMessage = "Your sores disappear.\n\r";
@@ -2225,10 +2233,10 @@ class Magic {
         var buffer = new StringBuilder();
         buffer.Append(new string('-', 80) + "\n\r");
         buffer.AppendFormat("Object {0} can be referred to as '{1}'\n\rIt is of type {2} and level {3}\n\r", item.ShortDescription, item.Name,
-            string.Join(" ", (from flag of item.ItemType.Distinct() select flag.ToString())), item.Level);
+            string.Join(" ", (from flag of item.ItemTypes.Distinct() select flag.ToString())), item.Level);
         buffer.AppendFormat("It is worth {0} silver and weighs {1} pounds.\n\r", item.Value, item.Weight);
 
-        if (item.ItemType.ISSET(ItemTypes.Weapon))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             if (item.WeaponDamageType != null)
                 buffer.AppendFormat("Damage Type is {0}\n\r", item.WeaponDamageType.Keyword);
@@ -2236,17 +2244,17 @@ class Magic {
 
         }
 
-        if (item.ItemType.ISSET(ItemTypes.Container))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Container))
         {
             buffer.AppendFormat("It can hold {0} pounds.", item.MaxWeight);
         }
 
-        if (item.ItemType.ISSET(ItemTypes.Food))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Food))
         {
             buffer.AppendFormat("It is edible and provides {0} nutrition.\n\r", item.Nutrition);
         }
 
-        if (item.ItemType.ISSET(ItemTypes.DrinkContainer))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.DrinkContainer))
         {
             buffer.AppendFormat("Nutrition {0}, Drinks left {1}, Max Capacity {2}, it is filled with '{3}'\n\r", item.Nutrition, item.Charges, item.MaxCharges, item.Liquid);
         }
@@ -2255,21 +2263,21 @@ class Magic {
         if (item.timer > 0)
             buffer.AppendFormat("It will decay of {0} hours.\n\r", item.timer);
 
-        if (item.ItemType.ISSET(ItemTypes.Armor) || item.ItemType.ISSET(ItemTypes.Clothing))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Armor) || item.ItemTypes.ISSET(ItemData.ItemTypes.Clothing))
         {
             buffer.AppendFormat("It provides armor against bash {0}, slash {1}, pierce {2}, magic {3}\n\r", item.ArmorBash, item.ArmorSlash, item.ArmorPierce, item.ArmorExotic);
         }
         buffer.AppendFormat("It can be worn on {0} and has extra flags of {1}.\n\r", string.Join(", ", (from flag of item.wearFlags.Distinct() select flag.ToString())),
             string.Join(", ", (from flag of item.ExtraFlags.Distinct() select flag.ToString())));
 
-        buffer.AppendFormat("Affects: \n   {0}\n\r", string.Join("\n   ", (from aff of item.affects where aff.@where == AffectWhere.ToObject select aff.Location.ToString() + " " + aff.Modifier)));
+        buffer.AppendFormat("Affects: \n   {0}\n\r", string.Join("\n   ", (from aff of item.affects where aff.@where == AffectData.AffectWhere.ToObject select aff.Location.ToString() + " " + aff.Modifier)));
 
-        if (item.ItemType.ISSET(ItemTypes.Staff) || item.ItemType.ISSET(ItemTypes.Wand) || item.ItemType.ISSET(ItemTypes.Scroll) || item.ItemType.ISSET(ItemTypes.Potion))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypes.Wand) || item.ItemTypes.ISSET(ItemData.ItemTypes.Scroll) || item.ItemTypes.ISSET(ItemData.ItemTypes.Potion))
         {
             buffer.AppendFormat("It contains the following spells:\n\r   {0}", string.Join("\n   ", from itemspell of item.Spells select (itemspell.SpellName + " [lvl " + itemspell.Level + "]")) + "\n\r");
         }
 
-        if (item.ItemType.ISSET(ItemTypes.Staff) || item.ItemType.ISSET(ItemTypes.Wand))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypes.Wand))
         {
             buffer.AppendFormat("It has {0} of {1} charges left\n\r", item.Charges, item.MaxCharges);
         }
@@ -2309,7 +2317,7 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemType.ISSET(ItemTypes.Armor) && !item.ItemType.ISSET(ItemTypes.Clothing))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Armor) && !item.ItemTypes.ISSET(ItemData.ItemTypes.Clothing))
         {
             ch.send("That isn't armor.\n\r");
             return;
@@ -2317,7 +2325,7 @@ class Magic {
         else
         {
             // TODO Chance to fail / maybe destroy item?
-            var aff = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.ApplyTypes.AC);
+            var aff = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.AC);
 
             if (aff != null && aff.Modifier >= 50)
             {
@@ -2328,9 +2336,9 @@ class Magic {
                 {
                     ch.AffectApply(aff, true);
                 }
-                item.Affects.Remove(aff);
-                item.ExtraFlags.Remove(ExtraFlags.Glow);
-                item.ExtraFlags.Remove(ExtraFlags.Hum);
+                item.Affects.splice(item.Affects.indexOf(aff), 1);
+                item.ExtraFlags.RemoveFlag("Glow");
+                item.ExtraFlags.RemoveFlag("Hum");
 
             }
             else if (aff != null)
@@ -2352,15 +2360,15 @@ class Magic {
             {
                 aff = new AffectData();
                 aff.SkillSpell = spell;
-                aff.Where = AffectWhere.ToObject;
-                aff.Location = ApplyTypes.AC;
+                aff.Where = AffectData.AffectWhere.ToObject;
+                aff.Location = AffectData.ApplyTypes.AC;
                 aff.Modifier = 10;
                 aff.Level = ch_level;
                 aff.Duration = -1;
-                item.affects.Add(aff);
-                item.ExtraFlags.SETBIT(ExtraFlags.Glow);
-                item.ExtraFlags.SETBIT(ExtraFlags.Hum);
-                if (ch.GetEquipmentWearSlot(item) != null)
+                item.Affects.unshift(aff);
+                item.ExtraFlags[ExtraFlags.Glow] = true;
+                item.ExtraFlags[ExtraFlags.Hum] = true;
+                if (Character.ItemFunctions.GetEquipmentWearSlot(ch, item) != null)
                 {
                     ch.AffectApply(aff);
                 }
@@ -2378,7 +2386,7 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemType.ISSET(ItemTypes.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
@@ -2386,8 +2394,8 @@ class Magic {
         else
         {
             // TODO Chance to fail / maybe destroy item?
-            var aff = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.ApplyTypes.Damroll);
-            var aff2 = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.ApplyTypes.Hitroll);
+            var aff = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.Damroll);
+            var aff2 = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.Hitroll);
             var worn = Character.ItemFunctions.GetEquipmentWearSlot(ch, item) != null;
             if (aff != null && aff.Modifier >= 6)
             {
@@ -2428,25 +2436,25 @@ class Magic {
             {
                 aff = new AffectData();
                 aff.SkillSpell = spell;
-                aff.Location = ApplyTypes.Damroll;
+                aff.Location = AffectData.ApplyTypes.Damroll;
                 aff.Modifier = 1;
                 aff.Level = ch_level;
                 aff.Duration = -1;
-                aff.Where = AffectWhere.ToObject;
+                aff.Where = AffectData.AffectWhere.ToObject;
 
                 aff2 = new AffectData();
-                aff2.where = AffectWhere.ToObject;
+                aff2.where = AffectData.AffectWhere.ToObject;
                 aff2.skillSpell = spell;
-                aff2.location = ApplyTypes.Hitroll;
+                aff2.location = AffectData.ApplyTypes.Hitroll;
                 aff2.modifier = 1;
                 aff2.duration = -1;
                 aff2.level = ch_level;
 
-                item.affects.Add(aff);
-                item.affects.Add(aff2);
+                item.Affects.unshift(aff);
+                item.Affects.unshift(aff2);
 
-                item.ExtraFlags.SETBIT(ExtraFlags.Glow);
-                item.ExtraFlags.SETBIT(ExtraFlags.Hum);
+                item.ExtraFlags[ExtraFlags.Glow] = true;
+                item.ExtraFlags[ExtraFlags.Hum] = true;
                 if (worn)
                 {
                     ch.AffectApply(aff);
@@ -2483,9 +2491,9 @@ class Magic {
             affect.OwnerName = ch.Name;
             affect.SkillSpell = spell;
             affect.Level = ch_level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.None;
-            affect.Flags.Add(AffectData.AffectFlags.Curse);
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Flags[AffectData.AffectFlags.Curse] = true;
             affect.Duration = ch_level / 4;
             affect.Modifier = 0;
             affect.DisplayName = "Cursed";
@@ -2523,9 +2531,9 @@ class Magic {
             affect.OwnerName = ch.Name;
             affect.SkillSpell = spell;
             affect.Level = ch_level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Strength;
-            affect.Flags.Add(AffectData.AffectFlags.Weaken);
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Strength;
+            affect.Flags[AffectData.AffectFlags.Weaken] = true;
             affect.Duration = ch_level / 4;
             affect.Modifier = -5;
             affect.DisplayName = "Weakened";
@@ -2568,7 +2576,7 @@ class Magic {
 
     static SpellCreateWater(castType, spell, ch_level, ch, victim, item, args, target)
     {
-        if (item != null && !item.ItemType.ISSET(ItemTypes.DrinkContainer))
+        if (item != null && !item.ItemTypes.ISSET(ItemData.ItemTypes.DrinkContainer))
         {
             ch.send("That can't hold water.\n\r");
         }
@@ -2608,9 +2616,9 @@ class Magic {
                 affect.OwnerName = ch.Name;
                 affect.SkillSpell = spell;
                 affect.Level = ch_level;
-                affect.Location = ApplyTypes.None;
-                //affect.Flags.Add(AffectData.AffectFlags.FaerieFire);
-                affect.Where = AffectWhere.ToAffects;
+                affect.Location = AffectData.ApplyTypes.None;
+                //affect.Flags[AffectData.AffectFlags.FaerieFire);
+                affect.Where = AffectData.AffectWhere.ToAffects;
                 affect.Duration = ch_level / 5;
                 affect.Modifier = 0;
                 affect.DisplayName = "Faerie Fogged";
@@ -2641,14 +2649,14 @@ class Magic {
         affect.OwnerName = ch.Name;
         affect.SkillSpell = spell;
         affect.Level = ch_level;
-        affect.Location = ApplyTypes.Hitroll;
-        affect.Flags.Add(AffectData.AffectFlags.FaerieFire);
+        affect.Location = AffectData.ApplyTypes.Hitroll;
+        affect.Flags[AffectData.AffectFlags.FaerieFire] = true;
         affect.Duration = ch_level / 4;
         affect.Modifier = -4 - ch.Level / 4;
-        affect.Where = AffectWhere.ToAffects;
+        affect.Where = AffectData.AffectWhere.ToAffects;
         victim.AffectToChar(affect);
 
-        affect.Location = ApplyTypes.AC;
+        affect.Location = AffectData.ApplyTypes.AC;
         affect.Modifier = +200 + ch.Level * 4;
         affect.DisplayName = "Faerie Fire";
         affect.EndMessage = "You stop glowing purple.\n\r";
@@ -2784,8 +2792,8 @@ class Magic {
             affect.OwnerName = ch.Name;
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.Strength;
-            affect.Where = AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Strength;
+            affect.Where = AffectData.AffectWhere.ToAffects;
             affect.Duration = 6;
             affect.Modifier = -1;
             affect.DisplayName = "Chill Touch";
@@ -2822,9 +2830,9 @@ class Magic {
     //        affect = new AffectData();
     //        affect.SkillSpell = spell;
     //        affect.Level = level;
-    //        affect.Location = ApplyTypes.None;
-    //        affect.Where = AffectWhere.ToAffects;
-    //        affect.Flags.Add(AffectData.AffectFlags.DetectEvil);
+    //        affect.Location = AffectData.ApplyTypes.None;
+    //        affect.Where = AffectData.AffectWhere.ToAffects;
+    //        affect.Flags[AffectData.AffectFlags.DetectEvil);
     //        affect.Duration = 10 + level / 4;
     //        affect.DisplayName = "detect evil";
     //        affect.EndMessage = "Your feel less aware of evil.\n\r";
@@ -2857,9 +2865,9 @@ class Magic {
     //        affect = new AffectData();
     //        affect.SkillSpell = spell;
     //        affect.Level = level;
-    //        affect.Location = ApplyTypes.None;
-    //        affect.Where = AffectWhere.ToAffects;
-    //        affect.Flags.Add(AffectData.AffectFlags.DetectGood);
+    //        affect.Location = AffectData.ApplyTypes.None;
+    //        affect.Where = AffectData.AffectWhere.ToAffects;
+    //        affect.Flags[AffectData.AffectFlags.DetectGood);
     //        affect.Duration = 10 + level / 4;
     //        affect.DisplayName = "detect good";
     //        affect.EndMessage = "Your feel less aware of good.\n\r";
@@ -2917,10 +2925,10 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.None;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Flags.Add(AffectData.AffectFlags.Sleep);
-            affect.Duration = Math.Max(5, level / 4);
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Flags[AffectData.AffectFlags.Sleep] = true;
+            affect.Duration = Math.max(5, level / 4);
             affect.DisplayName = "sleep";
             affect.EndMessage = "Your feel less tired.\n\r";
             affect.EndMessageToRoom = "$n looks less tired.\n\r";
@@ -2997,12 +3005,12 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Hitroll;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Hitroll;
             affect.Duration = 5 + level / 4;
             affect.Modifier = -4;
             affect.DisplayName = "slow";
-            affect.Flags.SETBIT(AffectData.AffectFlags.Slow);
+            affect.Flags[AffectData.AffectFlags.Slow] = true;
             affect.EndMessage = "Your movement quickens.\n\r";
             affect.EndMessageToRoom = "$n is moving more quickly.\n\r";
             affect.AffectType = castType == SkillSpell.CastType.Cast ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
@@ -3034,12 +3042,12 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.Hitroll;
+            affect.Location = AffectData.ApplyTypes.Hitroll;
             affect.Duration = 5 + level / 4;
             affect.Modifier = 4 + level / 6;
             affect.DisplayName = "haste";
-            affect.Where = AffectWhere.ToAffects;
-            affect.Flags.SETBIT(AffectData.AffectFlags.Haste);
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Flags[AffectData.AffectFlags.Haste] = true;
             affect.EndMessage = "Your movement slows down.\n\r";
             affect.EndMessageToRoom = "$n is moving more slowly.\n\r";
             affect.AffectType = castType == SkillSpell.CastType.Cast ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
@@ -3067,8 +3075,8 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.None;
             affect.Duration = 10 + level / 4;
             affect.Modifier = 0;
             affect.DisplayName = "protective shield";
@@ -3089,9 +3097,9 @@ class Magic {
         if ((affect = victim.FindAffect(AffectData.AffectFlags.Berserk)) != null)
         {
             if (ch != victim)
-                ch.send("They are already of a frenzied state.\n\r");
+                ch.send("They are already in a frenzied state.\n\r");
             else
-                ch.send("You are already of a frenzied state.\n\r");
+                ch.send("You are already in a frenzied state.\n\r");
             return;
         }
         else
@@ -3099,11 +3107,11 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Hitroll;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Hitroll;
             affect.Duration = 10 + level / 4;
             affect.Modifier = level / 4;
-            affect.Flags.Add(AffectData.AffectFlags.Berserk);
+            affect.Flags[AffectData.AffectFlags.Berserk] = true;
             affect.DisplayName = "frenzy";
             affect.EndMessage = "Your frenzy fades.\n\r";
             affect.EndMessageToRoom = "$n's frenzied look fades.\n\r";
@@ -3113,11 +3121,11 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Damroll;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Damroll;
             affect.Duration = 10 + level / 4;
             affect.Modifier = level / 4;
-            affect.Flags.Add(AffectData.AffectFlags.Berserk);
+            affect.Flags[AffectData.AffectFlags.Berserk];
             affect.DisplayName = "frenzy";
             affect.AffectType = castType == SkillSpell.CastType.Cast ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
             victim.AffectToChar(affect);
@@ -3145,8 +3153,8 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Where = AffectWhere.ToAffects;
-            affect.Location = ApplyTypes.Sex;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.Sex;
             affect.Duration = level * 2;
             affect.Modifier = 1;
             affect.DisplayName = "change sex";
@@ -3196,7 +3204,7 @@ class Magic {
         affect.Level = level;
 
         affect.Duration = level / 2;
-        affect.Where = AffectWhere.ToAffects;
+        affect.Where = AffectData.AffectWhere.ToAffects;
         affect.DisplayName = "energy drain";
 
         affect.AffectType = AffectData.AffectTypes.Malady;
@@ -3214,7 +3222,7 @@ class Magic {
                     affect.EndMessage = "Your vitality returns.";
                     affect.EndMessageToRoom = "$n's vitality returns.";
 
-                    affect.Location = ApplyTypes.Constitution;
+                    affect.Location = AffectData.ApplyTypes.Constitution;
                     affect.Modifier = -3;
                     victim.AffectToChar(affect);
                 }
@@ -3229,14 +3237,14 @@ class Magic {
                     affect.EndMessage = "Your agility returns.";
                     affect.EndMessageToRoom = "$n's agility returns.";
 
-                    affect.Location = ApplyTypes.Dexterity;
+                    affect.Location = AffectData.ApplyTypes.Dexterity;
                     affect.Modifier = -2;
                     victim.AffectToChar(affect);
 
                     affect.EndMessage = "";
                     affect.EndMessageToRoom = "";
 
-                    affect.Location = ApplyTypes.Move;
+                    affect.Location = AffectData.ApplyTypes.Move;
                     affect.Modifier = -amount / 2;
                     victim.AffectToChar(affect);
                 }
@@ -3252,14 +3260,14 @@ class Magic {
                     affect.EndMessage = "Your mental focus returns.";
                     affect.EndMessageToRoom = "$n's mental focus returns.";
 
-                    affect.Location = ApplyTypes.Intelligence;
+                    affect.Location = AffectData.ApplyTypes.Intelligence;
                     affect.Modifier = -3;
                     victim.AffectToChar(affect);
 
                     affect.EndMessage = "";
                     affect.EndMessageToRoom = "";
 
-                    affect.Location = ApplyTypes.Wisdom;
+                    affect.Location = AffectData.ApplyTypes.Wisdom;
                     affect.Modifier = -2;
                     victim.AffectToChar(affect);
                 }
@@ -3422,8 +3430,8 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.None;
-            affect.Where = AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
             affect.Duration = 10;
             affect.DisplayName = "detect poison";
             affect.EndMessage = "You can no longer sense poison.\n\r";
@@ -3455,8 +3463,8 @@ class Magic {
             affect = new AffectData();
             affect.SkillSpell = spell;
             affect.Level = level;
-            affect.Location = ApplyTypes.None;
-            affect.Where = AffectWhere.ToAffects;
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
             affect.Duration = level / 3;
             affect.DisplayName = "spiderhands";
             affect.EndMessage = "You lose your spiderlike grip.\n\r";
@@ -3480,8 +3488,8 @@ class Magic {
         affect = new AffectData();
         affect.SkillSpell = spell;
         affect.Level = level;
-        affect.Where = AffectWhere.ToAffects;
-        affect.Location = ApplyTypes.Hitroll;
+        affect.Where = AffectData.AffectWhere.ToAffects;
+        affect.Location = AffectData.ApplyTypes.Hitroll;
         affect.Duration = 10 + (level / 4);
         affect.Modifier = level / 4;
         affect.DisplayName = "seal of righteousness";
@@ -3490,8 +3498,8 @@ class Magic {
         affect.AffectType = castType == SkillSpell.CastType.Cast ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
         victim.AffectToChar(affect);
 
-        victim.send("You gain the effect of a seal of righteousness.\n\r");
-        victim.Act("$n gains the effect of a seal of righteousness.\n\r", null, null, null, Character.ActType.ToRoom);
+        victim.send("You gain the effect in a seal of righteousness.\n\r");
+        victim.Act("$n gains the effect in a seal of righteousness.\n\r", null, null, null, Character.ActType.ToRoom);
 
     }
     static StripSeals(ch)
@@ -3513,8 +3521,8 @@ class Magic {
         affect = new AffectData();
         affect.SkillSpell = spell;
         affect.Level = level;
-        affect.Where = AffectWhere.ToAffects;
-        affect.Location = ApplyTypes.Saves;
+        affect.Where = AffectData.AffectWhere.ToAffects;
+        affect.Location = AffectData.ApplyTypes.Saves;
         affect.Duration = 10 + (level / 4);
         affect.Modifier = -(level / 4);
         affect.DisplayName = "seal of light";
@@ -3523,8 +3531,8 @@ class Magic {
         affect.AffectType = castType == SkillSpell.CastType.Cast ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
         victim.AffectToChar(affect);
 
-        victim.send("You gain the effect of a seal of light.\n\r");
-        victim.Act("$n gains the effect of a seal of light.\n\r", null, null, null, Character.ActType.ToRoom);
+        victim.send("You gain the effect in a seal of light.\n\r");
+        victim.Act("$n gains the effect in a seal of light.\n\r", null, null, null, Character.ActType.ToRoom);
     }
     static SpellSealOfWisdom(castType, spell, level, ch, victim, item, args, target)
     {
@@ -3537,8 +3545,8 @@ class Magic {
         affect = new AffectData();
         affect.SkillSpell = spell;
         affect.Level = level;
-        affect.Where = AffectWhere.ToAffects;
-        affect.Location = ApplyTypes.Mana;
+        affect.Where = AffectData.AffectWhere.ToAffects;
+        affect.Location = AffectData.ApplyTypes.Mana;
         affect.Duration = 10 + (level / 4);
         affect.Modifier = level / 3;
         affect.DisplayName = "seal of wisdom";
@@ -3547,8 +3555,8 @@ class Magic {
         affect.AffectType = castType == SkillSpell.CastType.Cast ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
         victim.AffectToChar(affect);
 
-        victim.send("You gain the effect of a seal of wisdom.\n\r");
-        victim.Act("$n gains the effect of a seal of wisdom.\n\r", null, null, null, Character.ActType.ToRoom);
+        victim.send("You gain the effect in a seal of wisdom.\n\r");
+        victim.Act("$n gains the effect in a seal of wisdom.\n\r", null, null, null, Character.ActType.ToRoom);
     }
     static DoHeal(ch, args)
     {
@@ -3557,7 +3565,7 @@ class Magic {
 
         for (var npc of ch.Room.Characters)
         {
-            if (npc.Flags.ISSET(ActFlags.Healer) || npc.Flags.ISSET(ActFlags.Cleric))
+            if (npc.Flags.ISSET(Character.ActFlags.Healer) || npc.Flags.ISSET(Character.ActFlags.Cleric))
             {
                 healer = npc;
                 break;
@@ -3588,7 +3596,7 @@ class Magic {
         }
         var cost;
         var arg = "";
-        spell;
+        var spell;
         [arg, args] = args.OneArgument();
         if ("light".prefix(arg))
         {
@@ -3662,7 +3670,7 @@ class Magic {
                 healer);
             return;
         }
-        ch.WaitState(Game.PULSE_VIOLENCE);
+        ch.WaitState(Game.PULSE_PER_VIOLENCE);
 
         if (ch.Silver > cost)
             ch.Silver -= cost;
@@ -3675,12 +3683,12 @@ class Magic {
         healer.Act("$n closes $s eyes for a moment and nods at $N.", ch, null, null, Character.ActType.ToRoomNotVictim);
         healer.Act("$n closes $s eyes for a moment and nods at you.", ch, null, null, Character.ActType.ToVictim);
 
-        if (spell == null || spell.spellFun == null)
+        if (spell == null || spell.SpellFun == null)
         {
             ch.Act("\\Y$N says 'I don't know how to do that yet.'\\x", healer); return;
         }
 
-        spell.spellFun(SkillSpell.CastType.Commune, spell, healer.Level, healer, ch, null, ch.Name + " " + args, TargetIsType.targetChar);
+        spell.SpellFun(SkillSpell.CastType.Commune, spell, healer.Level, healer, ch, null, ch.Name + " " + args, "targetChar");
     }
     static SpellImbueWeapon(castType, spell, ch_level, ch, victim, item, args, target)
     {
@@ -3694,12 +3702,12 @@ class Magic {
             ch.send("You do not have enough mana to cast this spell.\n\r");
             return;
         }
-        else if (!item.ItemType.ISSET(ItemTypes.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
         }
-        else if (ch.GetEquipmentWearSlot(item) != null)
+        else if (Character.ItemFunctions.GetEquipmentWearSlot(ch, item) != null)
         {
             ch.send("You cannot imbue a weapon you are wielding or holding.\n\r");
             return;
@@ -3707,8 +3715,8 @@ class Magic {
         else
         {
             var vnum = 0;
-            if (item.Vnum == 2967) vnum = 2968;
-            else if (item.Vnum == 2969) vnum = 2970;
+            if (item.VNum == 2967) vnum = 2968;
+            else if (item.VNum == 2969) vnum = 2970;
             else
             {
                 ch.send("You do not have an appropriate weapon to imbue.\n\r");
@@ -3739,19 +3747,20 @@ class Magic {
 
             var affect = new AffectData();
             affect.Duration = -1;
-            affect.Where = AffectWhere.ToObject;
+            affect.Where = AffectData.AffectWhere.ToObject;
             affect.SkillSpell = spell;
-            affect.Location = ApplyTypes.DamageRoll;
+            affect.Location = AffectData.ApplyTypes.DamageRoll;
             affect.Modifier = mod;
-            staffspear.affects.Add(new AffectData(affect));
-            affect.Location = ApplyTypes.Hitroll;
-            staffspear.affects.Add(new AffectData(affect));
+            staffspear.Affects.unshift(new AffectData(affect));
+            affect.Location = AffectData.ApplyTypes.Hitroll;
+            staffspear.Affects.unshift(new AffectData(affect));
             staffspear.DamageDice.DiceSides = 6;
             staffspear.DamageDice.DiceCount = 8;
             staffspear.DamageDice.DiceBonus = ch.Level / 4 + 10;
             staffspear.Level = ch.Level;
             item.Dispose();
-            ch.AddInventoryItem(staffspear);
+
+            Character.ItemFunctions.AddInventoryItem(ch, staffspear);
             ch.ManaPoints -= ch.MaxManaPoints / 2;
             Combat.Damage(ch, ch, ch.MaxHitPoints / 2, spell, DamageMessage.WeaponDamageTypes.Magic);
         }
@@ -3763,16 +3772,16 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemType.ISSET(ItemTypes.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
         }
         else
         {
-            var aff = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.ApplyTypes.Damroll);
-            var aff2 = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.ApplyTypes.Hitroll);
-            var worn = ch.GetEquipmentWearSlot(item) != null;
+            var aff = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.Damroll);
+            var aff2 = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.Hitroll);
+            var worn = Character.ItemFunctions.GetEquipmentWearSlot(ch, item) != null;
             if (worn)
             {
                 ch.Act("You cannot bless a weapon you are wielding.\n\r");
@@ -3787,26 +3796,26 @@ class Magic {
 
             aff = new AffectData();
             aff.SkillSpell = spell;
-            aff.Location = ApplyTypes.Damroll;
+            aff.Location = AffectData.ApplyTypes.Damroll;
             aff.Modifier = (ch.Level / 10) + 5;
             aff.Level = ch_level;
             aff.Duration = -1;
-            aff.Where = AffectWhere.ToObject;
+            aff.Where = AffectData.AffectWhere.ToObject;
 
             aff2 = new AffectData();
-            aff2.where = AffectWhere.ToObject;
+            aff2.where = AffectData.AffectWhere.ToObject;
             aff2.skillSpell = spell;
-            aff2.location = ApplyTypes.Hitroll;
+            aff2.location = AffectData.ApplyTypes.Hitroll;
             aff2.modifier = (ch.Level / 10) + 5;
             aff2.duration = -1;
             aff2.level = ch_level;
 
-            item.affects.Add(aff);
-            item.affects.Add(aff2);
+            item.Affects.unshift(aff);
+            item.Affects.unshift(aff2);
 
-            item.ExtraFlags.SETBIT(ExtraFlags.Glow);
-            item.ExtraFlags.SETBIT(ExtraFlags.Hum);
-            item.WeaponDamageType = WeaponDamageMessage.GetWeaponDamageMessage("Wrath");
+            item.ExtraFlags["Glow"] = true;
+            item.ExtraFlags["Hum"] = true;
+            item.WeaponDamageType = "Wrath";
 
             if (worn)
             {
@@ -3877,7 +3886,7 @@ class Magic {
     {
         for (var affect of Utility.CloneArray(ch.Affects))
         {
-            if (affect.Where == AffectData.AffectWhere.ToDamageNoun)
+            if (affect.Where == AffectData.AffectData.AffectWhere.ToDamageNoun)
             {
                 ch.AffectFromChar(affect, AffectData.AffectRemoveReason.WoreOff);
             }
@@ -3889,12 +3898,12 @@ class Magic {
         ch.Act("$n begins channeling heat.", null, null, null, Character.ActType.ToRoom);
         ch.Act("You channel heat.");
         var affect = new AffectData();
-        affect.Where = AffectWhere.ToDamageNoun;
+        affect.Where = AffectData.AffectWhere.ToDamageNoun;
         affect.Duration = 10;
         affect.SkillSpell = spell;
         affect.Level = ch_level;
         affect.DisplayName = spell.name;
-        affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Fire);
+        affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Fire);
         affect.EndMessage = "You are no longer channeling heat.";
         ch.AffectToChar(affect);
     } // end Channel Heat
@@ -3904,12 +3913,12 @@ class Magic {
         ch.Act("$n begins channeling frost fingers.", null, null, null, Character.ActType.ToRoom);
         ch.Act("You channel frost fingers.");
         var affect = new AffectData();
-        affect.Where = AffectWhere.ToDamageNoun;
+        affect.Where = AffectData.AffectWhere.ToDamageNoun;
         affect.Duration = 10;
         affect.SkillSpell = spell;
         affect.Level = ch_level;
         affect.DisplayName = spell.name;
-        affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Cold);
+        affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Cold);
         affect.EndMessage = "You are no longer channeling frost.";
         ch.AffectToChar(affect);
     } // end Frost Fingers
@@ -3919,12 +3928,12 @@ class Magic {
         ch.Act("A spark seems to jump between $n's eyes.", null, null, null, Character.ActType.ToRoom);
         ch.Act("You charge yourself with electricity.");
         var affect = new AffectData();
-        affect.Where = AffectWhere.ToDamageNoun;
+        affect.Where = AffectData.AffectWhere.ToDamageNoun;
         affect.Duration = 10;
         affect.SkillSpell = spell;
         affect.Level = ch_level;
         affect.DisplayName = spell.name;
-        affect.DamageTypes.Add(DamageMessage.WeaponDamageTypes.Lightning);
+        affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Lightning);
         affect.EndMessage = "Your charge dissipates.";
         ch.AffectToChar(affect);
     } // end Shocking Touch
@@ -3936,7 +3945,7 @@ class Magic {
         {
             ch.Act("Which weapon did you want to charge?\n\r");
         }
-        else if (!weapon.ItemType.ISSET(ItemTypes.Weapon))
+        else if (!weapon.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             ch.Act("You can only charge a weapon.\n\r");
         }
@@ -3955,10 +3964,10 @@ class Magic {
                 affect = new AffectData();
                 affect.Duration = 10;
                 affect.Level = ch.Level;
-                affect.Where = AffectWhere.ToWeapon;
+                affect.Where = AffectData.AffectWhere.ToWeapon;
                 affect.SkillSpell = spell;
-                affect.Flags.SETBIT(AffectData.AffectFlags.Lightning);
-                weapon.affects.Add(affect);
+                affect.Flags[AffectData.AffectFlags.Lightning] = true;
+                weapon.Affects.unshift(affect);
                 affect.EndMessage = "Charge on $p wears off.\n\r";
             }
             else affect.Duration = 10;
@@ -4023,7 +4032,7 @@ class Magic {
             affect.Duration = 5;
             affect.OwnerName = ch.Name;
             affect.Level = level;
-            affect.Location = ApplyTypes.Str;
+            affect.Location = AffectData.ApplyTypes.Str;
             affect.Modifier = -3;
             if (!victim.IsAffected(spell))
             {
@@ -4037,7 +4046,7 @@ class Magic {
             }
             victim.AffectToChar(affect);
 
-            affect.Location = ApplyTypes.Dex;
+            affect.Location = AffectData.ApplyTypes.Dex;
             affect.Modifier = -3;
             affect.EndMessage = "You recover from your ice wounds.";
             affect.EndMessageToRoom = "$n recovers from $s ice wounds.";
@@ -4182,19 +4191,19 @@ class Magic {
             if (!Victim.IsSameGroup(ch) && !Victim.IsAffected(AffectData.AffectFlags.Immolation) && !Victim.IsAffected(spell))
             {
                 var Affect = new AffectData();
-                Affect.ownerName = ch.Name;
-                Affect.displayName = spell.name;
-                Affect.skillSpell = spell;
-                Affect.level = level;
-                Affect.where = AffectWhere.ToAffects;
-                Affect.location = ApplyTypes.None;
-                Affect.flags.SETBIT(AffectData.AffectFlags.Immolation);
-                Affect.modifier = 0;
-                Affect.duration = Game.PULSE_TICK * 2;
-                Affect.frequency = Frequency.Violence;
+                Affect.OwnerName = ch.Name;
+                Affect.DisplayName = spell.name;
+                Affect.SkillSpell = spell;
+                Affect.Level = level;
+                Affect.Where = AffectData.AffectWhere.ToAffects;
+                Affect.Location = AffectData.ApplyTypes.None;
+                Affect.Flags[AffectData.AffectFlags.Immolation] = true;
+                Affect.Modifier = 0;
+                Affect.Duration = Game.PULSE_TICK * 2;
+                Affect.Frequency = Frequency.Violence;
 
-                Affect.endMessage = "You stop burning.";
-                Affect.endMessageToRoom = "$n stops burning.";
+                Affect.EndMessage = "You stop burning.";
+                Affect.EndMessageToRoom = "$n stops burning.";
 
                 Victim.AffectToChar(Affect);
 
@@ -4438,52 +4447,525 @@ class Magic {
     } // end pebble to boulder
     static SpellEarthRipple(castType, spell, level, ch, victim, item, args, target)
     {
-        // var spellcraft = (Magic.CheckSpellcraft(ch, spell));
-        // var sector = ch.Room.Sector;
-        // var checkSector = ((sector == SectorTypes.Mountain) || (sector == SectorTypes.Cave) || (sector == SectorTypes.Underground));
-        // var dirArg = null;
-        // var direction = 0;
-        // var victimname = null;
-        // [victimname, args] = args.OneArgument();
-        // [dirArg, args] = args.OneArgument();
-        // if (dirArg.ISEMPTY()) dirArg = victimname;
-        // var exit = null;
+        
+        var sector = ch.Room.Sector;
+        var checkSector = ((sector == SectorTypes.Mountain) || (sector == SectorTypes.Cave) || (sector == SectorTypes.Underground));
+        var dirArg = null;
+        var direction = 0;
+        var victimname = null;
+        [victimname, args] = args.OneArgument();
+        [dirArg, args] = args.OneArgument();
+        if (dirArg.ISEMPTY()) dirArg = victimname;
+        var exit = null;
 
-        // if (dirArg.ISEMPTY() || !Utility.GetEnumValueStrPrefix(dirArg, ref direction))
-        // {
-        //     ch.Act("Which direction did you want to force $N in?\n\r", victim);
-        // }
-        // else if ((exit = ch.Room.GetExit(direction)) == null || exit.destination == null
-        //     || exit.flags.ISSET(ExitFlags.Closed) || exit.flags.ISSET(ExitFlags.Window) ||
-        //     (!victim.IsImmortal && !victim.IsNPC && (exit.destination.MinLevel > victim.Level || exit.destination.MaxLevel < victim.Level)))
-        // {
-        //     ch.Act("You can't force $N of that direction.", victim);
-        // }
-        // else
-        // {
-        //     var dam = ch.GetDamage(level, .5f, 1); //dam = Utility.Random(dam_each[level], dam_each[level] * 2);
+        if (dirArg.ISEMPTY() || (direction = RoomData.Directions.findIndex((str) => str.prefix(dirArgs))) == -1)
+        {
+            ch.Act("Which direction did you want to force $N in?\n\r", victim);
+        }
+        else if (!([exit] = ch.Room.GetExit(direction)) || !exit || !exit.Destination
+            || exit.Flags.ISSET(ExitFlags.Closed) || exit.Flags.ISSET(ExitFlags.Window) ||
+            (!victim.IsImmortal && !victim.IsNPC && (exit.Destination.MinLevel > victim.Level || exit.Destination.MaxLevel < victim.Level)))
+        {
+            ch.Act("You can't force $N of that direction.", victim);
+        }
+        else
+        {
+            var spellcraft = (Magic.CheckSpellcraft(ch, spell));
+            var dam = ch.GetDamage(level, .5, 1);
 
-        //     if (spellcraft)
-        //         dam += level;
-        //     if (Magic.SavesSpell(level, victim, DamageMessage.WeaponDamageTypes.Bash))
-        //         dam /= 2;
-        //     if (checkSector)
-        //         dam *= 2;
+            if (spellcraft)
+                dam += level;
+            if (Magic.SavesSpell(level, victim, DamageMessage.WeaponDamageTypes.Bash))
+                dam /= 2;
+            if (checkSector)
+                dam *= 2;
 
-        //     ch.Act(checkSector ? "Because of the earth near you, you invoke massive elemental earth beneath $N, and drive them {0}.\n\r" :
-        //         "You invoke elemental earth beneath $N, and drive them {0}.\n\r", victim, Character.ActType.ToChar, args: direction.ToString().ToLower());
-        //     ch.Act("$n invokes elemental earth beneath $N and drives them {0}.\n\r", victim, Character.ActType.ToRoomNotVictim, args: direction.ToString().ToLower());
-        //     ch.Act("$n invokes elemental earth beneath you and drives you {0}.\n\r", victim, Character.ActType.ToVictim, args: direction.ToString().ToLower());
+            ch.Act(checkSector ? "Because of the earth near you, you invoke massive elemental earth beneath $N, and drive them {0}.\n\r" :
+                "You invoke elemental earth beneath $N, and drive them {0}.\n\r", victim, null, null, Character.ActType.ToChar, RoomData.Directions[direction].toLowerCase());
+            ch.Act("$n invokes elemental earth beneath $N and drives them {0}.\n\r", victim, null, null, Character.ActType.ToRoomNotVictim, RoomData.Directions[direction].toLowerCase());
+            ch.Act("$n invokes elemental earth beneath you and drives you {0}.\n\r", victim, null, null, Character.ActType.ToVictim, RoomData.Directions[direction].toLowerCase());
 
-        //     Combat.Damage(ch, victim, dam, spell, DamageMessage.WeaponDamageTypes.Bash);
+            Combat.Damage(ch, victim, dam, spell, DamageMessage.WeaponDamageTypes.Bash);
 
-        //     victim.RemoveCharacterFromRoom();
-        //     victim.AddCharacterToRoom(exit.destination);
-        //     victim.Act("$n arrives on a wave of elemental earth.\n\r", null, null, null, Character.ActType.ToRoom);
+            victim.RemoveCharacterFromRoom();
+            victim.AddCharacterToRoom(exit.Destination);
+            victim.Act("$n arrives on a wave of elemental earth.\n\r", null, null, null, Character.ActType.ToRoom);
             
-        //     ch.Act("$n hurls $N {0} with $s earth ripple.", victim, Character.ActType.ToRoomNotVictim, args: direction.ToString().ToLower());
-        // }
+            ch.Act("$n hurls $N {0} with $s earth ripple.", victim, null, null, Character.ActType.ToRoomNotVictim, RoomData.Directions[direction].toLowerCase());
+        }
     } // end earth ripple
+
+    static SpellSate(castType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+            victim = ch;
+
+        if (victim.Hunger > 40)
+        {
+            if (victim != ch)
+                ch.send("They aready feel full and satisfied.\n\r");
+            else
+                ch.send("You already feel full and satisfied.");
+            return;
+        }
+        else
+        {
+            victim.send("Your hunger is temporarily sated and you feel fully satisfied.\n\r");
+            victim.Act("$n looks fully satisfied instead of starving.", null, null, null, Character.ActType.ToRoom);
+
+            var affect = new AffectData();
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.SkillSpell = spell;
+            affect.Flags.SETBIT(AffectData.AffectFlags.Sated);
+            affect.Duration = 5 + ch.Level / 5;
+            affect.DisplayName = spell.name;
+            affect.EndMessage = "You no longer feel sated.";
+            victim.AffectToChar(affect);
+        }
+    } // end sate
+    static SpellQuench(castType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+            victim = ch;
+
+        if (victim.Thirst > 40)
+        {
+            if (victim != ch)
+                ch.send("They are not dehydrated.\n\r");
+            else
+                ch.send("You are not dehydrated.");
+            return;
+        }
+        else
+        {
+            victim.send("Your dehydration is temporarily relieved and you feel fully quenched.\n\r");
+            victim.Act("$n looks fully quenched instead of dehydrated.", null, null, null, Character.ActType.ToRoom);
+
+            var affect = new AffectData();
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.SkillSpell = spell;
+            affect.Flags.SETBIT(AffectData.AffectFlags.Quenched);
+            affect.Duration = 5 + ch.Level / 5;
+            affect.DisplayName = spell.name;
+            affect.EndMessage = "You no longer feel quenched.";
+            ch.AffectToChar(affect);
+        }
+    } // end quench
+    static SpellCureDeafness(castType, spell, ch_level, ch, victim, item, args, target)
+    {
+        if (victim == null) victim = ch;
+
+        var deaf = victim.FirstOrDefault((aff) => aff.Flags.ISSET(AffectData.AffectFlags.Deafen) && 
+            (aff.AffectType == AffectData.AffectTypes.Spell || aff.AffectType == AffectData.AffectTypes.Commune));
+
+        if (deaf)
+        {
+            victim.AffectFromChar(deaf, AffectData.AffectRemoveReason.Cleansed);
+
+            if (ch != victim)
+            {
+                ch.Act("You place your hand over $N's ears for a moment and restore $S hearing.", victim, null, null, ActType.ToChar);
+                ch.Act("$n places their hand over $N's ears for a moment and restores $S hearing.", victim, null, null, ActType.ToRoomNotVictim);
+                ch.Act("$n places their hand over your ears for a moment.", victim, null, null, ActType.ToVictim);
+            }
+            else
+                ch.send("OK.\n\r");
+        }
+        else
+            ch.Act("$N isn't deaf in a way you can cure.", victim);
+    } // end cure deafness
+    static SpellAegis(castType, spell, level, ch, victim, item, args, target)
+    {
+        var affect;
+        var count = 0;
+        var types = ["fire", "cold", "lightning", "mental", "acid", "negative"];
+        var aegistype;
+        var targetname;
+        [targetname, args] = args.OneArgumentOut();
+        [aegistype, args]= arguments.OneArgumentOut();
+        var index;
+
+        if (victim == ch || victim == null || (aegistype.ISEMPTY() || types.Any(t => t.StringPrefix(targetname)))) ch.Act("You cannot grant the power of aegis to yourself.");
+
+        else if (!([victim, count] = ch.GetCharacterFromRoomByName(targetname, count)) || !victim)
+        {
+            ch.Act("They aren't here.\n\r");
+        }
+        else if (aegistype.ISEMPTY())
+        {
+            ch.Act("Which type of protection did you want to grant $n with?" +
+            " {0}", victim, null, null, Character.ActType.ToChar, types.join(", "));
+        }
+        else if ((index = types.findIndex(t => t.prefix(aegistype))) == -1)
+        {
+            ch.Act("You can't protect them from that.");
+        }
+        else
+        {
+            aegistype = types[index];
+            var damageTypes = DamageMessage.WeaponDamageTypes.None;
+
+            for(var dt in DamageMessage.WeaponDamageTypes) {
+                if(dt.equals(aegistype)) damageTypes = dt;
+            }
+            if (dt.equals(DamageMessage.WeaponDamageTypes.None)) ch.Act("You can't protect them from that.");
+
+            else
+            {
+                ch.Act("You lay hands on $N momentarily and protect them with the aegis of {0}.", victim, null, null, Character.ActType.ToChar, aegistype);
+                ch.Act("$n is protected from {0}.", victim, null, null, Character.ActType.ToRoom, aegistype);
+
+                affect = new AffectData();
+                affect.SkillSpell = spell;
+                affect.Level = level;
+                affect.Location = AffectData.ApplyTypes.None;
+                affect.Where = AffectData.AffectWhere.ToImmune;
+                affect.DamageTypes.SETBIT(damageTypes);
+                affect.Duration = 10 + level / 4;
+                affect.DisplayName = spell.name + " " + aegistype;
+                affect.EndMessage = "Your aegis protection wears off.\n\r";
+                affect.EndMessageToRoom = "$n's aegis protection wanes.\n\r";
+                affect.AffectType = castType == "Cast" ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
+
+                victim.AffectToChar(affect);
+            }
+        }
+    } // end aegis
+    static SpellGate(castType, spell, level, ch, victim, item, args, target)
+    {
+        var other;
+        var count = 0;
+
+        if (([other, count] = Character.CharacterFunctions.GetCharacterFromList(ch, Character.Characters, arguments, count))
+            && other
+            && other.Room && (ch.IsImmortal || ch.IsNPC || (ch.Level <= other.Room.MaxLevel && ch.Level >= other.Room.MinLevel)))
+        {
+            ch.Act("$n creates a gate, then steps in, then $n and the gate disappears.\n\r", null, null, null, Character.ActType.ToRoom);
+            ch.RemoveCharacterFromRoom();
+            ch.Act("You gate to $N.", other);
+            ch.AddCharacterToRoom(other.Room);
+            
+            ch.Act("A gate suddenly appears, then $n steps out.", null, null, null, Character.ActType.ToRoom);
+            //Character.DoLook(ch, "auto");
+        }
+        else
+        {
+            ch.Act("Who did you want to gate to?");
+        }
+    } // end gate
+    static SpellHaven(castType, spell, level, ch, victim, item, args, target)
+    {
+        var affect;
+        if (victim == null)
+            victim = ch;
+
+        if (victim.IsAffected(AffectData.AffectFlags.Sanctuary))
+        {
+            if (victim != ch)
+                ch.send("They are already protected by a white aura.\n\r");
+            else
+                ch.send("You are already protected by a white aura.");
+        }
+        else if ((affect = victim.FindAffect(spell)) != null || victim.IsAffected(AffectData.AffectFlags.Haven))
+        {
+            if (victim != ch)
+                ch.send("They are already protected by a haven aura.\n\r");
+            else
+                ch.send("You are already protected by a haven aura.");
+        }
+        else
+        {
+            victim.send("A haven aura surrounds you.\n\r");
+            victim.Act("A haven aura surrounds $n.", null, null, null, Character.ActType.ToRoom);
+            affect = new AffectData();
+            affect.SkillSpell = spell;
+            affect.Level = level;
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Flags.SETBIT(AffectData.AffectFlags.Haven);
+            affect.Duration = 10 + level / 4;
+            affect.DisplayName = "haven";
+            affect.EndMessage = "Your haven aura fades.\n\r";
+            affect.EndMessageToRoom = "$n's haven aura fades.\n\r";
+            affect.AffectType = castType == "Cast" ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
+            victim.AffectToChar(affect);
+        }
+    } // end haven
+    static SpellCalm(castType, spell, level, ch, NA, item, args, target)
+    {
+        ch.Act("You pray a prayer of calming.");
+        ch.Act("$n prays a prayer of calming.", null, null, null, Character.ActType.ToRoom);
+
+        for (var victim of Utility.CloneArray(ch.Room.Characters))
+        {
+            if (victim.Fighting != null) Combat.StopFighting(victim, true);
+
+            victim.LastFighting = null;
+
+            if (!victim.IsAffected(spell))
+            {
+                var Affect = new AffectData();
+
+                affect.DisplayName = spell.name;
+                affect.SkillSpell = spell;
+                affect.Level = level;
+                affect.Duration = 2;
+                affect.Flags.SETBIT(AffectData.AffectFlags.Calm);
+
+                affect.EndMessage = "You are no longer calmed.";
+                affect.EndMessageToRoom = "$n is no longer calmed.";
+
+                victim.AffectToChar(Affect);
+            }
+
+        }
+    } // end calm
+    static SpellRestoration(castType, spell, level, ch, victim, item, args, target)
+    {
+        for (var GroupMember of ch.Room.Select((gr) => gr.IsSameGroup(ch)))
+        {
+            if (GroupMember.HitPoints < GroupMember.MaxHitPoints)
+            {
+                SpellCureCritical(castType, spell, level, ch, GroupMember, null, "", TargetIsType.targetChar);
+            }
+            else
+                GroupMember.Act("Your health is already fully restored.");
+        }
+    } // end restoration
+    static SpellSpiritShepherd(castType, spell, level, ch, victim, na, args, target)
+    {
+        if ((victim = Character.GetCharacterWorld(ch, arguments)) == null
+            || victim == ch
+            || victim.Room == ch.Room
+            || victim.Room == null
+            || victim.IsNPC
+            )
+        {
+            ch.send("You failed.\n\r");
+            return;
+        }
+
+        if (!ch.Room.items.Any(item => item.ItemTypes.ISSET(ItemData.ItemTypes.PC_Corpse) && item.Owner.IsName(victim.Name)))
+        {
+            ch.Act("You don't see $N's corpse here.");
+        }
+        else
+        {
+            victim.Act("$n disappears suddenly.", null, null, null, Character.ActType.ToRoom);
+            victim.RemoveCharacterFromRoom();
+            ch.Act("$n has guided you through the ether to your corpse!", victim, null, null, Character.ActType.ToVictim);
+            victim.AddCharacterToRoom(ch.Room);
+            victim.Act("$n is guided through the ether to $s corpse.", null, null, null, Character.ActType.ToRoom);
+            
+        }
+    } // end spirit shepherd
+    static SpellTurnUndead(castType, spell, level, ch, na, item, args, target)
+    {
+        var race = [ "lich", "skeleton", "undead", "ghoul", "spirit", "zombie" ];
+
+        for (var victim of Utility.CloneArray(ch.Room.Characters))
+        {
+            if (victim != ch && victim.IsNPC && victim.Race != null && (race.findIndex((r) => r.equals(victim.Race.name)) >= 0 || victim.Flags.ISSET(Character.ActFlags.Undead)))
+            {
+                if (victim.Level <= level - 10)
+                {
+                    ch.Act("$n's powerful prayer completely disintregates $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
+                    ch.Act("$n's powerful prayer completely disintregrated you.", victim, null, null, Character.ActType.ToVictim);
+                    ch.Act("Your powerful prayer completely disintegrated $N.", victim, null, null, Character.ActType.ToChar);
+                    victim.HitPoints = -15;
+                    Combat.CheckIsDead(ch, victim, 15);
+                }
+                else
+                {
+                    ch.Act("$n prays a powerful prayer against $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
+                    ch.Act("$n prays a powerful prayer against you.", victim, null, null, Character.ActType.ToVictim);
+                    ch.Act("You pray a powerful prayer against $N.", victim, null, null, Character.ActType.ToChar);
+                    var damage = ch.GetDamage(level, 2, 3, 10);
+
+                    Combat.Damage(ch, victim, damage, spell, WeaponDamageTypes.Wrath);
+                }
+            }
+        }
+    } // end turn undead
+    static SpellHealingSleep(castType, spell, level, ch, victim, item, args, target)
+    {
+        var affect;
+        if (victim == null)
+        {
+            ch.Act("You can't find them.\n\r");
+        }
+        else if (victim.Fighting != null || victim.Position == Positions.Fighting)
+        {
+            ch.Act("$N is still fighting.", victim);
+        }
+        else if ((affect = victim.FindAffect(spell)) != null || victim.IsAffected(AffectData.AffectFlags.Sleep))
+        {
+            ch.Act("$N is already forced asleep.", victim);
+        }
+        else if (victim.IsSameGroup(ch) && !victim.IsAffected(spell))
+        {
+            Combat.StopFighting(victim, true);
+            victim.Position = Positions.Sleeping;
+            victim.send("You fall into a very deep...  deep......... zzzzzz.\n\r");
+            victim.Act("$n falls into a deep deep sleep.", null, null, null, Character.ActType.ToRoom);
+
+            affect = new AffectData();
+            affect.SkillSpell = spell;
+            affect.Level = level;
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Flags.SETBIT(AffectData.AffectFlags.Sleep);
+            affect.Duration = 1;
+            affect.DisplayName = "sleep";
+
+            affect.AffectType = castType == "Cast" ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
+            victim.AffectToChar(affect);
+        }
+    }
+    static EndHealingSleep(victim, affect)
+    {
+        if (affect.Duration <= 0)
+        {
+            victim.HitPoints = victim.MaxHitPoints;
+            victim.ManaPoints = victim.MaxManaPoints;
+            victim.MovementPoints = victim.MaxMovementPoints;
+
+            for (var malady of Utility.CloneArray(victim.Affects))
+            {
+                if (malady.affectType == AffectData.AffectTypes.Malady)
+                    victim.AffectFromChar(malady, AffectData.AffectRemoveReason.Cleansed);
+
+            }
+            victim.Act("You wake up, fully healed, free from all maladies and ready to move.");
+            victim.Act("$n wakes up fully healed, free from all maladies and ready to move.", null, null, null, Character.ActType.ToRoom);
+        }
+    } // end endhealingsleep
+    static SpellGroupTeleport(castType, spell, level, ch, victim, item, args, target)
+    {
+
+        var newroom = RoomData.Rooms.Values.SelectRandom();
+
+        if (ch.Room == null || (!ch.IsNPC && ch.Room.flags.ISSET(RoomFlags.NoRecall)) || (!ch.IsNPC && ch.Fighting != null))
+        {
+            ch.Act("You failed.\n\r");
+            return;
+        }
+        else if (newroom == null)
+        {
+            ch.send("You failed.\n\r");
+        }
+        for (var GroupMember of ch.Room.Select((gr) => gr.IsSameGroup(ch)))
+        {
+            if(GroupMember.IsImmortal || GroupMember.IsNPC || (GroupMember.Level <= newroom.MaxLevel && GroupMember.Level >= newroom.MinLevel))
+            GroupMember.Act("$n vanishes!", null, null, null, Character.ActType.ToRoom);
+            GroupMember.RemoveCharacterFromRoom();
+            GroupMember.AddCharacterToRoom(newroom);
+            GroupMember.Act("$n slowly fades into existence.", null, null, null, Character.ActType.ToRoom);
+            //Character.DoLook(GroupMember, "auto");
+        }
+    } // end group teleport
+    static SpellMassHealing(castType, spell, level, ch, victim, item, args, target)
+    {
+        for (var GroupMember of ch.Room.Select((gr) => gr.IsSameGroup(ch)))
+        {
+            if (GroupMember.HitPoints < GroupMember.MaxHitPoints)
+            {
+                SpellHeal(castType, spell, level, ch, GroupMember, null, "", TargetIsType.targetChar);
+
+                if (GroupMember.MovementPoints < GroupMember.MaxMovementPoints)
+                {
+                    SpellRefresh(castType, spell, level, ch, GroupMember, null, "", TargetIsType.targetChar);
+                }
+            }
+            else
+                GroupMember.Act("Your health is already fully restored.");
+        }
+    } // end mass healing
+    static SpellCleanse(castType, spell, level, ch, victim, item, args, target)
+    {
+        if (victim == null)
+        {
+            ch.Act("You can't find them.\n\r");
+        }
+        else if (victim.Fighting != null || victim.Position == Positions.Fighting)
+        {
+            ch.Act("$N is still fighting.", victim);
+        }
+        else
+        {
+            for (var malady of Utility.CloneArray(victim.Affects))
+            {
+                if (malady.affectType == AffectData.AffectTypes.Malady)
+                    victim.AffectFromChar(malady, AffectData.AffectRemoveReason.Cleansed);
+            }
+            victim.Act("You are now free from all maladies.");
+            ch.Act("$N is free from all maladies.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("You cleanse $N of all maladies.", victim);
+        }
+    }  // end cleanse
+    static SpellKnowAlignment(castType, spell, level, ch, victim, item, args, target)
+    {
+        var affect;
+        if (victim == null)
+            victim = ch;
+
+        if ((affect = victim.FindAffect(spell)) != null || victim.IsAffected(AffectData.AffectFlags.KnowAlignment))
+        {
+            if (victim != ch)
+                ch.send("They can already sense the alignment of others.\n\r");
+            else
+                ch.send("You can already sense the alignment of others.\n\r");
+            return;
+        }
+        else
+        {
+            victim.send("You feel able to sense the alignment of others.\n\r");
+
+            affect = new AffectData();
+            affect.SkillSpell = spell;
+            affect.Level = level;
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Flags.SETBIT(AffectData.AffectFlags.KnowAlignment);
+            affect.Duration = 10 + level / 3;
+            affect.DisplayName = "know alignment";
+            affect.EndMessage = "Your feel less aware of others alignment.\n\r";
+            affect.AffectType = castType == "Cast" ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
+            victim.AffectToChar(affect);
+        }
+    } // end know alignment
+    static SpellProtection(castType, spell, level, ch, victim, item, args, target)
+    {
+        var affect;
+        if (victim == null)
+            victim = ch;
+
+        if ((affect = victim.FindAffect(spell)) != null || victim.IsAffected(AffectData.AffectFlags.Protection))
+        {
+            if (victim != ch)
+                ch.send("They already have protection.\n\r");
+            else
+                ch.send("You already have protection.");
+            return;
+        }
+        else
+        {
+            victim.send("You gain protection.\n\r");
+            victim.Act("$n gains protection.", null, null, null, Character.ActType.ToRoom);
+            affect = new AffectData();
+            affect.SkillSpell = spell;
+            affect.Level = level;
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Flags.SETBIT(AffectData.AffectFlags.Protection);
+            affect.Duration = 10 + level / 4;
+            affect.DisplayName = "protection";
+            affect.EndMessage = "You feel less protected.\n\r";
+            affect.EndMessageToRoom = "$n's protection wanes.\n\r";
+            affect.AffectType = castType == "Cast" ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
+            victim.AffectToChar(affect);
+        }
+    }
 }
 
 module.exports = Magic;

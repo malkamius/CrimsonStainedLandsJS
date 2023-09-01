@@ -476,7 +476,7 @@ Character.DoCommands.DoAffects = function(ch, args) {
 				 affect.Duration, (affect.Frequency == "Tick" ? "hours" : "rounds"));
 			}
 			else {
-				ch.send("{0,41} for {1} {2}.\n\r", affect.DisplayName + ":", affect.Duration, (affect.Frequency == "Tick" ? "hours" : "rounds"));
+				ch.send("{0,42} for {1} {2}.\n\r", affect.DisplayName + ":", affect.Duration, (affect.Frequency == "Tick" ? "hours" : "rounds"));
 			}
 		}
 	}

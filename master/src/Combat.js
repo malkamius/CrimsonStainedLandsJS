@@ -499,7 +499,7 @@ class Combat {
         if(weapon) {
             damage = Utility.Roll(weapon.DamageDice);
             if(damage != 0) damage += character.DamageRoll;
-            damagemessage = DamageMessage.DamageMessages[weapon.WeaponDamageType];
+            damagemessage = DamageMessage.DamageMessages[weapon.WeaponDamageType.toLowerCase()];
         } else {
             if(character.IsNPC && character.DamageDice) {
                 if(character.WeaponDamageMessage && DamageMessage.DamageMessages[character.WeaponDamageMessage])

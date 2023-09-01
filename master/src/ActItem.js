@@ -14,79 +14,80 @@ function AddInventoryItem(player, item, atEnd = false)
 {
     
 
-    if (item.ItemTypes.Money)
+    if (item.ItemTypes.ISSET("Money"))
     {
-        Silver += item.Silver;
-        Gold += item.Gold;
+        player.Silver += item.Silver;
+        player.Gold += item.Gold;
 
 
         if (player.Flags.AutoSplit)
         {
             var splitamongst = Array();
-            // foreach (var other in Room.Characters)
-            // {
-            //     if (other != this && !other.IsNPC && other.IsSameGroup(this))
-            //     {
-            //         splitamongst.Add(other);
-            //     }
-            // }
+            for (var other of Room.Characters)
+            {
+                if (other != this && !other.IsNPC && other.IsSameGroup(this))
+                {
+                    splitamongst.Add(other);
+                }
+            }
 
 
-            // if (splitamongst.Count > 0)
-            // {
-            //     var share_silver = item.Silver / (splitamongst.Count + 1);
-            //     var extra_silver = item.Silver % (splitamongst.Count + 1);
+            if (splitamongst.Count > 0)
+            {
+                var share_silver = item.Silver / (splitamongst.Count + 1);
+                var extra_silver = item.Silver % (splitamongst.Count + 1);
 
-            //     var share_gold = item.Gold / (splitamongst.Count + 1);
-            //     var extra_gold = item.Gold % (splitamongst.Count + 1);
-
-
-            //     Silver -= item.Silver;
-            //     Silver += share_silver + extra_silver;
-            //     Gold -= item.Gold;
-            //     Gold += share_gold + extra_gold;
+                var share_gold = item.Gold / (splitamongst.Count + 1);
+                var extra_gold = item.Gold % (splitamongst.Count + 1);
 
 
-            //     if (share_silver > 0)
-            //     {
-            //         send("You split {0} silver coins. Your share is {1} silver.\n\r", item.Silver, share_silver + extra_silver);
-            //     }
+                player.Silver -= item.Silver;
+                player.Silver += share_silver + extra_silver;
+                player.Gold -= item.Gold;
+                player.Gold += share_gold + extra_gold;
 
-            //     if (share_gold > 0)
-            //     {
-            //         send("You split {0} gold coins. Your share is {1} gold.\n\r", item.Gold, share_gold + extra_gold);
 
-            //     }
-            //     string buf;
-            //     if (share_gold == 0)
-            //     {
-            //         buf = string.Format("$n splits {0} silver coins. Your share is {1} silver.",
-            //                 item.Silver, share_silver);
-            //     }
-            //     else if (share_silver == 0)
-            //     {
-            //         buf = string.Format("$n splits {0} gold coins. Your share is {1} gold.",
-            //             item.Gold, share_gold);
-            //     }
-            //     else
-            //     {
-            //         buf = string.Format(
-            //             "$n splits {0} silver and {1} gold coins, giving you {2} silver and {3} gold.\n\r",
-            //                 item.Silver, item.Gold, share_silver, share_gold);
-            //     }
+                if (share_silver > 0)
+                {
+                    send("You split {0} silver coins. Your share is {1} silver.\n\r", item.Silver, share_silver + extra_silver);
+                }
 
-            //     foreach (var gch in splitamongst)
-            //     {
-            //         if (gch != this)
-            //         {
-            //             if (gch.Position != Positions.Sleeping)
-            //                 Act(buf, gch, null, null, ActType.ToVictim);
-            //             gch.Gold += share_gold;
-            //             gch.Silver += share_silver;
-            //         }
-            //     }
-            // }// end if splitamongst.count > 0
+                if (share_gold > 0)
+                {
+                    send("You split {0} gold coins. Your share is {1} gold.\n\r", item.Gold, share_gold + extra_gold);
+
+                }
+                var buf;
+                if (share_gold == 0)
+                {
+                    buf = Utility.Format("$n splits {0} silver coins. Your share is {1} silver.",
+                            item.Silver, share_silver);
+                }
+                else if (share_silver == 0)
+                {
+                    buf = Utility.Format("$n splits {0} gold coins. Your share is {1} gold.",
+                        item.Gold, share_gold);
+                }
+                else
+                {
+                    buf = Utility.Format(
+                        "$n splits {0} silver and {1} gold coins, giving you {2} silver and {3} gold.\n\r",
+                            item.Silver, item.Gold, share_silver, share_gold);
+                }
+
+                for(var gch of splitamongst)
+                {
+                    if (gch != this)
+                    {
+                        if (gch.Position != "Sleeping")
+                            Act(buf, gch, null, null, Character.ActType.ToVictim);
+                        gch.Gold += share_gold;
+                        gch.Silver += share_silver;
+                    }
+                }
+            }// end if splitamongst.count > 0
         } // end isset autosplit
+        item.Dispose();
         return true;
 
     }
