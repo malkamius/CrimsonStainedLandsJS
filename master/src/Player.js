@@ -553,6 +553,16 @@ class Player extends Character {
 						for(var race of guild.Races) {
 							if(Utility.Compare(race.Name, this.Race.Name)) {
 								this.Guild = guild;
+								if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
+								{
+									if (this.Sex == "Female")
+									{
+										this.Title = "the " + title.FemaleTitle;
+									}
+									else
+										this.Title = "the " + title.MaleTitle;
+
+								} 
 								break;
 							}
 						}
