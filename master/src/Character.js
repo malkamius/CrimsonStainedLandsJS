@@ -1929,6 +1929,63 @@ class Character {
 				 other.IsAffected(AffectData.AffectFlags.Smelly)) &&
                 (!other.IsAffected(AffectData.AffectFlags.Burrow)) && (!other.Flags.ISSET("WizInvis")));
 	}
+
+	NoFollow(all = false)
+	{
+		if (this.Following != null)
+		{
+			this.send("You stop following " + (this.Following.Display(this)) + ".\n\r");
+			if(this.Following.Leader == this.Leader) {
+				for(var other of Character.Characters)
+				{
+					if (other.Leader == this.Leader && other != this)
+					{
+						other.Act("$N leaves the group.", this);
+					}
+				}
+				this.Leader = null;
+			}
+			this.Following = null;
+		}
+		this.send("You stop allowing followers.\n\r");
+
+		for (var other of Character.Characters)
+		{
+			if (other.Following == this)
+			{
+
+				if (other.Leader == this)
+				{
+					other.Leader = null;
+					
+					this.Act("$N leaves your group.\n\r", other, null, null, Character.ActType.ToChar);
+					this.Act("You leave $n's group.\n\r", other, null, null, Character.ActType.ToVictim);
+				}
+				if (all && other.Master == this)
+				{
+					other.Act("$n wanders off.", null, null, null, Character.ActType.ToRoom);
+					other.RemoveCharacterFromRoom();
+					Character.Characters.Remove(other);
+				}
+
+				if(!all && other.Master == this) {
+					other.Leader = this;
+					other.Following = this;
+				}
+				else {
+					if (other.Leader == this)
+						other.Leader = null;
+
+					if (other.Following == this)
+					{
+						other.Following = null;
+						this.Act("$N stops following you.\n\r", other, null, null, Character.ActType.ToChar);
+						this.Act("You stop following $n.\n\r", other, null, null, Character.ActType.ToVictim);
+					}
+				}
+			}
+		}
+	}
 }
 
 module.exports = Character;

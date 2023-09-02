@@ -43,7 +43,9 @@ function movechar(player, direction) {
 		return;
 	}
 	var exit = player.Room.Exits[direction];
-	if(player.Room && exit && 
+	var wasinroom = player.Room;
+
+	if(wasinroom && exit && 
 		exit.Destination && 
 		(!exit.Flags.Closed || player.AffectedBy.PassDoor)) {
 		var sizes = ["Tiny", "Small", "Medium", "Large", "Huge", "Giant"];
@@ -54,16 +56,26 @@ function movechar(player, direction) {
 		}
 		var destination = exit.Destination;
 		var reversedirections = ["south", "west", "north", "east", "below", "above" ];
-		var room = player.Room;
 		var directionstring = RoomData.Directions[direction];
 		player.Act("$n leaves " + directionstring + ".", null, null, null, "ToRoom");
 		player.RemoveCharacterFromRoom();
-		player.AddCharacterToRoom(room.Exits[direction].Destination);
+		var room = wasinroom.Exits[direction].Destination;
+		player.AddCharacterToRoom(room);
 		var reversedirection = reversedirections[direction];
 		if(reversedirection != "below" && reversedirection != "above")
 			player.Act("$n arrives from the " + reversedirection + ".", null, null, null, "ToRoom");
 		else
 			player.Act("$n arrives from " + reversedirection + ".", null, null, null, "ToRoom");
+
+		// avoid circular follows
+		if(wasinroom != room) {
+			for(var follower of wasinroom.Characters) {
+				if(follower.Following == player) {
+					follower.Act("You follow $N {0}.", player, null, null, Character.ActType.ToChar, directionstring);
+					movechar(follower, direction);
+				}
+			}
+		}
 	}
 	else
 		player.send("Alas, you cannot go that way.\n\r");
@@ -359,6 +371,150 @@ function DoLock(character, args) {
 	}
 }
 
+Character.DoCommands.DoFollow = function(ch,args)
+{
+	var count = 0;
+	var follow = null;
+	if (args.equals("self") || ([follow, count] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && follow == ch)
+	{
+		if (ch.Following)
+		{
+			ch.send("You stop following " + (ch.Following.Display(ch)) + ".\n\r");
+			ch.Following.send(ch.Display(ch.Following) + " stops following you.\n\r");
+
+			for(var other of Character.Characters)
+			{
+				if (other.Leader == ch.Leader && other != ch)
+				{
+					other.Act("$N leaves the group.", ch);
+				}
+			}
+
+			ch.Following = null;
+			ch.Leader = null;
+		}
+		else
+			ch.send("You aren't following anybody.\n\r");
+	}
+	else if (follow)
+	{
+		if (ch.Following)
+		{
+			if(ch.Following.Leader == ch.Leader) {
+				for(var other of Character.Characters)
+				{
+					if (other.Leader == ch.Leader && other != ch)
+					{
+						other.Act("$N leaves the group.", ch);
+					}
+				}
+				ch.Leader = null;
+			}
+			ch.Following.send(ch.Display(ch.Following) + " stops following you.\n\r");
+		}
+
+		if (follow.Flags.ISSET(Character.ActFlags.NoFollow))
+		{
+			ch.send("They don't allow followers.\n\r");
+		}
+		else
+		{
+			ch.Leader = null;
+			ch.Following = follow;
+			ch.send("You start following " + (follow.Display(ch)) + ".\n\r");
+			ch.Act("$n begins following $N.", follow, null, null, Character.ActType.ToRoomNotVictim);
+			follow.send(ch.Display(follow) + " starts following you.\n\r");
+		}
+	}
+	else
+		ch.send("You don't see them here.\n\r");
+}
+
+Character.DoCommands.DoNoFollow = function(ch, args)
+{
+	if (!ch.Flags.ISSET(Character.ActFlags.NoFollow))
+	{
+		ch.Flags.SETBIT(Character.ActFlags.NoFollow);
+		ch.NoFollow(args.equals("all"));
+	}
+	else
+	{
+		ch.Flags.RemoveFlag(Character.ActFlags.NoFollow);
+		ch.send("You now allow followers.\n\r");
+	}
+}
+
+Character.DoCommands.DoGroup = function(ch, args)
+{
+	var groupWith = null;
+	var count = 0;
+
+	if (!args || args.ISEMPTY())
+	{
+		var groupLeader = ch.Leader || ch;
+		var members = "";
+		var percentHP;
+		var percentMana;
+		var percentMove;
+
+		percentHP = groupLeader.HitPoints / groupLeader.MaxHitPoints * 100;
+		percentMana = groupLeader.ManaPoints / groupLeader.MaxManaPoints * 100;
+		percentMove = groupLeader.MovementPoints / groupLeader.MaxMovementPoints * 100;
+
+		members += "Group leader: " + groupLeader.Display(ch).padEnd(20) + " Lvl " + groupLeader.Level + " " + percentHP.toFixed(2) + "%hp " + percentMana.toFixed(2) + "%m " + percentMove.toFixed(2) + "%mv\n\r";
+		for (var member of Character.Characters)
+		{
+			if (member == groupLeader)
+				continue;
+			else if(member.Leader != groupLeader) continue;
+
+			percentHP = member.HitPoints / member.MaxHitPoints * 100;
+			percentMana = member.ManaPoints / member.MaxManaPoints * 100;
+			percentMove = member.MovementPoints / member.MaxMovementPoints * 100;
+
+
+			members += "              " + member.Display(ch).padEnd(20) + " Lvl " + member.Level + " " + percentHP.toFixed(2) + "%hp " + percentMana.toFixed(2) + "%m " + percentMove.toFixed(2) + "%mv\n\r";
+		}
+
+		ch.send(members);
+		// }
+		// else
+		// 	ch.send("You aren't in a group.\n\r");
+	}
+	else if (!ch.IsAwake)
+	{
+		ch.send("In your dreams, or what?\n\r");
+		return;
+	}
+	else if (args.equals("self") || ([groupWith] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && groupWith == ch)
+	{
+		ch.send("You can't group with yourself.\n\r");
+	}
+	else if (groupWith != null)
+	{
+		if (ch.Leader && ch.Leader != ch)
+		{
+			ch.send("You aren't the group leader.\n\r");
+		}
+		else if (groupWith.Following != ch)
+			ch.send("They aren't following you.\n\r");
+		else if (groupWith.Leader == ch)
+		{
+			groupWith.Leader = null;
+			ch.send("You remove " + groupWith.Display(ch) + " from the group.\n\r");
+			ch.Act("$n removes $N from their group.\n\r", groupWith, null, null, Character.ActType.ToRoomNotVictim);
+			groupWith.send(ch.Display(groupWith) + " removes you from the group.\n\r");
+		}
+		else
+		{
+			groupWith.Leader = ch;
+			ch.send("You add " + (groupWith.Display(ch)) + " to the group.\n\r");
+			ch.Act("$n adds $N to their group.", groupWith, null, null, Character.ActType.ToRoomNotVictim);
+			groupWith.send(ch.Display(groupWith) + " adds you to the group.\n\r");
+		}
+	}
+}
+	
 Character.DoCommands.DoNorth = donorth;
 Character.DoCommands.DoEast = doeast;
 Character.DoCommands.DoSouth = dosouth;

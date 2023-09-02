@@ -679,6 +679,13 @@ class Player extends Character {
 				for(var ethos of this.PcRace.Ethos) {
 					if(Utility.Prefix(ethos, input)) {
 						this.Ethos = ethos;
+						
+						this.Flags.SETBIT(Character.ActFlags.AutoLoot);
+						this.Flags.SETBIT(Character.ActFlags.AutoSac);
+						this.Flags.SETBIT(Character.ActFlags.AutoGold);
+						this.Flags.SETBIT(Character.ActFlags.AutoSplit);
+						this.Flags.SETBIT(Character.ActFlags.AutoAssist);
+
 						this.Save();
 						this.SetStatus("Playing");
 						break;	

@@ -43,7 +43,9 @@ Commands = {
 		"kill": {Command:Combat.DoKill, MinimumPosition: "Standing" },
 		"flee": {Command:Combat.DoFlee, MinimumPosition: "Fighting" },
 		"worth": {Command:Character.DoCommands.DoWorth, MinimumPosition: "Dead" },
-
+		"follow": {Command:Character.DoCommands.DoFollow, MinimumPosition: "Dead" },
+		"nofollow": {Command:Character.DoCommands.DoNoFollow, MinimumPosition: "Dead" },
+		"group": {Command:Character.DoCommands.DoGroup, MinimumPosition: "Dead" },
 		"throw": {Command:Combat.DoThrow, MinimumPosition: "Fighting" },
 		"kansetsuwaza": {Command:Combat.DoKansetsuwaza, MinimumPosition: "Fighting" },
 		"kotegaeshi": {Command:Combat.DoKotegaeshi, MinimumPosition: "Fighting" },
