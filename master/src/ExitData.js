@@ -22,10 +22,14 @@ class ExitData {
 		this.Description = XmlHelper.GetElementValue(exitdata, "Description");
 		this.Keywords = XmlHelper.GetElementValue(exitdata, "Keywords");
 		Utility.ParseFlags(this.Flags, XmlHelper.GetElementValue(exitdata, "Flags"));
+
+		if(this.Flags.Locked) 
+			this.Flags.Closed = true;
+		if(this.Flags.Closed) 
+			this.Flags.Door = true;
+
 		Object.assign(this.OriginalFlags, this.Flags);
 		
-		if(this.Flags.Locked) this.Flags.Closed = true;
-		if(this.Flags.Closed) this.Flags.Door = true;
 		
 		this.Source = room;
 		

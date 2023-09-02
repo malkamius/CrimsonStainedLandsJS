@@ -18,29 +18,29 @@ class NPCTemplateData extends Character {
     const RaceData = require("./RaceData");
     const GuildData = require("./GuildData");
     this.Area = area;
-    this.VNum = XmlHelper.GetElementValueInt(xml, "vnum");
-    this.Level = XmlHelper.GetElementValueInt(xml, "Level");
-    this.Name = XmlHelper.GetElementValue(xml, "Name");
-    this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription");
-    this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription");
+    this.VNum = xml.GetElementValueInt( "vnum");
+    this.Level = xml.GetElementValueInt( "Level");
+    this.Name = xml.GetElementValue( "Name");
+    this.ShortDescription = xml.GetElementValue( "ShortDescription");
+    this.LongDescription = xml.GetElementValue( "LongDescription");
 
-    this.HitPointDice[0] = XmlHelper.GetElementValueInt(xml, "HitPointDiceSides");
-    this.HitPointDice[1] = XmlHelper.GetElementValueInt(xml, "HitPointDiceCount");
-    this.HitPointDice[2] = XmlHelper.GetElementValueInt(xml, "HitPointDiceBonus");
+    this.HitPointDice[0] = xml.GetElementValueInt( "HitPointDiceSides");
+    this.HitPointDice[1] = xml.GetElementValueInt( "HitPointDiceCount");
+    this.HitPointDice[2] = xml.GetElementValueInt( "HitPointDiceBonus");
 
-    this.ManaPointDice[0] = XmlHelper.GetElementValueInt(xml, "ManaPointDiceSides");
-    this.ManaPointDice[1] = XmlHelper.GetElementValueInt(xml, "ManaPointDiceCount");
-    this.ManaPointDice[2] = XmlHelper.GetElementValueInt(xml, "ManaPointDiceBonus");
+    this.ManaPointDice[0] = xml.GetElementValueInt( "ManaPointDiceSides");
+    this.ManaPointDice[1] = xml.GetElementValueInt( "ManaPointDiceCount");
+    this.ManaPointDice[2] = xml.GetElementValueInt( "ManaPointDiceBonus");
 
-    this.DamageDice[0] = XmlHelper.GetElementValueInt(xml, "DamageDiceSides");
-    this.DamageDice[1] = XmlHelper.GetElementValueInt(xml, "DamageDiceCount");
-    this.DamageDice[2] = XmlHelper.GetElementValueInt(xml, "DamageDiceBonus");
+    this.DamageDice[0] = xml.GetElementValueInt( "DamageDiceSides");
+    this.DamageDice[1] = xml.GetElementValueInt( "DamageDiceCount");
+    this.DamageDice[2] = xml.GetElementValueInt( "DamageDiceBonus");
 
     Utility.ParseFlags(this.Flags, xml.GetElementValue("Flags"));
 
     this.WeaponDamageMessage = xml.GetElementValue("WeaponDamageMessage");
 
-    this.Race = RaceData.LookupRace(XmlHelper.GetElementValue(xml, "Race", "human"));
+    this.Race = RaceData.LookupRace(xml.GetElementValue( "Race", "human"));
     this.Guild = GuildData.Lookup(xml.GetElementValue("Guild"), false);
     
     if(this.Flags.IsSet("Healer") && !this.Guild)

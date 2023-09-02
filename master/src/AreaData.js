@@ -1,6 +1,6 @@
 
 const Settings = require("./Settings");
-
+const ItemData = require("./ItemData");
 
 
 class AreaData {
@@ -167,9 +167,12 @@ class AreaData {
 
 				for (var item of room.Items)
 				{
-					if (!item.WearFlags.ISSET("Take") && item.Template  && item.Template.ExtraFlags.ISSET("Closed") && !item.ExtraFlags.ISSET("Closed"))
+					if (!item.WearFlags.ISSET(ItemData.WearFlags.Take) && 
+					item.Template && 
+					item.Template.ExtraFlags.ISSET(ItemData.ExtraFlags.Closed) && 
+					!item.ExtraFlags.ISSET(ItemData.ExtraFlags.Closed))
 					{
-						item.ExtraFlags["Closed"] = true;;
+						item.ExtraFlags.SETBIT(ItemData.ExtraFlags.Closed);
 					}
 				}
 			}

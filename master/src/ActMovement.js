@@ -95,7 +95,7 @@ function dodown(player, arguments) {
 
 function DoOpen(character, args) {
 	var item, count;
-	var [exit, count] = Character.Room.GetExit(args, count);
+	var [exit, count] = character.Room.GetExit(args, count);
 	var [item, count] = character.GetItemHere(args, count);
 	
 	if(exit) {
@@ -118,14 +118,14 @@ function DoOpen(character, args) {
 			} 
 		}
 	} else if(item) {
-		if(item.ExtraFlags.Locked) {
+		if(item.ExtraFlags.ISSET(ItemData.ExtraFlags.Locked)) {
 			character.send("It's locked.\n\r");
-		} else if(!item.ExtraFlags.Closed) {
+		} else if(!item.ExtraFlags.ISSET(ItemData.ExtraFlags.Closed)) {
 			character.send("It's not closed.\n\r")
 		} else {
 			character.Act("You open $p.\n\r", null, item);
 			character.Act("$n opens $p.", null, item, null, "ToRoom")
-			delete item.ExtraFlags.Closed;
+			item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.Closed);
 		}
 
 	} else {
@@ -135,7 +135,7 @@ function DoOpen(character, args) {
 
 function DoClose(character, args) {
 	var item, count;
-	var [exit, count] = Character.Room.GetExit(args, count);
+	var [exit, count] = character.Room.GetExit(args, count);
 	var [item, count] = character.GetItemHere(args, count);
 	
 	if(exit) {
@@ -161,14 +161,14 @@ function DoClose(character, args) {
 			exit.Flags.Closed = true;
 		}
 	} else if(item) {
-		if(!item.ExtraFlags.Closable) {
+		if(!item.ExtraFlags.ISSET(ItemData.ExtraFlags.Closable)) {
 			character.Act("$p can't be closed.\n\r", null, item);
-		} else if(item.ExtraFlags.Closed) {
+		} else if(item.ExtraFlags.ISSET(ItemData.ExtraFlags.Closed)) {
 			character.Act("$p is already closed.\n\r", null, item);
 		} else {
 			character.Act("You close $p.\n\r", null, item);
 			character.Act("$n closes $p.", null, item, null, "ToRoom")
-			item.ExtraFlags.Closed = true;
+			item.ExtraFlags.SETBIT(ItemData.ExtraFlags.Closed);
 		}
 	}  else {
 		character.send("You don't see that here.\n\r");

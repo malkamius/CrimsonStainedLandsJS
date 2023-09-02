@@ -21,20 +21,20 @@ class PcRaceData {
     
     constructor(xml) {
 
-        this.Name = XmlHelper.GetElementValue(xml, "Name").toLowerCase();
-        this.IsPcRace = Utility.Compare(XmlHelper.GetElementValue(xml, "IsPcRace"), "true");
+        this.Name = xml.GetElementValue( "Name").toLowerCase();
+        this.IsPcRace = Utility.Compare(xml.GetElementValue( "IsPcRace"), "true");
         
-        Utility.ParseFlags(this.Parts, XmlHelper.GetElementValue(xml, "Parts"));
+        Utility.ParseFlags(this.Parts, xml.GetElementValue( "Parts"));
         
         var alignments = {};
-        Utility.ParseFlags(alignments, XmlHelper.GetElementValue(xml, "Alignment"));
+        Utility.ParseFlags(alignments, xml.GetElementValue( "Alignment"));
         for(var alignment in alignments) this.Alignments.push(alignment);
 
         var ethosi = {};
-        Utility.ParseFlags(ethosi, XmlHelper.GetElementValue(xml, "Ethos"));
+        Utility.ParseFlags(ethosi, xml.GetElementValue( "Ethos"));
         for(var ethos in ethosi) this.Ethos.push(ethos);
 
-        this.Size = XmlHelper.GetElementValue(xml, "Size");
+        this.Size = xml.GetElementValue( "Size");
 
         if(xml.STATS) {
             var stats = xml.STATS[0];

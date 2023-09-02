@@ -110,15 +110,15 @@ class SkillSpell {
     }
     static containers = {};
     constructor(xml) {
-        this.Name = XmlHelper.GetAttributeValue(xml, "Name");
+        this.Name = xml.GetAttributeValue( "Name");
         
-        this.MinimumPosition = XmlHelper.GetAttributeValue(xml, "MinimumPosition", "Standing");
-        this.MinmumMana = XmlHelper.GetAttributeValueInt(xml, "MinmumMana");
-        this.WaitTime = XmlHelper.GetAttributeValueInt(xml, "WaitTime", Game.PULSE_PER_VIOLENCE);
-        this.NounDamage = XmlHelper.GetAttributeValue(xml, "NounDamage");
-        this.AutoCast = Utility.Compare(XmlHelper.GetAttributeValue(xml, "AutoCast"), "True");
-        this.SpellFuncType = XmlHelper.GetAttributeValue(xml, "SpellFuncType");
-        this.SpellFuncName = XmlHelper.GetAttributeValue(xml, "SpellFuncName");
+        this.MinimumPosition = xml.GetAttributeValue( "MinimumPosition", "Standing");
+        this.MinmumMana = xml.GetAttributeValueInt( "MinmumMana");
+        this.WaitTime = xml.GetAttributeValueInt( "WaitTime", Game.PULSE_PER_VIOLENCE);
+        this.NounDamage = xml.GetAttributeValue( "NounDamage");
+        this.AutoCast = Utility.Compare(xml.GetAttributeValue( "AutoCast"), "True");
+        this.SpellFuncType = xml.GetAttributeValue( "SpellFuncType");
+        this.SpellFuncName = xml.GetAttributeValue( "SpellFuncName");
         this.TargetType = xml.GetAttributeValue("TargetType", "TargetIgnore");
         this.AutoCast = xml.GetAttributeValue("AutoCast").equals("true");
         this.AutoCastScript = xml.GetAttributeValue("AutoCastScript");
@@ -132,10 +132,10 @@ class SkillSpell {
                 
             }
         }
-        this.Lyrics = XmlHelper.GetElementValue(xml, "Lyrics");
-        this.Prerequisites = XmlHelper.GetAttributeValue(xml, "Prerequisites");
-        this.PrerequisitePercentage = XmlHelper.GetAttributeValueInt(xml, "PrerequisitePercentage");
-        Utility.ParseFlags(this.SkillTypes, XmlHelper.GetAttributeValue(xml, "SkillTypes"));
+        this.Lyrics = xml.GetElementValue( "Lyrics");
+        this.Prerequisites = xml.GetAttributeValue( "Prerequisites");
+        this.PrerequisitePercentage = xml.GetAttributeValueInt( "PrerequisitePercentage");
+        Utility.ParseFlags(this.SkillTypes, xml.GetAttributeValue( "SkillTypes"));
         if(xml.SKILLLEVEL) {
             for(const skilllevel of xml.SKILLLEVEL) {
                 var guild = XmlHelper.GetAttributeValue(skilllevel, "Guild").toLowerCase();

@@ -310,12 +310,12 @@ class Combat {
                         newCorpse.Contains.push(value);
                         value.CarriedBy = null;
                         value.Container = newCorpse;
-                        if (value.ExtraFlags.IsSet("VisDeath"))
-                            value.ExtraFlags.RemoveFlag("VisDeath");
-                        if (value.ExtraFlags.IsSet("RotDeath"))
+                        if (value.ExtraFlags.IsSet(ItemData.ExtraFlags.VisDeath))
+                            value.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.VisDeath);
+                        if (value.ExtraFlags.IsSet(ItemData.ExtraFlags.RotDeath))
                         {
                             value.Timer = 15;
-                            value.ExtraFlags.RemoveFlag("RotDeath");
+                            value.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.RotDeath);
                         }
                     }
                 }
@@ -327,12 +327,12 @@ class Combat {
                     newCorpse.Contains.push(item);
                     item.Container = newCorpse;
                     item.CarriedBy = null;
-                    if (item.ExtraFlags.IsSet("VisDeath"))
-                        item.ExtraFlags.RemoveFlag("VisDeath");
-                    if (item.ExtraFlags.IsSet("RotDeath"))
+                    if (item.ExtraFlags.IsSet(ItemData.ExtraFlags.VisDeath))
+                        item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.VisDeath);
+                    if (item.ExtraFlags.IsSet(ItemData.ExtraFlags.RotDeath))
                     {
                         item.Timer = 15;
-                        item.ExtraFlags.RemoveFlag("RotDeath");
+                        item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.RotDeath);
                     }
                 }
 
@@ -1379,15 +1379,15 @@ class Combat {
             switch (weapon.WeaponType)
             {
                 default: chance += 15; break;
-                case "Sword": chance += 5; break;
-                case "Dagger": chance += 5; break;
-                case "Spear": chance -= 5; break;
-                case "Staff": chance -= 5; break;
-                case "Mace": chance -= 5; break;
-                case "Axe": chance -= 5; break;
-                case "Flail": chance += 10; break;
-                case "Whip": chance += 10; break;
-                case "Polearm": chance -= 5; break;
+                case ItemData.WeaponTypes.Sword: chance += 5; break;
+                case ItemData.WeaponTypes.Dagger: chance += 5; break;
+                case ItemData.WeaponTypes.Spear: chance -= 5; break;
+                case ItemData.WeaponTypes.Staff: chance -= 5; break;
+                case ItemData.WeaponTypes.Mace: chance -= 5; break;
+                case ItemData.WeaponTypes.Axe: chance -= 5; break;
+                case ItemData.WeaponTypes.Flail: chance += 10; break;
+                case ItemData.WeaponTypes.Whip: chance += 10; break;
+                case ItemData.WeaponTypes.Polearm: chance -= 5; break;
             }
         }
 
@@ -1400,15 +1400,15 @@ class Combat {
             switch (victimWield.WeaponType)
             {
                 default: chance += 15; break;
-                case "Sword": chance += 10; break;
-                case "Dagger": chance -= 20; break;
-                case "Spear": chance += 20; break;
-                case "Staff": chance += 10; break;
-                case "Mace": chance -= 20; break;
-                case "Axe": chance -= 25; break;
-                case "Flail": chance -= 10; break;
-                case "Whip": chance -= 10; break;
-                case "Polearm": chance += 10; break;
+                case ItemData.WeaponTypes.Sword: chance += 10; break;
+                case ItemData.WeaponTypes.Dagger: chance -= 20; break;
+                case ItemData.WeaponTypes.Spear: chance += 20; break;
+                case ItemData.WeaponTypes.Staff: chance += 10; break;
+                case ItemData.WeaponTypes.Mace: chance -= 20; break;
+                case ItemData.WeaponTypes.Axe: chance -= 25; break;
+                case ItemData.WeaponTypes.Flail: chance -= 10; break;
+                case ItemData.WeaponTypes.Whip: chance -= 10; break;
+                case ItemData.WeaponTypes.Polearm: chance += 10; break;
             }
         }
 
@@ -1424,15 +1424,15 @@ class Combat {
             switch (victimDualWield.WeaponType)
             {
                 default: chance += 15; break;
-                case "Sword": chance += 10; break;
-                case "Dagger": chance -= 20; break;
-                case "Spear": chance += 20; break;
-                case "Staff": chance += 10; break;
-                case "Mace": chance -= 20; break;
-                case "Axe": chance -= 25; break;
-                case "Flail": chance -= 10; break;
-                case "Whip": chance -= 10; break;
-                case "Polearm": chance += 10; break;
+                case ItemData.WeaponTypes.Sword: chance += 10; break;
+                case ItemData.WeaponTypes.Dagger: chance -= 20; break;
+                case ItemData.WeaponTypes.Spear: chance += 20; break;
+                case ItemData.WeaponTypes.Staff: chance += 10; break;
+                case ItemData.WeaponTypes.Mace: chance -= 20; break;
+                case ItemData.WeaponTypes.Axe: chance -= 25; break;
+                case ItemData.WeaponTypes.Flail: chance -= 10; break;
+                case ItemData.WeaponTypes.Whip: chance -= 10; break;
+                case ItemData.WeaponTypes.Polearm: chance += 10; break;
             }
         }
 
@@ -1457,7 +1457,7 @@ class Combat {
         var flourintine = SkillSpell.SkillLookup("flourintine");
         var flourintinechance = 0;
         // must dual wield swords for flourintine
-        if (((victimWield && victimWield.WeaponType == "Sword") && (victimDualWield && victimDualWield.WeaponType == "Sword")) && (flourintinechance = victim.GetSkillPercentage(flourintine)) > 1)
+        if (((victimWield && victimWield.WeaponType == ItemData.WeaponTypes.Sword) && (victimDualWield && victimDualWield.WeaponType == ItemData.WeaponTypes.Sword)) && (flourintinechance = victim.GetSkillPercentage(flourintine)) > 1)
         {
             chance += flourintinechance / 5;
         }
@@ -1500,7 +1500,7 @@ class Combat {
             victim.CheckImprove(ironfists, true, 1);
         if (flourintinechance > 1)
             victim.CheckImprove(flourintine, true, 1);
-        if ((victimWield != null && victimWield.WeaponType == "Sword") || (victimDualWield != null && victimDualWield.WeaponType == "Sword"))
+        if ((victimWield != null && victimWield.WeaponType == ItemData.WeaponTypes.Sword) || (victimDualWield != null && victimDualWield.WeaponType == ItemData.WeaponTypes.Sword))
         {
             var skRiposte = SkillSpell.SkillLookup("riposte");
             var riposteChance = victim.GetSkillPercentage(skRiposte);
@@ -1621,8 +1621,8 @@ class Combat {
         {
             return false;
         }
-        else if ((!(wield = ch.Equipment["Wield"]) || wield.WeaponType != "Dagger") &&
-            ((offhand = true) && !(wield = ch.Equipment["DualWield"]) || wield.WeaponType != "Dagger"))
+        else if ((!(wield = ch.Equipment["Wield"]) || wield.WeaponType != ItemData.WeaponTypes.Dagger) &&
+            ((offhand = true) && !(wield = ch.Equipment["DualWield"]) || wield.WeaponType != ItemData.WeaponTypes.Dagger))
         { // must be wielding a dagger to concealed attack
             return false;
         }
@@ -1744,7 +1744,7 @@ class Combat {
 
         victimWield = victim.Equipment["Wield"];
 
-        if (victimWield == null || victimWield.WeaponType != "Polearm")
+        if (victimWield == null || victimWield.WeaponType != ItemData.WeaponTypes.Polearm)
             return false;
 
         if (weapon != null) // weapon ch is using to hit victim, skill lowers chance of parry
@@ -1755,15 +1755,15 @@ class Combat {
             switch (weapon.WeaponType)
             {
                 default: chance += 15; break;
-                case "Sword": chance += 5; break;
-                case "Dagger": chance += 5; break;
-                case "Spear": chance -= 5; break;
-                case "Staff": chance -= 5; break;
-                case "Mace": chance -= 5; break;
-                case "Axe": chance -= 5; break;
-                case "Flail": chance += 10; break;
-                case "Whip": chance += 10; break;
-                case "Polearm": chance -= 5; break;
+                case ItemData.WeaponTypes.Sword: chance += 5; break;
+                case ItemData.WeaponTypes.Dagger: chance += 5; break;
+                case ItemData.WeaponTypes.Spear: chance -= 5; break;
+                case ItemData.WeaponTypes.Staff: chance -= 5; break;
+                case ItemData.WeaponTypes.Mace: chance -= 5; break;
+                case ItemData.WeaponTypes.Axe: chance -= 5; break;
+                case ItemData.WeaponTypes.Flail: chance += 10; break;
+                case ItemData.WeaponTypes.Whip: chance += 10; break;
+                case ItemData.WeaponTypes.Polearm: chance -= 5; break;
             }
         }
 
@@ -1776,15 +1776,15 @@ class Combat {
             switch (victimWield.WeaponType)
             {
                 default: chance += 15; break;
-                case "Sword": chance += 10; break;
-                case "Dagger": chance -= 20; break;
-                case "Spear": chance += 20; break;
-                case "Staff": chance += 10; break;
-                case "Mace": chance -= 20; break;
-                case "Axe": chance -= 25; break;
-                case "Flail": chance -= 10; break;
-                case "Whip": chance -= 10; break;
-                case "Polearm": chance += 10; break;
+                case ItemData.WeaponTypes.Sword: chance += 10; break;
+                case ItemData.WeaponTypes.Dagger: chance -= 20; break;
+                case ItemData.WeaponTypes.Spear: chance += 20; break;
+                case ItemData.WeaponTypes.Staff: chance += 10; break;
+                case ItemData.WeaponTypes.Mace: chance -= 20; break;
+                case ItemData.WeaponTypes.Axe: chance -= 25; break;
+                case ItemData.WeaponTypes.Flail: chance -= 10; break;
+                case ItemData.WeaponTypes.Whip: chance -= 10; break;
+                case ItemData.WeaponTypes.Polearm: chance += 10; break;
             }
         }
 
@@ -1831,7 +1831,7 @@ class Combat {
 
         victimWield = victim.Equipment["Wield"];
 
-        if (victimWield == null || (victimWield.WeaponType != "Staff" && victimWield.WeaponType != "Spear"))
+        if (victimWield == null || (victimWield.WeaponType != ItemData.WeaponTypes.Staff && victimWield.WeaponType != ItemData.WeaponTypes.Spear))
             return false;
 
         if (weapon != null) // weapon ch is using to hit victim, skill lowers chance of parry
@@ -1842,15 +1842,15 @@ class Combat {
             switch (weapon.WeaponType)
             {
                 default: chance += 15; break;
-                case "Sword": chance += 5; break;
-                case "Dagger": chance += 5; break;
-                case "Spear": chance -= 5; break;
-                case "Staff": chance -= 5; break;
-                case "Mace": chance -= 5; break;
-                case "Axe": chance -= 5; break;
-                case "Flail": chance += 10; break;
-                case "Whip": chance += 10; break;
-                case "Polearm": chance -= 5; break;
+                case ItemData.WeaponTypes.Sword: chance += 5; break;
+                case ItemData.WeaponTypes.Dagger: chance += 5; break;
+                case ItemData.WeaponTypes.Spear: chance -= 5; break;
+                case ItemData.WeaponTypes.Staff: chance -= 5; break;
+                case ItemData.WeaponTypes.Mace: chance -= 5; break;
+                case ItemData.WeaponTypes.Axe: chance -= 5; break;
+                case ItemData.WeaponTypes.Flail: chance += 10; break;
+                case ItemData.WeaponTypes.Whip: chance += 10; break;
+                case ItemData.WeaponTypes.Polearm: chance -= 5; break;
             }
         }
 
@@ -1863,15 +1863,15 @@ class Combat {
             switch (victimWield.WeaponType)
             {
                 default: chance += 15; break;
-                case "Sword": chance += 10; break;
-                case "Dagger": chance -= 20; break;
-                case "Spear": chance += 20; break;
-                case "Staff": chance += 10; break;
-                case "Mace": chance -= 20; break;
-                case "Axe": chance -= 25; break;
-                case "Flail": chance -= 10; break;
-                case "Whip": chance -= 10; break;
-                case "Polearm": chance += 10; break;
+                case ItemData.WeaponTypes.Sword: chance += 10; break;
+                case ItemData.WeaponTypes.Dagger: chance -= 20; break;
+                case ItemData.WeaponTypes.Spear: chance += 20; break;
+                case ItemData.WeaponTypes.Staff: chance += 10; break;
+                case ItemData.WeaponTypes.Mace: chance -= 20; break;
+                case ItemData.WeaponTypes.Axe: chance -= 25; break;
+                case ItemData.WeaponTypes.Flail: chance -= 10; break;
+                case ItemData.WeaponTypes.Whip: chance -= 10; break;
+                case ItemData.WeaponTypes.Polearm: chance += 10; break;
             }
         }
 
@@ -2200,9 +2200,9 @@ class Combat {
 
             dam = Utility.Random(dam_each[level], dam_each[level] * 2);
 
-            ch.Act("Seizing upon $N's moment of weakness, you brutally kick him while $E's down!", victim, null, null, Character.ActType.ToChar);
+            ch.Act("Seizing upon $N's moment of weakness, you brutally kick $M while $E's down!", victim, null, null, Character.ActType.ToChar);
             ch.Act("Seizing upon your moment of weakness, $n brutally kicks you while you're down!", victim, null, null, Character.ActType.ToVictim);
-            ch.Act("Seizing upon $N's moment of weakness, $n brutally kicks him while $E's down!", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("Seizing upon $N's moment of weakness, $n brutally kicks $M while $E's down!", victim, null, null, Character.ActType.ToRoomNotVictim);
 
             if (Utility.NumberPercent() < 26)
             {

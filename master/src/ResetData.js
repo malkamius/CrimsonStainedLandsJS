@@ -16,11 +16,11 @@ class ResetData {
   Max = 1;
 
   constructor(area, xml) {
-    this.Type = XmlHelper.GetElementValue(xml, "type", XmlHelper.GetAttributeValue(xml, "type"));
-    this.Destination = XmlHelper.GetElementValueInt(xml, "destination", XmlHelper.GetAttributeValue(xml, "destination"));
-    this.Count = XmlHelper.GetElementValueInt(xml, "count", XmlHelper.GetAttributeValue(xml, "count"));
-    this.Max = XmlHelper.GetElementValueInt(xml, "max", XmlHelper.GetAttributeValue(xml, "max"));
-    this.VNum = XmlHelper.GetElementValueInt(xml, "vnum", XmlHelper.GetAttributeValue(xml, "vnum"));
+    this.Type = xml.GetElementValue( "type", xml.GetAttributeValue( "type"));
+    this.Destination = xml.GetElementValueInt( "destination", xml.GetAttributeValue( "destination"));
+    this.Count = xml.GetElementValueInt( "count", xml.GetAttributeValue( "count"));
+    this.Max = xml.GetElementValueInt( "max", xml.GetAttributeValue( "max"));
+    this.VNum = xml.GetElementValueInt( "vnum", xml.GetAttributeValue( "vnum"));
     
     area.Resets.push(this);
     ResetData.Resets.push(this);

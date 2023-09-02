@@ -25,11 +25,11 @@ class GuildData {
     THAC032="-6";
     
     constructor(xml) {
-        this.Name = XmlHelper.GetAttributeValue(xml, "Name").toLowerCase();
-        this.WhoName = XmlHelper.GetAttributeValue(xml, "WhoName");
+        this.Name = xml.GetAttributeValue( "Name").toLowerCase();
+        this.WhoName = xml.GetAttributeValue( "WhoName");
         
         var races = {};
-        Utility.ParseFlags(races, XmlHelper.GetAttributeValue(xml, "Races"));
+        Utility.ParseFlags(races, xml.GetAttributeValue( "Races"));
         for(var racekey in races) {
             var race = null;
             if((race = PcRaceData.LookupRace(racekey))) {
@@ -38,17 +38,17 @@ class GuildData {
         }
 
         var alignments = {};
-        Utility.ParseFlags(alignments, XmlHelper.GetAttributeValue(xml, "Alignments"));
+        Utility.ParseFlags(alignments, xml.GetAttributeValue( "Alignments"));
         for(var alignment in alignments)
             this.Alignments.push(alignment);
-        this.GuildGroup = XmlHelper.GetAttributeValue(xml, "GuildGroup");
-        this.GuildBasicsGroup = XmlHelper.GetAttributeValue(xml, "GuildBasicsGroup");
-        this.StartingWeapon = XmlHelper.GetAttributeValueInt(xml, "StartingWeapon", 0);
-        this.HitpointGain = XmlHelper.GetAttributeValue(xml, "HitpointGain");
-        this.HitpointGainMax = XmlHelper.GetAttributeValue(xml, "HitpointGainMax");
-        this.CastType = XmlHelper.GetAttributeValue(xml, "CastType");
-        this.THAC0 = XmlHelper.GetAttributeValue(xml, "THAC0");
-        this.THAC032 = XmlHelper.GetAttributeValue(xml, "THAC032");
+        this.GuildGroup = xml.GetAttributeValue( "GuildGroup");
+        this.GuildBasicsGroup = xml.GetAttributeValue( "GuildBasicsGroup");
+        this.StartingWeapon = xml.GetAttributeValueInt( "StartingWeapon", 0);
+        this.HitpointGain = xml.GetAttributeValue( "HitpointGain");
+        this.HitpointGainMax = xml.GetAttributeValue( "HitpointGainMax");
+        this.CastType = xml.GetAttributeValue( "CastType");
+        this.THAC0 = xml.GetAttributeValue( "THAC0");
+        this.THAC032 = xml.GetAttributeValue( "THAC032");
 
         GuildData.Guilds.push(this);
     }

@@ -10,7 +10,7 @@ const AffectData = require("./AffectData");
 class ItemData {
     static Items = Array();
 
-    static WearFlagsList =
+    static WearFlags =
     {
         "Take": "Take",
         "Finger": "Finger",
@@ -33,9 +33,9 @@ class ItemData {
 
         "WearFloat": "Float",
         "Brand": "Tattoo"
-    }
+    };
 
-    static ItemTypesList =
+    static ItemTypes =
     {
         "Armor": "Armor",
         "Boat": "Boat",
@@ -72,8 +72,9 @@ class ItemData {
         "PC_Corpse": "Corpse",
         "Talisman": "Staff",
         "ThiefPick": "ThiefPick"
-    }
-    static WeaponTypesList =
+    };
+
+    static WeaponTypes =
     {
         "None": "None",
         "Sword": "Sword",
@@ -86,7 +87,71 @@ class ItemData {
         "Flail": "Flail",
         "Polearm": "Polearm",
         "Exotic": "Exotic"
-    }
+    };
+
+    static ExtraFlags =
+    {
+        "Glow": "Glow",
+        "Hum": "Hum",
+        "Dark": "Dark",
+        "Lock": "Lock",
+        "Locked": "Locked",
+        "Evil": "Evil",
+        "Invisibility": "Invisibility",
+        "Magic": "Magic",
+        "NoDrop": "NoDrop",
+        "Bless": "Bless",
+        "AntiGood": "AntiGood",
+        "AntiNeutral": "AntiNeutral",
+        "AntiEvil": "AntiEvil",
+        "NoRemove": "NoRemove",
+        "NoPurge": "NoPurge",
+        "RotDeath": "RotDeath",
+        "VisDeath": "VisDeath",
+        "Fixed": "Fixed",
+        "NoDisarm": "NoDisarm",
+        "NoLocate": "NoLocate",
+        "MeltDrop": "MeltDrop",
+        "Closable": "Closable",
+        "PickProof": "PickProof",
+        "Closed": "Closed",
+        "WeaponFlaming": "WeaponFlaming",
+        "Poison": "Poison",
+        "Heart": "Heart",
+        "PouchNourishment": "PouchNourishment",
+        "EverfullSkin": "EverfullSkin",
+        "BurnProof": "BurnProof",
+        "Flaming": "Flaming",
+        "Frost": "Frost",
+        "Vorpal": "Vorpal",
+        "Shocking": "Shocking",
+        "Unholy": "Unholy",
+        "Sharp": "Sharp",
+        "TwoHands": "TwoHands",
+        "NoUncurse": "NoUncurse",
+        "SellExtract": "SellExtract",
+        "PutIn": "PutIn",
+        "PutOn": "PutOn",
+        "PutAt": "PutAt",
+        "StandAt": "StandAt",
+        "StandOn": "StandOn",
+        "SitAt": "SitAt",
+        "SitIn": "SitIn",
+        "SitOn": "SitOn",
+        "RestIn": "RestIn",
+        "RestOn": "RestOn",
+        "RestAt": "RestAt",
+        "SleepAt": "SleepAt",
+        "SleepOn": "SleepOn",
+        "SleepIn": "SleepIn",
+        "Inventory": "Inventory",
+        "Outfit": "Outfit",
+        "UniqueEquip": "UniqueEquip",
+        "Closeable": "Closable",
+        "Invis": "Invisibility"
+    };
+
+
     Template = null;
     VNum = 0;
     Name = "";
@@ -176,11 +241,11 @@ class ItemData {
     DisplayFlags(to) {
         var flags = "";
 
-        if (this.ExtraFlags.Glow)
+        if (this.ExtraFlags.ISSET(ItemData.ExtraFlags.Glow))
             flags += "(Glowing)";
-        if (this.ExtraFlags.Hum)
+        if (this.ExtraFlags.ISSET(ItemData.ExtraFlags.Hum))
             flags += "(Humming)";
-        if (this.ExtraFlags.Invisiblility)
+        if (this.ExtraFlags.ISSET(ItemData.ExtraFlags.Invisiblility))
             flags += "(Invis)";
         // if (this.extraFlags.Magic &&
         //     (to.IsAffected(AffectFlags.DetectMagic) || to.IsAffected(AffectFlags.ArcaneVision)))
@@ -213,26 +278,25 @@ class ItemData {
     }
 
     Load(xml) {
-        this.VNum = XmlHelper.GetElementValue(xml, "VNUM", this.VNum);
-        this.Name = XmlHelper.GetElementValue(xml, "NAME", this.Name);
-        this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription", this.ShortDescription);
-        this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription", this.LongDescription);
+        this.VNum = xml.GetElementValue( "VNUM", this.VNum);
+        this.Name = xml.GetElementValue( "NAME", this.Name);
+        this.ShortDescription = xml.GetElementValue( "ShortDescription", this.ShortDescription);
+        this.LongDescription = xml.GetElementValue( "LongDescription", this.LongDescription);
         this.Value = xml.GetElementValueInt("Cost", this.Value);
         this.Value = xml.GetElementValueInt("Value", this.Value);
 
         this.Timer = xml.GetElementValueInt("Value", this.Timer);
         if(xml.WEARFLAGS) {
             this.WearFlags = {};
-            Utility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
+            Utility.ParseFlags(this.WearFlags, xml.GetElementValue( "WearFlags"));
         }
         if(xml.EXTRAFLAGS) {
             this.ExtraFlags = {};
-            Utility.ParseFlags(this.ExtraFlags, XmlHelper.GetElementValue(xml, "ExtraFlags"));
+            Utility.ParseFlags(this.ExtraFlags, xml.GetElementValue("ExtraFlags"));
 
-            if(this.ExtraFlags.Locked) this.ExtraFlags.Closed = true;
-            if(this.ExtraFlags.Closed) {
-                this.ExtraFlags.Closable = true;
-                this.ExtraFlags.Closeable = true;
+            if(this.ExtraFlags.ISSET(ItemData.ExtraFlags.Locked)) this.ExtraFlags.SETBIT(ItemData.ExtraFlags.Closed);
+            if(this.ExtraFlags.ISSET(ItemData.ExtraFlags.Closed)) {
+                this.ExtraFlags.SETBIT(ItemData.ExtraFlags.Closable);
             }
 
         }

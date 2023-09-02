@@ -23,13 +23,13 @@ class Settings {
             var content = fs.readFileSync(this.SettingsPath, { encoding: "utf-8" });
             const parser = new xml2js.Parser({ strict: false, trim: false });
             parser.parseString(content, function(err, xml) {
-                Settings.Port = XmlHelper.GetAttributeValueInt(xml, "Port");
-                Settings.PlayersOnlineAtOnceEver = XmlHelper.GetAttributeValueInt(xml, "PlayersOnlineAtOnceEver");
-                Settings.DataPath = XmlHelper.GetAttributeValue(xml, "DataPath");
-                Settings.PlayerDataPath = XmlHelper.GetAttributeValue(xml, "PlayerDataPath");
-                Settings.AreaDataPath = XmlHelper.GetAttributeValue(xml, "AreaDataPath");
-                Settings.TitleDataPath = XmlHelper.GetAttributeValue(xml, "TitleDataPath");
-                Settings.RaceDataPath = XmlHelper.GetAttributeValue(xml, "RaceDataPath");
+                Settings.Port = xml.GetAttributeValueInt( "Port");
+                Settings.PlayersOnlineAtOnceEver = xml.GetAttributeValueInt( "PlayersOnlineAtOnceEver");
+                Settings.DataPath = xml.GetAttributeValue( "DataPath");
+                Settings.PlayerDataPath = xml.GetAttributeValue( "PlayerDataPath");
+                Settings.AreaDataPath = xml.GetAttributeValue( "AreaDataPath");
+                Settings.TitleDataPath = xml.GetAttributeValue( "TitleDataPath");
+                Settings.RaceDataPath = xml.GetAttributeValue( "RaceDataPath");
             });
         }
     }

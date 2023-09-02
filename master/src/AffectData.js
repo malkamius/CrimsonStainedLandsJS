@@ -226,7 +226,7 @@ class AffectData {
             this.Modifier = XmlHelper.GetAttributeValue(params.Xml, "Modifier");
             this.Hidden = Utility.Compare(XmlHelper.GetAttributeValue(params.Xml, "Hidden"), "True");
             this.AffectType = XmlHelper.GetAttributeValue(params.Xml, "AffectType");
-            //this.SkillSpell = XmlHelper.GetAttributeValue(xml, "SkillSpell");
+            //this.SkillSpell = xml.GetAttributeValue( "SkillSpell");
             this.EndMessage = XmlHelper.GetAttributeValue(params.Xml, "EndMessage");
             this.EndMessageToRoom = XmlHelper.GetAttributeValue(params.Xml, "EndMessageToRoom");
             this.BeginMessage = XmlHelper.GetAttributeValue(params.Xml, "BeginMessage");

@@ -407,11 +407,11 @@ class Magic {
                     target = "targetChar";
                 }
 
-                else if (([item, count] = ch.GetItemHere(argument, count)) && item)
+                else if (!argument.ISEMPTY() && ([item, count] = ch.GetItemHere(argument, count)) && item)
                 {
                     target = "targetItem";
                 }
-                else if (([item, count]= ch.GetItemHere(arg2, count)) && item)
+                else if (!arg2.ISEMPTY() && ([item, count]= ch.GetItemHere(arg2, 0)) && item)
                 {
                     target = "targetItem";
                 }
@@ -492,7 +492,7 @@ class Magic {
             {
                 ch.send("Your song falls on deaf ears.\n\r");
                 ch.CheckImprove("sing", false, 1);
-                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypesList.Instrument))
+                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypes.Instrument))
                 {
                     ch.CheckImprove("a cappella", false, 1);
                 }
@@ -513,7 +513,7 @@ class Magic {
             if (MethodUsed == "Sing")
             {
                 ch.CheckImprove("sing", true, 1);
-                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypesList.Instrument))
+                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypes.Instrument))
                 {
                     ch.CheckImprove("a cappella", true, 1);
                 }
@@ -891,7 +891,7 @@ class Magic {
         }
     }
 
-    static SpellPrayer(castType, spell, level, ch, victim, item, args )
+    static SpellPrayer(castType, spell, level, ch, victim, item, args, target)
     {
         var affect;
 
@@ -943,7 +943,7 @@ class Magic {
         }
     }
 
-    static SpellBlindness(castType, spell, ch_level, ch, victim, item, args )
+    static SpellBlindness(castType, spell, ch_level, ch, victim, item, args, target)
     {
         var affect;
         if (victim == null)
@@ -977,7 +977,7 @@ class Magic {
         }
     }
 
-    static SpellCreateBread(castType, spell, ch_level, ch, victim, item, args )
+    static SpellCreateBread(castType, spell, ch_level, ch, victim, item, args, target)
     {
         var template;
         const ItemTemplateData = require("./ItemTemplateData");
@@ -991,7 +991,7 @@ class Magic {
         }
     }
 
-    static SpellDetectInvis(castType, spell, level, ch, victim, item, args )
+    static SpellDetectInvis(castType, spell, level, ch, victim, item, args, target)
     {
         var affect;
         if (victim == null)
@@ -1027,7 +1027,7 @@ class Magic {
                 ch.send("Ok.\n\r");
         }
     }
-    static SpellInfravision(castType, spell, level, ch, victim, item, args )
+    static SpellInfravision(castType, spell, level, ch, victim, item, args, target)
     {
         var affect;
         if (victim == null)
@@ -1062,7 +1062,7 @@ class Magic {
         }
     }
 
-    static SpellInvis(castType, spell, level, ch, victim, item, args )
+    static SpellInvis(castType, spell, level, ch, victim, item, args, target)
     {
         var affect;
         if (victim == null)
@@ -1162,7 +1162,7 @@ class Magic {
             victim.Act("$n looks very ill.", null, null, null, "ToRoom");
         }
     }
-    static SpellWordOfRecall(castType, spell, ch_level, ch, victim, item, args )
+    static SpellWordOfRecall(castType, spell, ch_level, ch, victim, item, args, target)
     {
         if (victim == null)
             victim = ch;
@@ -1186,7 +1186,7 @@ class Magic {
         victim.Act("$n appears in the room.", null, null, null, "ToRoom");
         //Character.DoLook(victim, "auto");
     }
-    static SpellRemoveCurse(castType, spell, ch_level, ch, victim, item, args )
+    static SpellRemoveCurse(castType, spell, ch_level, ch, victim, item, args, target )
     {
         if (victim == null)
             victim = ch;
@@ -1195,10 +1195,10 @@ class Magic {
         {
             if (item != null)
             {
-                if (item.ExtraFlags.ISSET("NoRemove") || item.ExtraFlags.ISSET("NoDrop"))
+                if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.NoRemove) || item.ExtraFlags.ISSET(ItemData.ExtraFlags.NoDrop))
                 {
-                    item.ExtraFlags.RemoveFlag("NoRemove");
-                    item.ExtraFlags.RemoveFlag("NoDrop");
+                    item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.NoRemove);
+                    item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.NoDrop);
                     ch.Act("$p glows white as its curse is lifted.", null, item, null, "ToChar");
                     ch.Act("$p glows white as its curse is lifted.", null, item, null, "ToRoom");
                 }
@@ -1225,10 +1225,10 @@ class Magic {
                         return;
                     }
 
-                    if (item.ExtraFlags.ISSET("NoRemove") || item.ExtraFlags.ISSET("NoDrop"))
+                    if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.NoRemove) || item.ExtraFlags.ISSET(ItemData.ExtraFlags.NoDrop))
                     {
-                        item.ExtraFlags.RemoveFlag("NoRemove");
-                        item.ExtraFlags.RemoveFlag("NoDrop");
+                        item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.NoRemove);
+                        item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.NoDrop);
                         ch.Act("$p glows white as its curse is lifted.", null, item, null, "ToChar");
                         ch.Act("$p glows white as its curse is lifted.", null, item, null, "ToRoom");
                         return;
@@ -1255,7 +1255,7 @@ class Magic {
         }
     }
 
-    static SpellWrath(castType, spell, ch_level, ch, victim, item, args )
+    static SpellWrath(castType, spell, ch_level, ch, victim, item, args, target)
     {
         var dam;
 
@@ -1283,7 +1283,7 @@ class Magic {
         return;
     }
 
-    static SpellHolyWrath(castType, spell, ch_level, ch, victim, item, args )
+    static SpellHolyWrath(castType, spell, ch_level, ch, victim, item, args, target)
     {
         for (var vict in Utility.CloneArray(ch.Room.Characters))
         {
@@ -1292,7 +1292,7 @@ class Magic {
         }
     }
 
-    static SpellFlamestrike(castType, spell, ch_level, ch, victim, item, args )
+    static SpellFlamestrike(castType, spell, ch_level, ch, victim, item, args, target)
     {
         var dam;
 
@@ -2238,7 +2238,7 @@ class Magic {
             Utility.JoinFlags(item.ItemTypes), item.Level);
         buffer += Utility.Format("It is worth {0} silver and weighs {1} pounds.\n\r", item.Value, item.Weight);
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             if (item.WeaponDamageType != null)
                 buffer += Utility.Format("Damage Type is {0}\n\r", item.WeaponDamageType);
@@ -2246,17 +2246,17 @@ class Magic {
 
         }
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Container))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Container))
         {
             buffer += Utility.Format("It can hold {0} pounds.", item.MaxWeight);
         }
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Food))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Food))
         {
             buffer += Utility.Format("It is edible and provides {0} nutrition.\n\r", item.Nutrition);
         }
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.DrinkContainer))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.DrinkContainer))
         {
             buffer += Utility.Format("Nutrition {0}, Drinks left {1}, Max Capacity {2}, it is filled with '{3}'\n\r", item.Nutrition, item.Charges, item.MaxCharges, item.Liquid);
         }
@@ -2266,7 +2266,7 @@ class Magic {
         if (item.Timer > 0)
             buffer += Utility.Format("It will decay in {0} hours.\n\r", item.Timer);
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Armor) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Clothing))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Armor) || item.ItemTypes.ISSET(ItemData.ItemTypes.Clothing))
         {
             buffer += Utility.Format("It provides armor against bash {0}, slash {1}, pierce {2}, magic {3}\n\r", item.ArmorBash, item.ArmorSlash, item.ArmorPierce, item.ArmorExotic);
         }
@@ -2281,16 +2281,16 @@ class Magic {
             }, "\n   "));
 
         if (item.Spells && (
-                item.ItemTypes.ISSET(ItemData.ItemTypesList.Staff) ||
-                item.ItemTypes.ISSET(ItemData.ItemTypesList.Wand) || 
-                item.ItemTypes.ISSET(ItemData.ItemTypesList.Scroll) || 
-                item.ItemTypes.ISSET(ItemData.ItemTypesList.Potion)))
+                item.ItemTypes.ISSET(ItemData.ItemTypes.Staff) ||
+                item.ItemTypes.ISSET(ItemData.ItemTypes.Wand) || 
+                item.ItemTypes.ISSET(ItemData.ItemTypes.Scroll) || 
+                item.ItemTypes.ISSET(ItemData.ItemTypes.Potion)))
         {
             buffer += Utility.Format("It contains the following spells:\n\r   {0}", item.Spells.joinWithTransform(function(itemspell) { 
                 return itemspell.SpellName + " [lvl " + itemspell.Level + "]";},"\n   ") + "\n\r");
         }
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Wand))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypes.Wand))
         {
             buffer += Utility.Format("It has {0} of {1} charges left\n\r", item.Charges, item.MaxCharges);
         }
@@ -2330,7 +2330,7 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemTypes.ISSET(ItemData.ItemTypesList.Armor) && !item.ItemTypes.ISSET(ItemData.ItemTypesList.Clothing))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Armor) && !item.ItemTypes.ISSET(ItemData.ItemTypes.Clothing))
         {
             ch.send("That isn't armor.\n\r");
             return;
@@ -2350,8 +2350,8 @@ class Magic {
                     ch.AffectApply(aff, true);
                 }
                 item.Affects.splice(item.Affects.indexOf(aff), 1);
-                item.ExtraFlags.RemoveFlag("Glow");
-                item.ExtraFlags.RemoveFlag("Hum");
+                item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.Glow);
+                item.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.Hum);
 
             }
             else if (aff != null)
@@ -2379,8 +2379,8 @@ class Magic {
                 aff.Level = ch_level;
                 aff.Duration = -1;
                 item.Affects.unshift(aff);
-                item.ExtraFlags[ExtraFlags.Glow] = true;
-                item.ExtraFlags[ExtraFlags.Hum] = true;
+                item.ExtraFlags[ItemData.ExtraFlags.Glow] = true;
+                item.ExtraFlags[ItemData.ExtraFlags.Hum] = true;
                 if (ch.GetEquipmentWearSlot(item) != null)
                 {
                     ch.AffectApply(aff);
@@ -2399,7 +2399,7 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
@@ -2420,10 +2420,10 @@ class Magic {
                     ch.AffectApply(aff, true);
                     ch.AffectApply(aff2, true);
                 }
-                item.affects.Remove(aff);
-                item.affects.Remove(aff2);
-                item.ExtraFlags.Remove(ExtraFlags.Glow);
-                item.ExtraFlags.Remove(ExtraFlags.Hum);
+                item.Affects.Remove(aff);
+                item.Affects.Remove(aff2);
+                item.ExtraFlags.RemoveFlag(ExtraFlags.Glow);
+                item.ExtraFlags.RemoveFlag(ExtraFlags.Hum);
 
             }
             else if (aff != null)
@@ -2466,8 +2466,8 @@ class Magic {
                 item.Affects.unshift(aff);
                 item.Affects.unshift(aff2);
 
-                item.ExtraFlags[ExtraFlags.Glow] = true;
-                item.ExtraFlags[ExtraFlags.Hum] = true;
+                item.ExtraFlags[ItemData.ExtraFlags.Glow] = true;
+                item.ExtraFlags[ItemData.ExtraFlags.Hum] = true;
                 if (worn)
                 {
                     ch.AffectApply(aff);
@@ -2591,7 +2591,7 @@ class Magic {
 
     static SpellCreateWater(castType, spell, ch_level, ch, victim, item, args, target)
     {
-        if (item != null && !item.ItemTypes.ISSET(ItemData.ItemTypesList.DrinkContainer))
+        if (item != null && !item.ItemTypes.ISSET(ItemData.ItemTypes.DrinkContainer))
         {
             ch.send("That can't hold water.\n\r");
         }
@@ -3717,7 +3717,7 @@ class Magic {
             ch.send("You do not have enough mana to cast this spell.\n\r");
             return;
         }
-        else if (!item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
@@ -3788,7 +3788,7 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
@@ -3829,8 +3829,8 @@ class Magic {
             item.Affects.unshift(aff);
             item.Affects.unshift(aff2);
 
-            item.ExtraFlags["Glow"] = true;
-            item.ExtraFlags["Hum"] = true;
+            item.ExtraFlags[ItemData.ExtraFlags.Glow] = true;
+            item.ExtraFlags[ItemData.ExtraFlags.Hum] = true;
             item.WeaponDamageType = "Wrath";
 
             if (worn)
@@ -3851,12 +3851,12 @@ class Magic {
         {
             if (item != null)
             {
-                if (item.ExtraFlags.ISSET(ExtraFlags.Evil) || item.ExtraFlags.ISSET(ExtraFlags.AntiGood))
+                if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.Evil) || item.ExtraFlags.ISSET(ItemData.ExtraFlags.AntiGood))
                 {
-                    item.ExtraFlags.REMOVEFLAG(ExtraFlags.Evil);
-                    item.ExtraFlags.REMOVEFLAG(ExtraFlags.AntiGood);
-                    ch.Act("$p glows white as its tavar is lifted.", null, item, null, Character.ActType.ToChar);
-                    ch.Act("$p glows white as its tavar is lifted.", null, item, null, Character.ActType.ToRoom);
+                    item.ExtraFlags.REMOVEFLAG(ItemData.ExtraFlags.Evil);
+                    item.ExtraFlags.REMOVEFLAG(ItemData.ExtraFlags.AntiGood);
+                    ch.Act("$p glows white as its taint is lifted.", null, item, null, Character.ActType.ToChar);
+                    ch.Act("$p glows white as its taint is lifted.", null, item, null, Character.ActType.ToRoom);
                 }
                 else
                     ch.Act("$p isn't tainted.", null, item, null, Character.ActType.ToChar);
@@ -3881,10 +3881,10 @@ class Magic {
                         return;
                     }
 
-                    if (item.ExtraFlags.ISSET("Evil") || item.ExtraFlags.ISSET("AntiGood"))
+                    if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.Evil) || item.ExtraFlags.ISSET(ItemData.ExtraFlags.AntiGood))
                     {
-                        item.ExtraFlags.REMOVEFLAG("Evil");
-                        item.ExtraFlags.REMOVEFLAG("AntiGood");
+                        item.ExtraFlags.REMOVEFLAG(ItemData.ExtraFlags.Evil);
+                        item.ExtraFlags.REMOVEFLAG(ItemData.ExtraFlags.AntiGood);
                         ch.Act("$p glows white as its tavar is lifted.", null, item, null, Character.ActType.ToChar);
                         ch.Act("$p glows white as its tavar is lifted.", null, item, null, Character.ActType.ToRoom);
                         return;
@@ -3968,7 +3968,7 @@ class Magic {
         {
             ch.Act("Which weapon did you want to charge?\n\r");
         }
-        else if (!weapon.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
+        else if (!weapon.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
         {
             ch.Act("You can only charge a weapon.\n\r");
         }
@@ -4201,7 +4201,7 @@ class Magic {
         if (Magic.SavesSpell(level, victim, DamageMessage.WeaponDamageTypes.Drowning))
             dam /= 2;
         if (checkSector)
-            dam = (int)(dam * 1.5); ;
+            dam = (dam * 1.5); ;
 
         Combat.Damage(ch, victim, dam, spell, DamageMessage.WeaponDamageTypes.Drowning);
     } // end drown
@@ -4768,7 +4768,7 @@ class Magic {
             return;
         }
 
-        if (!ch.Room.items.Any(item => item.ItemTypes.ISSET(ItemData.ItemTypesList.PC_Corpse) && item.Owner.IsName(victim.Name)))
+        if (!ch.Room.items.Any(item => item.ItemTypes.ISSET(ItemData.ItemTypes.PC_Corpse) && item.Owner.IsName(victim.Name)))
         {
             ch.Act("You don't see $N's corpse here.");
         }

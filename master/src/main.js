@@ -467,23 +467,23 @@ function UpdateTick() {
 	for(var item of Utility.CloneArray(ItemData.Items)) {
 		if(item.Timer == 0 || (item.Timer > 0 && --item.Timer == 0)) {
 			var message = "";
-			if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Fountain))
+			if (item.ItemTypes.ISSET(ItemData.ItemTypes.Fountain))
 			{
 				message = "$p dries up.";
 			}
-			else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Corpse) || item.ItemTypes.ISSET(ItemData.ItemTypesList.NPCCorpse))
+			else if (item.ItemTypes.ISSET(ItemData.ItemTypes.Corpse) || item.ItemTypes.ISSET(ItemData.ItemTypes.NPCCorpse))
 			{
 				message = "$p decays into dust.";
 			}
-			else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Food))
+			else if (item.ItemTypes.ISSET(ItemData.ItemTypes.Food))
 			{
 				message = "$p decomposes.";
 			}
-			else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Potion))
+			else if (item.ItemTypes.ISSET(ItemData.ItemTypes.Potion))
 			{
 				message = "$p has evaporated from disuse.";
 			}
-			else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Portal))
+			else if (item.ItemTypes.ISSET(ItemData.ItemTypes.Portal))
 			{
 				message = "$p fades out of existence.";
 			}
@@ -520,7 +520,7 @@ function UpdateTick() {
 				}
 				else if (item.Room != null)
 				{
-					if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Corpse))
+					if (item.ItemTypes.ISSET(ItemData.ItemTypes.Corpse))
 					{
 						var owner = Player.Players.FirstOrDefault((player) => player.Name == item.Owner);
 

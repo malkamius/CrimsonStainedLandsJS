@@ -133,7 +133,7 @@ function dolook(player, arguments, auto) {
 			if(!anyitems)
 					player.send("   nothing.\n\r");
 		} else if(target && target instanceof ItemData) {
-			if(lookin && target.ExtraFlags.IsSet("Closed")) {
+			if(lookin && target.ExtraFlags.IsSet(ItemData.ExtraFlags.Closed)) {
 				    ch.send("{0} is closed.\n\r", target.Display(ch));
 			} else if(lookin && !target.ItemTypes.IsSet("Container")) {
 				ch.send("{0} isn't a container.\n\r", target.Display(ch));

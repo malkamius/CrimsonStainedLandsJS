@@ -27,7 +27,7 @@ function DoGet(player, arguments) {
         var container = null;
         var count = 0;
         if(([container, count] = player.GetItemHere(containerName)) != null) {
-            if(container.ExtraFlags.IsSet("Closed")) {
+            if(container.ExtraFlags.IsSet(ItemData.ExtraFlags.Closed)) {
                 player.Act("$p is closed.\n\r", null, container);
                 return;
             }
@@ -113,7 +113,7 @@ function DoDrop(player, arguments) {
             var item = inventory[key];
             if(!item)
                 player.send("You couldn't find it.\n\r")
-            else if(item.ExtraFlags.NoDrop) {
+            else if(item.ExtraFlags.ISSET(ItemData.ExtraFlags.NoDrop)) {
                 player.send("You can't drop it.\n\r");
             }
             else {
@@ -124,7 +124,7 @@ function DoDrop(player, arguments) {
                 player.Act("You drop $p.", null, item, null, "ToChar");
                 player.Act("$n drops $p.", null, item, null, "ToRoom");
 
-                if (item.ExtraFlags.ISSET(ExtraFlags.MeltDrop)) {
+                if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.MeltDrop)) {
                     ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
                     ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
                     item.Dispose();
@@ -136,7 +136,7 @@ function DoDrop(player, arguments) {
         
         if(!item)
             player.send("You couldn't find it.\n\r")
-        else if(item.ExtraFlags.NoDrop) {
+        else if(item.ExtraFlags.ISSET(ItemData.ExtraFlags.NoDrop)) {
             player.send("You can't drop it.\n\r");
         }
         else {
@@ -146,7 +146,7 @@ function DoDrop(player, arguments) {
             item.Room = player.Room;
             player.Act("You drop $p.", null, item, null, "ToChar");
             player.Act("$n drops $p.", null, item, null, "ToRoom");
-            if (item.ExtraFlags.ISSET(ExtraFlags.MeltDrop)) {
+            if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.MeltDrop)) {
                 ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
                 ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
                 item.Dispose();
@@ -267,9 +267,9 @@ Character.DoCommands.DoSacrifice = function(ch, args)
         if (item != null)
         {
 
-            if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Fountain) || !item.WearFlags.ISSET(ItemData.WearFlagsList.Take)) {
+            if (item.ItemTypes.ISSET(ItemData.ItemTypes.Fountain) || !item.WearFlags.ISSET(ItemData.WearFlags.Take)) {
                 ch.send(Utility.Format("Are you nuts? You cannot sacrifice {0} to the gods.\n\r", item.ShortDescription));
-            } else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.PC_Corpse)) {
+            } else if (item.ItemTypes.ISSET(ItemData.ItemTypes.PC_Corpse)) {
                 ch.Act("The gods wouldn't approve of that.");
             } else {
                 for (var contained of item.Contains)

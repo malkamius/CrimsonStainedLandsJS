@@ -89,31 +89,31 @@ class Player extends Character {
 
   LoadPlayerData(xml) {
 	if(xml)	{
-		this.Name = XmlHelper.GetElementValue(xml,"Name");
-		this.ShortDescription = XmlHelper.GetElementValue(xml,"ShortDescription");
-		this.LongDescription = XmlHelper.GetElementValue(xml,"LongDescription");
-		this.Description = XmlHelper.GetElementValue(xml,"Description");
-		this.Title = XmlHelper.GetElementValue(xml,"Title");
-		this.ExtendedTitle = XmlHelper.GetElementValue(xml,"ExtendedTitle");
-		this.Alignment = XmlHelper.GetElementValue(xml,"Alignment");
-		this.Ethos = XmlHelper.GetElementValue(xml,"Ethos");
-		this.Sex = XmlHelper.GetElementValue(xml,"Sex");
-		this.Level = XmlHelper.GetElementValueInt(xml,"Level");
+		this.Name = xml.GetElementValue("Name");
+		this.ShortDescription = xml.GetElementValue("ShortDescription");
+		this.LongDescription = xml.GetElementValue("LongDescription");
+		this.Description = xml.GetElementValue("Description");
+		this.Title = xml.GetElementValue("Title");
+		this.ExtendedTitle = xml.GetElementValue("ExtendedTitle");
+		this.Alignment = xml.GetElementValue("Alignment");
+		this.Ethos = xml.GetElementValue("Ethos");
+		this.Sex = xml.GetElementValue("Sex");
+		this.Level = xml.GetElementValueInt("Level");
 
 		this.Xp = xml.GetElementValueInt("Xp");
 		this.XpTotal = xml.GetElementValueInt("XpTotal");
 
-		this.DamageRoll = XmlHelper.GetElementValueInt(xml,"DamRoll");
-		this.HitRoll = XmlHelper.GetElementValueInt(xml,"HitRoll");
-		this.ArmorClass = XmlHelper.GetElementValueInt(xml,"ArmorClass");
-		this.Silver = XmlHelper.GetElementValueInt(xml,"Silver");
-		this.Gold = XmlHelper.GetElementValueInt(xml,"Gold");
-		this.SilverBank = XmlHelper.GetElementValueInt(xml,"SilverBank");
-		this.Practices = XmlHelper.GetElementValueInt(xml,"Practices");
-		this.Trains = XmlHelper.GetElementValueInt(xml,"Trains");
-		this.Hunger = XmlHelper.GetElementValueInt(xml,"Hunger");
-		this.Thirst = XmlHelper.GetElementValueInt(xml,"Thirst");
-		this.SavingThrow = XmlHelper.GetElementValueInt(xml,"SavingThrow");
+		this.DamageRoll = xml.GetElementValueInt("DamRoll");
+		this.HitRoll = xml.GetElementValueInt("HitRoll");
+		this.ArmorClass = xml.GetElementValueInt("ArmorClass");
+		this.Silver = xml.GetElementValueInt("Silver");
+		this.Gold = xml.GetElementValueInt("Gold");
+		this.SilverBank = xml.GetElementValueInt("SilverBank");
+		this.Practices = xml.GetElementValueInt("Practices");
+		this.Trains = xml.GetElementValueInt("Trains");
+		this.Hunger = xml.GetElementValueInt("Hunger");
+		this.Thirst = xml.GetElementValueInt("Thirst");
+		this.SavingThrow = xml.GetElementValueInt("SavingThrow");
 
 		this.AffectedBy = {};
 		Utility.ParseFlags(this.AffectedBy, XmlHelper.GetElementValue("AffectedBy"));
@@ -124,15 +124,15 @@ class Player extends Character {
 		this.MaxManaPoints = XmlHelper.GetElementValueFloat(xml,"MaxManaPoints");
 		this.MovementPoints = XmlHelper.GetElementValueFloat(xml,"MovementPoints");
 		this.MaxMovementPoints = XmlHelper.GetElementValueFloat(xml,"MaxMovementPoints");
-		var race = XmlHelper.GetElementValue(xml,"Race", "human");
+		var race = xml.GetElementValue("Race", "human");
 		if(!(this.Race = RaceData.LookupRace(race)))
 			console.log(`Race ${race} not found`);
 		if(!(this.PcRace = PcRaceData.LookupRace(race)))
 			console.log(`Race ${race} not found`);
-		var guild = XmlHelper.GetElementValue(xml, "Guild", "warrior");
+		var guild = xml.GetElementValue( "Guild", "warrior");
 		if(!(this.Guild = GuildData.Lookup(guild, false)))
 			console.log(`Guild ${guild} not found`);
-		Utility.ParseFlags(this.Flags, XmlHelper.GetElementValue(xml,"Flags"));
+		Utility.ParseFlags(this.Flags, xml.GetElementValue("Flags"));
 
 		if(xml.PERMANENTSTATS) {
 			var stats = xml.PERMANENTSTATS[0];
@@ -169,10 +169,10 @@ class Player extends Character {
 			}
 		}
 		
-		this.RoomVNum = XmlHelper.GetElementValueInt(xml,"Room");
-		this.Prompt = XmlHelper.GetElementValue(xml,"Prompt");
+		this.RoomVNum = xml.GetElementValueInt("Room");
+		this.Prompt = xml.GetElementValue("Prompt");
 
-		this.Password = XmlHelper.GetElementValue(xml,"Password");
+		this.Password = xml.GetElementValue("Password");
 
 		if(xml.AFFECTS) {
             this.Affects = Array();

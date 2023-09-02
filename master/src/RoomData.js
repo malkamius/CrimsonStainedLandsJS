@@ -144,7 +144,7 @@ class RoomData {
             for(var key in ch.Equipment) {
                 var item = ch.Equipment[key];
 
-                if(item.ExtraFlags.ISSET("Glow") || item.ExtraFlags.ISSET("Glowing") || item.ItemTypes.ISSET(ItemData.ItemTypesList.Light))
+                if(item.ExtraFlags.ISSET(ItemData.ExtraFlags.Glow) || item.ItemTypes.ISSET(ItemData.ItemTypes.Light))
                     return false;
             }
             

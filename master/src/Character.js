@@ -34,7 +34,9 @@ class Character {
 	static Sizes = ["Tiny", "Small", "Medium", "Large", "Huge", "Giant"];
 	static Positions = ["Dead", "Mortal", "Incapacitated", "Stunned", "Sleeping", "Resting", "Sitting", "Fighting", "Standing"];
 	static ActType = {"ToRoom": "ToRoom", "ToRoomNotVictim": "ToRoomNotVictim", "ToVictim": "ToVictim", "ToChar": "ToChar", "ToAll": "ToAll", "ToGroupInRoom": "ToGroupInRoom", "GlobalNotVictim": "GlobalNotVictim" };
-
+	static Alignment = {"Good": "Good", "Neutral": "Neutral", "Evil": "Evil"};
+	static Ethos = {"Orderly": "Orderly", "Neutral": "Neutral", "Chaotic": "Chaotic"};
+	
 	static ActFlags = {
         "GuildMaster": "GuildMaster",
         "NoAlign": "NoAlign",
@@ -1733,16 +1735,16 @@ class Character {
 				}
 			}
 		}
-
+		
 		// Check if the item has alignment restrictions that conflict with the character's alignment
-		// if ((itemData.extraFlags.ISSET(ExtraFlags.AntiGood) && Alignment == Alignment.Good) ||
-		//     (itemData.extraFlags.ISSET(ExtraFlags.AntiNeutral) && Alignment == Alignment.Neutral) ||
-		//     (itemData.extraFlags.ISSET(ExtraFlags.AntiEvil) && Alignment == Alignment.Evil))
-		// {
-		//     Act("You try to wear $p, but it zaps you.", null, itemData, type: ActType.ToChar);
-		//     Act("$n tries to wear $p, but it zaps $m.", null, itemData, type: ActType.ToRoom);
-		//     return false;
-		// }
+		if ((item.ExtraFlags.ISSET(ItemData.ExtraFlags.AntiGood) && this.Alignment == Character.Alignment.Good) ||
+		    (item.ExtraFlags.ISSET(ItemData.ExtraFlags.AntiNeutral) && this.Alignment == Character.Alignment.Neutral) ||
+		    (item.ExtraFlags.ISSET(ItemData.ExtraFlags.AntiEvil) && this.Alignment == Character.Alignment.Evil))
+		{
+		    Act("You try to wear $p, but it zaps you.", null, item, null, Character.ActType.ToChar);
+		    Act("$n tries to wear $p, but it zaps $m.", null, item, null, Character.ActType.ToRoom);
+		    return false;
+		}
 
 		var handslots = { Wield: true, DualWield: true, Shield: true, Held: true };
 
@@ -1762,8 +1764,8 @@ class Character {
 			// Check if the item can be dual wielded and the character has the appropriate skill
 			if (slot.ID == "DualWield" &&
 				(this.GetSkillPercentage("dual wield") <= 1 ||
-				item.ExtraFlags.TwoHands ||
-				(wielded && wielded.ExtraFlags.TwoHands)))
+				item.ExtraFlags.ISSET(ItemData.ExtraFlags.TwoHands) ||
+				(wielded && wielded.ExtraFlags.ISSET(ItemData.ExtraFlags.TwoHands))))
 				continue;
 
 			// Check if the item can be worn in the current slot and the slot is empty
@@ -1835,9 +1837,9 @@ class Character {
 				if (emptySlot.ID == "Wield" || emptySlot.ID == "DualWield")
 				{
 					// // Check if the character can wield the item based on their strength
-					// if (!IsNPC && itemData.Weight > PhysicalStats.StrengthApply[GetCurrentStat(PhysicalStatTypes.Strength)].Wield)
+					// if (!IsNPC && item.Weight > PhysicalStats.StrengthApply[GetCurrentStat(PhysicalStatTypes.Strength)].Wield)
 					// {
-					//     Act("$p weighs too much for you to wield.", null, itemData);
+					//     Act("$p weighs too much for you to wield.", null, item);
 					//     return false;
 					// }
 
@@ -1860,14 +1862,14 @@ class Character {
 			item.CarriedBy = this;
 
 			// // Apply the item's affects to the character
-			// if (itemData.Durability != 0) // Broken items don't apply any affects
+			// if (item.Durability != 0) // Broken items don't apply any affects
 			// {
-			//     foreach (var aff in itemData.affects)
+			//     foreach (var aff in item.affects)
 			//         AffectApply(aff);
 			// }
 
 			// // Execute any wear programs associated with the item
-			// Programs.ExecutePrograms(Programs.ProgramTypes.Wear, this, itemData, "");
+			// Programs.ExecutePrograms(Programs.ProgramTypes.Wear, this, item, "");
 
 			return true;
 		}

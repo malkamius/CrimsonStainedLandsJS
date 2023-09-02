@@ -25,18 +25,18 @@ class RaceData {
     HasCoins = true;
 
     constructor(xml) {
-        this.CanSpeak = Utility.Compare(XmlHelper.GetAttributeValue(xml, "CanSpeak", "false"), "true");
-        this.HasCoins = Utility.Compare(XmlHelper.GetAttributeValue(xml, "HasCoins", "false"), "true");
-        this.Name = XmlHelper.GetElementValue(xml, "Name").toLowerCase();
-        this.PcRace = Utility.Compare(XmlHelper.GetElementValue(xml, "PcRace"), "true");
-        Utility.ParseFlags(this.Part, XmlHelper.GetElementValue(xml, "Part"));
-        Utility.ParseFlags(this.Act, XmlHelper.GetElementValue(xml, "Act"));
-        Utility.ParseFlags(this.Aff, XmlHelper.GetElementValue(xml, "Aff"));
-        Utility.ParseFlags(this.Immune, XmlHelper.GetElementValue(xml, "Immune"));
-        Utility.ParseFlags(this.Resist, XmlHelper.GetElementValue(xml, "Resist"));
-        Utility.ParseFlags(this.Vulnerable, XmlHelper.GetElementValue(xml, "Vulnerable"));
-        Utility.ParseFlags(this.Form, XmlHelper.GetElementValue(xml, "Form"));
-        this.Size = XmlHelper.GetElementValue(xml, "Size");
+        this.CanSpeak = Utility.Compare(xml.GetAttributeValue( "CanSpeak", "false"), "true");
+        this.HasCoins = Utility.Compare(xml.GetAttributeValue( "HasCoins", "false"), "true");
+        this.Name = xml.GetElementValue( "Name").toLowerCase();
+        this.PcRace = Utility.Compare(xml.GetElementValue( "PcRace"), "true");
+        Utility.ParseFlags(this.Part, xml.GetElementValue( "Part"));
+        Utility.ParseFlags(this.Act, xml.GetElementValue( "Act"));
+        Utility.ParseFlags(this.Aff, xml.GetElementValue( "Aff"));
+        Utility.ParseFlags(this.Immune, xml.GetElementValue( "Immune"));
+        Utility.ParseFlags(this.Resist, xml.GetElementValue( "Resist"));
+        Utility.ParseFlags(this.Vulnerable, xml.GetElementValue( "Vulnerable"));
+        Utility.ParseFlags(this.Form, xml.GetElementValue( "Form"));
+        this.Size = xml.GetElementValue( "Size");
 
         if(xml.STATS) {
             var stats = xml.STATS[0];

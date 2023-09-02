@@ -20,11 +20,11 @@ class XmlHelper {
 	}
 
 	static GetElementValueInt(xml, name, defaultvalue = 0) {
-		return parseInt(XmlHelper.GetElementValue(xml, name, defaultvalue));
+		return parseInt(xml.GetElementValue( name, defaultvalue));
 	}
 
 	static GetElementValueFloat(xml, name, defaultvalue = 0) {
-		return parseFloat(XmlHelper.GetElementValue(xml, name, defaultvalue));
+		return parseFloat(xml.GetElementValue( name, defaultvalue));
 	}
 
 	static GetAttributeValue(xml, name, defaultvalue = "") {
@@ -44,11 +44,11 @@ class XmlHelper {
 
 
 	static GetAttributeValueInt(xml, name, defaultvalue = 0) {
-		return parseInt(XmlHelper.GetAttributeValue(xml, name, defaultvalue));
+		return parseInt(xml.GetAttributeValue( name, defaultvalue));
 	}
 
 	static GetAttributeValueFloat(xml, name, defaultvalue = 0) {
-		return parseFloat(XmlHelper.GetAttributeValue(xml, name, defaultvalue));
+		return parseFloat(xml.GetAttributeValue( name, defaultvalue));
 	}
 }
 Object.defineProperty( Object.prototype, 'GetElementValue', { value: function (name, defaultvalue = "") { return XmlHelper.GetElementValue(this, name, defaultvalue); }} );

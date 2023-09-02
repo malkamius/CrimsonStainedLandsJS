@@ -85,9 +85,9 @@ class DamageMessage {
     }
 
     constructor(xml) {
-        this.Keyword = XmlHelper.GetAttributeValue(xml, "Keyword");
-        this.Message = XmlHelper.GetAttributeValue(xml, "Message");
-        this.Type = XmlHelper.GetAttributeValue(xml, "Type");
+        this.Keyword = xml.GetAttributeValue( "Keyword");
+        this.Message = xml.GetAttributeValue( "Message");
+        this.Type = xml.GetAttributeValue( "Type");
     }
 
     static GetWeaponDamageMessage(keyword) {
