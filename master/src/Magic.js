@@ -94,7 +94,7 @@ class Magic {
             if (other != ch)
             {
                 if (other.Guild == ch.Guild)
-                    ch.Act("$n utters the words '" + spell.name + "'.\n\r", other, null, null, "ToVictim");
+                    ch.Act("$n utters the words '" + spell.Name + "'.\n\r", other, null, null, "ToVictim");
                 else
                     ch.Act("$n utters the words '" + buf + "'.\n\r", other, null, null, "ToVictim");
             }
@@ -1071,7 +1071,7 @@ class Magic {
         var fog = SkillSpell.SkillLookup("faerie fog");
         var fire = SkillSpell.SkillLookup("faerie fire");
 
-        if (victim.IsAffected(fog) || victim.IsAffected(fire) || victim.IsAffected(AffectFlags.FaerieFire))
+        if (victim.IsAffected(fog) || victim.IsAffected(fire) || victim.IsAffected(AffectData.AffectFlags.FaerieFire))
         {
             if (victim != ch)
                 ch.send("They can't become invisible while glowing.\n\r");
@@ -3521,7 +3521,7 @@ class Magic {
     {
         for (var aff of Utility.CloneArray(ch.Affects))
         {
-            if (aff.SkillSpell != null && aff.SkillSpell.name.StartsWith("seal of"))
+            if (aff.SkillSpell != null && aff.SkillSpell.Name.StartsWith("seal of"))
                 ch.AffectFromChar(aff, AffectData.AffectRemoveReason.WoreOff);
         }
     }
@@ -3918,7 +3918,7 @@ class Magic {
         affect.Duration = 10;
         affect.SkillSpell = spell;
         affect.Level = ch_level;
-        affect.DisplayName = spell.name;
+        affect.DisplayName = spell.Name;
         affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Fire);
         affect.EndMessage = "You are no longer channeling heat.";
         ch.AffectToChar(affect);
@@ -3933,7 +3933,7 @@ class Magic {
         affect.Duration = 10;
         affect.SkillSpell = spell;
         affect.Level = ch_level;
-        affect.DisplayName = spell.name;
+        affect.DisplayName = spell.Name;
         affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Cold);
         affect.EndMessage = "You are no longer channeling frost.";
         ch.AffectToChar(affect);
@@ -3948,7 +3948,7 @@ class Magic {
         affect.Duration = 10;
         affect.SkillSpell = spell;
         affect.Level = ch_level;
-        affect.DisplayName = spell.name;
+        affect.DisplayName = spell.Name;
         affect.DamageTypes.SETBIT(DamageMessage.WeaponDamageTypes.Lightning);
         affect.EndMessage = "Your charge dissipates.";
         ch.AffectToChar(affect);
@@ -4050,7 +4050,7 @@ class Magic {
         if (chance > Utility.NumberPercent())
         {
             var affect = new AffectData();
-            affect.DisplayName = spell.name;
+            affect.DisplayName = spell.Name;
             affect.SkillSpell = spell;
             affect.Duration = 5;
             affect.OwnerName = ch.Name;
@@ -4215,7 +4215,7 @@ class Magic {
             {
                 var Affect = new AffectData();
                 Affect.OwnerName = ch.Name;
-                Affect.DisplayName = spell.name;
+                Affect.DisplayName = spell.Name;
                 Affect.SkillSpell = spell;
                 Affect.Level = level;
                 Affect.Where = AffectData.AffectWhere.ToAffects;
@@ -4541,7 +4541,7 @@ class Magic {
             affect.SkillSpell = spell;
             affect.Flags.SETBIT(AffectData.AffectFlags.Sated);
             affect.Duration = 5 + ch.Level / 5;
-            affect.DisplayName = spell.name;
+            affect.DisplayName = spell.Name;
             affect.EndMessage = "You no longer feel sated.";
             victim.AffectToChar(affect);
         }
@@ -4569,7 +4569,7 @@ class Magic {
             affect.SkillSpell = spell;
             affect.Flags.SETBIT(AffectData.AffectFlags.Quenched);
             affect.Duration = 5 + ch.Level / 5;
-            affect.DisplayName = spell.name;
+            affect.DisplayName = spell.Name;
             affect.EndMessage = "You no longer feel quenched.";
             ch.AffectToChar(affect);
         }
@@ -4578,7 +4578,7 @@ class Magic {
     {
         if (victim == null) victim = ch;
 
-        var deaf = victim.FirstOrDefault((aff) => aff.Flags.ISSET(AffectData.AffectFlags.Deafen) && 
+        var deaf = victim.Affects.FirstOrDefault((aff) => aff.Flags.ISSET(AffectData.AffectFlags.Deafen) && 
             (aff.AffectType == AffectData.AffectTypes.Spell || aff.AffectType == AffectData.AffectTypes.Commune));
 
         if (deaf)
@@ -4645,7 +4645,7 @@ class Magic {
                 affect.Where = AffectData.AffectWhere.ToImmune;
                 affect.DamageTypes.SETBIT(damageTypes);
                 affect.Duration = 10 + level / 4;
-                affect.DisplayName = spell.name + " " + aegistype;
+                affect.DisplayName = spell.Name + " " + aegistype;
                 affect.EndMessage = "Your aegis protection wears off.\n\r";
                 affect.EndMessageToRoom = "$n's aegis protection wanes.\n\r";
                 affect.AffectType = castType == "Cast" ? AffectData.AffectTypes.Spell : AffectData.AffectTypes.Commune;
@@ -4727,9 +4727,9 @@ class Magic {
 
             if (!victim.IsAffected(spell))
             {
-                var Affect = new AffectData();
+                var affect = new AffectData();
 
-                affect.DisplayName = spell.name;
+                affect.DisplayName = spell.Name;
                 affect.SkillSpell = spell;
                 affect.Level = level;
                 affect.Duration = 2;
@@ -4738,7 +4738,7 @@ class Magic {
                 affect.EndMessage = "You are no longer calmed.";
                 affect.EndMessageToRoom = "$n is no longer calmed.";
 
-                victim.AffectToChar(Affect);
+                victim.AffectToChar(affect);
             }
 
         }
@@ -4788,7 +4788,7 @@ class Magic {
 
         for (var victim of Utility.CloneArray(ch.Room.Characters))
         {
-            if (victim != ch && victim.IsNPC && victim.Race != null && (race.findIndex((r) => r.equals(victim.Race.name)) >= 0 || victim.Flags.ISSET(Character.ActFlags.Undead)))
+            if (victim != ch && victim.IsNPC && victim.Race != null && (race.findIndex((r) => r.equals(victim.Race.Name)) >= 0 || victim.Flags.ISSET(Character.ActFlags.Undead)))
             {
                 if (victim.Level <= level - 10)
                 {

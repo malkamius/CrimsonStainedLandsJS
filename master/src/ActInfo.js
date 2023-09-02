@@ -567,11 +567,11 @@ Character.DoCommands.DoAffects = function(ch, args) {
 		if(!affect.Hidden) {
 			any = true;
 			if (affect.Modifier != 0) {
-				ch.send("{0,20} {1,-15} {2,-5} for {3} {4}.\n\r", affect.DisplayName + ":", affect.Location, ((affect.Modifier > 0 ? "+" : " ") + affect.Modifier.toString()),
+				ch.send("{0,20} {1,-15} {2,-5} for {3} {4}.\n\r", (affect.DisplayName && affect.SkillSpell? affect.SkillSpell.Name : affect.DisplayName) + ":", affect.Location, ((affect.Modifier > 0 ? "+" : " ") + affect.Modifier.toString()),
 				 affect.Duration, (affect.Frequency == "Tick" ? "hours" : "rounds"));
 			}
 			else {
-				ch.send("{0,42} for {1} {2}.\n\r", affect.DisplayName + ":", affect.Duration, (affect.Frequency == "Tick" ? "hours" : "rounds"));
+				ch.send("{0,42} for {1} {2}.\n\r", (affect.DisplayName.ISEMPTY() && affect.SkillSpell? affect.SkillSpell.Name : affect.DisplayName) + ":", affect.Duration, (affect.Frequency == "Tick" ? "hours" : "rounds"));
 			}
 		}
 	}

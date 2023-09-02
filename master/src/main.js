@@ -614,19 +614,16 @@ function UpdateCombat() {
 			//for(var learnedkey in character.Learned) {
 				//var learned = character.Learned[learnedkey];
 				var learned = Utility.SelectRandom(character.Learned, function(item) { var skill;
-					return (skill = SkillSpell.GetSkill(item.Name, false)) && skill.AutoCast == true && !skill.AutoCastScript.ISEMPTY()});
+					return (skill = SkillSpell.GetSkill(item.Name, false)) && skill.AutoCast == true && skill.TargetType.equals("targetCharDefensive")});
 				if(learned) {
 					var skill = SkillSpell.GetSkill(learned.Name, false);
 
 					if(learned && skill && skill.TargetType.equals("targetCharDefensive")) {
-						if(!skill.AutoCastScript.ISEMPTY()) {
+						if(skill.AutoCastScript.ISEMPTY() || eval(skill.AutoCastScript)) {
 							var victim = character;
-							var result =  eval(skill.AutoCastScript);
-							if(result) {
-								if(character.Guild && character.Guild.CastType) {
-									Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
-									//console.log(Utility.Format("{0} {1}", character.Guild.CastType, "'" + skill.Name + "'"))
-								}
+							if(character.Guild && character.Guild.CastType) {
+								Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
+								//console.log(Utility.Format("{0} {1}", character.Guild.CastType, "'" + skill.Name + "'"))
 							}
 							
 						}

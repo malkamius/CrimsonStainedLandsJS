@@ -492,24 +492,27 @@ class Character {
 		if ((wield = this.Equipment.Wield) &&
 			wield.Weight > (PhysicalStats.StrengthApply[this.GetCurrentStat(0)].Wield))
 		{
-			Act("You drop $p.", null, wield, null, ActType.ToChar);
-			Act("$n drops $p.", null, wield, null, ActType.ToRoom);
+			this.Act("You drop $p.", null, wield, null, Character.ActType.ToChar);
+			this.Act("$n drops $p.", null, wield, null, Character.ActType.ToRoom);
 
 			this.RemoveEquipment(wield, !silent, true);
-
-			Room.items.Insert(0, wield);
-			wield.Room = Room;
+			this.Inventory.Remove(wield);
+			wield.CarriedBy = null;
+			this.Room.Items.unshift(wield);
+			wield.Room = this.Room;
 		}
 		if ((wield = this.Equipment.DualWield) &&
 			wield.Weight > (PhysicalStats.StrengthApply[this.GetCurrentStat(0)].Wield))
 		{
-			Act("You drop $p.", null, wield, null, ActType.ToChar);
-			Act("$n drops $p.", null, wield, null, ActType.ToRoom);
+			this.Act("You drop $p.", null, wield, null, Character.ActType.ToChar);
+			this.Act("$n drops $p.", null, wield, null, Character.ActType.ToRoom);
 
 			this.RemoveEquipment(wield, !silent, true);
+			this.Inventory.Remove(wield);
+			wield.CarriedBy = null;
+			this.Room.Items.unshift(wield);
 
-			Room.items.Insert(0, wield);
-			wield.Room = Room;
+			wield.Room = this.Room;
 		}
 	}
 
@@ -1453,7 +1456,7 @@ class Character {
 		];
 
 		if (this.IsNPC)
-			level = Math.Min(level, 51);
+			level = Math.min(level, 51);
 		level = Math.min(level, dam_each.length - 1);
 		level = Math.max(0, level);
 		return Utility.Random(dam_each[level] * LowEndMultiplier + bonus, dam_each[level] * HighEndMultiplier + bonus);
