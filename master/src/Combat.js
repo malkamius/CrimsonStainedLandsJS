@@ -7,6 +7,7 @@ const PhysicalStats = require("./PhysicalStats");
 const AffectData = require("./AffectData");
 const ItemTemplateData = require("./ItemTemplateData");
 const ItemData = require("./ItemData");
+const Game = require("./Game");
 
 class Combat {
     static CheckIsSafe(ch, victim) {
@@ -57,7 +58,7 @@ class Combat {
             if (victim && victim.Fighting == ch)
             {
                 victim.Fighting = null;
-                if (victim.Position == Positions.Fighting) victim.Position = Positions.Standing;
+                if (victim.Position == "Fighting") victim.Position = "Standing";
             }
 
             return true; // It is not safe to engage in combat
@@ -503,7 +504,7 @@ class Combat {
         }
     };
 
-    static OneHit(character, victim, weapon) {
+    static OneHit(character, victim, weapon, dualwield = false, skill = null) {
         var damage = Math.floor(Math.random() * 10);
 
         var damagemessage = DamageMessage.DamageMessages["punch"];
@@ -511,7 +512,26 @@ class Combat {
         var damagenoun = "punch";
 
         if(weapon) {
-            damage = Utility.Roll(weapon.DamageDice);
+            var leveldif = victim.Level - character.Level;
+            var misschance = .20;
+            if(leveldif > 2) {
+                if(!dualwield)
+                    misschance += .02 + leveldif * .02;
+                else
+                    misschance += .21 + leveldif * .02;
+            } else if (leveldif >= 0) {
+                if(!dualwield)
+                    misschance += .02 + leveldif * .05;
+                else
+                    misschance += .24 + leveldif * .05;
+            }
+
+            misschance -= .05 / Math.max(character.HitRoll, 1);
+
+            if(misschance * 100 > Utility.NumberPercent())
+                damage = 0;
+            else
+                damage = Utility.Roll(weapon.DamageDice);
             if(damage != 0) damage += character.DamageRoll;
             damagemessage = DamageMessage.DamageMessages[weapon.WeaponDamageType.toLowerCase()];
         } else {
@@ -538,6 +558,12 @@ class Combat {
                 victim.Fighting = character;
             victim.Position = "Fighting";
 
+            if (Combat.CheckDistance(character, victim, weapon, damagenoun)) return;
+            if (Combat.CheckDefensiveSpin(character, victim, weapon, damagenoun)) return;
+            if (Combat.CheckShieldBlock(character, victim, weapon, damagenoun)) return;
+            if (Combat.CheckDodge(character, victim, weapon, damagenoun)) return;
+            if (Combat.CheckParry(character, victim, weapon, damagenoun)) return;
+            
             Combat.Damage(character, victim, damage, damagenoun, damagetype, character.Name, weapon, true, true);
             // Combat.ShowDamageMessage(character, victim, damage, damagenoun, damagetype, false);
             
@@ -559,23 +585,57 @@ class Combat {
         }
     }
 
-    static ExecuteRound = function(character) {
-        var numhits = Math.floor(Math.random() * 5);
+    /**
+     * Attempt to perform multiple hits.
+     * @param {CharacterData} character 
+     */
+    static ExecuteRound(character) {
+        var attackskills = ["", "second attack", "third attack", "fourth attack", "fifth attack"];
+        var numhits = 5; //Math.floor(Math.random() * 5);
         var weapon = character.Equipment["Wield"];
         for(var i = 0; i < numhits; i++) {
             if(character.Fighting) {
-                Combat.OneHit(character, character.Fighting, weapon)
+                if(attackskills[i].ISEMPTY() || character.GetSkillPercentage(attackskills[i]) * .75 > Utility.NumberPercent()) {
+                    Combat.OneHit(character, character.Fighting, weapon)
+                    if(!attackskills[i].ISEMPTY()) {
+                        character.CheckImprove(attackskills[i], true, 1);
+                    }
+                } else {
+                    if(!attackskills[i].ISEMPTY()) {
+                        character.CheckImprove(attackskills[i], false, 1);
+                    }
+                    break;
+                }
             }
         }
 
-        numhits = Math.floor(Math.random() * 5);
-
+        numhits = 5; //Math.floor(Math.random() * 5);
+        var dualwieldskill = SkillSpell.GetSkill("dual wield");
         if(!character.Equipment["Shield"] &&
-            !character.Equipment["Held"]) {
+            !character.Equipment["Held"] && 
+            character.GetSkillPercentage(dualwieldskill) > 1) {
             weapon = character.Equipment["DualWield"];
             for(var i = 0; i < numhits; i++) {
                 if(character.Fighting) {
-                    Combat.OneHit(character, character.Fighting, weapon)
+                    if(character.GetSkillPercentage(dualwieldskill) * .75 > Utility.NumberPercent()) {
+                        if(attackskills[i].ISEMPTY() || character.GetSkillPercentage(attackskills[i]) * .75 > Utility.NumberPercent()) {
+                            Combat.OneHit(character, character.Fighting, weapon, true)
+                            character.CheckImprove("dual wield", true, 1);
+                            if(!attackskills[i].ISEMPTY()) {
+                                character.CheckImprove(attackskills[i], true, 1);
+                            }
+                        } else {
+                            if(!attackskills[i].ISEMPTY()) {
+                                character.CheckImprove(attackskills[i], false, 1);
+                            }
+                            break;
+                        }    
+                        character.CheckImprove(dualwieldskill, true, 1);
+                        
+                    } else {
+                        character.CheckImprove(dualwieldskill, false, 1);
+                        break;
+                    }
                 }
             }
         }
@@ -585,6 +645,8 @@ class Combat {
         DamageType = "Bash", ownerName = "", weapon = null,
         show = true, allowflee = true)
     {
+        if(!damage) damage = 0;
+
         var nounDamage = skill;
 
         // If a skill is provided and it has a specific noun for damage, use that noun
@@ -1111,14 +1173,6 @@ class Combat {
         }
     }
 
-    static CheckCutoff(character, victim) { 
-        return false;
-    }
-
-    static CheckPartingBlow(character, victim) {
-
-    }
-
     static DoDirtKick(ch, args)
     {
         var victim;
@@ -1226,6 +1280,1023 @@ class Combat {
 
             ch.CheckImprove(skill, false, 1);
         }
+    }
+
+    static CheckDodge(ch, victim, weapon, damageType)
+    {
+        var chance;
+        var dex, dexa;
+        var skDodge;
+        if (!victim) return false;
+
+        if (!victim.IsAwake)
+            return false;
+
+        skDodge = SkillSpell.SkillLookup("dodge");
+
+        if (!skDodge) return false;
+
+        var skillDodge = victim.GetSkillPercentage(skDodge) * .75;
+
+        if (victim.GetSkillPercentage("tree climb") > 1 && 
+            victim.Room.Sector == RoomData.SectorTypes.Forest || 
+            victim.Room.Sector == RoomData.SectorTypes.Cave)
+        {
+            skillDodge = 90;
+        }
+
+        chance = (3 * skillDodge / 10);
+
+        dex = victim.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity);
+        dexa = ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity);
+        if (dex <= 5)
+            chance += 0;
+        else if (dex <= 10)
+            chance += dex / 2;
+        else if (dex <= 15)
+            chance += (2 * dex / 3);
+        else if (dex <= 20)
+            chance += (8 * dex / 10);
+        else
+            chance += dex;
+        chance += dex - dexa;
+        chance += (Character.Sizes.indexOf(ch.Size) - Character.Sizes.indexOf(victim.Size)) * 5;
+
+
+        if (!victim.CanSee(ch))
+            chance *= Utility.Random(6 / 10, 3 / 4);
+
+        if (ch.IsAffected(AffectData.AffectFlags.Haste)) chance -= 20;
+        if (victim.IsAffected(AffectData.AffectFlags.Haste)) chance += 5;
+        if (ch.IsAffected(AffectData.AffectFlags.Slow)) chance += 5;
+        if (victim.IsAffected(AffectData.AffectFlags.Slow)) chance -= 5;
+
+        if (ch.Form) chance = chance * (100 - ch.Form.ParryModifier) / 100;
+
+        if (Utility.NumberPercent() >= chance + victim.Level - ch.Level)
+        {
+            victim.CheckImprove(skDodge, false, 4);
+            return false;
+        }
+
+        // check concealed sends its own dodge message
+        if (!Combat.CheckConcealed(victim, ch, damageType))
+        {
+            ch.Act("You \\Cdodge\\x $n's {0}.", victim, null, null, Character.ActType.ToVictim, damageType);
+            ch.Act("$N \\Cdodges\\x your {0}.", victim, null, null, Character.ActType.ToChar, damageType);
+        }
+        victim.CheckImprove(skDodge, true, 5);
+
+        Combat.CheckOwaza(victim, ch);
+
+
+        return true;
+    } // end check dodge
+
+    static CheckParry(ch, victim, weapon, damageType)
+    {
+        var chance = 0;
+        var skParry;
+        var skWeapon = null;
+        var victimWield;
+        var victimDualWield;
+        var skVictimWield = null;
+        var skVictimDualWield = null;
+        var skVictimDualWieldSkill = null;
+
+        if (!victim.IsAwake)
+            return false;
+
+        skParry = SkillSpell.SkillLookup("parry");
+        victimWield = victim.Equipment["Wield"];
+        victimDualWield = victim.Equipment["DualWield"];
+
+        if (weapon != null) // weapon ch is using to hit victim, skill lowers chance of parry
+        {
+            skWeapon = SkillSpell.SkillLookup(weapon.WeaponType);
+            chance -= ch.GetSkillPercentage(skWeapon) / 10;
+
+            switch (weapon.WeaponType)
+            {
+                default: chance += 15; break;
+                case "Sword": chance += 5; break;
+                case "Dagger": chance += 5; break;
+                case "Spear": chance -= 5; break;
+                case "Staff": chance -= 5; break;
+                case "Mace": chance -= 5; break;
+                case "Axe": chance -= 5; break;
+                case "Flail": chance += 10; break;
+                case "Whip": chance += 10; break;
+                case "Polearm": chance -= 5; break;
+            }
+        }
+
+        if (victimWield != null)
+        {
+            skVictimWield = SkillSpell.SkillLookup(victimWield.WeaponType);
+            var skillChance = victim.GetSkillPercentage(skVictimWield);
+            chance += skillChance / 10;
+
+            switch (victimWield.WeaponType)
+            {
+                default: chance += 15; break;
+                case "Sword": chance += 10; break;
+                case "Dagger": chance -= 20; break;
+                case "Spear": chance += 20; break;
+                case "Staff": chance += 10; break;
+                case "Mace": chance -= 20; break;
+                case "Axe": chance -= 25; break;
+                case "Flail": chance -= 10; break;
+                case "Whip": chance -= 10; break;
+                case "Polearm": chance += 10; break;
+            }
+        }
+
+        if (victimDualWield != null)
+        {
+            skVictimDualWield = SkillSpell.SkillLookup(victimDualWield.WeaponType);
+            skVictimDualWieldSkill = SkillSpell.SkillLookup("dual wield");
+
+            var skillChance = victim.GetSkillPercentage(skVictimDualWield); ;
+            chance += skillChance / 10;
+            skillChance = victim.GetSkillPercentage(skVictimDualWieldSkill);
+            chance += skillChance / 10;
+            switch (victimDualWield.WeaponType)
+            {
+                default: chance += 15; break;
+                case "Sword": chance += 10; break;
+                case "Dagger": chance -= 20; break;
+                case "Spear": chance += 20; break;
+                case "Staff": chance += 10; break;
+                case "Mace": chance -= 20; break;
+                case "Axe": chance -= 25; break;
+                case "Flail": chance -= 10; break;
+                case "Whip": chance -= 10; break;
+                case "Polearm": chance += 10; break;
+            }
+        }
+
+        if (skParry == null || (!victim.IsNPC && victim.GetSkillPercentage(skParry) == 0)) return false;
+        
+        //if (!victim.isNPC)
+        chance += victim.GetSkillPercentage(skParry) / 2;
+        chance /= 2;
+        
+        if(!victimWield && !victimDualWield) chance = 0;
+
+        var unarmeddefense = SkillSpell.SkillLookup("unarmed defense");
+        var unarmeddefensechance = 0;
+        if (!victimWield && !victimDualWield && (unarmeddefensechance = victim.GetSkillPercentage(unarmeddefense)) > 1)
+            chance = (chance + unarmeddefensechance) / 2;
+
+        var ironfists = SkillSpell.SkillLookup("ironfists");
+        var ironfistschance = 0;
+        if (!victimWield && !victimDualWield && (ironfistschance = victim.GetSkillPercentage(ironfists)) > 1)
+            chance = (chance + ironfistschance) / 2;
+
+        var flourintine = SkillSpell.SkillLookup("flourintine");
+        var flourintinechance = 0;
+        // must dual wield swords for flourintine
+        if (((victimWield && victimWield.WeaponType == "Sword") && (victimDualWield && victimDualWield.WeaponType == "Sword")) && (flourintinechance = victim.GetSkillPercentage(flourintine)) > 1)
+        {
+            chance += flourintinechance / 5;
+        }
+        //else
+        //    chance /= 5;
+        if (ch.IsAffected(AffectData.AffectFlags.Haste)) chance -= 20;
+        if (victim.IsAffected(AffectData.AffectFlags.Haste)) chance += 5;
+        if (ch.IsAffected(AffectData.AffectFlags.Slow)) chance += 5;
+        if (victim.IsAffected(AffectData.AffectFlags.Slow)) chance -= 5;
+
+        if (ch.Form) chance = chance * (100 - ch.Form.ParryModifier) / 100;
+
+        if (Utility.NumberPercent() >= chance + victim.Level - ch.Level)
+        {
+            if (unarmeddefensechance > 1)
+                victim.CheckImprove(unarmeddefense, false, 2);
+            if (ironfistschance > 1)
+                victim.CheckImprove(ironfists, false, 2);
+            if (flourintinechance > 1)
+                victim.CheckImprove(flourintine, true, 2);
+            victim.CheckImprove(skParry, false, 4);
+            return false;
+        }
+
+        if (unarmeddefensechance > 1 || ironfistschance > 1)
+        {
+            ch.Act("You \\Cparry\\x $n's {0} with your bare hands.", victim, null, null, Character.ActType.ToVictim, damageType);
+            ch.Act("$N \\Cparries\\x your {0} with $S bare hands.", victim, null, null, Character.ActType.ToChar, damageType);
+        }
+        else
+        {
+            ch.Act("You \\Cparry\\x $n's {0}.", victim, null, null, Character.ActType.ToVictim, damageType);
+            ch.Act("$N \\Cparries\\x your {0}.", victim, null, null, Character.ActType.ToChar, damageType);
+        }
+
+        victim.CheckImprove(skParry, true, 5);
+        if (unarmeddefensechance > 1)
+            victim.CheckImprove(unarmeddefense, true, 1);
+        if (ironfistschance > 1)
+            victim.CheckImprove(ironfists, true, 1);
+        if (flourintinechance > 1)
+            victim.CheckImprove(flourintine, true, 1);
+        if ((victimWield != null && victimWield.WeaponType == "Sword") || (victimDualWield != null && victimDualWield.WeaponType == "Sword"))
+        {
+            var skRiposte = SkillSpell.SkillLookup("riposte");
+            var riposteChance = victim.GetSkillPercentage(skRiposte);
+
+            if (riposteChance > Utility.NumberPercent())
+            {
+                victim.Act("You riposte $N's {0}!", ch, null, null, Character.ActType.ToChar, damageType);
+                ch.Act("$N ripostes your {0}!", victim, null, null, Character.ActType.ToChar, damageType);
+                var offhand = !(victimWield != null && victimWield.WeaponType == WeaponTypes.Sword);
+                Combat.OneHit(victim, ch, !offhand ? victimWield : victimDualWield, offhand, skRiposte);
+            }
+        }
+        Combat.CheckOwaza(victim, ch);
+
+        return true;
+    } // end check parry
+
+    static CheckShieldBlock(ch, victim, weapon, damageType)
+    {
+        var chance;
+        var str, stra;
+        var skShieldBlock;
+        if (!victim.IsAwake)
+            return false;
+
+        if (victim.Form) return false;
+
+        skShieldBlock = SkillSpell.SkillLookup("shield block");
+        var shield;
+        if (skShieldBlock == null || !(shield = victim.Equipment["Shield"])) return false;
+
+        var skillDodge = !victim.IsNPC ? victim.GetSkillPercentage(skShieldBlock) : 80;
+        chance = (3 * skillDodge / 10);
+
+        str = victim.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength);
+        stra = ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength);
+        if (str <= 5)
+            chance += 0;
+        else if (str <= 10)
+            chance += str / 2;
+        else if (str <= 15)
+            chance += (2 * str / 3);
+        else if (str <= 20)
+            chance += (8 * str / 10);
+        else
+            chance += str;
+        chance += str - stra;
+        chance += (ch.Size - victim.Size) * 5;
+
+
+        if (!victim.CanSee(ch))
+            chance *= Utility.Random(6 / 10, 3 / 4);
+
+        if (Utility.NumberPercent() >= chance + victim.Level - ch.Level)
+        {
+            victim.CheckImprove(skShieldBlock, false, 4);
+            return false;
+        }
+
+        ch.Act("You \\Cblock\\x $n's {0} with $p.", victim, shield, null, Character.ActType.ToVictim, damageType);
+        ch.Act("$N \\Cblocks\\x your {0} with $p.", victim, shield, null, Character.ActType.ToChar, damageType);
+
+        victim.CheckImprove(skShieldBlock, true, 5);
+
+        Combat.CheckShieldJab(victim, ch);
+        Combat.CheckOwaza(victim, ch);
+
+        return true;
+    } // end check shield block
+
+    static CheckShieldJab(ch, victim)
+    {
+        var dam = 0;
+        var skillPercent = 0;
+        var skill = SkillSpell.SkillLookup("shield jab");
+
+        if ((skillPercent = ch.GetSkillPercentage(skill) + 20) <= 21)
+        {
+            return;
+        }
+
+        if (victim.FindAffect(SkillSpell.SkillLookup("protective shield")) != null)
+        {
+            ch.WaitState(Game.PULSE_PER_VIOLENCE);
+            ch.Act("You try to shield jab $N but miss $M.\n\r", victim, null, null, Character.Character.ActType.ToChar);
+            ch.Act("$n tries to shield jab $N but miss $M.\n\r", victim, null, null, Character.Character.ActType.ToRoomNotVictim);
+        }
+        //else if (Utility.Random(0, 1) == 0) return; //50% chance for shield jab attempt
+        else if (skillPercent > Utility.NumberPercent())
+        {
+            dam += Utility.dice(2, (ch.Level) / 2, (ch.Level) / 4);
+
+            if (ch.Fighting == null)
+            {
+                ch.Position = "Fighting";
+                ch.Fighting = victim;
+            }
+            ch.Act("You take advantage of your block and jab $N with your shield.\n\r", victim, null, null, Character.Character.ActType.ToChar);
+            ch.Act("$n takes advantage of $s block and jabs $N with $s shield.\n\r", victim, null, null, Character.Character.ActType.ToRoomNotVictim);
+            ch.Act("$n jabs you with $s shield after blocking your attack..\n\r", victim, null, null, Character.Character.ActType.ToVictim);
+
+            Combat.Damage(ch, victim, dam, skill);
+
+            ch.CheckImprove(skill, true, 1);
+        }
+
+        else ch.CheckImprove(skill, false, 1);
+    }
+
+    static CheckConcealed(ch, victim, dodgeDamageNoun)
+    {
+        var dam = 0;
+        var skillPercent = 0;
+        var skill = SkillSpell.SkillLookup("concealed");
+        var wield;
+        var offhand = false;
+        if ((skillPercent = ch.GetSkillPercentage(skill) + 20) <= 21)
+        {
+            return false;
+        }
+        else if ((!(wield = ch.Equipment["Wield"]) || wield.WeaponType != "Dagger") &&
+            ((offhand = true) && !(wield = ch.Equipment["DualWield"]) || wield.WeaponType != "Dagger"))
+        { // must be wielding a dagger to concealed attack
+            return false;
+        }
+        else if (skillPercent > Utility.NumberPercent())
+        {
+            dam += Utility.dice(2, (ch.Level) / 2, (ch.Level) / 4);
+
+            if (ch.Fighting == null)
+            {
+                ch.Position = "Fighting";
+                ch.Fighting = victim;
+            }
+            ch.Act("You \\Cdodge\\x $N's {0} and close in for a concealed attack.\n\r", victim, null, null, Character.Character.ActType.ToChar, dodgeDamageNoun);
+            ch.Act("$n \\Cdodges\\x $N's {0} and closes in for a concealed attack.\n\r", victim, null, null, Character.Character.ActType.ToRoomNotVictim, dodgeDamageNoun);
+            ch.Act("$n \\Cdodges\\x your {0} and closes in for a concealed attack.\n\r", victim, null, null, Character.Character.ActType.ToVictim, dodgeDamageNoun);
+
+            Combat.OneHit(ch, victim, wield, offhand);
+            //Combat.Damage(ch, victim, dam, skill);
+
+            ch.CheckImprove(skill, true, 1);
+            return true;
+        }
+
+        else
+        {
+            ch.CheckImprove(skill, false, 1);
+            return false;
+        }
+    }
+
+    static CheckCutoff(ch, victim)
+    {
+        var skillPercent = 0;
+        var skill = SkillSpell.SkillLookup("cutoff");
+        var wield;
+
+        if ((skillPercent = ch.GetSkillPercentage(skill) + 20) <= 21)
+        {
+            return false;
+        }
+        else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Polearm)
+        { // must be wielding a polearm to cut off an opponents escape
+            return false;
+        }
+        else if (skillPercent > Utility.NumberPercent())
+        {
+
+            if (ch.Fighting == null)
+            {
+                ch.Position = "Fighting";
+                ch.Fighting = victim;
+            }
+            ch.Act("You \\Ccuts off\\x $N's escape with $p.\n\r", victim, wield, null, Character.ActType.ToChar);
+            ch.Act("$n \\Ccuts off\\x $N's escape with $p.\n\r", victim, wield, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n \\Ccuts off\\x your escape with $p.\n\r", victim, wield, null, Character.ActType.ToVictim);
+
+            ch.CheckImprove(skill, true, 1);
+            return true;
+        }
+
+        else
+        {
+            ch.CheckImprove(skill, false, 1);
+            return false;
+        }
+    }
+
+    static CheckPartingBlow(ch, victim)
+    {
+        var skillPercent = 0;
+        var skill = SkillSpell.SkillLookup("parting blow");
+        var wield;
+        var offhand = false;
+
+        if ((skillPercent = ch.GetSkillPercentage(skill) + 20) <= 21)
+        {
+            return;
+        }
+        else if (skillPercent > Utility.NumberPercent())
+        {
+
+            if (ch.Fighting == null)
+            {
+                ch.Position = "Fighting";
+                ch.Fighting = victim;
+            }
+            ch.Act("You get a parting blow as $N attempts to escape.\n\r", victim, null, null, Character.Character.ActType.ToChar);
+            ch.Act("$n gets a parting blow as $N attempts to escape.\n\r", victim, null, null, Character.Character.ActType.ToRoomNotVictim);
+            ch.Act("$n gets a parting blow as you attempt to escape.\n\r", victim, null, null, Character.Character.ActType.ToVictim);
+
+            wield = ch.GetEquipment(WearSlotIDs.Wield);
+            // only hit with main hand
+            Combat.OneHit(ch, victim, wield, offhand, skill);
+
+            ch.CheckImprove(skill, true, 1);
+            return;
+        }
+
+        else
+        {
+            ch.CheckImprove(skill, false, 1);
+            return;
+        }
+    }
+
+    static CheckDistance(ch, victim, weapon, damageType)
+    {
+        var chance = 0;
+        var skDistance;
+        var skWeapon = null;
+        var victimWield;
+        var skVictimWield = null;
+
+
+        if (!victim.IsAwake)
+            return false;
+
+        skDistance = SkillSpell.SkillLookup("distance");
+
+        victimWield = victim.Equipment["Wield"];
+
+        if (victimWield == null || victimWield.WeaponType != "Polearm")
+            return false;
+
+        if (weapon != null) // weapon ch is using to hit victim, skill lowers chance of parry
+        {
+            skWeapon = SkillSpell.SkillLookup(weapon.WeaponType());
+            chance -= ch.GetSkillPercentage(skWeapon) / 10;
+
+            switch (weapon.WeaponType)
+            {
+                default: chance += 15; break;
+                case "Sword": chance += 5; break;
+                case "Dagger": chance += 5; break;
+                case "Spear": chance -= 5; break;
+                case "Staff": chance -= 5; break;
+                case "Mace": chance -= 5; break;
+                case "Axe": chance -= 5; break;
+                case "Flail": chance += 10; break;
+                case "Whip": chance += 10; break;
+                case "Polearm": chance -= 5; break;
+            }
+        }
+
+        if (victimWield != null)
+        {
+            skVictimWield = SkillSpell.SkillLookup(victimWield.WeaponType());
+            var skillChance = victim.GetSkillPercentage(skVictimWield);
+            chance += skillChance / 10;
+
+            switch (victimWield.WeaponType)
+            {
+                default: chance += 15; break;
+                case "Sword": chance += 10; break;
+                case "Dagger": chance -= 20; break;
+                case "Spear": chance += 20; break;
+                case "Staff": chance += 10; break;
+                case "Mace": chance -= 20; break;
+                case "Axe": chance -= 25; break;
+                case "Flail": chance -= 10; break;
+                case "Whip": chance -= 10; break;
+                case "Polearm": chance += 10; break;
+            }
+        }
+
+        if (skDistance == null || (!victim.IsNPC && victim.GetSkillPercentage(skDistance) <= 1)) return false;
+
+        //if (!victim.isNPC)
+        chance += victim.GetSkillPercentage(skDistance) / 3;
+        chance += victim.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength) / 2;
+        chance -= ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength) / 4;
+
+        if (victim.Size > ch.Size) chance += 20;
+        if (ch.Size > victim.Size) chance -= 10;
+
+        if (Utility.NumberPercent() >= chance + victim.Level - ch.Level)
+        {
+            victim.CheckImprove(skDistance, false, 4);
+            return false;
+        }
+
+
+        ch.Act("You keep $n's {0} at a distance.", victim, null, null, Character.ActType.ToVictim, damageType);
+        ch.Act("$N keeps you at a distance.", victim, null, null, Character.ActType.ToChar, damageType);
+
+        victim.CheckImprove(skDistance, true, 5);
+
+        return true;
+    } // end check distance
+
+    static CheckDefensiveSpin(ch, victim, weapon, damageType)
+    {
+        var chance = 0;
+        var skSpin;
+        var skWeapon = null;
+        var victimWield;
+        var skVictimWield = null;
+
+
+        if (!victim.IsAwake)
+            return false;
+
+
+        skSpin = SkillSpell.SkillLookup("defensive spin");
+
+
+        victimWield = victim.Equipment["Wield"];
+
+        if (victimWield == null || (victimWield.WeaponType != "Staff" && victimWield.WeaponType != "Spear"))
+            return false;
+
+        if (weapon != null) // weapon ch is using to hit victim, skill lowers chance of parry
+        {
+            skWeapon = SkillSpell.SkillLookup(weapon.WeaponType());
+            chance -= ch.GetSkillPercentage(skWeapon) / 10;
+
+            switch (weapon.WeaponType)
+            {
+                default: chance += 15; break;
+                case "Sword": chance += 5; break;
+                case "Dagger": chance += 5; break;
+                case "Spear": chance -= 5; break;
+                case "Staff": chance -= 5; break;
+                case "Mace": chance -= 5; break;
+                case "Axe": chance -= 5; break;
+                case "Flail": chance += 10; break;
+                case "Whip": chance += 10; break;
+                case "Polearm": chance -= 5; break;
+            }
+        }
+
+        if (victimWield != null)
+        {
+            skVictimWield = SkillSpell.SkillLookup(victimWield.WeaponType());
+            var skillChance = victim.GetSkillPercentage(skVictimWield);
+            chance += skillChance / 10;
+
+            switch (victimWield.WeaponType)
+            {
+                default: chance += 15; break;
+                case "Sword": chance += 10; break;
+                case "Dagger": chance -= 20; break;
+                case "Spear": chance += 20; break;
+                case "Staff": chance += 10; break;
+                case "Mace": chance -= 20; break;
+                case "Axe": chance -= 25; break;
+                case "Flail": chance -= 10; break;
+                case "Whip": chance -= 10; break;
+                case "Polearm": chance += 10; break;
+            }
+        }
+
+        if (skSpin == null || (!victim.IsNPC && victim.GetSkillPercentage(skSpin) <= 1)) return false;
+
+        //if (!victim.isNPC)
+        chance += victim.GetSkillPercentage(skSpin) / 3;
+        chance += victim.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity) / 2;
+        chance -= ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity) / 4;
+
+        if (Utility.NumberPercent() >= chance + victim.Level - ch.Level)
+        {
+            victim.CheckImprove(skSpin, false, 4);
+            return false;
+        }
+
+
+        ch.Act("You keep $n's {0} at bay as you spin away.", victim, null, null, Character.ActType.ToVictim, damageType);
+        ch.Act("$N keeps your {0} at bay as they spin away.", victim, null, null, Character.ActType.ToChar, damageType);
+
+        victim.CheckImprove(skSpin, true, 5);
+
+        return true;
+    } // end check spin
+    
+    static CheckOwaza(ch, victim)
+    {
+        var skill = SkillSpell.SkillLookup("owaza");
+
+        if (ch.Fighting == victim && ch.IsAffected(skill))
+        {
+            var affect = ch.FindAffect(skill);
+            ch.AffectFromChar(affect, AffectData.AffectRemoveReason.Other);
+
+            if (Combat.DoAssassinKotegaeshi(ch, victim))
+            {
+                if (ch.Fighting == victim && Combat.DoAssassinKansetsuwaza(ch, victim))
+                    if (ch.Fighting == victim) Combat.AssassinThrow(ch, victim);
+            }
+        }
+    }
+    
+    static DoAssassinKotegaeshi(ch, victim)
+    {
+        var dam_each = 
+        [
+            0,
+            4,  5,  6,  7,  8,   10,  13,  15,  20,  25,
+            30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
+            58, 58, 59, 60, 61, 61, 62, 63, 64, 64,
+            65, 66, 67, 67, 68, 69, 70, 70, 71, 72,
+            73, 73, 74, 75, 76, 76, 77, 78, 79, 79,
+            90,110,120,150,170,200,230,500,500,500
+        ];
+        var skill = SkillSpell.SkillLookup("kotegaeshi");
+        var chance;
+        if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+        {
+            ch.send("You don't know how to do that.\n\r");
+            return false;
+        }
+
+        var dam;
+        var level = ch.Level;
+
+
+        //chance += level / 10;
+
+        if (chance > Utility.NumberPercent())
+        {
+            if (ch.IsNPC)
+                level = Math.min(level, 51);
+            level = Math.min(level, dam_each.length - 1);
+            level = Math.max(0, level);
+
+            dam = Utility.Random(dam_each[level], dam_each[level] * 2);
+
+            ch.Act("$n breaks $N's wrist with $s kotegaeshi.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n breaks your wrist with $s kotegaeshi!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("You break $N's wrist with your kotegaeshi.", victim, null, null, Character.ActType.ToChar);
+            ch.CheckImprove(skill, true, 1);
+
+            Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
+            if (!victim.IsAffected(skill))
+            {
+                var affect = new AffectData();
+                affect.SkillSpell = skill;
+                affect.DisplayName = skill.Name;
+                affect.Duration = 5;
+                affect.Where = AffectData.AffectWhere.ToAffects;
+                affect.Location = AffectData.ApplyTypes.Strength;
+                affect.Modifier = -5;
+                affect.EndMessage = "Your wrist feels better.";
+                affect.EndMessageToRoom = "$n's wrist looks better.";
+                victim.AffectToChar(affect);
+            }
+            return true;
+        }
+        else
+        {
+            ch.Act("$n attempts to break $N's wrists with $s kotegaeshi.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n attempts to break your wrist with $s kotegaeshi!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("You attempt to break $N's wrist with your kotegaeshi.", victim, null, null, Character.ActType.ToChar);
+
+            ch.CheckImprove(skill, false, 1);
+            Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.Bash);
+        }
+        return false;
+    }
+
+    static DoKansetsuwaza(ch, args)
+    {
+        var victim = null;
+
+        if (args.ISEMPTY() && (victim = ch.Fighting) == null)
+        {
+            ch.send("You aren't fighting anyone.\n\r");
+            return;
+        }
+        else if ((!args.ISEMPTY() && ([victim] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && victim) || (args.ISEMPTY() && !(victim = ch.Fighting)))
+        {
+            ch.send("You don't see them here.\n\r");
+            return;
+        }
+
+        var skill = SkillSpell.SkillLookup("kansetsuwaza");
+        ch.WaitState(skill.WaitTime);
+        Combat.DoAssassinKansetsuwaza(ch, victim);
+    }
+    static DoAssassinKansetsuwaza(ch, victim)
+    {
+        var dam_each = 
+        [
+            0,
+            4,  5,  6,  7,  8,   10,  13,  15,  20,  25,
+            30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
+            58, 58, 59, 60, 61, 61, 62, 63, 64, 64,
+            65, 66, 67, 67, 68, 69, 70, 70, 71, 72,
+            73, 73, 74, 75, 76, 76, 77, 78, 79, 79,
+            90,110,120,150,170,200,230,500,500,500
+        ];
+        var skill = SkillSpell.SkillLookup("kansetsuwaza");
+        var chance;
+        if ((chance = ch.GetSkillPercentage(skill) + 20) <= 21)
+        {
+            ch.send("You don't know how to do that.\n\r");
+            return false;
+        }
+
+        var dam;
+        var level = ch.Level;
+
+        //chance += level / 10;
+
+        if (chance > Utility.NumberPercent())
+        {
+            if (ch.IsNPC)
+                level = Math.min(level, 51);
+            level = Math.min(level, dam_each.length - 1);
+            level = Math.max(0, level);
+
+            dam = Utility.Random(dam_each[level], dam_each[level] * 2);
+
+            ch.Act("$n locks $N's elbow with $s kansetsuwaza.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n locks your elbow with $s kansetsuwaza!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("You lock $N's elbow with your kansetsuwaza.", victim, null, null, Character.ActType.ToChar);
+            ch.CheckImprove(skill, true, 1);
+
+            Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
+
+            if (!victim.IsAffected(skill))
+            {
+                var affect = new AffectData();
+                affect.skillSpell = skill;
+                affect.displayName = skill.Name;
+                affect.duration = 5;
+                affect.where = AffectData.AffectWhere.ToAffects;
+                affect.location = AffectData.ApplyTypes.Strength;
+                affect.modifier = -4;
+                victim.AffectToChar(affect);
+
+                affect.location = AffectData.ApplyTypes.Dexterity;
+                affect.modifier = -4;
+                affect.endMessage = "Your elbow feels better.";
+                affect.endMessageToRoom = "$n's elbow looks better.";
+                victim.AffectToChar(affect);
+            }
+            return true;
+        }
+        else
+        {
+            ch.Act("$n attempts to lock $N's elbow with $s kansetsuwaza.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n attempts to lock your elbow with $s kansetsuwaza!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("You attempt to lock $N's elbow with your kansetsuwaza.", victim, null, null, Character.ActType.ToChar);
+
+            ch.CheckImprove(skill, false, 1);
+            Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.Bash);
+        }
+        return false;
+    }
+    
+    static DoThrow(ch, args)
+    {
+        var victim = null;
+
+        if (args.ISEMPTY() && (victim = ch.Fighting) == null)
+        {
+            ch.send("You aren't fighting anyone.\n\r");
+            return;
+        }
+        else if ((!args.ISEMPTY() && (victim = ch.GetCharacterFromRoomByName(args)) == null) || (args.ISEMPTY() && (victim = ch.Fighting) == null))
+        {
+            ch.send("You don't see them here.\n\r");
+            return;
+        }
+        // else if (Combat.CheckAcrobatics(ch, victim)) return;
+
+        var skill = SkillSpell.SkillLookup("throw");
+        ch.WaitState(skill.WaitTime);
+        Combat.AssassinThrow(ch, victim);
+    }
+
+    static AssassinThrow(ch, victim)
+    {
+        var dam_each = 
+        [
+            0,
+            4,  5,  6,  7,  8,   10,  13,  15,  20,  25,
+            30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
+            58, 58, 59, 60, 61, 61, 62, 63, 64, 64,
+            65, 66, 67, 67, 68, 69, 70, 70, 71, 72,
+            73, 73, 74, 75, 76, 76, 77, 78, 79, 79,
+            90,110,120,150,170,200,230,500,500,500
+        ];
+        var skill = SkillSpell.SkillLookup("throw");
+        var chance;
+        if ((chance = ch.GetSkillPercentage(skill) + 20) <= 21)
+        {
+            ch.send("You don't know how to do that.\n\r");
+            return false;
+        }
+
+        var dam;
+        var level = ch.Level;
+
+        //chance += level / 10;
+
+        if (chance > Utility.NumberPercent())
+        {
+            if (ch.IsNPC)
+                level = Math.min(level, 51);
+            level = Math.min(level, dam_each.length - 1);
+            level = Math.max(0, level);
+
+            dam = Utility.Random(dam_each[level], dam_each[level] * 2);
+
+            ch.Act("$n throws $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n throws you!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("You throw $N.", victim, null, null, Character.ActType.ToChar);
+            ch.CheckImprove(skill, true, 1);
+
+            Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
+            victim.WaitState(Game.PULSE_PER_VIOLENCE);
+            Combat.CheckGroundControlRoom(victim);
+            Combat.CheckCheapShotRoom(victim);
+            return true;
+        }
+        else
+        {
+            ch.Act("$n attempts to throw $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n tries to throw you!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("You try to throw $N.", victim, null, null, Character.ActType.ToChar);
+
+            ch.CheckImprove(skill, false, 1);
+            Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.Bash);
+        }
+        return false;
+    }
+
+    static CheckGroundControlRoom(victim)
+    {
+        if (victim.Room && victim.Position == "Fighting")
+            for (var other of Utility.CloneArray(victim.Room.Characters))
+            {
+                if (other.Fighting == victim)
+                {
+                    Combat.CheckGroundControl(other, victim);
+                }
+            }
+    }
+
+    static CheckCheapShot(ch, victim)
+    {
+        var dam_each = 
+        [
+            0,
+            4,  5,  6,  7,  8,   10,  13,  15,  20,  25,
+            30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
+            58, 58, 59, 60, 61, 61, 62, 63, 64, 64,
+            65, 66, 67, 67, 68, 69, 70, 70, 71, 72,
+            73, 73, 74, 75, 76, 76, 77, 78, 79, 79,
+            90,110,120,150,170,200,230,500,500,500
+        ];
+        var skill = SkillSpell.SkillLookup("cheap shot");
+        var chance;
+        if ((chance = ch.GetSkillPercentage(skill) + 20) <= 21)
+        {
+            return;
+        }
+
+        var dam;
+        var level = ch.Level;
+
+        if (ch.Room != victim.Room || victim.Position != "Fighting")
+            return;
+        //chance += level / 10;
+
+        if (chance > Utility.NumberPercent())
+        {
+            if (ch.IsNPC)
+            {
+                level = Math.min(level, 51);
+            }
+            level = Math.min(level, dam_each.length - 1);
+            level = Math.max(0, level);
+
+            dam = Utility.Random(dam_each[level], dam_each[level] * 2);
+
+            ch.Act("Seizing upon $N's moment of weakness, you brutally kick him while $E's down!", victim, null, null, Character.ActType.ToChar);
+            ch.Act("Seizing upon your moment of weakness, $n brutally kicks you while you're down!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("Seizing upon $N's moment of weakness, $n brutally kicks him while $E's down!", victim, null, null, Character.ActType.ToRoomNotVictim);
+
+            if (Utility.NumberPercent() < 26)
+            {
+                ch.Act("$N grunts in pain as you land a particularly vicious kick!", victim, null, null, Character.ActType.ToChar);
+                ch.Act("You grunt in pain as $n lands a particularly vicious kick!", victim, null, null, Character.ActType.ToVictim);
+                ch.Act("$N grunts in pain as $n lands a particularly vicious kick!", victim, null, null, Character.ActType.ToRoomNotVictim);
+                dam = dam * 2;
+                victim.WaitState(Game.PULSE_PER_VIOLENCE);
+            }
+            victim.WaitState(Game.PULSE_PER_VIOLENCE);
+            ch.CheckImprove(skill, true, 1);
+            Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
+        }
+        else
+        {
+            ch.send("You were unable to get a cheap shot in.\n\r");
+            ch.CheckImprove(skill, false, 1);
+            return;
+        }
+    }
+    
+    static CheckCheapShotRoom(victim)
+    {
+        if (victim.Room != null && victim.Position == "Fighting")
+            for (var other of Utility.CloneArray(victim.Room.Characters))
+            {
+                if (other.Fighting == victim)
+                {
+                    Combat.CheckCheapShot(other, victim);
+                }
+            }
+    }
+
+    static CheckGroundControl(ch, victim)
+    {
+        var dam_each =
+        [
+            0,
+            4,  5,  6,  7,  8,   10,  13,  15,  20,  25,
+            30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
+            58, 58, 59, 60, 61, 61, 62, 63, 64, 64,
+            65, 66, 67, 67, 68, 69, 70, 70, 71, 72,
+            73, 73, 74, 75, 76, 76, 77, 78, 79, 79,
+            90,110,120,150,170,200,230,500,500,500
+        ];
+        var skill = SkillSpell.SkillLookup("ground control");
+        var chance;
+        if ((chance = ch.GetSkillPercentage(skill) + 20) <= 21)
+        {
+            return;
+        }
+
+        var dam;
+        var level = ch.Level;
+
+        if (ch.Room != victim.Room || victim.Position != "Fighting")
+            return;
+        //chance += level / 10;
+
+        if (chance > Utility.NumberPercent())
+        {
+            if (ch.IsNPC)
+                level = Math.min(level, 51);
+            level = Math.min(level, dam_each.length - 1);
+            level = Math.max(0, level);
+
+            dam = Utility.Random(dam_each[level], dam_each[level] * 2);
+
+            ch.Act("$n manipulates $N while they are on the ground.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n manipulates you while you are on the ground!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("You manipulate $N while they are on the ground.", victim, null, null, Character.ActType.ToChar);
+            ch.CheckImprove(skill, true, 1);
+
+            Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
+        }
+    }
+
+    static DoKotegaeshi(ch, args)
+    {
+        var victim = null;
+
+        if (args.ISEMPTY() && !(victim = ch.Fighting))
+        {
+            ch.send("You aren't fighting anyone.\n\r");
+            return;
+        }
+        else if ((!args.ISEMPTY() && ([victim] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && !victim) || (args.ISEMPTY() && !(victim = ch.Fighting)))
+        {
+            ch.send("You don't see them here.\n\r");
+            return;
+        }
+        var skill = SkillSpell.SkillLookup("kotegaeshi");
+        ch.WaitState(skill.WaitTime);
+        Combat.DoAssassinKotegaeshi(ch, victim);
     }
 }
 

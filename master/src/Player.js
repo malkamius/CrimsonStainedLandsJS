@@ -100,6 +100,9 @@ class Player extends Character {
 		this.Sex = XmlHelper.GetElementValue(xml,"Sex");
 		this.Level = XmlHelper.GetElementValueInt(xml,"Level");
 
+		this.Xp = xml.GetElementValueInt("Xp");
+		this.XpTotal = xml.GetElementValueInt("XpTotal");
+
 		this.DamageRoll = XmlHelper.GetElementValueInt(xml,"DamRoll");
 		this.HitRoll = XmlHelper.GetElementValueInt(xml,"HitRoll");
 		this.ArmorClass = XmlHelper.GetElementValueInt(xml,"ArmorClass");
@@ -341,6 +344,7 @@ class Player extends Character {
 	HandleInput() {
 		if(this.input != "")
 		{
+			if(this.status == "Playing" && this.Wait > 0) return;
 			this.input = this.input.replace("\r", "");
 			var index = this.input.indexOf("\n");
 			if(index != -1 && index != null)

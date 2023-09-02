@@ -110,6 +110,61 @@ class RoomData {
 		}
 		return [null, count];
 	}
+
+    get IsWilderness()
+    {
+        return this.Sector == RoomData.SectorTypes.Trail ||
+            this.Sector == RoomData.SectorTypes.Field ||
+            this.Sector == RoomData.SectorTypes.Forest ||
+            this.Sector == RoomData.SectorTypes.Hills ||
+            this.Sector == RoomData.SectorTypes.Mountain ||
+            this.Sector == RoomData.SectorTypes.WaterSwim ||
+            this.Sector == RoomData.SectorTypes.WaterNoSwim ||
+            this.Sector == RoomData.SectorTypes.Cave ||
+            this.Sector == RoomData.SectorTypes.Underground ||
+            this.Sector == RoomData.SectorTypes.Underwater ||
+            this.Sector == RoomData.SectorTypes.Ocean ||
+            this.Sector == RoomData.SectorTypes.River ||
+            this.Sector == RoomData.SectorTypes.Swamp ||
+            this.Sector == RoomData.SectorTypes.Desert;
+    }
+
+    get IsWater() {
+        return this.Sector == RoomData.SectorTypes.WaterSwim || 
+            this.Sector == RoomData.SectorTypes.WaterNoSwim || 
+            this.Sector == RoomData.SectorTypes.River ||
+            this.Sector == RoomData.SectorTypes.Ocean ||
+            this.Sector == RoomData.SectorTypes.Underwater;
+    }
+
+    get IsDark()
+    {
+        const ItemData = require("./ItemData");
+        for(var ch of this.Characters) {
+            for(var key in ch.Equipment) {
+                var item = ch.Equipment[key];
+
+                if(item.ExtraFlags.ISSET("Glow") || item.ExtraFlags.ISSET("Glowing") || item.ItemTypes.ISSET(ItemData.ItemTypesList.Light))
+                    return false;
+            }
+            
+        }
+
+        if (this.Flags.ISSET("Dark"))
+            return true;
+
+        if (this.Sector == SectorTypes.Inside
+            || this.Sector == SectorTypes.City)
+            return false;
+        
+        const WeatherInfo = require("./WeatherInfo");
+
+        if (WeatherInfo.Sunlight.equals("Set")
+            || WeatherInfo.Sunlight.equals("Dark"))
+            return true;
+
+        return false;
+    }
 }
 
 

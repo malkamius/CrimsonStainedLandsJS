@@ -1753,7 +1753,7 @@ class Character {
 		{
 			var slot = Character.WearSlots[slotkey];
 			// Check if the character's hands are bound and the item requires hand slots
-			// if (item.WearFlags[slot.Flag] && Object.keys(handslots).indexOf(slot.ID) >= 0 && IsAffected(AffectFlags.BindHands))
+			// if (item.WearFlags[slot.Flag] && Object.keys(handslots).indexOf(slot.ID) >= 0 && IsAffected(AffectData.AffectFlags.BindHands))
 			// {
 			//     this.Act("You can't equip that while your hands are bound.\n\r");
 			//     return false;
@@ -1906,6 +1906,23 @@ class Character {
 
 	GetGroupMembersInRoom() {
 		return this.Room.Characters.Select((ch) => ch.IsSameGroup(this));
+	}
+
+	get XpToLevel() { return Math.ceil(1500 + ((this.Level - 1) * 1500 * .08)); }
+
+	CanSee(other) {
+		if (other == this) return true;
+            return (this.Flags.ISSET("HolyLight") && (this.Level >= other.Level || other.IsNPC)) ||
+                (!this.IsAffected(AffectData.AffectFlags.Blind) &&
+                (this.IsAffected(AffectData.AffectFlags.DetectInvis) || !other.IsAffected(AffectData.AffectFlags.Invisible) || 
+				other.IsAffected(AffectData.AffectFlags.Smelly)) &&
+                (this.IsAffected(AffectData.AffectFlags.DetectHidden) ||
+                    (this.IsAffected(AffectData.AffectFlags.AcuteVision) && other.Room.IsWilderness) || 
+					!other.IsAffected(AffectData.AffectFlags.Hide) || 
+					other.IsAffected(AffectData.AffectFlags.Smelly)) &&
+                (this.IsAffected(AffectData.AffectFlags.AcuteVision) || !other.IsAffected(AffectData.AffectFlags.Camouflage) ||
+				 other.IsAffected(AffectData.AffectFlags.Smelly)) &&
+                (!other.IsAffected(AffectData.AffectFlags.Burrow)) && (!other.Flags.ISSET("WizInvis")));
 	}
 }
 
