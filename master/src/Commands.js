@@ -11,6 +11,7 @@ Commands = {
 		"up": {Command: Character.DoCommands.DoUp, MinimumPosition: "Standing" },
 		"down": {Command: Character.DoCommands.DoDown, MinimumPosition: "Standing" },
 		"open": {Command: Character.DoCommands.DoOpen, MinimumPosition: "Resting" },
+		
 		"cast": {Command: Magic.DoCast, MinimumPosition: "Fighting" },
 		"commune": {Command: Magic.DoCommune, MinimumPosition: "Fighting" },
 		"close": {Command: Character.DoCommands.DoClose, MinimumPosition: "Resting" },
@@ -21,6 +22,8 @@ Commands = {
 		"help": {Command: Character.DoCommands.DoHelp, MinimumPosition: "Dead" },
 		"look": {Command: Character.DoCommands.DoLook, MinimumPosition: "Resting" },
 		"exits": {Command: Character.DoCommands.DoExits, MinimumPosition: "Resting" },
+		"unlock": {Command: Character.DoCommands.DoUnlock, MinimumPosition: "Resting" },
+		"lock": {Command: Character.DoCommands.DoLock, MinimumPosition: "Resting" },
 		"get": {Command: Character.DoCommands.DoGet, MinimumPosition: "Resting" },
 		"put": {Command: Character.DoCommands.DoPut, MinimumPosition: "Resting" },
 		"drop": {Command: Character.DoCommands.DoDrop, MinimumPosition: "Resting" },

@@ -1,5 +1,7 @@
 const Character = require("./Character");
 const RoomData = require("./RoomData");
+const ItemData = require("./ItemData");
+
 function movechar(player, direction) {
 	if (player.Position != "Standing")
 	{
@@ -106,14 +108,16 @@ function DoOpen(character, args) {
 		} else	{
 			character.Act("You open {0}.\n\r", null, null, null, "ToChar", exit.Display);
 			character.Act("$n opens {0}.", null, null, null, "ToRoom", exit.Display)
-			delete exit.Flags.Closed;
+			exit.Flags.RemoveFlag("Closed");
 			if(exit.Destination) {
 				var reversedirections = {north: 2, east: 3, south: 0, west: 1, up: 5, down: 4};
 				var otherside = exit.Destination.Exits[reversedirections[exit.Direction.toLowerCase()]];
-				delete otherside.Flags.Closed;
-				for(var other of exit.Destination.Characters) {
-					if(other.Position != "Sleeping")
-						other.Act("{0} opens.", null, null, null, "ToChar", otherside.Display)
+				if(otherside) {
+					otherside.Flags.RemoveFlag("Closed");
+					for(var other of exit.Destination.Characters) {
+						if(other.Position != "Sleeping")
+							other.Act("{0} opens.", null, null, null, "ToChar", otherside.Display)
+					}
 				}
 			} 
 		}
@@ -149,10 +153,12 @@ function DoClose(character, args) {
 			if(exit.Destination) {
 				var reversedirections = {north: 2, east: 3, south: 0, west: 1, up: 5, down: 4};
 				var otherside = exit.Destination.Exits[reversedirections[exit.Direction.toLowerCase()]];
-				otherside.Flags.Closed = true;
-				for(var other of exit.Destination.Characters) {
-					if(other.Position != "Sleeping")
-						other.Act("{0} closes.", null, null, null, "ToChar", otherside.Display)
+				if(otherside) {
+					otherside.Flags.Closed = true;
+					for(var other of exit.Destination.Characters) {
+						if(other.Position != "Sleeping")
+							other.Act("{0} closes.", null, null, null, "ToChar", otherside.Display)
+					}
 				}
 			} 
 			
@@ -175,6 +181,184 @@ function DoClose(character, args) {
 	}
 	
 }
+
+function DoUnlock(character, args) {
+	var item, count;
+	var [exit, count] = character.Room.GetExit(args, count);
+	var [item, count] = character.GetItemHere(args, count);
+	
+	if(exit) {
+		
+
+		if(!exit.Flags.ISSET("Closed")) {
+			character.Act("{0} isn't closed.\n\r", null, null, null, "ToChar", exit.Display);
+		} else if(!exit.Flags.ISSET("Locked")) {
+			character.Act("{0} isn't locked.\n\r", null, null, null, "ToChar", exit.Display);
+		} else {
+			var hasKey = false;
+			for(var keyvnum of exit.Keys) {
+				for(var potentialkey of character.Inventory) {
+					if(potentialkey && potentialkey.VNum == keyvnum) {
+						hasKey = true;
+					}
+				}
+
+				for(var potentialkeykey in character.Equipment) {
+					potentialkey = character.Equipment[potentialkeykey];
+					if(potentialkey && potentialkey.VNum == keyvnum) {
+						hasKey = true;
+					}
+				}
+			}
+
+			if(exit.Keys.length == 0) {
+				character.send("{0} can't be locked.", exit.Display);
+			} else if(!hasKey) {
+				character.send("You don't have the key for that.\n\r");
+			} else {
+				if(exit.Destination) {
+					var reversedirections = {north: 2, east: 3, south: 0, west: 1, up: 5, down: 4};
+					var otherside = exit.Destination.Exits[reversedirections[exit.Direction.toLowerCase()]];
+					if(otherside) {
+						otherside.Flags.RemoveFlag("Locked");
+						for(var other of exit.Destination.Characters) {
+							if(other.Position != "Sleeping")
+								other.Act("You hear a clicking noise from {0}.", null, null, null, "ToChar", otherside.Display)
+						}
+					}
+				} 
+				
+				character.send("You unlock {0}.\n\r", exit.Display);
+				character.Act("$n unlocks {0}.", null, null, null, "ToRoom", exit.Display)
+				exit.Flags.RemoveFlag("Locked");
+			}
+		}
+	} else if(item) {
+		if(!item.ExtraFlags.ISSET(ItemData.ExtraFlags.Closed)) {
+			character.Act("$p isn't closed.\n\r", null, item);
+		} else if(!item.ExtraFlags.ISSET(ItemData.ExtraFlags.Locked)) {
+			character.Act("$p isn't locked.\n\r", null, item);
+		} else {
+			var hasKey = false;
+			for(var keyvnum of item.Keys) {
+				for(var potentialkey of character.Inventory) {
+					if(potentialkey && potentialkey.VNum == keyvnum) {
+						hasKey = true;
+					}
+				}
+
+				for(var potentialkeykey in character.Equipment) {
+					potentialkey = character.Equipment[potentialkeykey];
+					if(potentialkey && potentialkey.VNum == keyvnum) {
+						hasKey = true;
+					}
+				}
+			}
+
+			if(exit.Keys.length == 0) {
+				character.send("{0} can't be locked.", exit.Display);
+			} else if(!hasKey) {
+				character.send("You don't have the key for that.\n\r");
+			} else {
+				character.Act("You unlock $p.\n\r", null, item);
+				character.Act("$n unlocks $p.", null, item, null, "ToRoom")
+				item.ExtraFlags.SETBIT(ItemData.ExtraFlags.Closed);
+			}
+		}
+	}  else {
+		character.send("You don't see that here.\n\r");
+	}
+}
+
+function DoLock(character, args) {
+	var item, count;
+	var [exit, count] = character.Room.GetExit(args, count);
+	var [item, count] = character.GetItemHere(args, count);
+	
+	if(exit) {
+		
+
+		if(!exit.Flags.ISSET("Closed")) {
+			character.Act("{0} isn't closed.\n\r", null, null, null, "ToChar", exit.Display);
+		} else if(exit.Flags.ISSET("Locked")) {
+			character.Act("{0} is already locked.\n\r", null, null, null, "ToChar", exit.Display);
+		} else {
+			var hasKey = false;
+			for(var keyvnum of exit.Keys) {
+				for(var potentialkey of character.Inventory) {
+					if(potentialkey && potentialkey.VNum == keyvnum) {
+						hasKey = true;
+					}
+				}
+
+				for(var potentialkeykey in character.Equipment) {
+					potentialkey = character.Equipment[potentialkeykey];
+					if(potentialkey && potentialkey.VNum == keyvnum) {
+						hasKey = true;
+					}
+				}
+			}
+
+			if(exit.Keys.length == 0) {
+				character.send("{0} can't be locked.", exit.Display);
+			} else if(!hasKey) {
+				character.send("You don't have the key for that.\n\r");
+			} else {
+				if(exit.Destination) {
+					var reversedirections = {north: 2, east: 3, south: 0, west: 1, up: 5, down: 4};
+					var otherside = exit.Destination.Exits[reversedirections[exit.Direction.toLowerCase()]];
+					if(otherside) {
+						otherside.Flags.SETBIT("Locked");
+						for(var other of exit.Destination.Characters) {
+							if(other.Position != "Sleeping")
+								other.A
+							ct("You hear a clicking noise from {0}.", null, null, null, "ToChar", otherside.Display)
+						}
+					}
+				} 
+				
+				character.send("You lock {0}.\n\r", exit.Display);
+				character.Act("$n locks {0}.", null, null, null, "ToRoom", exit.Display)
+				exit.Flags.SETBIT("Locked");
+			}
+		}
+	} else if(item) {
+		if(!item.ExtraFlags.ISSET(ItemData.ExtraFlags.Closed)) {
+			character.Act("$p isn't closed.\n\r", null, item);
+		} else if(item.ExtraFlags.ISSET(ItemData.ExtraFlags.Locked)) {
+			character.Act("$p is already locked.\n\r", null, item);
+		} else {
+			var hasKey = false;
+			for(var keyvnum of item.Keys) {
+				for(var potentialkey of character.Inventory) {
+					if(potentialkey && potentialkey.VNum == keyvnum) {
+						hasKey = true;
+					}
+				}
+
+				for(var potentialkeykey in character.Equipment) {
+					potentialkey = character.Equipment[potentialkeykey];
+					if(potentialkey && potentialkey.VNum == keyvnum) {
+						hasKey = true;
+					}
+				}
+			}
+
+			if(exit.Keys.length == 0) {
+				character.send("{0} can't be locked.", exit.Display);
+			} else if(!hasKey) {
+				character.send("You don't have the key for that.\n\r");
+			} else {
+				character.Act("You lock $p.\n\r", null, item);
+				character.Act("$n locks $p.", null, item, null, "ToRoom")
+				item.ExtraFlags.SETBIT(ItemData.ExtraFlags.Locked);
+			}
+		}
+	}  else {
+		character.send("You don't see that here.\n\r");
+	}
+}
+
 Character.DoCommands.DoNorth = donorth;
 Character.DoCommands.DoEast = doeast;
 Character.DoCommands.DoSouth = dosouth;
@@ -183,4 +367,7 @@ Character.DoCommands.DoUp = doup;
 Character.DoCommands.DoDown = dodown;
 Character.DoCommands.DoOpen = DoOpen;
 Character.DoCommands.DoClose = DoClose;
+Character.DoCommands.DoUnlock = DoUnlock;
+Character.DoCommands.DoLock = DoLock;
+
 Character.Move = movechar;

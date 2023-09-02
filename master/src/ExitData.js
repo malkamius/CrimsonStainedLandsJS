@@ -13,6 +13,7 @@ class ExitData {
 	Source = null;
 	Flags = {};
 	OriginalFlags = {};
+	Keys = [];
 
 	constructor(room, exitdata) {
 		
@@ -21,6 +22,23 @@ class ExitData {
 		this.DestinationVNum = XmlHelper.GetElementValue(exitdata, "Destination");
 		this.Description = XmlHelper.GetElementValue(exitdata, "Description");
 		this.Keywords = XmlHelper.GetElementValue(exitdata, "Keywords");
+
+		var keys = exitdata.GetElementValue("Keys");
+
+		if(keys && !keys.ISEMPTY()) {
+			var arrkeys = keys.split(" ");
+			if(!arrkeys || arrkeys.length == 0) {
+				arrkeys = [keys];
+			}
+
+			for(var key of arrkeys) {
+				var numkey = parseInt(key);
+				if(numkey && numkey != -1) {
+					this.Keys.push(numkey);
+				}
+			}
+		}
+
 		Utility.ParseFlags(this.Flags, XmlHelper.GetElementValue(exitdata, "Flags"));
 
 		if(this.Flags.Locked) 

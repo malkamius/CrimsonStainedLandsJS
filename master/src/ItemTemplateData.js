@@ -39,6 +39,7 @@ class ItemTemplateData {
     ArmorExotic = 0;
     Spells = Array();
     Timer = -1;
+    Keys = [];
     
     constructor(area, xml) {
         this.VNum = xml.GetElementValue( "vnum");
@@ -70,6 +71,16 @@ class ItemTemplateData {
         this.ArmorSlash = xml.GetElementValueInt( "ArmorSlash");
         this.ArmorExotic = xml.GetElementValueInt( "ArmorExotic");
         this.Timer = xml.GetElementValueInt("Timer", -1)
+
+        if(xml.KEYS && xml.KEYS[0].KEY) {
+            for(var key of xml.KEYS[0].KEY) {
+                var vnum = key.GetAttributeValueInt("vnum");
+                if(vnum && vnum != -1) {
+                    this.Keys.push(vnum);
+                }
+            }
+        }
+        
         if(!area.ItemTemplates[this.VNum])
             area.ItemTemplates[this.VNum] = this;
         else

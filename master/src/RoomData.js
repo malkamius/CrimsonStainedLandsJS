@@ -86,6 +86,8 @@ class RoomData {
 		this.Name = roomxml.GetElementValue("Name");
 		this.Description = roomxml.GetElementValue("Description");
 		this.Sector = roomxml.GetElementValue("Sector");
+        this.MaxLevel = roomxml.GetElementValueInt("MaxLevel", 60);
+        this.MinLevel = roomxml.GetElementValueInt("MinLevel", 0);
 		Utility.ParseFlags(this.Flags, roomxml.GetElementValue("Flags"));
 
 		this.Exits = Array(null, null, null, null, null, null);

@@ -1349,7 +1349,7 @@ class Combat {
 
         Combat.CheckOwaza(victim, ch);
 
-
+3
         return true;
     } // end check dodge
 
@@ -1532,7 +1532,7 @@ class Combat {
         var shield;
         if (skShieldBlock == null || !(shield = victim.Equipment["Shield"])) return false;
 
-        var skillDodge = !victim.IsNPC ? victim.GetSkillPercentage(skShieldBlock) : 80;
+        var skillDodge = !victim.IsNPC ? victim.GetSkillPercentage(skShieldBlock) * .75: 50;
         chance = (3 * skillDodge / 10);
 
         str = victim.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength);
@@ -1548,7 +1548,7 @@ class Combat {
         else
             chance += str;
         chance += str - stra;
-        chance += (ch.Size - victim.Size) * 5;
+        chance += (Character.Sizes.indexOf(ch.Size) - Character.Sizes.indexOf(victim.Size)) * 5;
 
 
         if (!victim.CanSee(ch))

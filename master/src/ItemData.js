@@ -188,6 +188,7 @@ class ItemData {
     ArmorSlash = 0;
     ArmorExotic = 0;
     Spells = Array();
+    Keys = [];
 
     constructor(vnum, room, character) {
         var template;
@@ -226,7 +227,8 @@ class ItemData {
             this.ArmorPierce = template.ArmorPierce;
             this.ArmorSlash = template.ArmorSlash;
             this.ArmorExotic = template.ArmorExotic;
-
+            this.Keys = Utility.CloneArray(template.Keys);
+            
             if(room) {
                 room.Items.unshift(this);
                 this.Room = room;
