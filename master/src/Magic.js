@@ -980,6 +980,7 @@ class Magic {
     static SpellCreateBread(castType, spell, ch_level, ch, victim, item, args )
     {
         var template;
+        const ItemTemplateData = require("./ItemTemplateData");
         if ((template = ItemTemplateData.ItemTemplates[13]))
         {
             var bread = new ItemData(template);
@@ -1670,6 +1671,7 @@ class Magic {
 
 
         if (([victim] = Character.CharacterFunctions.GetCharacterList(ch, Character.Characters, args)) == null
+            || victim == null
             || victim == ch
             || victim.Room == null
             || (!victim.IsNPC && victim.Room.Area != ch.Room.Area)
@@ -2229,62 +2231,73 @@ class Magic {
 
     static SpellIdentify(castType, spell, ch_level, ch, victim, item, args, target)
     {
-    /*
-        var buffer = new StringBuilder();
-        buffer.Append(new string('-', 80) + "\n\r");
-        buffer.AppendFormat("Object {0} can be referred to as '{1}'\n\rIt is of type {2} and level {3}\n\r", item.ShortDescription, item.Name,
-            string.Join(" ", (from flag of item.ItemTypes.Distinct() select flag.ToString())), item.Level);
-        buffer.AppendFormat("It is worth {0} silver and weighs {1} pounds.\n\r", item.Value, item.Weight);
+    
+        var buffer = "";
+        buffer += ("-".repeat(80) + "\n\r");
+        buffer += Utility.Format("Object {0} can be referred to as '{1}'\n\rIt is of type {2} and level {3}\n\r", item.ShortDescription, item.Name,
+            Utility.JoinFlags(item.ItemTypes), item.Level);
+        buffer += Utility.Format("It is worth {0} silver and weighs {1} pounds.\n\r", item.Value, item.Weight);
 
         if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
         {
             if (item.WeaponDamageType != null)
-                buffer.AppendFormat("Damage Type is {0}\n\r", item.WeaponDamageType.Keyword);
-            buffer.AppendFormat("Weapon Type is {0} with damage dice of {1} (avg {2})\n\r", item.WeaponType, item.DamageDice, item.DamageDice);
+                buffer += Utility.Format("Damage Type is {0}\n\r", item.WeaponDamageType);
+            buffer += Utility.Format("Weapon Type is {0} with damage dice of {1} (avg {2})\n\r", item.WeaponType, Utility.FormatDice(item.DamageDice), Utility.Average(item.DamageDice));
 
         }
 
         if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Container))
         {
-            buffer.AppendFormat("It can hold {0} pounds.", item.MaxWeight);
+            buffer += Utility.Format("It can hold {0} pounds.", item.MaxWeight);
         }
 
         if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Food))
         {
-            buffer.AppendFormat("It is edible and provides {0} nutrition.\n\r", item.Nutrition);
+            buffer += Utility.Format("It is edible and provides {0} nutrition.\n\r", item.Nutrition);
         }
 
         if (item.ItemTypes.ISSET(ItemData.ItemTypesList.DrinkContainer))
         {
-            buffer.AppendFormat("Nutrition {0}, Drinks left {1}, Max Capacity {2}, it is filled with '{3}'\n\r", item.Nutrition, item.Charges, item.MaxCharges, item.Liquid);
+            buffer += Utility.Format("Nutrition {0}, Drinks left {1}, Max Capacity {2}, it is filled with '{3}'\n\r", item.Nutrition, item.Charges, item.MaxCharges, item.Liquid);
         }
 
-        buffer.AppendFormat("It is made out of '{0}'\n\r", item.Material);
-        if (item.timer > 0)
-            buffer.AppendFormat("It will decay of {0} hours.\n\r", item.timer);
+        buffer += Utility.Format("It is made out of '{0}'\n\r", item.Material);
+
+        if (item.Timer > 0)
+            buffer += Utility.Format("It will decay in {0} hours.\n\r", item.Timer);
 
         if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Armor) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Clothing))
         {
-            buffer.AppendFormat("It provides armor against bash {0}, slash {1}, pierce {2}, magic {3}\n\r", item.ArmorBash, item.ArmorSlash, item.ArmorPierce, item.ArmorExotic);
+            buffer += Utility.Format("It provides armor against bash {0}, slash {1}, pierce {2}, magic {3}\n\r", item.ArmorBash, item.ArmorSlash, item.ArmorPierce, item.ArmorExotic);
         }
-        buffer.AppendFormat("It can be worn on {0} and has extra flags of {1}.\n\r", string.Join(", ", (from flag of item.wearFlags.Distinct() select flag.ToString())),
-            string.Join(", ", (from flag of item.ExtraFlags.Distinct() select flag.ToString())));
+        buffer += Utility.Format("It can be worn on {0} and has extra flags of {1}.\n\r", Utility.JoinFlags(item.WearFlags),
+            Utility.JoinFlags(item.ExtraFlags));
 
-        buffer.AppendFormat("Affects: \n   {0}\n\r", string.Join("\n   ", (from aff of item.affects where aff.@where == AffectData.AffectWhere.ToObject select aff.Location.ToString() + " " + aff.Modifier)));
+        buffer += Utility.Format("Affects: \n   {0}\n\r",
+        item.Affects.Select(function(aff) {
+                return aff.Where == AffectData.AffectWhere.ToObject;
+            }).joinWithTransform(function(aff) {
+                return  aff.Location + " " + aff.Modifier
+            }, "\n   "));
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Wand) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Scroll) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Potion))
+        if (item.Spells && (
+                item.ItemTypes.ISSET(ItemData.ItemTypesList.Staff) ||
+                item.ItemTypes.ISSET(ItemData.ItemTypesList.Wand) || 
+                item.ItemTypes.ISSET(ItemData.ItemTypesList.Scroll) || 
+                item.ItemTypes.ISSET(ItemData.ItemTypesList.Potion)))
         {
-            buffer.AppendFormat("It contains the following spells:\n\r   {0}", string.Join("\n   ", from itemspell of item.Spells select (itemspell.SpellName + " [lvl " + itemspell.Level + "]")) + "\n\r");
+            buffer += Utility.Format("It contains the following spells:\n\r   {0}", item.Spells.joinWithTransform(function(itemspell) { 
+                return itemspell.SpellName + " [lvl " + itemspell.Level + "]";},"\n   ") + "\n\r");
         }
 
         if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Wand))
         {
-            buffer.AppendFormat("It has {0} of {1} charges left\n\r", item.Charges, item.MaxCharges);
+            buffer += Utility.Format("It has {0} of {1} charges left\n\r", item.Charges, item.MaxCharges);
         }
 
-        buffer.Append(new string('-', 80) + "\n\r");
-        ch.send(buffer.ToString());
-    */
+        buffer += "-".repeat(80) + "\n\r";
+        ch.send(buffer);
+    
     } // end SpellIdentify
 
     static SpellLocateObject(castType, spell, ch_level, ch, victim, item, args, target)
@@ -2550,6 +2563,7 @@ class Magic {
     static SpellCreateFood(castType, spell, ch_level, ch, victim, item, args, target)
     {
         var template;
+        const ItemTemplateData = require("./ItemTemplateData");
         if ((template = ItemTemplateData.ItemTemplates[13]))
         {
             var bread = new ItemData(template);
@@ -2563,6 +2577,7 @@ class Magic {
     static SpellCreateSpring(castType, spell, ch_level, ch, victim, item, args, target)
     {
         var template;
+        const ItemTemplateData = require("./ItemTemplateData");
         if ((template = ItemTemplateData.ItemTemplates[22]))
         {
             var spring = new ItemData(template);
@@ -3722,6 +3737,7 @@ class Magic {
                 ch.send("You do not have an appropriate weapon to imbue.\n\r");
                 return;
             }
+            const ItemTemplateData = require("./ItemTemplateData");
             if (!(ItemTemplate = ItemTemplateData.ItemTemplates[vnum]))
             {
                 ch.send("You failed.\n\r");
@@ -4588,11 +4604,11 @@ class Magic {
         var types = ["fire", "cold", "lightning", "mental", "acid", "negative"];
         var aegistype;
         var targetname;
-        [targetname, args] = args.OneArgumentOut();
-        [aegistype, args]= arguments.OneArgumentOut();
+        [targetname, args] = args.OneArgument();
+        [aegistype, args]= args.OneArgument();
         var index;
 
-        if (victim == ch || victim == null || (aegistype.ISEMPTY() || types.Any(t => t.StringPrefix(targetname)))) ch.Act("You cannot grant the power of aegis to yourself.");
+        if (victim == ch || !victim || (aegistype.ISEMPTY() || types.some((t) => t.prefix(targetname)))) ch.Act("You cannot grant the power of aegis to yourself.");
 
         else if (!([victim, count] = ch.GetCharacterFromRoomByName(targetname, count)) || !victim)
         {

@@ -425,6 +425,17 @@ function UpdateWeather() {
 	return;
 }
 
+function DumpItems(item)
+{
+	for (var contained of Utility.CloneArray(item.Contains))
+	{
+		item.Contains.Remove(contained);
+		item.Room.Items.unshift(contained);
+		contained.Room = item.Room;
+		contained.Container = null;
+	}
+}
+
 function UpdateTick() {
 	const Character = require("./Character");
 	for(var character of Utility.CloneArray(Character.Characters)) { 
@@ -450,6 +461,138 @@ function UpdateTick() {
 			var gain = character.GetMovementPointsGain();
 
 			character.MovementPoints = Math.min(character.MovementPoints + gain, character.MaxMovementPoints);
+		}
+	}
+	const ItemData = require("./ItemData");
+	for(var item of Utility.CloneArray(ItemData.Items)) {
+		if(item.Timer == 0 || (item.Timer > 0 && --item.Timer == 0)) {
+			var message = "";
+			if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Fountain))
+			{
+				message = "$p dries up.";
+			}
+			else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Corpse) || item.ItemTypes.ISSET(ItemData.ItemTypesList.NPCCorpse))
+			{
+				message = "$p decays into dust.";
+			}
+			else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Food))
+			{
+				message = "$p decomposes.";
+			}
+			else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Potion))
+			{
+				message = "$p has evaporated from disuse.";
+			}
+			else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Portal))
+			{
+				message = "$p fades out of existence.";
+			}
+			else
+			{
+				message = "$p crumbles into dust.";
+			}
+
+			if (item.CarriedBy)
+			{
+				if (item.CarriedBy.IsNPC
+					&& item.CarriedBy.IsShop)
+					item.CarriedBy.Gold += item.Value / 5;
+				else
+				{
+					item.CarriedBy.Act(message, null, item, null, Character.ActType.ToChar);
+				}
+			}
+			else if (item.Room != null && item.Room.Characters.length > 0)
+			{
+				item.Room.Characters[0].Act(message, null, item, null, Character.ActType.ToRoom);
+				item.Room.Characters[0].Act(message, null, item, null, Character.ActType.ToChar);
+			}
+
+			if (item.Contains.length > 0)
+			{
+				if (item.CarriedBy != null)
+				{
+					for (var contained of Utility.CloneArray(item.Contains))
+					{
+						item.Contains.Remove(contained);
+						item.CarriedBy.AddInventoryItem(contained);
+					}
+				}
+				else if (item.Room != null)
+				{
+					if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Corpse))
+					{
+						var owner = Player.Players.FirstOrDefault((player) => player.Name == item.Owner);
+
+						if (owner && owner.status == "Playing")
+						{
+
+							for (var contained of Utility.CloneArray(item.Contains))
+							{
+								item.Contains.Remove(contained);
+								owner.Act("$p appears in your hands.", null, contained, null, Character.ActType.ToChar);
+								owner.Act("$p appears in $n's hands.", null, contained, null, Character.ActType.ToRoom);
+								owner.AddInventoryItem(contained);
+								contained.CarriedBy = owner;
+								contained.Container = null;
+							}
+						}
+						else
+						{
+							var recallroom = null;
+							var pit;
+							if (item.Alignment == Alignment.Good)
+							{
+								recallroom = RoomData.Rooms[19089];
+							}
+							else if (item.Alignment == Alignment.Evil)
+							{
+								recallroom = RoomData.Rooms[19090];
+							}
+							else
+							{
+								recallroom = RoomData.Rooms[19001];
+							}
+
+							//var recallroom = 
+							if (recallroom)
+							{
+								pit = recallroom.Items.FirstOrDefault((obj) => obj.VNum == 19000);
+
+								if (pit)
+								{
+									for (var contained of Utility.CloneArray(item.Contains))
+									{
+										item.Contains.Remove(contained);
+										pit.Contains.unshift(contained);
+
+										contained.Container = pit;
+									}
+								}
+								else
+									DumpItems(item);
+							}
+							else
+								DumpItems(item);
+						}
+					}
+					else
+					{
+						DumpItems(item);
+					}
+				}
+				else if (item.Container != null)
+				{
+					for(var contained of Utility.CloneArray(item.Contains))
+					{
+						item.Contains.Remove(contained);
+						item.Container.Contains.unshift(contained);
+						contained.Container = item.Container;
+					}
+				}
+			}
+
+			item.Dispose();
 		}
 	}
 

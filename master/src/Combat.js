@@ -360,12 +360,14 @@ class Combat {
             }
 
             // Automatic sacrifice of the corpse by the killer
-            // if (ch != null && victim.IsNPC && ch.Flags.IsSet("AutoSac"))
-            //     DoActItem.DoSacrifice(ch, "corpse");
+            if (ch && victim.IsNPC && ch.Flags.IsSet("AutoSac"))
+                Character.DoCommands.DoSacrifice(ch, "corpse");
 
             // Clear killer wait time on kill
             if (ch != null)
                 ch.Wait = 0;
+            
+            victim.Wait = 0;
 
             if (!victim.IsNPC)
             {

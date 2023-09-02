@@ -206,7 +206,7 @@ class Utility {
 		// result += dice[2];
 
 		// Roll a random number between 1 * DiceSides and DiceSides + 1 * DiceCount, add DiceBonus
-		result = Utility.Random(dice[1], dice[0] * dice[1]) + dice[2]? dice[2] : 0;
+		result = Utility.Random(dice[1], dice[0] * dice[1]) + (dice[2]? dice[2] : 0);
 		return result;
 	}
 
@@ -395,6 +395,30 @@ class Utility {
 	static SETBIT(flags, flag) {
 		flags[flag] = flag;
 	}
+
+	static Average(DiceSides = 0, DiceCount = 0, DiceBonus = 0) {
+		if(Array.isArray(DiceSides)) {
+			DiceCount = DiceSides[0];
+			DiceBonus = DiceSides[2];
+			DiceSides = DiceSides[1];
+		}
+		if(!DiceCount) DiceBonus = 0;
+		if(!DiceSides) DiceBonus = 0;
+		if(!DiceBonus) DiceBonus = 0;
+		return ( (DiceCount + DiceBonus) + (DiceCount * DiceSides + DiceBonus)) / 2;
+	} 
+
+	static FormatDice(DiceSides = 0, DiceCount = 0, DiceBonus = 0) {
+		if(Array.isArray(DiceSides)) {
+			DiceCount = DiceSides[0];
+			DiceBonus = DiceSides[2];
+			DiceSides = DiceSides[1];
+		}
+		if(!DiceCount) DiceBonus = 0;
+		if(!DiceSides) DiceBonus = 0;
+		if(!DiceBonus) DiceBonus = 0;
+		return DiceSides + "d" + DiceCount + "+" + DiceBonus;
+	} 
 }
 
 const xml2js = require('xml2js');
@@ -421,7 +445,7 @@ Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback
 Object.defineProperty( String.prototype, 'isString', { value: function () { return this instanceof String; }} );
 
 
-Object.defineProperty( Array.prototype, 'joinWithTransform', { value: function () { return Utility.JoinArray(this, transform, separator); }} );
+Object.defineProperty( Array.prototype, 'joinWithTransform', { value: function (transform, separator) { return Utility.JoinArray(this, transform, separator); }} );
 Object.defineProperty( Array.prototype, 'CloneArray', { value: function () { return Utility.CloneArray(this) }} );
 Object.defineProperty( Array.prototype, 'Select', { value: function (predicate) { return Utility.Select(this, predicate) }} );
 Object.defineProperty( Array.prototype, 'SelectRandom', { value: function (predicate) { return Utility.SelectRandom(this, predicate) }} );

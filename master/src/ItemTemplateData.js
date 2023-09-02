@@ -21,6 +21,7 @@ class ItemTemplateData {
     ExtraFlags = {};
     ItemTypes = {};
     Level = 0;
+    Value = 0;
     Nutrition = 48;
     Weight = 0;
     DamageDice = [0,0,0];
@@ -37,7 +38,8 @@ class ItemTemplateData {
     ArmorSlash = 0;
     ArmorExotic = 0;
     Spells = Array();
-
+    Timer = -1;
+    
     constructor(area, xml) {
         this.VNum = XmlHelper.GetElementValue(xml, "vnum");
         this.Name = XmlHelper.GetElementValue(xml, "Name");
@@ -51,6 +53,9 @@ class ItemTemplateData {
         Utility.ParseFlags(this.ItemTypes, XmlHelper.GetElementValue(xml, "ItemTypes"));
         this.WeaponType = XmlHelper.GetElementValue(xml, "WeaponType");
         this.WeaponDamageType = XmlHelper.GetElementValue(xml, "WeaponDamageType");
+        this.Level = XmlHelper.GetElementValueInt(xml, "Level");
+        this.Value = XmlHelper.GetElementValueInt(xml, "Cost");
+        this.Value = XmlHelper.GetElementValueInt(xml, "Value", this.Value);
         this.DamageDice[0] = XmlHelper.GetElementValueInt(xml, "DiceSides");
         this.DamageDice[1] = XmlHelper.GetElementValueInt(xml, "DiceCount");
         this.DamageDice[2] = XmlHelper.GetElementValueInt(xml, "DiceBonus");
@@ -64,7 +69,7 @@ class ItemTemplateData {
         this.ArmorPierce = XmlHelper.GetElementValueInt(xml, "ArmorPierce");
         this.ArmorSlash = XmlHelper.GetElementValueInt(xml, "ArmorSlash");
         this.ArmorExotic = XmlHelper.GetElementValueInt(xml, "ArmorExotic");
-
+        this.Timer = xml.GetElementValueInt("Timer", -1)
         if(!area.ItemTemplates[this.VNum])
             area.ItemTemplates[this.VNum] = this;
         else

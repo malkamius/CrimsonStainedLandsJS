@@ -1608,7 +1608,7 @@ class Character {
 				this.Act("You get $p from $P.\n\r", null, item, container, "ToChar");
 				this.Act("$n gets $p from $P.\n\r", null, item, container, "ToRoom");
 			}
-			AddInventoryItem(item);
+			this.AddInventoryItem(item);
 			return true;
 		}
 		else
@@ -1647,7 +1647,7 @@ class Character {
 		var number = Utility.NumberArgument(itemname);
 		itemname = number[1];
 		number = number[0];
-		for(key in Character.WearSlots) {
+		for(var key in Character.WearSlots) {
 			var item = this.Equipment[key];
 
 			if(item && (Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
@@ -1669,7 +1669,7 @@ class Character {
 		var number = Utility.NumberArgument(itemname);
 		itemname = number[1];
 		number = number[0];
-		for(key in list) {
+		for(var key in list) {
 			var item = list[key];
 
 			if((Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {

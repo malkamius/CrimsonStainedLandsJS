@@ -108,8 +108,10 @@ class ItemData {
     Nutrition = 48;
     Weight = 0;
     DamageDice = [0,0,0];
+    Value = 0;
     Silver = 0;
     Gold = 0;
+    Timer = -1;
     Owner = "";
     MaxWeight = 0.0;
     Material = "";
@@ -139,7 +141,9 @@ class ItemData {
             Object.assign(this.ExtraFlags, template.ExtraFlags);
             Object.assign(this.ItemTypes, template.ItemTypes);
             Object.assign(this.WearFlags, template.WearFlags);
-
+            
+            this.Level = template.Level;
+            this.Value = template.Value;
             this.WeaponType = template.WeaponType;
             this.WeaponDamageType = template.WeaponDamageType;
             this.DamageDice = Utility.CloneArray(template.DamageDice);
@@ -151,6 +155,7 @@ class ItemData {
             this.Gold = template.Gold;
             this.Charges = template.Charges;
             this.MaxCharges = template.MaxCharges;
+            this.Timer = template.Timer;
 
             this.ArmorBash = template.ArmorBash;
             this.ArmorPierce = template.ArmorPierce;
@@ -212,7 +217,10 @@ class ItemData {
         this.Name = XmlHelper.GetElementValue(xml, "NAME", this.Name);
         this.ShortDescription = XmlHelper.GetElementValue(xml, "ShortDescription", this.ShortDescription);
         this.LongDescription = XmlHelper.GetElementValue(xml, "LongDescription", this.LongDescription);
-        
+        this.Value = xml.GetElementValueInt("Cost", this.Value);
+        this.Value = xml.GetElementValueInt("Value", this.Value);
+
+        this.Timer = xml.GetElementValueInt("Value", this.Timer);
         if(xml.WEARFLAGS) {
             this.WearFlags = {};
             Utility.ParseFlags(this.WearFlags, XmlHelper.GetElementValue(xml, "WearFlags"));
@@ -264,7 +272,12 @@ class ItemData {
         itemele.ele("Description", this.Description);
         if(this.Liquid != this.Template.Liquid)
         itemele.ele("Liquid", this.Liquid);
+        
+        if(this.Timer > -1) {
+            itemele.ele("Timer", this.Timer);
+        }
 
+        itemele.ele("Value", this.Value);
         itemele.ele("ItemTypes", Utility.JoinFlags(this.ItemTypes));
         itemele.ele("WearFlags", Utility.JoinFlags(this.WearFlags));
         itemele.ele("ExtraFlags", Utility.JoinFlags(this.ExtraFlags));
@@ -286,15 +299,23 @@ class ItemData {
     Dispose() {
         if(this.CarriedBy) {
             var slot;
-            if(this.CarriedBy.Inventory.indexOf(this) != -1)
-                this.CarriedBy.Inventory.splice(this.CarriedBy.Inventory.indexOf(item), 1);
-            else if((slot = this.CarriedBy.GetEquipmentWearSlot(this.CarriedBy, item)))
+            this.CarriedBy.Inventory.Remove(this)
+            if((slot = this.CarriedBy.GetEquipmentWearSlot(this)))
                 delete this.CarriedBy.Equipment[slot];
+            this.CarriedBy = null;
+        }
+
+        if(this.ContainedIn) {
+            this.ContainedIn.Contains.Remove(this);
+            this.ContainedIn = null;
         }
 
         if(this.Room) {
             this.Room.Items.splice(this.Room.Items.indexOf(this), 1);
+            this.Room = null;
         }
+
+        ItemData.Items.Remove(this);
     }
 }
 

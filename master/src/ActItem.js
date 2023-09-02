@@ -161,7 +161,7 @@ function DoRemove(player, arguments) {
         for(slotkey in Character.WearSlots) {
             var item = player.Equipment[slotkey];
             if(item) {
-                RemoveEquipment(player, item, true);
+                player.RemoveEquipment(item, true);
             }
         }
     }
@@ -169,7 +169,7 @@ function DoRemove(player, arguments) {
         var itemandslot = player.GetItemEquipment(arguments);
         var item = itemandslot[0];
         var slot = itemandslot[2];
-        RemoveEquipment(player, item, true);
+        player.RemoveEquipment(item, true);
     }
 }
 
@@ -184,7 +184,7 @@ function DoWear(player, arguments) {
         var inventory = Utility.CloneArray(player.Inventory);
         for (var allitem in inventory) {
             var item = inventory[allitem];
-            if (WearItem(player, item, true, false))
+            if (player.WearItem(item, true, false))
                 woreanything = true;
         }
         
@@ -196,7 +196,7 @@ function DoWear(player, arguments) {
 
         if (item)
         {
-            WearItem(player, item);
+            player.WearItem(item);
         }
         else
             player.send("You aren't carrying that.\n\r");
@@ -268,7 +268,7 @@ Character.DoCommands.DoSacrifice = function(ch, args)
         {
 
             if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Fountain) || !item.WearFlags.ISSET(ItemData.WearFlagsList.Take)) {
-                ch.send(string.Format("Are you nuts? You cannot sacrifice {0} to the gods.\n\r", item.ShortDescription));
+                ch.send(Utility.Format("Are you nuts? You cannot sacrifice {0} to the gods.\n\r", item.ShortDescription));
             } else if (item.ItemTypes.ISSET(ItemData.ItemTypesList.PC_Corpse)) {
                 ch.Act("The gods wouldn't approve of that.");
             } else {
