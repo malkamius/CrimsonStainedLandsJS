@@ -39,6 +39,7 @@ Commands = {
 		"songs": {Command: Character.DoCommands.DoSongs, MinimumPosition: "Dead" },
 		"kill": {Command:Combat.DoKill, MinimumPosition: "Standing" },
 		"flee": {Command:Combat.DoFlee, MinimumPosition: "Fighting" },
+		"worth": {Command:Character.DoCommands.DoWorth, MinimumPosition: "Dead" },
 
 		"throw": {Command:Combat.DoThrow, MinimumPosition: "Fighting" },
 		"kansetsuwaza": {Command:Combat.DoKansetsuwaza, MinimumPosition: "Fighting" },

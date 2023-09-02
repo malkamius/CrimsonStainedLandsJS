@@ -520,7 +520,7 @@ class Character {
 
 	GetCurrentStat(stat) {
 		if (this.PcRace && this.PcRace.MaxStats)
-			return Math.min(this.PcRace.MaxStats[stat], Math.min(25, Math.max(0, this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] + this.ModifiedStats[stat] : (this.IsNPC ? 20 : 3))));
+			return Math.min(this.PcRace.MaxStats[stat], Math.min(25, Math.max(3, this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] + this.ModifiedStats[stat] : (this.IsNPC ? 20 : 3))));
 		else
 			return Math.min(25, Math.max(3, this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] + this.ModifiedStats[stat] : (this.IsNPC ? 20 : 3)));
 	}
@@ -538,9 +538,12 @@ class Character {
 	}
 
 	AffectFromChar(affect, reason = "Other", show = true) {
-		var index = this.Affects.indexOf(affect);
-		if(index >= 0)
-		this.Affects.splice(index, 1);
+
+		if(affect.SkillSpell && affect.SkillSpell.EndFun) {
+			affect.SkillSpell.EndFun(character, affect);
+		}
+
+		this.Affects.Remove(affect);
 
 		this.AffectApply(affect, true, !show);
 	}
@@ -1210,7 +1213,7 @@ class Character {
 	AdvanceLevel(show = true)
 	{
 		if (show)
-			send("\\gYou raise a level!!  \\x\n\r");
+			this.send("\\gYou raise a level!!  \\x\n\r");
 		this.Level += 1;
 		
 		//WizardNet.Wiznet(WizardNet.Flags.Levels, "{0} gained level {1}", null, null, Name, Level);
@@ -1219,7 +1222,7 @@ class Character {
 		if (!this.IsNPC && this.Guild)
 		{
 			var title;
-			if (this.Guild && (title = this.Guild.Titles[Level]))
+			if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
 			{
 				if (this.Sex == "Female")
 				{
@@ -1229,7 +1232,7 @@ class Character {
 					this.Title = "the " + title.MaleTitle;
 
 			}
-			this.SaveCharacterFile();
+			this.Save();
 		}
 
 		if (!this.IsNPC)
@@ -1256,14 +1259,14 @@ class Character {
 				this.Guild.HitpointGain,
 				this.Guild.HitpointGainMax) : 3);
 
-		var int_mod = GetCurrentStat(PhysicalStatTypes.Intelligence) - 2;
+		var int_mod = this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Intelligence) - 2;
 
 		add_mana = Math.min(1 + Utility.Random(int_mod / 2, int_mod), 16);
 		
-		add_move = Utility.Random(1, (GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution)
-			+ GetCurrentStat(PhysicalStatTypes.Dexterity)) / 6);
+		add_move = Utility.Random(1, (this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution)
+			+ this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity)) / 6);
 		
-		add_prac = PhysicalStats.WisdomApply[GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice;
+		add_prac = PhysicalStats.WisdomApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice;
 		//add_prac = 3;
 		if (!this.Guild.Name.equals("warrior"))
 		{
@@ -1298,9 +1301,9 @@ class Character {
 		this.MaxMovementPoints += add_move;
 
 		// restore on level up
-		this.HitPoints = MaxHitPoints;
-		this.ManaPoints = MaxManaPoints;
-		this.MovementPoints = MaxMovementPoints;
+		this.HitPoints = this.MaxHitPoints;
+		this.ManaPoints = this.MaxManaPoints;
+		this.MovementPoints = this.MaxMovementPoints;
 
 		this.Practices += add_prac;
 		if (this.Level % 5 == 0)
@@ -1308,16 +1311,16 @@ class Character {
 
 		if (show)
 		{
-			send("\\gYou gain {0}/{1} hp, {2}/{3} mana, {4}/{5} move, and {6}/{7} practices.\\x\n\r",
+			this.send("\\gYou gain {0}/{1} hp, {2}/{3} mana, {4}/{5} move, and {6}/{7} practices.\\x\n\r",
 				add_hp, this.MaxHitPoints, add_mana, this.MaxManaPoints,
 				add_move, this.MaxMovementPoints, add_prac, this.Practices);
 
 			if (this.Level % 5 == 0)
-				send("\\YYou gain a train.\\x\n\r");
+			this.send("\\YYou gain a train.\\x\n\r");
 
 			if (!this.IsNPC && this.Level % 20 == 0 && this.Guild.Name.equals("warrior"))
 			{
-				send("\\YYou gain a weapon specialization.\\x\n\r");
+				this.send("\\YYou gain a weapon specialization.\\x\n\r");
 				this.WeaponSpecializations++;
 			}
 

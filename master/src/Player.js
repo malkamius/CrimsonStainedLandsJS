@@ -132,6 +132,19 @@ class Player extends Character {
 		var guild = xml.GetElementValue( "Guild", "warrior");
 		if(!(this.Guild = GuildData.Lookup(guild, false)))
 			console.log(`Guild ${guild} not found`);
+		var title;
+		if(!this.Title || this.Title.IsNullOrEmpty()) {
+			if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
+			{
+				if (this.Sex == "Female")
+				{
+					this.Title = "the " + title.FemaleTitle;
+				}
+				else
+					this.Title = "the " + title.MaleTitle;
+
+			} 
+		}
 		Utility.ParseFlags(this.Flags, xml.GetElementValue("Flags"));
 
 		if(xml.PERMANENTSTATS) {

@@ -44,11 +44,11 @@ class GuildData {
         this.GuildGroup = xml.GetAttributeValue( "GuildGroup");
         this.GuildBasicsGroup = xml.GetAttributeValue( "GuildBasicsGroup");
         this.StartingWeapon = xml.GetAttributeValueInt( "StartingWeapon", 0);
-        this.HitpointGain = xml.GetAttributeValue( "HitpointGain");
-        this.HitpointGainMax = xml.GetAttributeValue( "HitpointGainMax");
+        this.HitpointGain = xml.GetAttributeValueInt( "HitpointGain");
+        this.HitpointGainMax = xml.GetAttributeValueInt( "HitpointGainMax");
         this.CastType = xml.GetAttributeValue( "CastType");
-        this.THAC0 = xml.GetAttributeValue( "THAC0");
-        this.THAC032 = xml.GetAttributeValue( "THAC032");
+        this.THAC0 = xml.GetAttributeValueInt( "THAC0");
+        this.THAC032 = xml.GetAttributeValueInt( "THAC032");
 
         GuildData.Guilds.push(this);
     }
@@ -57,9 +57,26 @@ class GuildData {
         var guildspath = Settings.DataPath + "/guilds.xml";
         var content = fs.readFileSync(guildspath, "utf-8");
         parser.parseString(content, (err, xml) => {
-            for(var guildxml of xml.GUILDS.GUILD)
-            var guild = new GuildData(guildxml);
+            for(var guildxml of xml.GUILDS.GUILD) {
+                var guild = new GuildData(guildxml);
+                guild.Titles = {};
+                var titlespath = Settings.DataPath + "/guilds/" + guild.Name.toLowerCase() + "-titles.xml";
+                if(fs.existsSync(titlespath)) {
+                    var titlecontent = fs.readFileSync(titlespath, "utf-8");
+                    parser.parseString(titlecontent, (err, titlesxml) => { 
+                        for(var titlexml of titlesxml.GUILD.TITLE) {
+                            var level = titlexml.GetAttributeValueInt("Level");
+                            var maleTitle = titlexml.GetAttributeValue("Male");
+                            var femaleTitle = titlexml.GetAttributeValue("Female");
+                            guild.Titles[level] = {MaleTitle: maleTitle, FemaleTitle: femaleTitle};
+                            
+                        }
+                    });
+                } 
+            }
         });
+
+        
         callback();
     };
     

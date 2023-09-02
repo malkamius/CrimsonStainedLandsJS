@@ -49,8 +49,13 @@ class SkillSpell {
     GuildPreRequisiteSkillPercentage = {};
     SpellFuncType = "";
     SpellFuncName = "";
-    TickFunction = null;
-    EndFunction = null;
+    SpellFun = null;
+    TickFuncType = "";
+    TickFuncName = "";
+    TickFun = null;
+    EndFuncType = "";
+    EndFuncName = "";
+    EndFun = null;
     TargetType = "TargetIgnore";
     MinimumPosition = "Standing";
     MinimumMana = 0;
@@ -119,6 +124,10 @@ class SkillSpell {
         this.AutoCast = Utility.Compare(xml.GetAttributeValue( "AutoCast"), "True");
         this.SpellFuncType = xml.GetAttributeValue( "SpellFuncType");
         this.SpellFuncName = xml.GetAttributeValue( "SpellFuncName");
+        this.TickFuncType = xml.GetAttributeValue( "TickFuncType");
+        this.TickFuncName = xml.GetAttributeValue( "TickFuncName");
+        this.EndFuncType = xml.GetAttributeValue( "EndFuncType");
+        this.EndFuncName = xml.GetAttributeValue( "EndFuncName");
         this.TargetType = xml.GetAttributeValue("TargetType", "TargetIgnore");
         this.AutoCast = xml.GetAttributeValue("AutoCast").equals("true");
         this.AutoCastScript = xml.GetAttributeValue("AutoCastScript");
@@ -128,6 +137,24 @@ class SkillSpell {
                 if(!SkillSpell.containers[this.SpellFuncType])
                     SkillSpell.containers[this.SpellFuncType] = require("./" + this.SpellFuncType);
                 this.SpellFun = SkillSpell.containers[this.SpellFuncType][this.SpellFuncName];
+            } catch(err) {
+                
+            }
+        }
+        if(!this.TickFuncName.IsNullOrEmpty() && !this.TickFuncType.IsNullOrEmpty()) {
+            try{
+                if(!SkillSpell.containers[this.TickFuncType])
+                    SkillSpell.containers[this.TickFuncType] = require("./" + this.TickFuncType);
+                this.TickFun = SkillSpell.containers[this.TickFuncType][this.TickFuncName];
+            } catch(err) {
+                
+            }
+        }
+        if(!this.EndFuncName.IsNullOrEmpty() && !this.EndFuncType.IsNullOrEmpty()) {
+            try{
+                if(!SkillSpell.containers[this.EndFuncType])
+                    SkillSpell.containers[this.EndFuncType] = require("./" + this.EndFuncType);
+                this.EndFun = SkillSpell.containers[this.EndFuncType][this.EndFuncName];
             } catch(err) {
                 
             }

@@ -970,7 +970,7 @@ class Magic {
             affect.DisplayName = "Blinded";
             affect.EndMessage = "You can see again.\n\r";
             affect.EndMessageToRoom = "$n can see again.\n\r";
-            affect.AffectType = AffectTypes.Malady; //castType == "Cast" ? "Spell" : "Commune";
+            affect.AffectType = AffectData.AffectTypes.Malady; //castType == "Cast" ? "Spell" : "Commune";
             victim.AffectToChar(affect);
             victim.send("You are blinded.\n\r");
             victim.Act("$n is blinded.\n\r", null, null, null, "ToRoom");
@@ -1136,7 +1136,7 @@ class Magic {
         }
         else
         {
-            if (Magic.SavesSpell(ch_level, victim, WeaponDamageTypes.Poison))
+            if (Magic.SavesSpell(ch_level, victim, DamageMessage.WeaponDamageTypes.Poison))
             {
                 victim.Act("$n turns slightly green, but it passes.", null, null, null, "ToRoom");
                 victim.send("You feel momentarily ill, but it passes.\n\r");
@@ -1155,7 +1155,7 @@ class Magic {
             affect.DisplayName = "Poisoned";
             affect.EndMessage = "You feel less sick.\n\r";
             affect.EndMessageToRoom = "$n starts looking less sick.\n\r";
-            affect.AffectType = AffectTypes.Malady; //castType == "Cast" ? "Spell" : "Commune";
+            affect.AffectType = AffectData.AffectTypes.Malady; //castType == "Cast" ? "Spell" : "Commune";
 
             victim.AffectToChar(affect);
             victim.send("You feel very sick.\n\r");
@@ -4805,7 +4805,7 @@ class Magic {
                     ch.Act("You pray a powerful prayer against $N.", victim, null, null, Character.ActType.ToChar);
                     var damage = ch.GetDamage(level, 2, 3, 10);
 
-                    Combat.Damage(ch, victim, damage, spell, WeaponDamageTypes.Wrath);
+                    Combat.Damage(ch, victim, damage, spell, DamageMessage.WeaponDamageTypes.Wrath);
                 }
             }
         }

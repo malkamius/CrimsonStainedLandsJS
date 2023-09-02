@@ -311,119 +311,7 @@ function Update() {
 
 	UpdateAggro();
 }
-var _lasthour = TimeInfo.Hour;
-function UpdateWeather() {
-	var buf = "";
-	var diff = 0;
 
-	if (_lasthour != TimeInfo.Hour)
-		switch (TimeInfo.Hour)
-		{
-			case 5:
-				buf += "The day has begun.\n\r";
-				break;
-
-			case 6:
-				buf += "The sun rises in the east.\n\r";
-				break;
-
-			case 19:
-				buf += "The sun slowly disappears in the west.\n\r";
-				break;
-
-			case 20:
-				buf += "The night has begun.\n\r";
-				break;
-		}
-
-	_lasthour = TimeInfo.Hour;
-
-	/*
-	* Weather change.
-	*/
-	if (TimeInfo.Month >= 9 && TimeInfo.Month <= 16)
-		diff = WeatherInfo.mmhg > 985 ? -2 : 2;
-	else
-		diff = WeatherInfo.mmhg > 1015 ? -2 : 2;
-
-	WeatherInfo.change += diff * Utility.Roll([1, 4, 0]) + Utility.Roll([2, 6, 0]) - Utility.Roll([2, 6, 0]);
-	WeatherInfo.change = Math.max(WeatherInfo.change, -12);
-	WeatherInfo.change = Math.min(WeatherInfo.change, 12);
-
-	WeatherInfo.mmhg += WeatherInfo.change;
-	WeatherInfo.mmhg = Math.max(WeatherInfo.mmhg, 960);
-	WeatherInfo.mmhg = Math.min(WeatherInfo.mmhg, 1040);
-
-	switch (WeatherInfo.Sky)
-	{
-		default:
-			console.log("Weather_update: bad sky " + WeatherInfo.Sky + ".");
-			WeatherInfo.Sky = "Cloudless";
-			break;
-
-		case "Cloudless":
-			if (WeatherInfo.mmhg < 990
-				|| (WeatherInfo.mmhg < 1010 && Utility.Random(0, 2) == 0))
-			{
-				buf += "The sky is getting cloudy.\n\r";
-				WeatherInfo.Sky = "Cloudy";
-			}
-			break;
-
-		case "Cloudy":
-			if (WeatherInfo.mmhg < 970
-				|| (WeatherInfo.mmhg < 990 && Utility.Random(0, 2) == 0))
-			{
-				buf += "It starts to rain.\n\r";
-				WeatherInfo.Sky = WeatherInfo.SkyStates.Raining;
-			}
-
-			if (WeatherInfo.mmhg > 1030 && Utility.Random(0, 2) == 0)
-			{
-				buf += "The clouds disappear.\n\r";
-				WeatherInfo.Sky = WeatherInfo.SkyStates.Cloudless;
-			}
-			break;
-
-		case "Raining":
-			if (WeatherInfo.mmhg < 970 && Utility.Random(0, 2) == 0)
-			{
-				buf += "Lightning flashes in the sky.\n\r";
-				WeatherInfo.Sky = WeatherInfo.SkyStates.Lightning;
-			}
-
-			if (WeatherInfo.mmhg > 1030
-				|| (WeatherInfo.mmhg > 1010 && Utility.Random(0, 2) == 0))
-			{
-				buf += "The rain stopped.\n\r";
-				WeatherInfo.Sky = WeatherInfo.SkyStates.Cloudy;
-			}
-			break;
-
-		case "Lightning":
-			if (WeatherInfo.mmhg > 1010
-				|| (WeatherInfo.mmhg > 990 && Utility.Random(0, 2) == 0))
-			{
-				buf += "The lightning has stopped.\n\r";
-				WeatherInfo.Sky = WeatherInfo.SkyStates.Raining;
-				break;
-			}
-			break;
-	}
-
-	if (buf.length > 0)
-	{
-		for (var player of Player.Players)
-		{
-			if (player.status == "Playing"
-				&& player.IsOutside
-				&& player.IsAwake)
-				player.send(buf);
-		}
-	}
-
-	return;
-}
 
 function DumpItems(item)
 {
@@ -437,13 +325,97 @@ function DumpItems(item)
 }
 
 function UpdateTick() {
+	UpdateCharactersTick();
+	
+	UpdateItemsTick();
+}
+
+
+
+function UpdateCombat() {
 	const Character = require("./Character");
-	for(var character of Utility.CloneArray(Character.Characters)) { 
+	const Combat = require("./Combat");
+	const SkillSpell = require("./SkillSpell");
+	const Magic = require("./Magic");
+	for(var character of Utility.CloneArray(Character.Characters)) {
 		for(var affect of character.Affects) {
-			if(affect.Frequency == "Tick" && (affect.Duration == 0 || (affect.Duration > 0 && --affect.Duration == 0))) {
-				character.AffectFromChar(affect);
+			if(affect.Frequency == "Violence") {
+				if(affect.SkillSpell && affect.SkillSpell.TickFun) {
+					affect.SkillSpell.TickFun(character, affect);
+				}
+				if( (affect.Duration == 0 || (affect.Duration > 0 && --affect.Duration == 0))) {
+					character.AffectFromChar(affect);
+				}
 			}
 		}
+		
+		if(character.IsNPC && character.Wait == 0 && Utility.Random(0,2) == 2) {
+			//for(var learnedkey in character.Learned) {
+				//var learned = character.Learned[learnedkey];
+				var learned = Utility.SelectRandom(character.Learned, function(item) { var skill;
+					return (skill = SkillSpell.GetSkill(item.Name, false)) && skill.AutoCast == true && skill.TargetType.equals("targetCharDefensive")});
+				if(learned) {
+					var skill = SkillSpell.GetSkill(learned.Name, false);
+
+					if(learned && skill && skill.TargetType.equals("targetCharDefensive")) {
+						if(skill.AutoCastScript.ISEMPTY() || eval(skill.AutoCastScript)) {
+							var victim = character;
+							
+							if(character.Flags.ISSET("Healer") && character.Room.Characters.length > 1)
+								victim = character.Room.Characters.SelectRandom(function (other) { return other != character;});
+
+							if(character.Guild && character.Guild.CastType) {
+								if(victim == character)
+									Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
+								else
+									Magic.CastCommuneOrSing(character, "'" + skill.Name + "' " + victim.Name, character.Guild.CastType);
+								//console.log(Utility.Format("{0} {1}", character.Guild.CastType, "'" + skill.Name + "'"))
+							}
+							
+						}
+					}
+				}
+			//}
+		}
+
+		
+
+		if(character.Fighting && character.Fighting.Room != character.Room) {
+			character.Fighting = null;
+			character.Position = "Standing";
+		}
+
+		if(character.Fighting) {
+			Combat.ExecuteRound(character);
+		}
+	}
+}
+
+function UpdateAggro() {
+	const Character = require("./Character");
+	for(var character of Utility.CloneArray(Character.Characters)) { 
+		if(character.Wait > 0) character.Wait--;
+	}
+}
+
+function UpdateCharactersTick() {
+	const Character = require("./Character");
+	for(var character of Utility.CloneArray(Character.Characters)) { 
+		try {
+			for(var affect of character.Affects) {
+				if(affect.Frequency == "Tick") {
+					if(affect.SkillSpell && affect.SkillSpell.TickFun) {
+						affect.SkillSpell.TickFun(character, affect);
+					}
+					if((affect.Duration == 0 || (affect.Duration > 0 && --affect.Duration == 0))) {
+						character.AffectFromChar(affect);
+					}
+				}
+			}
+		} catch(err) {
+			console.log(err);
+		}
+
 
 		if(character.HitPoints < character.MaxHitPoints) {
 			var gain = character.GetHitPointsGain();
@@ -463,6 +435,9 @@ function UpdateTick() {
 			character.MovementPoints = Math.min(character.MovementPoints + gain, character.MaxMovementPoints);
 		}
 	}
+}
+
+function UpdateItemsTick() {
 	const ItemData = require("./ItemData");
 	for(var item of Utility.CloneArray(ItemData.Items)) {
 		if(item.Timer == 0 || (item.Timer > 0 && --item.Timer == 0)) {
@@ -595,66 +570,118 @@ function UpdateTick() {
 			item.Dispose();
 		}
 	}
-
 }
 
-function UpdateCombat() {
-	const Character = require("./Character");
-	const Combat = require("./Combat");
-	const SkillSpell = require("./SkillSpell");
-	const Magic = require("./Magic");
-	for(var character of Utility.CloneArray(Character.Characters)) {
-		for(var affect of character.Affects) {
-			if(affect.Frequency == "Violence" && (affect.Duration == 0 || (affect.Duration > 0 && --affect.Duration == 0))) {
-				character.AffectFromChar(affect);
+var _lasthour = TimeInfo.Hour;
+function UpdateWeather() {
+	var buf = "";
+	var diff = 0;
+
+	if (_lasthour != TimeInfo.Hour)
+		switch (TimeInfo.Hour)
+		{
+			case 5:
+				buf += "The day has begun.\n\r";
+				break;
+
+			case 6:
+				buf += "The sun rises in the east.\n\r";
+				break;
+
+			case 19:
+				buf += "The sun slowly disappears in the west.\n\r";
+				break;
+
+			case 20:
+				buf += "The night has begun.\n\r";
+				break;
+		}
+
+	_lasthour = TimeInfo.Hour;
+
+	/*
+	* Weather change.
+	*/
+	if (TimeInfo.Month >= 9 && TimeInfo.Month <= 16)
+		diff = WeatherInfo.mmhg > 985 ? -2 : 2;
+	else
+		diff = WeatherInfo.mmhg > 1015 ? -2 : 2;
+
+	WeatherInfo.change += diff * Utility.Roll([1, 4, 0]) + Utility.Roll([2, 6, 0]) - Utility.Roll([2, 6, 0]);
+	WeatherInfo.change = Math.max(WeatherInfo.change, -12);
+	WeatherInfo.change = Math.min(WeatherInfo.change, 12);
+
+	WeatherInfo.mmhg += WeatherInfo.change;
+	WeatherInfo.mmhg = Math.max(WeatherInfo.mmhg, 960);
+	WeatherInfo.mmhg = Math.min(WeatherInfo.mmhg, 1040);
+
+	switch (WeatherInfo.Sky)
+	{
+		default:
+			console.log("Weather_update: bad sky " + WeatherInfo.Sky + ".");
+			WeatherInfo.Sky = "Cloudless";
+			break;
+
+		case "Cloudless":
+			if (WeatherInfo.mmhg < 990
+				|| (WeatherInfo.mmhg < 1010 && Utility.Random(0, 2) == 0))
+			{
+				buf += "The sky is getting cloudy.\n\r";
+				WeatherInfo.Sky = "Cloudy";
 			}
-		}
-		
-		if(character.IsNPC && character.Wait == 0 && Utility.Random(0,2) == 2) {
-			//for(var learnedkey in character.Learned) {
-				//var learned = character.Learned[learnedkey];
-				var learned = Utility.SelectRandom(character.Learned, function(item) { var skill;
-					return (skill = SkillSpell.GetSkill(item.Name, false)) && skill.AutoCast == true && skill.TargetType.equals("targetCharDefensive")});
-				if(learned) {
-					var skill = SkillSpell.GetSkill(learned.Name, false);
+			break;
 
-					if(learned && skill && skill.TargetType.equals("targetCharDefensive")) {
-						if(skill.AutoCastScript.ISEMPTY() || eval(skill.AutoCastScript)) {
-							var victim = character;
-							
-							if(character.Flags.ISSET("Healer") && character.Room.Characters.length > 1)
-								victim = character.Room.Characters.SelectRandom(function (other) { return other != character;});
+		case "Cloudy":
+			if (WeatherInfo.mmhg < 970
+				|| (WeatherInfo.mmhg < 990 && Utility.Random(0, 2) == 0))
+			{
+				buf += "It starts to rain.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Raining;
+			}
 
-							if(character.Guild && character.Guild.CastType) {
-								if(victim == character)
-									Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
-								else
-									Magic.CastCommuneOrSing(character, "'" + skill.Name + "' " + victim.Name, character.Guild.CastType);
-								//console.log(Utility.Format("{0} {1}", character.Guild.CastType, "'" + skill.Name + "'"))
-							}
-							
-						}
-					}
-				}
-			//}
-		}
+			if (WeatherInfo.mmhg > 1030 && Utility.Random(0, 2) == 0)
+			{
+				buf += "The clouds disappear.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Cloudless;
+			}
+			break;
 
-		
+		case "Raining":
+			if (WeatherInfo.mmhg < 970 && Utility.Random(0, 2) == 0)
+			{
+				buf += "Lightning flashes in the sky.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Lightning;
+			}
 
-		if(character.Fighting && character.Fighting.Room != character.Room) {
-			character.Fighting = null;
-			character.Position = "Standing";
-		}
+			if (WeatherInfo.mmhg > 1030
+				|| (WeatherInfo.mmhg > 1010 && Utility.Random(0, 2) == 0))
+			{
+				buf += "The rain stopped.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Cloudy;
+			}
+			break;
 
-		if(character.Fighting) {
-			Combat.ExecuteRound(character);
+		case "Lightning":
+			if (WeatherInfo.mmhg > 1010
+				|| (WeatherInfo.mmhg > 990 && Utility.Random(0, 2) == 0))
+			{
+				buf += "The lightning has stopped.\n\r";
+				WeatherInfo.Sky = WeatherInfo.SkyStates.Raining;
+				break;
+			}
+			break;
+	}
+
+	if (buf.length > 0)
+	{
+		for (var player of Player.Players)
+		{
+			if (player.status == "Playing"
+				&& player.IsOutside
+				&& player.IsAwake)
+				player.send(buf);
 		}
 	}
-}
 
-function UpdateAggro() {
-	const Character = require("./Character");
-	for(var character of Utility.CloneArray(Character.Characters)) { 
-		if(character.Wait > 0) character.Wait--;
-	}
+	return;
 }

@@ -691,6 +691,17 @@ Character.DoCommands.DoWeather = function(ch, args) {
 	return;
 }
 
+Character.DoCommands.DoWorth = function(ch, args)
+{
+	if (ch.Form) {
+		ch.send("You need {0} xp to level({1} of {2})\n\r",
+		(ch.XpToLevel * (ch.Level)) - ch.Xp, ch.XpTotal, ch.XpToLevel * (ch.Level));
+	} else {
+			ch.send("You have {0} silver, and {1} gold. You need {2} xp to level({3} of {4})\n\r",
+			ch.Silver, ch.Gold, (ch.XpToLevel * (ch.Level)) - ch.Xp, ch.XpTotal, ch.XpToLevel * (ch.Level));
+	}
+}
+
 Character.DoCommands.DoSay = dosay;
 Character.DoCommands.DoYell = DoYell;
 Character.DoCommands.DoQuit = doquit;
