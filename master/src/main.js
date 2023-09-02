@@ -610,7 +610,7 @@ function UpdateCombat() {
 			}
 		}
 		
-		if(character.IsNPC && character.Wait == 0) {
+		if(character.IsNPC && character.Wait == 0 && Utility.Random(0,2) == 2) {
 			//for(var learnedkey in character.Learned) {
 				//var learned = character.Learned[learnedkey];
 				var learned = Utility.SelectRandom(character.Learned, function(item) { var skill;
@@ -621,8 +621,15 @@ function UpdateCombat() {
 					if(learned && skill && skill.TargetType.equals("targetCharDefensive")) {
 						if(skill.AutoCastScript.ISEMPTY() || eval(skill.AutoCastScript)) {
 							var victim = character;
+							
+							if(character.Flags.ISSET("Healer") && character.Room.Characters.length > 1)
+								victim = character.Room.Characters.SelectRandom(function (other) { return other != character;});
+
 							if(character.Guild && character.Guild.CastType) {
-								Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
+								if(victim == character)
+									Magic.CastCommuneOrSing(character, "'" + skill.Name + "'", character.Guild.CastType);
+								else
+									Magic.CastCommuneOrSing(character, "'" + skill.Name + "' " + victim.Name, character.Guild.CastType);
 								//console.log(Utility.Format("{0} {1}", character.Guild.CastType, "'" + skill.Name + "'"))
 							}
 							
