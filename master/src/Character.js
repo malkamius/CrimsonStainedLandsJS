@@ -1903,6 +1903,10 @@ class Character {
 		}
 		return false;
 	}
+
+	GetGroupMembersInRoom() {
+		return this.Room.Characters.Select((ch) => ch.IsSameGroup(this));
+	}
 }
 
 module.exports = Character;

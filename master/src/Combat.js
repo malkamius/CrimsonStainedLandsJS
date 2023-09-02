@@ -102,6 +102,7 @@ class Combat {
     /// <param name="damage">The amount of damage that caused the death.</param>
     static CheckIsDead(ch, victim, damage)
     {
+        if(!victim) return;
         // Update the position of the victim based on their hit points
         Combat.UpdatePosition(victim);
 
@@ -167,6 +168,17 @@ class Combat {
         // Perform actions when the victim is dead
         if (victim.Position == "Dead")
         {
+            if(victim.IsNPC) {
+                // give experience to everyone fighting victim
+                for(var gch of victim.Room.Characters) {
+                    if(gch.Fighting == victim && (!ch || !gch.IsSameGroup(ch))) {
+                        var xp = gch.ExperienceCompute(victim, 1, gch.Level); // group_levels);
+                        gch.send("\\CYou receive \\W{0}\\C experience points.\\x\n\r", xp);
+                        gch.GainExperience(xp);
+                    }
+                }
+            }  
+
             // Stop the fighting and set positions
             if (ch != null)
             {
@@ -189,7 +201,7 @@ class Combat {
                 victim.AffectFromChar(aff, "Died", false);
 
             // Gain experience for killing an NPC victim
-            if (ch != null && victim != null && victim.IsNPC)
+            if (ch && victim  && victim.IsNPC)
                 ch.GroupGainExperience(victim);
 
             // Perform death cry

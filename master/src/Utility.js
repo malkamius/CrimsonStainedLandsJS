@@ -419,6 +419,15 @@ class Utility {
 		if(!DiceBonus) DiceBonus = 0;
 		return DiceSides + "d" + DiceCount + "+" + DiceBonus;
 	} 
+
+	static FromLevelTable(leveltable, level) {
+		var result = 0;
+		for(var entry of leveltable) {
+			if(level >= entry[0] && entry[1] > result)
+				result = entry[1];
+		}
+		return result;
+	}
 }
 
 const xml2js = require('xml2js');
