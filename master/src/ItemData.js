@@ -10,7 +10,7 @@ const AffectData = require("./AffectData");
 class ItemData {
     static Items = Array();
 
-    static WearFlags =
+    static WearFlagsList =
     {
         "Take": "Take",
         "Finger": "Finger",
@@ -35,7 +35,7 @@ class ItemData {
         "Brand": "Tattoo"
     }
 
-    static ItemTypes =
+    static ItemTypesList =
     {
         "Armor": "Armor",
         "Boat": "Boat",
@@ -73,7 +73,7 @@ class ItemData {
         "Talisman": "Staff",
         "ThiefPick": "ThiefPick"
     }
-    static WeaponTypes =
+    static WeaponTypesList =
     {
         "None": "None",
         "Sword": "Sword",
@@ -288,7 +288,7 @@ class ItemData {
             var slot;
             if(this.CarriedBy.Inventory.indexOf(this) != -1)
                 this.CarriedBy.Inventory.splice(this.CarriedBy.Inventory.indexOf(item), 1);
-            else if((slot = Character.ItemFunctions.GetEquipmentWearSlot(this.CarriedBy, item)))
+            else if((slot = this.CarriedBy.GetEquipmentWearSlot(this.CarriedBy, item)))
                 delete this.CarriedBy.Equipment[slot];
         }
 

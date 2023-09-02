@@ -122,7 +122,6 @@ class Character {
     };
 
 	static DoCommands = {};
-    static ItemFunctions = {};
     static CharacterFunctions = {};
 	IsNPC = true;
 	VNum = 0;
@@ -496,7 +495,7 @@ class Character {
 			Act("You drop $p.", null, wield, null, ActType.ToChar);
 			Act("$n drops $p.", null, wield, null, ActType.ToRoom);
 
-			Character.ItemFunctions.RemoveEquipment(this, wield, !silent, true);
+			this.RemoveEquipment(wield, !silent, true);
 
 			Room.items.Insert(0, wield);
 			wield.Room = Room;
@@ -507,7 +506,7 @@ class Character {
 			Act("You drop $p.", null, wield, null, ActType.ToChar);
 			Act("$n drops $p.", null, wield, null, ActType.ToRoom);
 
-			Character.ItemFunctions.RemoveEquipment(this, wield, !silent, true);
+			this.RemoveEquipment(wield, !silent, true);
 
 			Room.items.Insert(0, wield);
 			wield.Room = Room;
@@ -1459,6 +1458,448 @@ class Character {
 		level = Math.max(0, level);
 		return Utility.Random(dam_each[level] * LowEndMultiplier + bonus, dam_each[level] * HighEndMultiplier + bonus);
 	} // end get damage
+
+	GetEquipmentWearSlot(item) {
+		for(key in this.Equipment) {
+			if(this.Equipment[key] == item) return key;
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 *
+	 * @param {ItemData} item
+	 * @param {boolean} [atEnd=false]
+	 * @return {*} 
+	 */
+	AddInventoryItem(item, atEnd = false)
+	{
+		
+
+		if (item.ItemTypes.ISSET("Money"))
+		{
+			this.Silver += item.Silver;
+			this.Gold += item.Gold;
+
+
+			if (this.Flags.AutoSplit)
+			{
+				var splitamongst = Array();
+				for (var other of Room.Characters)
+				{
+					if (other != this && !other.IsNPC && other.IsSameGroup(this))
+					{
+						splitamongst.Add(other);
+					}
+				}
+
+
+				if (splitamongst.Count > 0)
+				{
+					var share_silver = item.Silver / (splitamongst.Count + 1);
+					var extra_silver = item.Silver % (splitamongst.Count + 1);
+
+					var share_gold = item.Gold / (splitamongst.Count + 1);
+					var extra_gold = item.Gold % (splitamongst.Count + 1);
+
+
+					this.Silver -= item.Silver;
+					this.Silver += share_silver + extra_silver;
+					this.Gold -= item.Gold;
+					this.Gold += share_gold + extra_gold;
+
+
+					if (share_silver > 0)
+					{
+						send("You split {0} silver coins. Your share is {1} silver.\n\r", item.Silver, share_silver + extra_silver);
+					}
+
+					if (share_gold > 0)
+					{
+						send("You split {0} gold coins. Your share is {1} gold.\n\r", item.Gold, share_gold + extra_gold);
+
+					}
+					var buf;
+					if (share_gold == 0)
+					{
+						buf = Utility.Format("$n splits {0} silver coins. Your share is {1} silver.",
+								item.Silver, share_silver);
+					}
+					else if (share_silver == 0)
+					{
+						buf = Utility.Format("$n splits {0} gold coins. Your share is {1} gold.",
+							item.Gold, share_gold);
+					}
+					else
+					{
+						buf = Utility.Format(
+							"$n splits {0} silver and {1} gold coins, giving you {2} silver and {3} gold.\n\r",
+								item.Silver, item.Gold, share_silver, share_gold);
+					}
+
+					for(var gch of splitamongst)
+					{
+						if (gch != this)
+						{
+							if (gch.Position != "Sleeping")
+								Act(buf, gch, null, null, Character.ActType.ToVictim);
+							gch.Gold += share_gold;
+							gch.Silver += share_silver;
+						}
+					}
+				}// end if splitamongst.count > 0
+			} // end isset autosplit
+			item.Dispose();
+			return true;
+
+		}
+		else
+		{
+			if(atEnd) this.Inventory.push(item);
+			else this.Inventory.unshift(item);
+			
+			item.CarriedBy = this;
+
+			return true;
+		}
+	}
+
+	/**
+	 * Attempt to pick up an item, can fail if too many items or too much weight
+	 *
+	 * @param {ItemData} item
+	 * @param {ItemData} [container=null]
+	 * @return {boolean} 
+	 */
+	GetItem(item, container = null) {
+		if (item.WearFlags.Take)
+		{
+			if (this.Carry + 1 > this.MaxCarry)
+			{
+				this.send("You can't carry anymore items.\n\r");
+				return false;
+			}
+
+			if (container == null)
+			{
+				if (this.TotalWeight + item.Weight > this.MaxWeight)
+				{
+					this.send("You can't carry anymore weight.\n\r");
+					return false;
+				}
+				this.Room.Items.splice(this.Room.Items.indexOf(item), 1);
+				item.Room = null;
+				
+				this.Act("You get $p.\n\r", null, item, null, "ToChar");
+				this.Act("$n gets $p.\n\r", null, item, null, "ToRoom");
+			}
+			else
+			{
+				if (container.CarriedBy != this && this.TotalWeight + item.Weight > this.MaxWeight)
+				{
+					this.send("You can't carry anymore weight.\n\r");
+					return false;
+				}
+
+				container.Contains.splice(container.Contains.indexOf(item), 1);
+				item.Container = null;
+				
+				this.Act("You get $p from $P.\n\r", null, item, container, "ToChar");
+				this.Act("$n gets $p from $P.\n\r", null, item, container, "ToRoom");
+			}
+			AddInventoryItem(item);
+			return true;
+		}
+		else
+			return false;
+	}
+
+	/**
+	 * Attempt to get an item from the characters inventory, can be a n.item name
+	 *
+	 * @param {string} itemname
+	 * @param {number} [count=0]
+	 * @return {Array[ItemData, number]} Item and count as array
+	 */
+	GetItemInventory(itemname, count = 0) {
+		var number = Utility.NumberArgument(itemname);
+		itemname = number[1];
+		number = number[0];
+		for(var i = 0; i < this.Inventory.length; i++) {
+			var item = this.Inventory[i];
+
+			if((Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
+				return [item, count];
+			}
+		}
+		return [null, count];
+	}
+
+	/**
+	 * Attempt to retrieve an item from the equipment of the character, can be a n.name argument
+	 *
+	 * @param {string} itemname
+	 * @param {number} [count=0]
+	 * @return {Array[ItemData, number, string]} Item, count and slot id as array
+	 */
+	GetItemEquipment(itemname, count = 0) {
+		var number = Utility.NumberArgument(itemname);
+		itemname = number[1];
+		number = number[0];
+		for(key in Character.WearSlots) {
+			var item = this.Equipment[key];
+
+			if(item && (Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
+				return [item, count, key];
+			}
+		}
+		return [null, count, key];
+	}
+
+	/**
+	 *
+	 *
+	 * @param {Array} list
+	 * @param {string} itemname
+	 * @param {number} [count=0]
+	 * @return {Array} item, count, key in the list 
+	 */
+	GetItemList(list, itemname, count = 0) {
+		var number = Utility.NumberArgument(itemname);
+		itemname = number[1];
+		number = number[0];
+		for(key in list) {
+			var item = list[key];
+
+			if((Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
+				return [item, count, key];
+			}
+		}
+		return [null, count, key];
+	}
+
+	/**
+	 *
+	 *
+	 * @param {string} itemname
+	 * @return {ItemData} 
+	 */
+	GetItemHere(itemname, count = 0) {
+		var result = this.GetItemInventory(itemname, count);
+		if(!result[0])
+			result = this.GetItemEquipment(itemname, result[1]);
+		if(!result[0])
+			result = this.GetItemList(this.Room.Items, itemname, result[1]);
+
+		return result;
+	}
+
+	/**
+	 * 
+	 * @param {string} itemname 
+	 * @param {number} count 
+	 * @returns An ItemData matching the name specified from in the room
+	 */
+	GetItemRoom(itemname, count = 0) {
+		var result = this.GetItemList(this.Room.Items, itemname, count);
+
+		return result;
+	}
+
+	WearItem(item, sendMessage = true, remove = true)
+	{
+		var firstSlot = null;
+		var emptySlot = null;
+		var offhandSlotToRemove = null;
+		var offhand;
+		var wielded;
+
+		var noun = "wear";
+		
+		// Check if the item has the UniqueEquip flag and the character is already wearing one
+		if (item.ExtraFlags.UniqueEquip)
+		{
+			for(var key in this.Equipment)
+			{
+				var other = this.Equipment[key];
+				if (other && other.VNum == item.VNum)
+				{
+					this.send("You can only wear one of those at a time.\n\r");
+					return false;
+				}
+			}
+		}
+
+		// Check if the item has alignment restrictions that conflict with the character's alignment
+		// if ((itemData.extraFlags.ISSET(ExtraFlags.AntiGood) && Alignment == Alignment.Good) ||
+		//     (itemData.extraFlags.ISSET(ExtraFlags.AntiNeutral) && Alignment == Alignment.Neutral) ||
+		//     (itemData.extraFlags.ISSET(ExtraFlags.AntiEvil) && Alignment == Alignment.Evil))
+		// {
+		//     Act("You try to wear $p, but it zaps you.", null, itemData, type: ActType.ToChar);
+		//     Act("$n tries to wear $p, but it zaps $m.", null, itemData, type: ActType.ToRoom);
+		//     return false;
+		// }
+
+		var handslots = { Wield: true, DualWield: true, Shield: true, Held: true };
+
+		wielded = this.Equipment["Wield"];
+
+		// Iterate over the available wear slots to find an empty slot or the first suitable slot
+		for(var slotkey in Character.WearSlots)
+		{
+			var slot = Character.WearSlots[slotkey];
+			// Check if the character's hands are bound and the item requires hand slots
+			// if (item.WearFlags[slot.Flag] && Object.keys(handslots).indexOf(slot.ID) >= 0 && IsAffected(AffectFlags.BindHands))
+			// {
+			//     this.Act("You can't equip that while your hands are bound.\n\r");
+			//     return false;
+			// }
+
+			// Check if the item can be dual wielded and the character has the appropriate skill
+			if (slot.ID == "DualWield" &&
+				(this.GetSkillPercentage("dual wield") <= 1 ||
+				item.ExtraFlags.TwoHands ||
+				(wielded && wielded.ExtraFlags.TwoHands)))
+				continue;
+
+			// Check if the item can be worn in the current slot and the slot is empty
+			if (item.WearFlags[slot.Flag] && !this.Equipment[slot.ID])
+			{
+				emptySlot = slot;
+				break;
+			}
+			else if (item.WearFlags[slot.Flag] && firstSlot == null)
+				firstSlot = slot;
+		}
+
+		// Check if a hand slot needs to be emptied for a two-handed item
+		if (emptySlot && (emptySlot.ID == "Held" || emptySlot.ID == "DualWield" || emptySlot.ID == "Shield") && (wielded = this.Equipment["Wield"]) && wielded.ExtraFlags.TwoHands)
+		{
+			if (remove)
+			{
+				if (!this.RemoveEquipment(wielded, sendMessage))
+					return false;
+			}
+			else
+				return false;
+		}
+
+		// Check if a two-handed item requires the removal of an offhand item
+		if (!emptySlot && !remove) return false;
+
+		if (item.ExtraFlags.TwoHands && ((offhand = this.Equipment["Shield"]) || (offhand = this.Equipment["Held"]) || (offhand = this.Equipment["DualWield"])))
+		{
+			if (!this.RemoveEquipment(offhand, sendMessage))
+			{
+				this.send("You need two hands free for that weapon.\n\r");
+				return false;
+			}
+		}
+
+		// Check if there is an offhand item that needs to be replaced
+		if (
+			(
+				(emptySlot && (emptySlot.ID == "DualWield" || emptySlot.ID == "Shield" || emptySlot.ID == "Held"))
+		||
+				(firstSlot && (firstSlot.ID == "DualWield" || firstSlot.ID == "Shield" || firstSlot.ID == "Held"))
+			)
+		&& (
+				(offhand = this.Equipment["Shield"]) || (offhand = this.Equipment["Held"]) || (offhand = this.Equipment["DualWield"])
+			))
+		{
+			if (!remove) return false;
+			if (this.RemoveEquipment(offhand, sendMessage))
+			{
+				if (emptySlot == null)
+					emptySlot = firstSlot;
+			}
+			else
+				return false; // no remove item, should have gotten a message if we are showing messages, no switching out noremove gear in resets
+		}
+		// Replace an item other than the offhand
+		else if (!emptySlot && firstSlot)
+		{
+			if (this.RemoveEquipment(this.Equipment[firstSlot.ID], sendMessage))
+				emptySlot = firstSlot;
+		}
+
+		// Attempt to wear the item in the empty slot
+		if (emptySlot)
+		{
+			if (sendMessage)
+			{
+				if (emptySlot.ID == "Wield" || emptySlot.ID == "DualWield")
+				{
+					// // Check if the character can wield the item based on their strength
+					// if (!IsNPC && itemData.Weight > PhysicalStats.StrengthApply[GetCurrentStat(PhysicalStatTypes.Strength)].Wield)
+					// {
+					//     Act("$p weighs too much for you to wield.", null, itemData);
+					//     return false;
+					// }
+
+					noun = "wield";
+				}
+				else
+					noun = "wear";
+
+				// Display wear messages to the character and the room
+				this.Act("You " + noun + " $p " + emptySlot.WearString + ".\n\r", null, item, null, "ToChar");
+				this.Act("$n " + noun + "s $p " + emptySlot.WearStringOthers + ".\n\r", null, item, null, "ToRoom");
+			}
+
+			// Add the item to the equipment slot
+			this.Equipment[emptySlot.ID] = item;
+
+			// Remove the item from the character's inventory
+			if (this.Inventory.indexOf(item) >= 0)
+				this.Inventory.splice(this.Inventory.indexOf(item), 1);
+			item.CarriedBy = this;
+
+			// // Apply the item's affects to the character
+			// if (itemData.Durability != 0) // Broken items don't apply any affects
+			// {
+			//     foreach (var aff in itemData.affects)
+			//         AffectApply(aff);
+			// }
+
+			// // Execute any wear programs associated with the item
+			// Programs.ExecutePrograms(Programs.ProgramTypes.Wear, this, itemData, "");
+
+			return true;
+		}
+		else
+		{
+			this.send("You couldn't wear it.\n\r");
+			return false;
+		}
+	}
+
+	RemoveEquipment(item, sendmessage = true, force = false) {
+		var slot = null;
+		for(var slotkey in this.Equipment) {
+			if(this.Equipment[slotkey] == item)
+				slot = slotkey;
+		}
+		if (!item || !slot) {
+			if(sendmessage)
+			this.send("You aren't wearing that.\n\r");
+		} else if(item.ExtraFlags.NoRemove && !force) {
+			if(sendmessage)
+			this.Act("You can't remove $p.\n\r", null, item, null, "ToChar");
+		} else {
+			this.Inventory.unshift(item);
+			
+			item.CarriedBy = this;
+			delete this.Equipment[slot];
+			if(sendmessage) {
+				this.Act("You remove $p.\n\r", null, item, null, "ToChar");
+				this.Act("$n removes $p.\n\r", null, item, null, "ToRoom");
+			}
+			return true;
+		}
+		return false;
+	}
 }
 
 module.exports = Character;

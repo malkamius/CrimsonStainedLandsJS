@@ -74,7 +74,8 @@ class ResetData {
       ResetData.LastNPCReset.Inventory.unshift(item);
     } else if(this.Type == "Equip" && ResetData.LastNPCReset) {
       var item = new ItemData(this.VNum, null, null);
-      Character.ItemFunctions.WearItem(ResetData.LastNPCReset, item, false, true);
+      if(!ResetData.LastNPCReset.WearItem(item, false, true))
+        ResetData.LastNPCReset.AddInventoryItem(item);
     }
   }
 }

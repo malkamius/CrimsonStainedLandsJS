@@ -354,7 +354,7 @@ class Magic {
                     return;
                 }
 
-                if (([item, count] = Character.ItemFunctions.GetItemInventory(ch, targetName, count)) == null)
+                if (([item, count] = ch.GetItemInventory(targetName, count)) == null)
                 {
                     ch.send("You are not carrying that.\n\r");
                     return;
@@ -374,11 +374,11 @@ class Magic {
 
                     target = "targetChar";
                 }
-                else if (([item, count] = Character.ItemFunctions.GetItemHere(ch, targetName, count)) && item)
+                else if (([item, count] = ch.GetItemHere(targetName, count)) && item)
                 {
                     target = "targetItem";
                 }
-                else if (([item, count] = Character.ItemFunctions.GetItemHere(ch, argument, count)) && item)
+                else if (([item, count] = ch.GetItemHere(argument, count)) && item)
                 {
                     target = "targetItem";
                 }
@@ -407,15 +407,15 @@ class Magic {
                     target = "targetChar";
                 }
 
-                else if (([item, count] = Character.ItemFunctions.GetItemHere(ch, argument, count)) && item)
+                else if (([item, count] = ch.GetItemHere(argument, count)) && item)
                 {
                     target = "targetItem";
                 }
-                else if (([item, count]= Character.ItemFunctions.GetItemHere(ch, arg2, count)) && item)
+                else if (([item, count]= ch.GetItemHere(arg2, count)) && item)
                 {
                     target = "targetItem";
                 }
-                else if (([victim, count] = Character.CharacterFunctions.GetCharacterHere(ch, arg2, count)) && victim)
+                else if (([victim, count] = ch.GetCharacterHere(arg2, count)) && victim)
                 {
                     vo = victim;
                     target = "targetChar";
@@ -492,7 +492,7 @@ class Magic {
             {
                 ch.send("Your song falls on deaf ears.\n\r");
                 ch.CheckImprove("sing", false, 1);
-                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypes.Instrument))
+                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypesList.Instrument))
                 {
                     ch.CheckImprove("a cappella", false, 1);
                 }
@@ -513,7 +513,7 @@ class Magic {
             if (MethodUsed == "Sing")
             {
                 ch.CheckImprove("sing", true, 1);
-                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypes.Instrument))
+                if (held == null || !held.ItemTypes.ISSET(ItemData.ItemTypesList.Instrument))
                 {
                     ch.CheckImprove("a cappella", true, 1);
                 }
@@ -2236,7 +2236,7 @@ class Magic {
             string.Join(" ", (from flag of item.ItemTypes.Distinct() select flag.ToString())), item.Level);
         buffer.AppendFormat("It is worth {0} silver and weighs {1} pounds.\n\r", item.Value, item.Weight);
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
         {
             if (item.WeaponDamageType != null)
                 buffer.AppendFormat("Damage Type is {0}\n\r", item.WeaponDamageType.Keyword);
@@ -2244,17 +2244,17 @@ class Magic {
 
         }
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Container))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Container))
         {
             buffer.AppendFormat("It can hold {0} pounds.", item.MaxWeight);
         }
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Food))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Food))
         {
             buffer.AppendFormat("It is edible and provides {0} nutrition.\n\r", item.Nutrition);
         }
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypes.DrinkContainer))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.DrinkContainer))
         {
             buffer.AppendFormat("Nutrition {0}, Drinks left {1}, Max Capacity {2}, it is filled with '{3}'\n\r", item.Nutrition, item.Charges, item.MaxCharges, item.Liquid);
         }
@@ -2263,7 +2263,7 @@ class Magic {
         if (item.timer > 0)
             buffer.AppendFormat("It will decay of {0} hours.\n\r", item.timer);
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Armor) || item.ItemTypes.ISSET(ItemData.ItemTypes.Clothing))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Armor) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Clothing))
         {
             buffer.AppendFormat("It provides armor against bash {0}, slash {1}, pierce {2}, magic {3}\n\r", item.ArmorBash, item.ArmorSlash, item.ArmorPierce, item.ArmorExotic);
         }
@@ -2272,12 +2272,12 @@ class Magic {
 
         buffer.AppendFormat("Affects: \n   {0}\n\r", string.Join("\n   ", (from aff of item.affects where aff.@where == AffectData.AffectWhere.ToObject select aff.Location.ToString() + " " + aff.Modifier)));
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypes.Wand) || item.ItemTypes.ISSET(ItemData.ItemTypes.Scroll) || item.ItemTypes.ISSET(ItemData.ItemTypes.Potion))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Wand) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Scroll) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Potion))
         {
             buffer.AppendFormat("It contains the following spells:\n\r   {0}", string.Join("\n   ", from itemspell of item.Spells select (itemspell.SpellName + " [lvl " + itemspell.Level + "]")) + "\n\r");
         }
 
-        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypes.Wand))
+        if (item.ItemTypes.ISSET(ItemData.ItemTypesList.Staff) || item.ItemTypes.ISSET(ItemData.ItemTypesList.Wand))
         {
             buffer.AppendFormat("It has {0} of {1} charges left\n\r", item.Charges, item.MaxCharges);
         }
@@ -2317,7 +2317,7 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Armor) && !item.ItemTypes.ISSET(ItemData.ItemTypes.Clothing))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypesList.Armor) && !item.ItemTypes.ISSET(ItemData.ItemTypesList.Clothing))
         {
             ch.send("That isn't armor.\n\r");
             return;
@@ -2332,7 +2332,7 @@ class Magic {
                 ch.Act("$p flares blindingly and then fades completely.\n\r", null, item);
                 ch.Act("$p flares blindingly and then fades completely.\n\r", null, item, null, Character.ActType.ToRoom);
 
-                if (Character.ItemFunctions.GetEquipmentWearSlot(ch,item))
+                if (ch.GetEquipmentWearSlot(ch,item))
                 {
                     ch.AffectApply(aff, true);
                 }
@@ -2343,12 +2343,12 @@ class Magic {
             }
             else if (aff != null)
             {
-                if (Character.ItemFunctions.GetEquipmentWearSlot(ch, item))
+                if (ch.GetEquipmentWearSlot(item))
                 {
                     ch.AffectApply(aff, true);
                 }
                 aff.Modifier += 10;
-                if (Character.ItemFunctions.GetEquipmentWearSlot(ch, item))
+                if (ch.GetEquipmentWearSlot(item))
                 {
                     ch.AffectApply(aff, false);
                 }
@@ -2368,7 +2368,7 @@ class Magic {
                 item.Affects.unshift(aff);
                 item.ExtraFlags[ExtraFlags.Glow] = true;
                 item.ExtraFlags[ExtraFlags.Hum] = true;
-                if (Character.ItemFunctions.GetEquipmentWearSlot(ch, item) != null)
+                if (ch.GetEquipmentWearSlot(item) != null)
                 {
                     ch.AffectApply(aff);
                 }
@@ -2386,7 +2386,7 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
@@ -2396,7 +2396,7 @@ class Magic {
             // TODO Chance to fail / maybe destroy item?
             var aff = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.Damroll);
             var aff2 = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.Hitroll);
-            var worn = Character.ItemFunctions.GetEquipmentWearSlot(ch, item) != null;
+            var worn = ch.GetEquipmentWearSlot(item) != null;
             if (aff != null && aff.Modifier >= 6)
             {
                 ch.Act("$p flares blindingly and then fades completely.\n\r", null, item);
@@ -2576,7 +2576,7 @@ class Magic {
 
     static SpellCreateWater(castType, spell, ch_level, ch, victim, item, args, target)
     {
-        if (item != null && !item.ItemTypes.ISSET(ItemData.ItemTypes.DrinkContainer))
+        if (item != null && !item.ItemTypes.ISSET(ItemData.ItemTypesList.DrinkContainer))
         {
             ch.send("That can't hold water.\n\r");
         }
@@ -3702,12 +3702,12 @@ class Magic {
             ch.send("You do not have enough mana to cast this spell.\n\r");
             return;
         }
-        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
         }
-        else if (Character.ItemFunctions.GetEquipmentWearSlot(ch, item) != null)
+        else if (ch.GetEquipmentWearSlot(item) != null)
         {
             ch.send("You cannot imbue a weapon you are wielding or holding.\n\r");
             return;
@@ -3760,7 +3760,7 @@ class Magic {
             staffspear.Level = ch.Level;
             item.Dispose();
 
-            Character.ItemFunctions.AddInventoryItem(ch, staffspear);
+            ch.AddInventoryItem(staffspear);
             ch.ManaPoints -= ch.MaxManaPoints / 2;
             Combat.Damage(ch, ch, ch.MaxHitPoints / 2, spell, DamageMessage.WeaponDamageTypes.Magic);
         }
@@ -3772,7 +3772,7 @@ class Magic {
             ch.send("You don't see that here.\n\r");
             return;
         }
-        else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
+        else if (!item.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
         {
             ch.send("That isn't a weapon.\n\r");
             return;
@@ -3781,7 +3781,7 @@ class Magic {
         {
             var aff = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.Damroll);
             var aff2 = item.Affects.FirstOrDefault(ia => ia.SkillSpell == spell && ia.Location == AffectData.AffectData.ApplyTypes.Hitroll);
-            var worn = Character.ItemFunctions.GetEquipmentWearSlot(ch, item) != null;
+            var worn = ch.GetEquipmentWearSlot(item) != null;
             if (worn)
             {
                 ch.Act("You cannot bless a weapon you are wielding.\n\r");
@@ -3855,9 +3855,9 @@ class Magic {
                 [victimname, args] = args.OneArgument();
                 if (!args.ISEMPTY())
                 {
-                    [item, count] = Character.ItemFunctions.GetItemEquipment(victim, args, count);
+                    [item, count] = victim.GetItemEquipment(args, count);
                     if (!item)
-                        [item, count] = Character.ItemFunctions.GetItemInventory(victim, args, count);
+                        [item, count] = victim.GetItemInventory(args, count);
 
                     if (!item)
                     {
@@ -3940,12 +3940,19 @@ class Magic {
     static SpellChargeWeapon(castType, spell, ch_level, ch, victim, item, args, target)
     {
         var weapon = null;
+        
+        weapon = ch.GetEquipment(WearSlotIDs.Wield);
 
-        if (((args.ISEMPTY()) && (weapon = ch.GetEquipment(WearSlotIDs.Wield)) == null) || (!args.ISEMPTY() && (weapon = ch.GetItemInventoryOrEquipment(args, false)) == null))
+        if(!weapon)
+            [weapon, count] = ch.GetItemInventory(args, count);
+        if(!weapon)
+            [weapon, count] = ch.GetItemEquipment(args, count);
+
+        if (((args.ISEMPTY()) || !weapon))
         {
             ch.Act("Which weapon did you want to charge?\n\r");
         }
-        else if (!weapon.ItemTypes.ISSET(ItemData.ItemTypes.Weapon))
+        else if (!weapon.ItemTypes.ISSET(ItemData.ItemTypesList.Weapon))
         {
             ch.Act("You can only charge a weapon.\n\r");
         }
@@ -4745,7 +4752,7 @@ class Magic {
             return;
         }
 
-        if (!ch.Room.items.Any(item => item.ItemTypes.ISSET(ItemData.ItemTypes.PC_Corpse) && item.Owner.IsName(victim.Name)))
+        if (!ch.Room.items.Any(item => item.ItemTypes.ISSET(ItemData.ItemTypesList.PC_Corpse) && item.Owner.IsName(victim.Name)))
         {
             ch.Act("You don't see $N's corpse here.");
         }

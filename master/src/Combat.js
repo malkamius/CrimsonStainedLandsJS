@@ -291,7 +291,7 @@ class Combat {
 
                     if (value)
                     {
-                        Character.ItemFunctions.RemoveEquipment(victim, value, false, true);
+                        victim.RemoveEquipment(value, false, true);
                         if (victim.Inventory.indexOf(value) >= 0)
                             victim.Inventory.splice(victim.Inventory.indexOf(value), 1);
                         newCorpse.Contains.push(value);

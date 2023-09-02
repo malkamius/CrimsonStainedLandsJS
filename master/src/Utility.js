@@ -430,6 +430,13 @@ Object.defineProperty( Array.prototype, 'IsSet', { value: function (flag) { retu
 Object.defineProperty( Array.prototype, 'ISSET', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Array.prototype, 'IsSetAny', { value: function (...flags) { return Utility.IsSetAny(this, flags) }} );
 Object.defineProperty( Array.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
+Object.defineProperty( Array.prototype, 'Remove', { value: function (item) { 
+		var index = this.indexOf(item);
+		if(index != -1)
+			this.splice(index, 1);
+		return index != -1;
+	} 
+});
 
 Object.defineProperty( Object.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Object.prototype, 'IsSetAny', { value: function (...flags) { return Utility.IsSetAny(this, flags) }} );

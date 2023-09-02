@@ -57,6 +57,13 @@ function dohelp(player, arguments, plain = false) {
 	if(!found) player.send("No help on that.\n\r");
 }
 
+/**
+ * 
+ * @param {CharacterData} player 
+ * @param {string} arguments 
+ * @param {boolean} auto 
+ * @returns 
+ */
 function dolook(player, arguments, auto) {
 	if(player.Room == null) {
 		player.send("You are not in a room.\n\r");
@@ -66,7 +73,7 @@ function dolook(player, arguments, auto) {
 		doexits(player, "");
 		var items = {};
 		for(const item of player.Room.Items){
-			var display = item.DisplayToRoom(player);
+			var display = item.DisplayFlags(player) + item.DisplayToRoom(player);
 			if(items[display])
 				items[display]++;
 			else
@@ -88,7 +95,7 @@ function dolook(player, arguments, auto) {
 			lookin = true;
 		}
 
-		var [target, count] = Character.ItemFunctions.GetItemHere(player, arguments, 0);
+		var [target, count] = player.GetItemHere(arguments, 0);
 		if(!target && !lookin) {
 			[target, count] = Character.CharacterFunctions.GetCharacterHere(player, arguments, count);
 			isitem = false;

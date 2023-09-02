@@ -40,7 +40,7 @@ Commands = {
 		"kill": {Command:Combat.DoKill, MinimumPosition: "Standing" },
 		"flee": {Command:Combat.DoFlee, MinimumPosition: "Fighting" },
 		"peace": {Command: Character.DoCommands.DoPeace, MinimumPosition: "Resting" },
-		"slay": {Command: Character.DoCommands.DoSlay, MinimumPosition: "Standing" },
+		"slay": {Command: Character.DoCommands.DoSlay, MinimumPosition: "Dead" },
 		"sing": {Command: Magic.DoSing, MinimumPosition: "Resting" },
 		"toggle": {Command: Character.DoCommands.DoToggle, MinimumPosition: "Dead" },
 		"dirtkick": {Command:Combat.DoDirtKick, MinimumPosition: "Standing" },
@@ -49,6 +49,7 @@ Commands = {
 		"weather": {Command: Character.DoCommands.DoWeather, MinimumPosition: "Dead" },
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
 		"heal": {Command: Magic.DoHeal, MinimumPosition: "Resting" },
+		"sacrifice": {Command: Character.DoCommands.DoSacrifice, MinimumPosition: "Resting" },
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};

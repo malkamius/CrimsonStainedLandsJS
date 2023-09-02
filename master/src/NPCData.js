@@ -63,5 +63,4 @@ class NPCData extends Character {
 
 }
 
-NPCData.ItemFunctions = Character.ItemFunctions;
 module.exports = NPCData;

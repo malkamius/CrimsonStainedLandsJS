@@ -96,7 +96,7 @@ function dodown(player, arguments) {
 function DoOpen(character, args) {
 	var item, count;
 	var [exit, count] = Character.Room.GetExit(args, count);
-	var [item, count] = Character.ItemFunctions.GetItemHere(character, args, count);
+	var [item, count] = character.GetItemHere(args, count);
 	
 	if(exit) {
 		if(exit.Flags.Locked) {
@@ -136,7 +136,7 @@ function DoOpen(character, args) {
 function DoClose(character, args) {
 	var item, count;
 	var [exit, count] = Character.Room.GetExit(args, count);
-	var [item, count] = Character.ItemFunctions.GetItemHere(character, args, count);
+	var [item, count] = character.GetItemHere(args, count);
 	
 	if(exit) {
 		
