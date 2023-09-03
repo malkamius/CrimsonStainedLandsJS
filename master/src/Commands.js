@@ -59,13 +59,20 @@ Commands = {
 		"time": {Command: Character.DoCommands.DoTime, MinimumPosition: "Dead" },
 		"weather": {Command: Character.DoCommands.DoWeather, MinimumPosition: "Dead" },
 
-		"sayto": {Command: Character.DoCommands.DoSayTo, MinimumPosition: "Dead" },
-		"whisper": {Command: Character.DoCommands.DoWhisper, MinimumPosition: "Dead" },
-		"whisperto": {Command: Character.DoCommands.DoWhisperTo, MinimumPosition: "Dead" },
-		"tell": {Command: Character.DoCommands.DoTell, MinimumPosition: "Dead" },
-		"reply": {Command: Character.DoCommands.DoReply, MinimumPosition: "Dead" },
+		"yell": {Command: Character.DoCommands.DoYell, MinimumPosition: "Resting" },
+		"sayto": {Command: Character.DoCommands.DoSayTo, MinimumPosition: "Resting" },
+		"whisper": {Command: Character.DoCommands.DoWhisper, MinimumPosition: "Resting" },
+		"whisperto": {Command: Character.DoCommands.DoWhisperTo, MinimumPosition: "Resting" },
+		"tell": {Command: Character.DoCommands.DoTell, MinimumPosition: "Resting" },
+		"reply": {Command: Character.DoCommands.DoReply, MinimumPosition: "Resting" },
 		"gtell": {Command: Character.DoCommands.DoGroupTell, MinimumPosition: "Dead" },
 		"grouptell": {Command: Character.DoCommands.DoGroupTell, MinimumPosition: "Dead" },
+		
+		"pray": {Command: Character.DoCommands.DoPray, MinimumPosition: "Dead" },
+
+		"newbiechannel": {Command: Character.DoCommands.DoNewbie, MinimumPosition: "Dead" },
+		"oocchannel": {Command: Character.DoCommands.DoOOC, MinimumPosition: "Dead" },
+		"generalchannel": {Command: Character.DoCommands.DoGeneral, MinimumPosition: "Dead" },
 
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
 		"heal": {Command: Magic.DoHeal, MinimumPosition: "Resting" },

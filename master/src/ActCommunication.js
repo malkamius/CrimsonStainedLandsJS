@@ -34,7 +34,7 @@ Character.DoCommands.DoSayTo = function(character, args, to = null) {
 
 Character.DoCommands.DoYell = function(character, args) {
 	for (const othercharacter of Character.Characters) {
-		if(othercharacter.Room && othercharacter.Room.Area == character.Room.Area) {
+		if(othercharacter != character && othercharacter.Room && othercharacter.Room.Area == character.Room.Area) {
 			character.Act("\\r$n yells '{0}\\x\\r'\\x\n", othercharacter, null, null, Character.ActType.ToVictim, args);
 		}
 	}
@@ -129,4 +129,77 @@ Character.DoCommands.DoGroupTell = function(character, args) {
         } 
         if(!any) character.send("No one heard you.\n\r");
     }
+}
+
+Character.DoCommands.DoPray = function(character, args) {
+	for (const othercharacter of Character.Characters) {
+		if(othercharacter != character && othercharacter.IsImmortal) {
+			character.Act("\\r$n prays '{0}\\x\\r'\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
+		}
+	}
+
+	character.send("\\rYou pray to the gods!\\x\n\r");
+}
+
+Character.DoCommands.DoNewbie = function(character, args) {
+    if(args.ISEMPTY()) {
+        if(character.Flags.ISSET(Character.ActFlags.NewbieChannel)) {
+            character.Flags.RemoveFlag(Character.ActFlags.NewbieChannel);
+        } else {
+            character.Flags.SETBIT(Character.ActFlags.NewbieChannel);
+        }
+
+        character.send("Newbie channel is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.NewbieChannel)? "\\gON\\x" : "\\rOFF\\x");
+    } else {
+        character.send("\\cNEWBIE (You): {0}\\x\n\r", args);
+
+        for (const othercharacter of Character.Characters) {
+            if(othercharacter != character && othercharacter.Flags.ISSET(Character.ActFlags.NewbieChannel)) {
+                character.Act("\\cNEWBIE ($n): {0}\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
+            }
+        }
+    }
+	
+}
+
+Character.DoCommands.DoOOC = function(character, args) {
+    if(args.ISEMPTY()) {
+        if(character.Flags.ISSET(Character.ActFlags.OOCChannel)) {
+            character.Flags.RemoveFlag(Character.ActFlags.OOCChannel);
+        } else {
+            character.Flags.SETBIT(Character.ActFlags.OOCChannel);
+        }
+
+        character.send("OOC channel is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.OOCChannel)? "\\gON\\x" : "\\rOFF\\x");
+    } else {
+        character.send("\\rOOC (You): {0}\\x\n\r", args);
+
+        for (const othercharacter of Character.Characters) {
+            if(othercharacter != character && othercharacter.Flags.ISSET(Character.ActFlags.OOCChannel)) {
+                character.Act("\\rOOC ($n): {0}\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
+            }
+        }
+    }
+	
+}
+
+Character.DoCommands.DoGeneral = function(character, args) {
+    if(args.ISEMPTY()) {
+        if(character.Flags.ISSET(Character.ActFlags.GeneralChannel)) {
+            character.Flags.RemoveFlag(Character.ActFlags.GeneralChannel);
+        } else {
+            character.Flags.SETBIT(Character.ActFlags.GeneralChannel);
+        }
+
+        character.send("General channel is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.GeneralChannel)? "\\gON\\x" : "\\rOFF\\x");
+    } else {
+        character.send("\\WGENERAL (You): {0}\\x\n\r", args);
+
+        for (const othercharacter of Character.Characters) {
+            if(othercharacter != character && othercharacter.Flags.ISSET(Character.ActFlags.GeneralChannel)) {
+                character.Act("\\WGENERAL ($n): {0}\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
+            }
+        }
+    }
+	
 }

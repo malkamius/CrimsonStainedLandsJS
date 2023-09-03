@@ -125,6 +125,8 @@ class Character {
         "Practice = GuildMaster": "Practice = GuildMaster",
         "ColorOn = Color": "ColorOn = Color",
         "NewbieChannel": "NewbieChannel",
+		"OOCChannel": "OOCChannel",
+		"GeneralChannel": "GeneralChannel",
         "NoDuels": "NoDuels",
         "AFK": "AFK",
     };
