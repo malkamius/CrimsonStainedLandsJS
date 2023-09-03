@@ -7,6 +7,12 @@ const ItemTemplateData = require("./ItemTemplateData");
 const ItemData = require("./ItemData");
 const NPCTemplateData = require("./NPCTemplateData");
 class Character {
+	/**
+	 * Array of NPC and Player characters in the world.
+	 *
+	 * @static
+	 * @memberof Character
+	 */
 	static Characters = Array();
 	static WearSlots = { 
 		LeftFinger: { ID: "LeftFinger", Flag: "Finger",   	Slot: "<ring>             ", WearString: "on your finger", WearStringOthers: "on $s finger" },
@@ -1994,4 +2000,5 @@ ActInfo = require("./ActInfo");
 ActMovement = require("./ActMovement");
 ActItem = require("./ActItem");
 ActWiz = require("./ActWiz");
+ActCommunication = require("./ActCommunication");
 Mapper = require("./Mapper");

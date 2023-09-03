@@ -7,25 +7,7 @@ const Utitlity = require("./Utility");
 const Settings = require("./Settings");
 
 
-function dosay(player, arguments) {
-	player.Act("\\y$n says '{0}\\x\\y'\\x\n", null, null, null, "ToRoom", arguments);
-	// for (const otherplayer of Player.Players) {
-	// 	if (otherplayer.Name !== null && otherplayer != player) {
-	// 	  player.Act("\\y$n" + ` says '${arguments}'\\x\n`, otherplayer, null, null, "ToVictim");
-	// 	} 
-	// }
-	player.send("\\yYou say '{0}\\x\\y'\\x\n", arguments);
-}
 
-function DoYell(player, args) {
-	for (const otherplayer of Character.Characters) {
-		if(otherplayer.Room && otherplayer.Room.Area == player.Room.Area) {
-			otherplayer.send("\\r{0} yells '{1}\\x\\r'\\x\n", Utility.Capitalize(player.Display(otherplayer)), args);
-		}
-	}
-
-	player.send("\\rYou yell '{0}\\x\\r'\\x\n", args);
-}
 
 function doquit(player, arguments) {
 	player.Act("The form of $n slowly fades away!", null, null, null, "ToRoom");
@@ -702,8 +684,7 @@ Character.DoCommands.DoWorth = function(ch, args)
 	}
 }
 
-Character.DoCommands.DoSay = dosay;
-Character.DoCommands.DoYell = DoYell;
+
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
 Character.DoCommands.DoLook = dolook;

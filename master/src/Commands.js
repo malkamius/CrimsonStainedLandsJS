@@ -58,6 +58,15 @@ Commands = {
 		"affects": {Command: Character.DoCommands.DoAffects, MinimumPosition: "Dead" },
 		"time": {Command: Character.DoCommands.DoTime, MinimumPosition: "Dead" },
 		"weather": {Command: Character.DoCommands.DoWeather, MinimumPosition: "Dead" },
+
+		"sayto": {Command: Character.DoCommands.DoSayTo, MinimumPosition: "Dead" },
+		"whisper": {Command: Character.DoCommands.DoWhisper, MinimumPosition: "Dead" },
+		"whisperto": {Command: Character.DoCommands.DoWhisperTo, MinimumPosition: "Dead" },
+		"tell": {Command: Character.DoCommands.DoTell, MinimumPosition: "Dead" },
+		"reply": {Command: Character.DoCommands.DoReply, MinimumPosition: "Dead" },
+		"gtell": {Command: Character.DoCommands.DoGroupTell, MinimumPosition: "Dead" },
+		"grouptell": {Command: Character.DoCommands.DoGroupTell, MinimumPosition: "Dead" },
+
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
 		"heal": {Command: Magic.DoHeal, MinimumPosition: "Resting" },
 		"sacrifice": {Command: Character.DoCommands.DoSacrifice, MinimumPosition: "Resting" },
