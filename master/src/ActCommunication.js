@@ -7,11 +7,17 @@ Character.DoCommands.DoSay = function(character, args) {
 }
 
 Character.DoCommands.DoSayTo = function(character, args, to = null) {
-    var [name, args] = args.OneArgument();
-    if(name.ISEMPTY() || args.ISEMPTY()) {
+    var name;
+    if(to && args.ISEMPTY()) {
+        character.send("Say what to who?\n\r");
+        name = to.name;
+    } else if(!to) {
+        [name, args] = args.OneArgument();
+    }
+    if((!to && name.ISEMPTY()) || args.ISEMPTY()) {
         character.send("Say what to who?\n\r");
         return;
-    }
+    } 
     if(!to) [to] = Character.CharacterFunctions.GetCharacterHere(character, name);
 
     if(!to) {
@@ -42,11 +48,17 @@ Character.DoCommands.DoWhisper = function(character, args) {
 }
 
 Character.DoCommands.DoWhisperTo = function(character, args, to = null) {
-    var [name, args] = args.OneArgument();
-    if(name.ISEMPTY() || args.ISEMPTY()) {
+    var name;
+    if(to && args.ISEMPTY()) {
+        character.send("Whisper what to who?\n\r");
+        name = to.name;
+    } else if(!to) {
+        [name, args] = args.OneArgument();
+    }
+    if((!to && name.ISEMPTY()) || args.ISEMPTY()) {
         character.send("Whisper what to who?\n\r");
         return;
-    }
+    } 
     if(!to) [to] = Character.CharacterFunctions.GetCharacterHere(character, name);
 
     if(!to) {
@@ -62,8 +74,14 @@ Character.DoCommands.DoWhisperTo = function(character, args, to = null) {
 }
 
 Character.DoCommands.DoTell = function(character, args, to = null) {
-    var [name, args] = args.OneArgument();
-    if(name.ISEMPTY() || args.ISEMPTY()) {
+    var name;
+    if(to && args.ISEMPTY()) {
+        character.send("Tell who what?\n\r");
+        name = to.name;
+    } else if(!to) {
+        [name, args] = args.OneArgument();
+    }
+    if((!to && name.ISEMPTY()) || args.ISEMPTY()) {
         character.send("Tell who what?\n\r");
         return;
     } 
