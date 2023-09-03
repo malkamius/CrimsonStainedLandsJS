@@ -74,6 +74,8 @@ Commands = {
 		"oocchannel": {Command: Character.DoCommands.DoOOC, MinimumPosition: "Dead" },
 		"generalchannel": {Command: Character.DoCommands.DoGeneral, MinimumPosition: "Dead" },
 
+		"replay": {Command: Character.DoCommands.DoReplay, MinimumPosition: "Dead" },
+
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
 		"heal": {Command: Magic.DoHeal, MinimumPosition: "Resting" },
 		"sacrifice": {Command: Character.DoCommands.DoSacrifice, MinimumPosition: "Resting" },

@@ -31,7 +31,7 @@ class Player extends Character {
             WontMSSP: "WontMSSP",
             Ansi: "Ansi"
 	};
-
+	Communications = [];
 	TelnetOptions = {};
 	inanimate = null;
 	RoomVNum = 0;
@@ -71,6 +71,12 @@ class Player extends Character {
   	
 	send(data, ...params) {
 		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
+		if(Character.CaptureCommunications) {
+			this.Communications.push(data);
+			if(this.Communications.length > 35) {
+				this.Communications.splice(0, this.Communications.length - 35);
+			}
+		}
 		this.output = this.output + data;
 	}
   	

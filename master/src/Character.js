@@ -133,6 +133,8 @@ class Character {
 
 	static DoCommands = {};
     static CharacterFunctions = {};
+	static CaptureCommunications = false;
+	
 	IsNPC = true;
 	VNum = 0;
 	Name = null;
