@@ -24,6 +24,21 @@ class NPCData extends Character {
 		this.LongDescription = template.LongDescription;
 		this.Description = template.Description;
 		this.Race = template.Race;
+
+		var wealth = Utility.Random(template.Level + (this.MaxHitPoints / 2), (template.Level * 3 + (this.MaxHitPoints / 2)));
+
+		if (!this.Race || this.Race.HasCoins)
+		{
+			this.Silver = wealth % 1000;
+			this.Gold = (wealth - this.Silver) / 1000;
+		}
+
+		if (template.Gold || template.Silver)
+		{
+			this.Gold = template.Gold || 0;
+			this.Silver = template.Silver || 0;
+		}
+
 		this.MaxHitPoints = Utility.Roll(template.HitPointDice); 
 		this.HitPoints = this.MaxHitPoints;
 		this.MaxManaPoints = Utility.Roll(template.ManaPointDice); 

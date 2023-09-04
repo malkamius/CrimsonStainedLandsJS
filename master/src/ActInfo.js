@@ -247,13 +247,14 @@ function doinventory(player, args) {
 
 function GetCharacterList(player, list, args, count = 0) {
 	if(Utility.Compare(args, "self")) return [player, ++count, ""];
-	var numberargs = Utility.NumberArgument(args);
-	var desiredcount = numberargs[0];
-	args = numberargs[1];
-	for(key in list) {
-		var ch = list[key];
-		if((Utility.IsNullOrEmpty(args) || Utility.IsName(ch.Name, args)) && ++count > desiredcount)
-			return [ch, count, key];
+	var [desiredcount, args] = Utility.NumberArgument(args);
+	
+	if(!args.ISEMPTY()) {
+		for(key in list) {
+			var ch = list[key];
+			if((Utility.IsNullOrEmpty(args) || Utility.IsName(ch.Name, args)) && ++count > desiredcount)
+				return [ch, count, key];
+		}
 	}
 	return [null, count, ""];
 }

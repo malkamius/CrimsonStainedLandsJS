@@ -111,8 +111,9 @@ function DoOpen(character, args) {
 	var item, count;
 	var [exit, count] = character.Room.GetExit(args, count);
 	var [item, count] = character.GetItemHere(args, count);
-	
-	if(exit) {
+	if(args.ISEMPTY()) {
+		character.send("Open what?\n\r");
+	} else if(exit) {
 		if(exit.Flags.Locked) {
 			character.Act("{0} is locked.\n\r", null, null, null, "ToChar", exit.Display);
 		} else if(!exit.Flags.Closed) {
@@ -153,8 +154,9 @@ function DoClose(character, args) {
 	var item, count;
 	var [exit, count] = character.Room.GetExit(args, count);
 	var [item, count] = character.GetItemHere(args, count);
-	
-	if(exit) {
+	if(args.ISEMPTY()) {
+		character.send("Close what?\n\r");
+	} else if(exit) {
 		
 
 		if(!exit.Flags.Door) {
@@ -198,8 +200,9 @@ function DoUnlock(character, args) {
 	var item, count;
 	var [exit, count] = character.Room.GetExit(args, count);
 	var [item, count] = character.GetItemHere(args, count);
-	
-	if(exit) {
+	if(args.ISEMPTY()) {
+		character.send("Unlock what?\n\r");
+	} else if(exit) {
 		
 
 		if(!exit.Flags.ISSET("Closed")) {
@@ -286,8 +289,9 @@ function DoLock(character, args) {
 	var item, count;
 	var [exit, count] = character.Room.GetExit(args, count);
 	var [item, count] = character.GetItemHere(args, count);
-	
-	if(exit) {
+	if(args.ISEMPTY()) {
+		character.send("Lock what?\n\r");
+	} else if(exit) {
 		
 
 		if(!exit.Flags.ISSET("Closed")) {
@@ -375,8 +379,9 @@ Character.DoCommands.DoFollow = function(ch,args)
 {
 	var count = 0;
 	var follow = null;
-	if (args.equals("self") || ([follow, count] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && follow == ch)
-	{
+	if(args.ISEMPTY()) {
+		ch.send("Follow who?\n\r");
+	} else if (args.equals("self") || ([follow, count] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && follow == ch) {
 		if (ch.Following)
 		{
 			ch.send("You stop following " + (ch.Following.Display(ch)) + ".\n\r");

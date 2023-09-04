@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Race CanSpeak="false" HasCoins="false">
+<Race CanSpeak="false" HasCoins="true">
   <Name>school monster</Name>
   <PcRace>False</PcRace>
   <Act></Act>

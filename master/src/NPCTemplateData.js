@@ -24,6 +24,9 @@ class NPCTemplateData extends Character {
     this.ShortDescription = xml.GetElementValue( "ShortDescription");
     this.LongDescription = xml.GetElementValue( "LongDescription");
 
+    this.Silver = xml.GetElementValueInt( "Silver");
+    this.Gold = xml.GetElementValueInt( "Gold");
+
     this.HitPointDice[0] = xml.GetElementValueInt( "HitPointDiceSides");
     this.HitPointDice[1] = xml.GetElementValueInt( "HitPointDiceCount");
     this.HitPointDice[2] = xml.GetElementValueInt( "HitPointDiceBonus");

@@ -14,6 +14,7 @@ const TelnetProtocol = require("./TelnetProtocol");
 const WeatherInfo = require("./WeatherInfo");
 const TimeInfo = require("./TimeInfo");
 const Game = require("./Game");
+const Character = require("./Character");
 
 var server = startListening(Settings.Port); 
 var IsDataLoaded = false;

@@ -1518,16 +1518,16 @@ class Character {
 			if (this.Flags.AutoSplit)
 			{
 				var splitamongst = Array();
-				for (var other of Room.Characters)
+				for (var other of this.Room.Characters)
 				{
 					if (other != this && !other.IsNPC && other.IsSameGroup(this))
 					{
-						splitamongst.Add(other);
+						splitamongst.push(other);
 					}
 				}
 
 
-				if (splitamongst.Count > 0)
+				if (splitamongst.length > 0)
 				{
 					var share_silver = item.Silver / (splitamongst.Count + 1);
 					var extra_silver = item.Silver % (splitamongst.Count + 1);
@@ -1544,12 +1544,12 @@ class Character {
 
 					if (share_silver > 0)
 					{
-						send("You split {0} silver coins. Your share is {1} silver.\n\r", item.Silver, share_silver + extra_silver);
+						this.send("You split {0} silver coins. Your share is {1} silver.\n\r", item.Silver, share_silver + extra_silver);
 					}
 
 					if (share_gold > 0)
 					{
-						send("You split {0} gold coins. Your share is {1} gold.\n\r", item.Gold, share_gold + extra_gold);
+						this.send("You split {0} gold coins. Your share is {1} gold.\n\r", item.Gold, share_gold + extra_gold);
 
 					}
 					var buf;
@@ -2002,7 +2002,44 @@ class Character {
 				}
 			}
 		}
-	}
+	} // end nofollow
+
+	static CreateMoneyItem(silver, gold)
+	{
+		var obj;
+
+		if (gold < 0 || silver < 0 || (gold == 0 && silver == 0)) {
+			gold = Math.Max(1, gold);
+			silver = Math.Max(1, silver);
+		}
+
+		if (gold == 0 && silver == 1) {
+			var silvertemplate = ItemTemplateData.ItemTemplates[1];
+			obj = new ItemData(silvertemplate);
+		} else if (gold == 1 && silver == 0) {
+			var goldtemplate = ItemTemplateData.ItemTemplates[3];
+			obj = new ItemData(goldtemplate);
+		} else if (silver == 0) {
+			var goldpile = ItemTemplateData.ItemTemplates[4];
+			obj = new ItemData(goldpile);
+
+			obj.ShortDescription = Utility.Format(obj.ShortDescription, gold);
+		} else if (gold == 0) {
+			var silverpile = ItemTemplateData.ItemTemplates[2];
+			obj = new ItemData(silverpile);
+
+			obj.ShortDescription = Utility.Format(obj.ShortDescription, silver);
+		} else {
+			var coinpile = ItemTemplateData.ItemTemplates[5];
+			obj = new ItemData(coinpile);
+
+			obj.ShortDescription = Utility.Format(obj.ShortDescription, silver, gold);
+		}
+		obj.Silver = silver;
+		obj.Gold = gold;
+		obj.Value = (silver + gold * 1000);
+		return obj;
+	} // end create money item
 }
 
 module.exports = Character;

@@ -296,6 +296,7 @@ class Combat {
                     newCorpse.Timer = 10;
                 }
 
+                newCorpse.Value = victim.Level * 10;
                 // if (victim.Form != null)
                 //     ShapeshiftForm.DoRevert(victim, "");
 
@@ -343,8 +344,8 @@ class Combat {
                 var gold = victim.Gold;
                 if (gold > 0 || silver > 0)
                 {
-                    // var money = Character.CreateMoneyItem(silver, gold);
-                    // newCorpse.Contains.Add(money);
+                    var money = Character.CreateMoneyItem(silver, gold);
+                    newCorpse.Contains.unshift(money);
                 }
 
                 newCorpse.Alignment = victim.Alignment;

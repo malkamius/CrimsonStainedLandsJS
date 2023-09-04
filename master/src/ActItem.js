@@ -290,8 +290,12 @@ Character.DoCommands.DoSacrifice = function(ch, args)
                 ch.Room.Items.Remove(item);
                 item.Room = null;
                 item.Dispose();
-                ch.send(Utility.Format("You sacrifice {0} to the gods.\n\r", item.ShortDescription));
+                ch.send("You sacrifice {0} to the gods.\n\r", item.ShortDescription);
                 ch.Act("$n sacrifices $p to the gods.\n\r", null, item, null, Character.ActType.ToRoom);
+                var coins = Math.max(item.Value, Utility.Random(1,3));
+                coins = Utility.Random(coins, coins + 30);
+                ch.send("The gods give you {0} silver coins for your sacrifice.\n\r", coins);
+                ch.Silver += coins;
             }
         }
 
