@@ -9,7 +9,7 @@ const Settings = require("./Settings");
 
 
 
-function doquit(player, arguments) {
+function doquit(player, args) {
 	player.Act("The form of $n slowly fades away!", null, null, null, "ToRoom");
 	player.sendnow("Alas, all good things must come to an end.\n\r");
 	player.RemoveCharacterFromRoom();
@@ -18,14 +18,43 @@ function doquit(player, arguments) {
 	console.log(`${player.Name} disconnected`)
 }
 
-function dohelp(player, arguments, plain = false) {
-	var found = false;
+function dohelp(player, args, plain = false) {
+	
+	var helps;
 	//var args = oneargument(str);
-	if(arguments.IsNullOrEmpty()) arguments = "help";
+	if(args.IsNullOrEmpty()) args = "help";
+	
+	var [oneargument, therest] = args.oneArgument();
 
-	for(var helpkey in AreaData.AllHelps) {
-		var help = AreaData.AllHelps[helpkey];
-		if(help.VNum.toString().startsWith(arguments) || Utility.Includes(help.Keyword, arguments)) {
+	if(oneargument.equals("list")) {
+		var found = false;
+		for(var helpkey in AreaData.AllHelps) {
+			var help = AreaData.AllHelps[helpkey];
+			if(therest.ISEMPTY() || help.VNum.toString().startsWith(therest) || help.Keyword.IsName(therest)) {
+				if (help.Level > player.Level) continue;
+				player.send("{0,-10} :: {1}\n\r", help.VNum, help.Keyword);
+				found = true;
+			}
+		}
+		if(!found) player.send("No help on that.\n\r");
+	} else {
+		helps = [];
+		for(var helpkey in AreaData.AllHelps) {
+			var help = AreaData.AllHelps[helpkey];
+			if(help.VNum.toString().startsWith(args) || help.Keyword.IsName(args)) {
+				helps.push(help);
+			}
+		}
+		
+		if(helps.length > 1) {
+			for(var help of helps) {
+				if (help.Level > player.Level) continue;
+				player.send("{0,-10} :: {1}\n\r", help.VNum, help.Keyword);
+				found = true;
+			}
+		} else if(helps.length == 1) {
+			var help = helps[0];
+				
 			if(!plain)
 			player.send("--------------------------------------------------------------------------------\n\r");
 			player.send((help.Text.startsWith(".")? help.Text.substr(1) : help.Text) + (help.Text.endsWith("\n") || help.Text.endsWith("\r")? "" : "\n\r"));
@@ -34,22 +63,24 @@ function dohelp(player, arguments, plain = false) {
 				player.send("Last edited on {0} by {1}.\n\r\n\r", help.LastEditedOn, help.LastEditedBy);
 			}
 			found = true;
+	
+		} else {
+			player.send("No help on that.\n\r");
 		}
 	}
-	if(!found) player.send("No help on that.\n\r");
 }
 
 /**
  * 
  * @param {CharacterData} player 
- * @param {string} arguments 
+ * @param {string} args 
  * @param {boolean} auto 
  * @returns 
  */
-function dolook(player, arguments, auto) {
+function dolook(player, args, auto) {
 	if(player.Room == null) {
 		player.send("You are not in a room.\n\r");
-	} else if (!arguments || arguments.length == 0 || auto) {
+	} else if (!args || args.length == 0 || auto) {
 		player.send(`\\c   ${player.Room.Name}\\x\n\r`);
 		player.send(`${player.Room.Description}\n\r\n\r`);
 		doexits(player, "");
@@ -69,17 +100,17 @@ function dolook(player, arguments, auto) {
 		}
 		
 	} else {
-		var [inarg, newargs] = arguments.oneArgument();
+		var [inarg, newargs] = args.oneArgument();
 		var lookin = false;
 		var isitem = true;
 		if("in".prefix(inarg)) {
-			arguments = newargs;
+			args = newargs;
 			lookin = true;
 		}
 
-		var [target, count] = player.GetItemHere(arguments, 0);
+		var [target, count] = player.GetItemHere(args, 0);
 		if(!target && !lookin) {
-			[target, count] = Character.CharacterFunctions.GetCharacterHere(player, arguments, count);
+			[target, count] = Character.CharacterFunctions.GetCharacterHere(player, args, count);
 			isitem = false;
 		}
 		
@@ -154,7 +185,7 @@ function dolook(player, arguments, auto) {
 	}
 }
 
-function doexits(player, arguments) {
+function doexits(player, args) {
 	var anyexits = false;
 	player.send("\\g[Exits");
 	if(player.Room) {	
@@ -177,7 +208,7 @@ function doexits(player, arguments) {
 	
 }
 
-function doequipment(player, arguments) {
+function doequipment(player, args) {
 	player.send("You are wearing: \n\r");
 	var anyitems = false;
 	for(slot in Character.WearSlots) {
@@ -194,7 +225,7 @@ function doequipment(player, arguments) {
 
 }
 
-function doinventory(player, arguments) {
+function doinventory(player, args) {
 	var items = {};
 	player.send("You are carrying:\n\r");
 	for(i = 0; i < player.Inventory.length; i++) {
@@ -214,34 +245,34 @@ function doinventory(player, arguments) {
 	}
 }
 
-function GetCharacterList(player, list, arguments, count = 0) {
-	if(Utility.Compare(arguments, "self")) return [player, ++count, ""];
-	var numberargs = Utility.NumberArgument(arguments);
+function GetCharacterList(player, list, args, count = 0) {
+	if(Utility.Compare(args, "self")) return [player, ++count, ""];
+	var numberargs = Utility.NumberArgument(args);
 	var desiredcount = numberargs[0];
-	arguments = numberargs[1];
+	args = numberargs[1];
 	for(key in list) {
 		var ch = list[key];
-		if((Utility.IsNullOrEmpty(arguments) || Utility.IsName(ch.Name, arguments)) && ++count > desiredcount)
+		if((Utility.IsNullOrEmpty(args) || Utility.IsName(ch.Name, args)) && ++count > desiredcount)
 			return [ch, count, key];
 	}
 	return [null, count, ""];
 }
 
-function GetCharacterHere(player, arguments, count = 0) {
-	var results = GetCharacterList(player, player.Room.Characters, arguments, count);
+function GetCharacterHere(player, args, count = 0) {
+	var results = GetCharacterList(player, player.Room.Characters, args, count);
 
 	return results;
 
 }
 
-function DoSave(player, arguments) {
+function DoSave(player, args) {
 	if(player && !player.IsNPC) {
 		player.Save();
 		player.send("Your character has been saved.\n\r");
 	}
 }
 
-function DoWho(ch, arguments) {
+function DoWho(ch, args) {
 	var whoList = "";
 	var playersOnline = 0;
 	whoList += "You can see:\n\r";
@@ -271,12 +302,12 @@ function DoWho(ch, arguments) {
 		ch.send(whoList);
 }
 
-function DoSkills(ch, arguments) {
-	if (!Utitlity.IsNullOrEmpty(arguments))
+function DoSkills(ch, args) {
+	if (!Utitlity.IsNullOrEmpty(args))
 	{
 		var skills = [];
 		for(var skillname in SkillSpell.Skills) {
-			if(Utitlity.Prefix(skillname, arguments) && SkillSpell.Skills[skillname].SkillTypes["Skill"]) {
+			if(Utitlity.Prefix(skillname, args) && SkillSpell.Skills[skillname].SkillTypes["Skill"]) {
 				skills.push(SkillSpell.Skills[skillname]);
 			}
 		}
@@ -434,11 +465,11 @@ Character.DoCommands.DoSongs = function(ch, args) {
 	ShowSpells(ch, args, "Song");
 }
 
-function DoDelete(character, arguments) {
+function DoDelete(character, args) {
 	if(!character.Flags["ConfirmDelete"]) {
 		character.Flags["ConfirmDelete"] = true;
 		character.send("Type `delete yes` to delete your character.\n\rThis process is irreversible.\n\r")
-	} else if(Utility.Compare(arguments, "yes")) {
+	} else if(Utility.Compare(args, "yes")) {
 		character.Act("The form of $n explodes!", null, null, null, "ToRoom");
 		character.sendnow("Alas, all good things must come to an end.\n\r");
 		character.RemoveCharacterFromRoom();
@@ -454,12 +485,12 @@ function DoDelete(character, arguments) {
 	}
 }
 
-function DoWhere(character, arguments) {
+function DoWhere(character, args) {
 	var count = 0;
 	var desiredcount;
-	var playersonly = arguments.IsNullOrEmpty();
+	var playersonly = args.IsNullOrEmpty();
 	var playercount = 0;
-	[desiredcount, arguments] = arguments.numberArgument();
+	[desiredcount, args] = args.numberArgument();
 	if(playersonly) {
 		character.send("Players near you:\n\r");
 	}
@@ -468,7 +499,7 @@ function DoWhere(character, arguments) {
 		if(other.Room.Area == character.Room.Area && !other.IsNPC && playersonly) {
 			playercount++;
 			character.send("{0}    {1,20}     {2}\n\r", (other == character? "*" : " "), other.Display(character), other.Room.Name);
-		} else if(other.Room.Area == character.Room.Area && other.Name.IsName(arguments) && ++count >= desiredcount) {
+		} else if(other.Room.Area == character.Room.Area && other.Name.IsName(args) && ++count >= desiredcount) {
 			playercount++;
 			character.send("{0}   {1,20}     {2}\n\r", (other == character? "*" : " "), other.Display(character), other.Room.Name);
 			if(desiredcount) break;
