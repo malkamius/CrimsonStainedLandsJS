@@ -513,22 +513,24 @@ class Combat {
         var damagetype = "Bash";
         var damagenoun = "punch";
 
-        if(weapon) {
-            var leveldif = victim.Level - character.Level;
-            var misschance = .20;
-            if(leveldif > 2) {
-                if(!dualwield)
-                    misschance += .02 + leveldif * .02;
-                else
-                    misschance += .21 + leveldif * .02;
-            } else if (leveldif >= 0) {
-                if(!dualwield)
-                    misschance += .02 + leveldif * .05;
-                else
-                    misschance += .24 + leveldif * .05;
-            }
+        var leveldif = victim.Level - character.Level;
+        var misschance = .20;
+        if(leveldif > 2) {
+            if(!dualwield)
+                misschance += .02 + leveldif * .02;
+            else
+                misschance += .21 + leveldif * .02;
+        } else if (leveldif >= 0) {
+            if(!dualwield)
+                misschance += .02 + leveldif * .05;
+            else
+                misschance += .24 + leveldif * .05;
+        }
 
-            misschance -= .05 / Math.max(character.HitRoll, 1);
+        misschance -= .05 / Math.max(character.HitRoll, 1);
+
+        if(weapon) {
+            
 
             if(misschance * 100 > Utility.NumberPercent())
                 damage = 0;
@@ -540,7 +542,10 @@ class Combat {
             if(character.IsNPC && character.DamageDice) {
                 if(character.WeaponDamageMessage && DamageMessage.DamageMessages[character.WeaponDamageMessage])
                     damagemessage = DamageMessage.DamageMessages[character.WeaponDamageMessage];
-                damage = Utility.Roll(character.DamageDice);
+                if(misschance * 100 > Utility.NumberPercent())
+                    damage = 0;
+                else
+                    damage = Utility.Roll(character.DamageDice);
             }
         }
         
