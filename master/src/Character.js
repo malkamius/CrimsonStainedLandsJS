@@ -1689,7 +1689,9 @@ class Character {
 		for(var i = 0; i < this.Inventory.length; i++) {
 			var item = this.Inventory[i];
 
-			if((Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
+			if(((number && Utility.IsNullOrEmpty(itemname)) || 
+				(!Utility.IsNullOrEmpty(itemname) && Utility.IsName(item.Name, itemname))) 
+				&& ++count >= number) {
 				return [item, count];
 			}
 		}
@@ -1710,7 +1712,9 @@ class Character {
 		for(var key in Character.WearSlots) {
 			var item = this.Equipment[key];
 
-			if(item && (Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
+			if(((number && Utility.IsNullOrEmpty(itemname)) || 
+				(!Utility.IsNullOrEmpty(itemname) && Utility.IsName(item.Name, itemname))) 
+				&& ++count >= number) {
 				return [item, count, key];
 			}
 		}
@@ -1732,7 +1736,9 @@ class Character {
 		for(var key in list) {
 			var item = list[key];
 
-			if((Utility.IsNullOrEmpty(itemname) || Utility.IsName(item.Name, itemname)) && ++count >= number) {
+			if(((number && Utility.IsNullOrEmpty(itemname)) || 
+				(!Utility.IsNullOrEmpty(itemname) && Utility.IsName(item.Name, itemname))) 
+				&& ++count >= number) {
 				return [item, count, key];
 			}
 		}

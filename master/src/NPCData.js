@@ -11,7 +11,11 @@ class NPCData extends Character {
 		Character.Characters.splice(Character.Characters.indexOf(this), 1);
 		return;
 	}
-	var template = NPCTemplateData.NPCTemplates[VNum];
+	var template;
+	if(VNum instanceof NPCTemplateData)
+		template = VNum;
+	else
+		template = NPCTemplateData.NPCTemplates[VNum];
 
 	if(!template) {
   		Character.Characters.splice(Character.Characters.indexOf(this), 1);
@@ -71,6 +75,13 @@ class NPCData extends Character {
 		this.DamageDice = Utility.CloneArray(template.DamageDice);
 		this.Flags = Utility.CloneArray(template.Flags);
 		
+		this.BuyProfitPercent = template.BuyProfitPercent;
+        this.SellProfitPercent = template.SellProfitPercent;
+        this.ShopOpenHour = template.ShopOpenHour;
+        this.ShopCloseHour = template.ShopCloseHour;
+        this.BuyTypes = Utility.CloneArray(template.BuyTypes);
+		this.PetVNums = Utility.CloneArray(template.PetVNums);
+        
 		this.AddCharacterToRoom(room);
 	}
 

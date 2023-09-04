@@ -11,7 +11,13 @@ class NPCTemplateData extends Character {
   ManaPointDice = Array(0,0,0);
   ResetMaxCount = 0;
   ResetCount = 0;
-  
+  BuyProfitPercent = 0;
+  SellProfitPercent = 0;
+  BuyTypes = {};
+  ShopOpenHour = 0;
+  ShopCloseHour = 0;
+  Protects = {};
+  PetVNums = [];
   constructor(area, xml) {
     super(false);
         
@@ -46,9 +52,28 @@ class NPCTemplateData extends Character {
     this.Race = RaceData.LookupRace(xml.GetElementValue( "Race", "human"));
     this.Guild = GuildData.Lookup(xml.GetElementValue("Guild"), false);
     
-    if(this.Flags.IsSet("Healer") && !this.Guild)
+    if(this.Flags.IsSet("Healer") && !this.Guild) {
       this.Guild = GuildData.Lookup("healer");
+    }
 
+    if (xml.SHOP && xml.SHOP[0])
+    {
+        this.Flags.SETBIT(Character.ActFlags.Shopkeeper);
+        var shopdata = xml.SHOP[0];
+        this.BuyProfitPercent = shopdata.GetAttributeValueInt("ProfitBuy");
+        this.SellProfitPercent = shopdata.GetAttributeValueInt("ProfitSell");
+        this.ShopOpenHour = shopdata.GetAttributeValueInt("OpenHour");
+        this.ShopCloseHour = shopdata.GetAttributeValueInt("CloseHour");
+        Utility.ParseFlags(this.BuyTypes, shopdata.GetAttributeValue("BuyTypes"));
+        if (shopdata.PET)
+        {
+            for(var pet of shopdata.PET)
+            {
+                this.PetVNums.push(pet.GetAttributeValueInt("VNum"));
+            }
+        }
+    }
+    
     if(!area.NPCTemplates[this.VNum])
       area.NPCTemplates[this.VNum] = this;
     else

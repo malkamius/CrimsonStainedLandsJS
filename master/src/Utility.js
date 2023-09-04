@@ -165,10 +165,10 @@ class Utility {
 		}
 	}
 
-	static JoinFlags(array) {
+	static JoinFlags(array, delimiter = " ") {
 		var result = "";
 		for(var key in array) {
-			result = result + (result.length > 0? " " : "") + key;
+			result = result + (result.length > 0? delimiter : "") + key;
 		}
 		return result;
 	}
@@ -354,19 +354,37 @@ class Utility {
 
 	static IsSetAny(obj, ...flags) {
 		if(flags && flags.length == 1 && Array.isArray(flags[0])) flags = flags[0];
+		if(flags && Array.isArray(flags) && flags.length == 1) flags = flags[0];
 		if(Array.isArray(obj)) {
 			for(var setflag of obj) {
-				for(var flag of flags) {
-					if(setflag.equals(flag)) {
-						return flag;
+				if(Array.isArray(flags)) {
+					for(var flag of flags) {
+						if(setflag.equals(flag)) {
+							return flag;
+						}
+					}
+				}
+				else {
+					for(var flag in flags) {
+						if(setflag.equals(flag)) {
+							return flag;
+						}
 					}
 				}
 			}
 		} else {
 			for(var setflag in obj) { // case insensitive search
-				for(var flag of flags) {
-					if(setflag.equals(flag)) {
-						return obj[setflag];
+				if(Array.isArray(flags)) {
+					for(var flag of flags) {
+						if(setflag.equals(flag)) {
+							return obj[setflag];
+						}
+					}
+				} else {
+					for(var flag in flags) {
+						if(setflag.equals(flag)) {
+							return obj[setflag];
+						}
 					}
 				}
 			}

@@ -257,7 +257,7 @@ function GetCharacterList(player, list, args, count = 0) {
 	if(!args.ISEMPTY()) {
 		for(key in list) {
 			var ch = list[key];
-			if(player.CanSee(ch) && Utility.IsName(ch.Name, args) && ++count > desiredcount)
+			if(player.CanSee(ch) && ((desiredcount && desiredcount > 0 && args.ISEMPTY()) || Utility.IsName(ch.Name, args)) && ++count > desiredcount)
 				return [ch, count, key];
 		}
 	}
