@@ -63,38 +63,42 @@ class RaceData {
 RaceData.Races = Races;
 
 RaceData.LoadAllRaces = function(callback) {
-    var counter = 0;
+  var counter = 0;
 	var racesdirectory = Settings.RaceDataPath;
-	fs.readdir(racesdirectory, function(err, filenames) {
-		if (err) {
-		  throw new Error(err);
-		  return;
-		}
-		
-		filenames.forEach(function(filename) {
-			if(filename.endsWith(".xml")) {
-			  fs.readFile(path.join(racesdirectory, filename), 'utf-8', function(err, content) {
-				if (err) {
-				  throw new Error(err);
-				  return;
-				}
-				parser.parseString(content, function(err, xml) {
-					var race = new RaceData(xml.RACE);
-					//console.log("Loaded area " + area.Name);
-				});
-				counter++;
-				if (counter === filenames.length) {
-					callback();
-				}
-			  });
-			} else {
-				counter++;
-				if (counter === filenames.length) {
-					callback();
-				}
-			}
-		});
-    });
+	// fs.readdir(racesdirectory, function(err, filenames) {
+	// 	if (err) {
+	// 	  throw new Error(err);
+	// 	  return;
+	// 	}
+  filenames = fs.readdirSync(racesdirectory);
+
+  //filenames.forEach(function(filename) {
+  for(var filename of filenames) {
+    if(filename.endsWith(".xml")) {
+      var content = fs.readFileSync(path.join(racesdirectory, filename), 'utf-8');//, function(err, content) {
+      // if (err) {
+      //   throw new Error(err);
+      //   return;
+      // }
+      parser.parseString(content, function(err, xml) {
+        var race = new RaceData(xml.RACE);
+        //console.log("Loaded area " + area.Name);
+      });
+    }
+  }
+  callback();
+  //     counter++;
+  //     if (counter === filenames.length) {
+  //       callback();
+  //     }
+  //     });
+  //   } else {
+  //     counter++;
+  //     if (counter === filenames.length) {
+  //       callback();
+  //     }
+  //   }
+  // });
 };
 
 RaceData.LookupRace = function(name, strprefix = false) {

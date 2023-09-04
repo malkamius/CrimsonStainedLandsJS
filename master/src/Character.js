@@ -276,8 +276,7 @@ class Character {
 		if(acttype == "ToVictim" && (!victim || !victim.Room))
 			return;
 
-		if (acttype == "ToRoom" || acttype == "ToRoomNotVictim")
-		{
+		if (acttype == "ToRoom" || acttype == "ToRoomNotVictim") {
 			for (let index = 0; index < this.Room.Characters.length; ++index) {
 				const other = this.Room.Characters[index];
 				if(other != this && (other != victim || acttype != "ToRoomNotVictim") &&
@@ -286,15 +285,21 @@ class Character {
 					other.send(output);
 				}
 			}
-		}
-		else if(acttype == "ToVictim") {
+		} else if(acttype == "ToVictim") {
 			var output = this.FormatActMessage(message, victim, victim, item, item2, params);
 			victim.send(output);
-		}
-		else if(acttype == "ToChar") {
+		} else if(acttype == "ToChar") {
 			var output = this.FormatActMessage(message, this, victim, item, item2, params);
 			this.send(output);
-			
+		} else if (acttype == Character.ActType.GlobalNotVictim) {
+			for (var other of Character.Characters)
+			{
+				if (other != this && other != victim)
+				{
+					var output = this.FormatActMessage(message, this, victim, item, item2, params);
+					other.send(output);
+				}
+			}
 		}
 	}
 
@@ -341,7 +346,7 @@ class Character {
 							output += victim.Sex == "Male" ? "he" : (victim.Sex == "Female" ? "she" : "it");
 							break;
 						case 'm':
-							output += this.Sex == "Male" ? "him" : (Sex == "Female" ? "her" : "it");
+							output += this.Sex == "Male" ? "him" : (this.Sex == "Female" ? "her" : "it");
 							break;
 						case 'M':
 							if (victim != null)
@@ -352,7 +357,7 @@ class Character {
 							break;
 						case 'S':
 							if (victim != null)
-							output += victim.Sex == "Male" ? "his" : (Sex == "Female" ? "her" : "their");
+							output += victim.Sex == "Male" ? "his" : (victim.Sex == "Female" ? "her" : "their");
 							break;
 	
 						case '$':
@@ -540,7 +545,7 @@ class Character {
 		return this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] +this. ModifiedStats[stat] : (this.IsNPC ? 20 : 3);
 	}
 
-	AffectToChar(affect, show) {
+	AffectToChar(affect, show = true) {
 		var newaffect = new AffectData({AffectData: affect});
 		this.Affects.unshift(newaffect);
 
@@ -548,22 +553,31 @@ class Character {
 	}
 
 	AffectFromChar(affect, reason = "Other", show = true) {
+		affect.EndReason = reason;
 
 		if(affect.SkillSpell && affect.SkillSpell.EndFun) {
-			affect.SkillSpell.EndFun(character, affect);
+			affect.SkillSpell.EndFun(this, affect);
 		}
 
+		const Program = require("./Program");
+		if(affect.EndProgram) {
+			Program.Execute(affect.EndProgram, this, null, null, null, affect, Program.ProgramTypes.AffectEnd);
+		}
 		this.Affects.Remove(affect);
 
 		this.AffectApply(affect, true, !show);
 	}
 
-	StripAffects(params = {AffectFlag: null, SkillSpell: null}) {
+	StripAffects(params = {AffectFlag: null, SkillSpell: null}, silent = false) {
 		if(params.AffectFlag) {
 			for(var aff of Utility.CloneArray(this.Affects)) {
-				for(var flag of params.AffectFlag) {
-					if(aff.Flags[flag])
-						this.AffectFromChar(aff)
+				if(Array.isArray(params.AffectFlag)) {
+					for(var flag of params.AffectFlag) {
+						if(aff.Flags[flag])
+							this.AffectFromChar(aff, AffectData.AffectRemoveReason.Stripped, !silent)
+					}
+				} else if(aff.Flags[params.AffectFlag]) {
+					this.AffectFromChar(aff, AffectData.AffectRemoveReason.Stripped, !silent)
 				}
 			}
 		}
@@ -571,7 +585,7 @@ class Character {
 		if(params.SkillSpell) {
 			for(var aff of Utility.CloneArray(this.Affects)) {	
 				if(aff.SkillSpell == params.SkillSpell)
-					this.AffectFromChar(aff)
+					this.AffectFromChar(aff, AffectData.AffectRemoveReason.Stripped, !silent)
 			}
 		}
 	}
@@ -1964,34 +1978,27 @@ class Character {
 			if (other.Following == this)
 			{
 
-				if (other.Leader == this)
+				if (other.Leader == this && (all || other.Master != this))
 				{
 					other.Leader = null;
 					
 					this.Act("$N leaves your group.\n\r", other, null, null, Character.ActType.ToChar);
 					this.Act("You leave $n's group.\n\r", other, null, null, Character.ActType.ToVictim);
+				} 
+
+				if(other.Following == this && (all || other.Master != this)) {
+					other.Following = null;
+					this.Act("$N stops following you.\n\r", other, null, null, Character.ActType.ToChar);
+					this.Act("You stop following $n.\n\r", other, null, null, Character.ActType.ToVictim);
 				}
+
 				if (all && other.Master == this)
 				{
+					other.Leader = null;
+					other.Following = null;
 					other.Act("$n wanders off.", null, null, null, Character.ActType.ToRoom);
 					other.RemoveCharacterFromRoom();
 					Character.Characters.Remove(other);
-				}
-
-				if(!all && other.Master == this) {
-					other.Leader = this;
-					other.Following = this;
-				}
-				else {
-					if (other.Leader == this)
-						other.Leader = null;
-
-					if (other.Following == this)
-					{
-						other.Following = null;
-						this.Act("$N stops following you.\n\r", other, null, null, Character.ActType.ToChar);
-						this.Act("You stop following $n.\n\r", other, null, null, Character.ActType.ToVictim);
-					}
 				}
 			}
 		}

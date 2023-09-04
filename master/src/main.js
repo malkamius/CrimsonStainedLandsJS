@@ -337,13 +337,20 @@ function UpdateCombat() {
 	const Combat = require("./Combat");
 	const SkillSpell = require("./SkillSpell");
 	const Magic = require("./Magic");
+	const Program = require("./Program");
 	for(var character of Utility.CloneArray(Character.Characters)) {
-		for(var affect of character.Affects) {
+		for(var affect of Utility.CloneArray(character.Affects)) {
 			if(affect.Frequency == "Violence") {
+				if(affect.Duration > 0) --affect.Duration;
+
 				if(affect.SkillSpell && affect.SkillSpell.TickFun) {
 					affect.SkillSpell.TickFun(character, affect);
 				}
-				if( (affect.Duration == 0 || (affect.Duration > 0 && --affect.Duration == 0))) {
+				if(affect.TickProgram) {
+					Program.Execute(affect.TickProgram, character, null, null, null, affect, Program.ProgramTypes.AffectTick);
+				}
+				
+				if(affect.Duration == 0) {
 					character.AffectFromChar(affect);
 				}
 			}
@@ -400,16 +407,26 @@ function UpdateAggro() {
 
 function UpdateCharactersTick() {
 	const Character = require("./Character");
+	const Program = require("./Program");
 	for(var character of Utility.CloneArray(Character.Characters)) { 
 		try {
-			for(var affect of character.Affects) {
+			for(var affect of Utility.CloneArray(character.Affects)) {
 				if(affect.Frequency == "Tick") {
+					if(affect.Duration > 0) --affect.Duration;
+
 					if(affect.SkillSpell && affect.SkillSpell.TickFun) {
 						affect.SkillSpell.TickFun(character, affect);
 					}
-					if((affect.Duration == 0 || (affect.Duration > 0 && --affect.Duration == 0))) {
+
+					if(affect.TickProgram) {
+						Program.Execute(affect.TickProgram, character, null, null, null, affect, Program.ProgramTypes.AffectTick);
+					}
+
+					if((affect.Duration == 0)) {
 						character.AffectFromChar(affect);
 					}
+
+					
 				}
 			}
 		} catch(err) {

@@ -7,13 +7,17 @@ const Settings = require("./Settings");
 const DamageMessage = require("./DamageMessage");
 const SkillGroup = require("./SkillGroup");
 const ResetData = require("./ResetData");
+const Program = require("./Program");
 
 function LoadData(callback) {
 	Settings.Load();
 	DamageMessage.Load();
 	SkillSpell.LoadAll();
 	SkillGroup.Load();
-    LoadRaces(callback);
+    
+	LoadRaces(callback);
+
+	Program.LoadPrograms();
 }
 
 function LoadRaces(callback) {

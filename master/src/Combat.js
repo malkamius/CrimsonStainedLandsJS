@@ -15,7 +15,7 @@ class Combat {
              return true;
         }
         var chduel
-        if (((chduel = ch.FindAffect("DuelInProgress")) || ch.Master && (chduel = ch.Master.FindAffect("DuelInProgress"))) && chduel.ownerName == victim.Name) {
+        if (((chduel = ch.FindAffect("DuelInProgress")) || (ch.Master && (chduel = ch.Master.FindAffect("DuelInProgress")))) && chduel.OwnerName == victim.Name) {
             return false;
         }
         
@@ -126,33 +126,35 @@ class Combat {
                 break;
 
             case "Dead":
+                var duelaffect = victim.FindAffect(AffectData.AffectFlags.DuelInProgress);
+                if(!ch) ch = Character.Characters.FirstOrDefault(c => c.Name == duelaffect.OwnerName);
+                if( duelaffect && ch != null && (!ch.IsNPC || (ch.Master != null && !ch.Master.IsNPC)))
+                {
+                    if (ch.Master != null)
+                    {
+                        ch.Master.StripAffects({AffectFlag: AffectData.AffectFlags.DuelInProgress});
+                        if (ch.Master.Fighting == ch)
+                            ch.Master.Fighting = null;
+                    }
+                    else
+                        ch.StripAffects({AffectFlag: AffectData.AffectFlags.DuelInProgress});
 
-                // if(victim.FindAffect(AffectFlags.DuelInProgress, out var duelaffect) && ch != null && (!ch.IsNPC || (ch.Master != null && !ch.Master.IsNPC)))
-                // {
-                //     if (ch.Master != null)
-                //     {
-                //         ch.Master.StripAffect(AffectFlags.DuelInProgress);
-                //         if (ch.Master.Fighting == ch)
-                //             ch.Master.Fighting = null;
-                //     }
-                //     else
-                //         ch.StripAffect(AffectFlags.DuelInProgress);
+                    if (ch.Fighting == victim)
+                        ch.Fighting = null;
+                    if(victim.Fighting == ch || (ch.Master != null && victim.Fighting == ch.Master))
+                        victim.Fighting = null;
 
-                //     if (ch.Fighting == victim)
-                //         ch.Fighting = null;
-                //     if(victim.Fighting == ch || (ch.Master != null && victim.Fighting == ch.Master))
-                //         victim.Fighting = null;
-
-                //     victim.Act("$N stops $mself before finishing off $n.", ch, type: ActType.GlobalNotVictim);
-                //     victim.Act("$N stops $mself before finishing you off.", ch, type: ActType.ToChar);
-                //     victim.Act("You stop yourself before finishing $n off.", ch, type: ActType.ToVictim);
-                //     victim.HitPoints = 20;
-                //     victim.Position = Positions.Sitting;
-                //     foreach (var aff in victim.AffectsList.ToArray())
-                //         victim.AffectFromChar(aff, AffectRemoveReason.Died, true);
-                    
-                //     return;
-                // }
+                    victim.Act("$N stops $mself before finishing off $n.", ch, null, null, Character.ActType.GlobalNotVictim);
+                    victim.Act("$N stops $mself before finishing you off.", ch, null, null, Character.ActType.ToChar);
+                    victim.Act("You stop yourself before finishing $n off.", ch, null, null, Character.ActType.ToVictim);
+                    victim.HitPoints = 20;
+                    victim.Position = "Sitting";
+                    for (var aff of Utility.CloneArray(victim.Affects))
+                        victim.AffectFromChar(aff, AffectData.AffectRemoveReason.Died, true);
+                    for (var aff of Utility.CloneArray((ch.Master || ch).Affects))
+                        ch.AffectFromChar(aff, AffectData.AffectRemoveReason.Died, true);
+                    return;
+                }
 
                 victim.Act("$n is DEAD!!", null, null, null, "ToRoom");
                 victim.send("You have been KILLED!!\n\r\n\r");

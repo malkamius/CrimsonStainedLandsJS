@@ -2,6 +2,7 @@
 const Character = require("./Character");
 const Combat = require("./Combat");
 const Magic = require("./Magic");
+const Dueling = require("./Dueling");
 
 Commands = {
 		"north": {Command: Character.DoCommands.DoNorth, MinimumPosition: "Standing" },
@@ -79,6 +80,10 @@ Commands = {
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
 		"heal": {Command: Magic.DoHeal, MinimumPosition: "Resting" },
 		"sacrifice": {Command: Character.DoCommands.DoSacrifice, MinimumPosition: "Resting" },
+		"duelchallenge": {Command: Dueling.DoIssueDuelChallenge, MinimumPosition: "Dead" },
+		"duelaccept": {Command: Dueling.DoDuelAccept, MinimumPosition: "Dead" },
+		"dueldecline": {Command: Dueling.DoDuelDecline, MinimumPosition: "Dead" },
+
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};
