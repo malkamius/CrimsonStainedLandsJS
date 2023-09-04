@@ -3,36 +3,36 @@ const RoomData = require("./RoomData");
 const ItemData = require("./ItemData");
 const AffectData = require("./AffectData");
 
-function movechar(player, direction) {
-	if (player.Position != "Standing")
+function movechar(character, direction, crawl = false, creep = false, sendWalkMessage = true, first = true, movementCost = 0, movementWait = 0) {
+	if (character.Position != "Standing")
 	{
-		if (player.Position == "Dead")
+		if (character.Position == "Dead")
 		{
-			player.send("Lie still; you are DEAD.\n\r");
+			character.send("Lie still; you are DEAD.\n\r");
 		}
-		else if (player.Position == "Incapacitated")
+		else if (character.Position == "Incapacitated")
 		{
-			player.send("You are hurt far too bad for that.\n\r");
+			character.send("You are hurt far too bad for that.\n\r");
 		}
-		else if (player.Position == "Stunned")
+		else if (character.Position == "Stunned")
 		{
-			player.send("You are too stunned to do that.\n\r");
+			character.send("You are too stunned to do that.\n\r");
 		}
-		else if (player.Position == "Resting")
+		else if (character.Position == "Resting")
 		{
-			player.send("Nah... You feel too relaxed...\n\r");
+			character.send("Nah... You feel too relaxed...\n\r");
 		}
-		else if (player.Position == "Sitting")
+		else if (character.Position == "Sitting")
 		{
-			player.send("Better stand up first.\n\r");
+			character.send("Better stand up first.\n\r");
 		}
-		else if (player.Position == "Fighting")
+		else if (character.Position == "Fighting")
 		{
-			player.send("No way! You are still fighting!\n\r");
+			character.send("No way! You are still fighting!\n\r");
 		}
 		else
 		{
-			player.send("You aren't in the right position?\n\r");
+			character.send("You aren't in the right position?\n\r");
 		}
 		return;
 	}
@@ -40,15 +40,18 @@ function movechar(player, direction) {
 	// Check if character is currently in combat
 	if (this.Fighting)
 	{
-		SendToChar("No way! You are still fighting!\n\r");
+		character.send("No way! You are still fighting!\n\r");
 		return;
 	}
-	var exit = player.Room.Exits[direction];
-	var wasinroom = player.Room;
+	var exit = character.Room.Exits[direction];
+	var wasinroom = character.Room;
 
 	if(wasinroom && exit && 
 		exit.Destination && 
-		(!exit.Flags.Closed || player.AffectedBy.PassDoor)) {
+		(!exit.Flags.Closed || character.AffectedBy.PassDoor) &&
+		(!exit.Flags.Window || crawl)) {
+		
+		var destination = exit.Destination;
 		var sizes = ["Tiny", "Small", "Medium", "Large", "Huge", "Giant"];
 		if (sizes.indexOf(this.Size) > sizes.indexOf(exit.ExitSize))
 		{
@@ -56,11 +59,11 @@ function movechar(player, direction) {
 			return;
 		}
 
-		if (!player.IsNPC)
+		if (!character.IsNPC)
 		{
 			const SkillSpell = require("./SkillSpell");
 			var trackskill = SkillSpell.SkillLookup("track");
-			var trackAffect = wasinroom.Affects.FirstOrDefault(aff => aff.SkillSpell == trackskill && aff.OwnerName == player.Name);
+			var trackAffect = wasinroom.Affects.FirstOrDefault(aff => aff.SkillSpell == trackskill && aff.OwnerName == character.Name);
 			if (trackAffect)
 			{
 				trackAffect.Modifier = direction;
@@ -69,61 +72,140 @@ function movechar(player, direction) {
 			{
 				trackAffect = new AffectData();
 				trackAffect.Duration = -1
-				trackAffect.OwnerName = player.Name, 
+				trackAffect.OwnerName = character.Name, 
 				trackAffect.SkillSpell = trackskill;
 				trackAffect.Modifier = direction;
 				wasinroom.Affects.unshift(trackAffect);
 			}
 		}
+		var sector = RoomData.Sectors[wasinroom.Sector];
+		var checkpathfinding = false;
+		if (movementCost == 0 && sector)
+		{
+			checkpathfinding = true;
+			movementCost = sector.MovementCost;
+		}
+		if (movementWait == 0 && sector)
+			movementWait = sector.MovementWait;
 
-		var destination = exit.Destination;
+		if (!character.IsNPC && character.MovementPoints < movementCost)
+		{
+			character.send("You can barely feel your feet!\n\r");
+			return;
+		}
+
+		if ((wasinroom.Sector == RoomData.SectorTypes.Air || destination.Sector == RoomData.SectorTypes.Air) && !character.IsAffected(AffectData.AffectFlags.Flying))
+		{
+			send("You can't fly.\n\r");
+			return;
+		}
+
+		if (creep && (!destination.IsWilderness || destination.IsWater))
+		{
+			send("There's no cover there.\n\r");
+			return;
+		}
+		var boatequipped = false;
+
+		for(var key in character.Equipment) {
+			var item = character.Equipment[key];
+			if(item && item.ItemTypes.ISSET(ItemData.ItemTypes.Boat)) {
+				boatequipped = true;
+				break;
+			}
+		}
+		
+		if (destination.IsWater &&
+			!character.IsAffected(AffectData.AffectFlags.Flying) &&
+			!character.IsAffected(AffectData.AffectFlags.Swim) &&
+			!character.IsAffected(AffectData.AffectFlags.WaterBreathing) &&
+			!character.Inventory.FirstOrDefault(b => b.ItemTypes.ISSET(ItemData.ItemTypes.Boat)) &&
+			!boatequipped)
+		{
+			send("You need a boat to go there.\n\r");
+			return;
+		}
+
+		// Check if movement through underwater sectors requires swimming or water breathing
+		if (destination.Sector == RoomData.SectorTypes.Underwater &&
+			!character.IsAffected(AffectData.AffectFlags.Swim) &&
+			!character.IsAffected(AffectData.AffectFlags.WaterBreathing))
+		{
+			send("You need water breathing to go there.\n\r");
+			return;
+		}
+
+		// Deduct movement points and apply movement wait
+		if (!character.IsNPC)
+		{
+			var chance = 0;
+			if (checkpathfinding && wasinroom.Sector != RoomData.SectorTypes.City && wasinroom.Sector != RoomData.SectorTypes.Inside &&
+				(chance = character.GetSkillPercentage("path finding")) > 1 && chance >= Utility.NumberPercent())
+			{
+				character.CheckImprove("path finding", true, 1);
+				movementCost /= 2;
+				movementWait /= 2;
+			}
+			else if (checkpathfinding && wasinroom.Sector != RoomData.SectorTypes.City && wasinroom.Sector != RoomData.SectorTypes.Inside && chance > 1)
+			{
+				character.CheckImprove("path finding", false, 1);
+			}
+
+			character.MovementPoints -= movementCost;
+		}
+
+		if (!character.IsAffected(AffectData.AffectFlags.FastRunning))
+			character.WaitState(movementWait);
+		else
+			character.WaitState(movementWait / 3);
+
 		var reversedirections = ["south", "west", "north", "east", "below", "above" ];
 		var directionstring = RoomData.Directions[direction];
-		player.Act("$n leaves " + directionstring + ".", null, null, null, "ToRoom");
-		player.RemoveCharacterFromRoom();
-		player.AddCharacterToRoom(destination);
+		character.Act("$n {0} {1}.", null, null, null, "ToRoom", crawl? "crawls" : "leaves", directionstring);
+		character.RemoveCharacterFromRoom();
+		character.AddCharacterToRoom(destination);
 		var reversedirection = reversedirections[direction];
 		if(reversedirection != "below" && reversedirection != "above")
-			player.Act("$n arrives from the " + reversedirection + ".", null, null, null, "ToRoom");
+			character.Act("$n arrives from the " + reversedirection + ".", null, null, null, "ToRoom");
 		else
-			player.Act("$n arrives from " + reversedirection + ".", null, null, null, "ToRoom");
+			character.Act("$n arrives from " + reversedirection + ".", null, null, null, "ToRoom");
 
 		// avoid circular follows
 		if(wasinroom != destination) {
 			for(var follower of wasinroom.Characters) {
-				if(follower.Following == player) {
-					follower.Act("You follow $N {0}.", player, null, null, Character.ActType.ToChar, directionstring);
-					movechar(follower, direction);
+				if(follower.Following == character) {
+					follower.Act("You follow $N {0}.", character, null, null, Character.ActType.ToChar, directionstring);
+					movechar(follower, direction, crawl, creep);
 				}
 			}
 		}
 	}
 	else
-		player.send("Alas, you cannot go that way.\n\r");
+		character.send("Alas, you cannot go that way.\n\r");
 }
 
-function donorth(player, arguments) {
-	movechar(player, 0);
+function donorth(character, arguments) {
+	movechar(character, 0);
 }
 
-function doeast(player, arguments) {
-	movechar(player, 1);
+function doeast(character, arguments) {
+	movechar(character, 1);
 }
 
-function dosouth(player, arguments) {
-	movechar(player, 2);
+function dosouth(character, arguments) {
+	movechar(character, 2);
 }
 
-function dowest(player, arguments) {
-	movechar(player, 3);
+function dowest(character, arguments) {
+	movechar(character, 3);
 }
 
-function doup(player, arguments) {
-	movechar(player, 4);
+function doup(character, arguments) {
+	movechar(character, 4);
 }
 
-function dodown(player, arguments) {
-	movechar(player, 5);
+function dodown(character, arguments) {
+	movechar(character, 5);
 }
 
 
@@ -573,6 +655,17 @@ Character.DoCommands.DoRecall = function(ch, args)
 		// If the recall room is not found, send an error message to the character
 		ch.send("Room not found.\n\r");
 	}
+}
+
+Character.DoCommands.DoCrawl = function(character, args) {
+	var [exit] = character.Room.GetExit(args);
+	var direction;
+	if(!exit || !exit.Flags.Window || (direction = RoomData.Directions.indexOf(exit.Direction)) == -1) {
+		character.send("You can't crawl there.\n\r")
+	} else {
+		movechar(character, direction, true, false, true, true);
+	}
+
 }
 	
 Character.DoCommands.DoNorth = donorth;

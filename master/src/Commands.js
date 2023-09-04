@@ -16,6 +16,7 @@ Commands = {
 		"cast": {Command: Magic.DoCast, MinimumPosition: "Fighting" },
 		"commune": {Command: Magic.DoCommune, MinimumPosition: "Fighting" },
 		"close": {Command: Character.DoCommands.DoClose, MinimumPosition: "Resting" },
+		"crawl": {Command: Character.DoCommands.DoCrawl, MinimumPosition: "Standing" },
 		"equipment": {Command: Character.DoCommands.DoEquipment, MinimumPosition: "Dead" },
 		"inventory": {Command: Character.DoCommands.DoInventory, MinimumPosition: "Dead" },
 		"say": {Command: Character.DoCommands.DoSay, MinimumPosition: "Resting" },

@@ -22,8 +22,8 @@ class RoomData {
 
     static SectorTypes =
     {
-        "Inside = 0": "Inside = 0",
-        "City = 1": "City = 1",
+        "Inside": "Inside",
+        "City": "City",
         "Forest": "Forest",
         "Field": "Field",
         "Hills": "Hills",
@@ -42,6 +42,27 @@ class RoomData {
         "Underwater": "Underwater",
         "NoSwim": "WaterNoSwim",
         "Swim": "WaterSwim"
+    };
+
+    static Sectors = {
+        Inside: { Sector: RoomData.SectorTypes.Inside, Name: "Indoors", MovementCost: 1, MovementWait: 1, Display: "\\winside\\x" },
+        Field:  { Sector: RoomData.SectorTypes.Field, Name: "Plains", MovementCost: 2, MovementWait: 1, Display: "\\yplains\\x" },
+        Desert:  { Sector: RoomData.SectorTypes.Desert, Name: "Desert", MovementCost: 2, MovementWait: 2, Display: "\\Ydesert\\x" },
+        City:  { Sector: RoomData.SectorTypes.City, Name: "City", MovementCost: 1, MovementWait: 1, Display: "\\wcity\\x" },
+        Road:  { Sector: RoomData.SectorTypes.Road, Name: "Road", MovementCost: 1, MovementWait: 1, Display: "\\Wroad\\x" },
+        Trail:  { Sector: RoomData.SectorTypes.Trail, Name: "Trail", MovementCost: 2, MovementWait: 1, Display: "\\Gtrail\\x" },
+        Forest:  { Sector: RoomData.SectorTypes.Forest, Name: "Forest", MovementCost: 5, MovementWait: 2, Display: "\\Gforest\\x" },
+        Hills:  { Sector: RoomData.SectorTypes.Hills, Name: "Hills", MovementCost: 3, MovementWait: 4, Display: "\\Ghills\\x" },
+        Cave:  { Sector: RoomData.SectorTypes.Cave, Name: "Cave", MovementCost: 3, MovementWait: 3, Display: "\\Wcave\\x" },
+        Mountain:  { Sector: RoomData.SectorTypes.Mountain, Name: "Mountain", MovementWait: 3, MovementCost: 6, Display: "\\Wmountain\\x" },
+        Swamp:  { Sector: RoomData.SectorTypes.Swamp, Name: "Swamp", MovementWait: 3, MovementCost: 3, Display: "\\Gswamp\\x" },
+        Underground:  { Sector: RoomData.SectorTypes.Underground, Name: "Underground", MovementWait: 2, MovementCost: 2, Display: "\\Wunderground\\x"},
+        Underwater:  { Sector: RoomData.SectorTypes.Underwater, Name: "Underwater", MovementWait: 3, MovementCost: 6, Display: "\\Bunderwater\\x"},
+        WaterSwim:  { Sector: RoomData.SectorTypes.WaterSwim, Name: "WaterSwim", MovementWait: 2, MovementCost: 6, Display: "\\Bwater\\x"},
+        WaterNoSwim: { Sector: RoomData.SectorTypes.WaterNoSwim, Name: "WaterNoSwim", MovementWait: 3, MovementCost: 6, Display: "\\Bwater\\x"},
+        River: { Sector: RoomData.SectorTypes.River, Name: "River", MovementWait: 2, MovementCost: 6, Display: "\\Briver\\x"},
+        Ocean: { Sector: RoomData.SectorTypes.Ocean, Name: "Ocean", MovementWait: 3, MovementCost: 10, Display: "\\Bocean\\x"},
+        Air: { Sector: RoomData.SectorTypes.Ocean, Name: "Air", MovementWait: 1, MovementCost: 10, Display: "\\cair\\x"}
     };
 
     static RoomFlags =
@@ -86,7 +107,11 @@ class RoomData {
 		this.VNum = roomxml.GetElementValueInt("VNum");
 		this.Name = roomxml.GetElementValue("Name");
 		this.Description = roomxml.GetElementValue("Description");
-		this.Sector = roomxml.GetElementValue("Sector");
+        var sector = roomxml.GetElementValue("Sector");
+		this.Sector = RoomData.SectorTypes.ISSET(sector);
+        if(!this.Sector) console.log(Utility.Format("Sector {0} not found", sector));
+
+
         this.MaxLevel = roomxml.GetElementValueInt("MaxLevel", 60);
         this.MinLevel = roomxml.GetElementValueInt("MinLevel", 0);
 		Utility.ParseFlags(this.Flags, roomxml.GetElementValue("Flags"));

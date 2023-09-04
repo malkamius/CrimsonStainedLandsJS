@@ -195,7 +195,7 @@ function doexits(player, args) {
 	player.send("\\g[Exits");
 	if(player.Room) {	
 		for(var i = 0; i < 6; i++) {
-			if(player.Room.Exits[i] && player.Room.Exits[i].Destination) {
+			if(player.Room.Exits[i] && player.Room.Exits[i].Destination && !player.Room.Exits[i].Flags.Window) {
 				if(player.Room.Exits[i].Flags.Closed || player.Room.Exits[i].Flags.Locked) {
 					player.send(" [" + RoomData.Directions[i] + "]");
 				}
