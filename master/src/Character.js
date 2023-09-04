@@ -246,7 +246,16 @@ class Character {
 	}
 
 	GetShortDescription(to) {
-		if(this.ShortDescription && this.ShortDescription.length > 0)
+		const Game = require('./Game');
+		if (to && !to.CanSee(this))
+		{
+			if (!this.IsNPC && this.Level >= Game.LEVEL_IMMORTAL && this.Flags.ISSET(Character.ActFlags.WizInvis))
+				return "An Immortal";
+			else
+				return "someone";
+		} else if (this.Form != null && !Form.ShortDescription.ISEMPTY()) {
+			return this.Form.ShortDescription;
+		} else if(this.ShortDescription && this.ShortDescription.length > 0)
 			return this.ShortDescription;
 		else
 			return this.Name;
@@ -257,9 +266,15 @@ class Character {
 	}
 
 	GetLongDescription() {
-		if(this.Position == this.DefaultPosition && this.LongDescription && this.LongDescription.length > 0)
+		const TimeInfo = require('./TimeInfo');
+		if (this.Position == "Standing" && this.Form != null && !this.Form.LongDescription.ISEMPTY()) {
+                return Form.LongDescription;
+        } else if(this.Position == this.DefaultPosition && this.NightLongDescription && !this.NightLongDescription.ISEMPTY())
+			return this.NightLongDescription;
+		else if(this.Position == this.DefaultPosition && this.LongDescription && !this.LongDescription.ISEMPTY())
 			return this.LongDescription;
-		return "$N is " + this.Position.toLowerCase() + " here.\n\r"
+		else
+			return Utility.Format("{0} is " + this.Position.toLowerCase() + " here.\n\r", Utility.Capitalize(this.GetShortDescription()));
 	}
 
 	GetPrompt() {
@@ -1950,17 +1965,23 @@ class Character {
 
 	CanSee(other) {
 		if (other == this) return true;
-            return (this.Flags.ISSET("HolyLight") && (this.Level >= other.Level || other.IsNPC)) ||
-                (!this.IsAffected(AffectData.AffectFlags.Blind) &&
-                (this.IsAffected(AffectData.AffectFlags.DetectInvis) || !other.IsAffected(AffectData.AffectFlags.Invisible) || 
+		if (other instanceof Character) {
+		return (this.Flags.ISSET("HolyLight") && (this.Level >= other.Level || other.IsNPC)) ||
+			(!this.IsAffected(AffectData.AffectFlags.Blind) &&
+			(this.IsAffected(AffectData.AffectFlags.DetectInvis) || !other.IsAffected(AffectData.AffectFlags.Invisible) || 
+			other.IsAffected(AffectData.AffectFlags.Smelly)) &&
+			(this.IsAffected(AffectData.AffectFlags.DetectHidden) ||
+				(this.IsAffected(AffectData.AffectFlags.AcuteVision) && other.Room.IsWilderness) || 
+				!other.IsAffected(AffectData.AffectFlags.Hide) || 
 				other.IsAffected(AffectData.AffectFlags.Smelly)) &&
-                (this.IsAffected(AffectData.AffectFlags.DetectHidden) ||
-                    (this.IsAffected(AffectData.AffectFlags.AcuteVision) && other.Room.IsWilderness) || 
-					!other.IsAffected(AffectData.AffectFlags.Hide) || 
-					other.IsAffected(AffectData.AffectFlags.Smelly)) &&
-                (this.IsAffected(AffectData.AffectFlags.AcuteVision) || !other.IsAffected(AffectData.AffectFlags.Camouflage) ||
-				 other.IsAffected(AffectData.AffectFlags.Smelly)) &&
-                (!other.IsAffected(AffectData.AffectFlags.Burrow)) && (!other.Flags.ISSET("WizInvis")));
+			(this.IsAffected(AffectData.AffectFlags.AcuteVision) || !other.IsAffected(AffectData.AffectFlags.Camouflage) ||
+				other.IsAffected(AffectData.AffectFlags.Smelly)) &&
+			(!other.IsAffected(AffectData.AffectFlags.Burrow)) && (!other.Flags.ISSET("WizInvis")));
+		} else if(other instanceof ItemData) {
+			return this.Flags.ISSET(Character.ActFlags.HolyLight) ||
+                (!this.IsAffected(AffectData.AffectFlags.Blind) && (!other.ExtraFlags.ISSET(ItemData.ExtraFlags.VisDeath) || this.IsImmortal || this.IsNPC) &&
+                (this.IsAffected(AffectData.AffectFlags.DetectInvis) || !other.ExtraFlags.ISSET(ItemData.ExtraFlags.Invisibility) || IsAffected(AffectData.AffectFlags.ArcaneVision)));
+		} else return true;
 	}
 
 	NoFollow(all = false)

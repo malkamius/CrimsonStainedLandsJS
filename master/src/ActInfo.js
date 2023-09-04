@@ -95,7 +95,7 @@ function dolook(player, args, auto) {
 		for(var key in items)
 			player.send("   " + (items[key] > 1? ("[" + items[key] + "] ") : "") + key + "\n\r");
 		for(const other of player.Room.Characters) {
-			if (other != player)
+			if (other != player && player.CanSee(other))
 				player.Act(other.DisplayFlags(player) + other.GetLongDescription(), other, null, null, "ToChar");
 		}
 		
@@ -252,7 +252,7 @@ function GetCharacterList(player, list, args, count = 0) {
 	if(!args.ISEMPTY()) {
 		for(key in list) {
 			var ch = list[key];
-			if((Utility.IsNullOrEmpty(args) || Utility.IsName(ch.Name, args)) && ++count > desiredcount)
+			if(player.CanSee(ch) && Utility.IsName(ch.Name, args) && ++count > desiredcount)
 				return [ch, count, key];
 		}
 	}
