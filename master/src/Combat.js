@@ -425,6 +425,10 @@ class Combat {
                 ghostAffect.Flags.Ghost = true;
                 victim.AffectToChar(ghostAffect);
                 victim.send("\\RYou become a ghost for a short while.\\x\n\r");
+
+                for(var other in Character.Characters) {
+                    if(other.IsNPC && other.LastFighting == victim) other.LastFighting = null;
+                }
             }
             else
             {
