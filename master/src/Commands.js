@@ -79,6 +79,8 @@ Commands = {
 		
 		"recall": {Command: Character.DoCommands.DoRecall, MinimumPosition: "Standing" },
 		
+		"scan": {Command: Character.DoCommands.DoScan, MinimumPosition: "Resting" },
+
 		"scrollcount": {Command: Character.DoCommands.DoScrollCount, MinimumPosition: "Dead" },
 
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },

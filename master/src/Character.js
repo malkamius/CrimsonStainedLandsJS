@@ -6,6 +6,7 @@ const Utility = require("./Utility");
 const ItemTemplateData = require("./ItemTemplateData");
 const ItemData = require("./ItemData");
 const NPCTemplateData = require("./NPCTemplateData");
+const RoomData = require("./RoomData");
 class Character {
 	/**
 	 * Array of NPC and Player characters in the world.
@@ -2108,7 +2109,7 @@ class Character {
 		}
 		if(count == this.ScrollCount)
 			index = lastIndex;
-		
+
 		if (index >= 0 && index < text.length)
 		{
 			this.PageText = "";
@@ -2137,6 +2138,70 @@ class Character {
 		{
 			this.PageText = "";
 			this.send(text + "\n\r");
+
+		}
+	} // end SendPage
+
+	ScanDirection(args, room = null, depth = 0) {
+		room = room || this.Room;
+		var index = -1;
+		var direction = "";
+		var exit;
+		for(var tempdirection of RoomData.Directions) {
+			if(tempdirection.prefix(args)) {
+				index = RoomData.Directions.indexOf(tempdirection);
+				exit = room.Exits[index];
+				direction = tempdirection.toLowerCase();
+				break;
+			}
+		}
+
+		depth++;
+
+		if (depth == 1 && direction)
+		{
+			this.send("You scan {0}.\n\r", direction);
+			this.Act("$n scans {0}.\n\r", null, null, null, Character.ActType.ToRoom, direction);
+		}
+		
+		
+		if(!exit && args.ISEMPTY() || "all".prefix(args)) {
+			// if (depth == 1) {
+			// 	this.send("You scan all directions.\n\r");
+			// 	this.Act("$n scans all directions.\n\r", null, null, null, Character.ActType.ToRoom, direction);
+			// }
+			for(var direction of RoomData.Directions) {
+				this.ScanDirection(direction)
+			}
+		} else if(!exit && index < 0) {
+			this.send("Scan in which direction?\n\r");
+		} else if(exit && exit.Destination) {
+			//var IsDark = exit.Destination.IsDark;
+
+			var others = exit.Destination.Characters.Select(other => this.CanSee(other) && this != other);
+
+			if (exit.Flags.ISSET("Closed"))
+			{
+				this.send("**** " + depth + " " + direction + " ****\n\r");
+				this.send("Closed\n\r");
+				return;
+			}
+			//else if (!ch.IsAffected(AffectFlags.Infrared) && !ch.IsAffected(AffectFlags.DarkVision) && !ch.IsAffected(AffectFlags.NightVision)  && IsDark)
+			//{
+			//    ch.send("**** " + depth + " " + direction.ToString() + " ****\n\r");
+			//    ch.send("Too dark to tell\n\r");
+			//}
+			else if (others.length > 0)
+			{
+				this.send("**** " + depth + " " + direction + " ****\n\r");
+				for (var other of others)
+				{
+					this.send(other.DisplayFlags(this));
+					this.Act(other.GetLongDescription(this));
+				}
+			}
+			if (depth < 4 && !exit.Flags.ISSET("Closed"))
+				this.ScanDirection( args, exit.Destination, depth);
 
 		}
 	}

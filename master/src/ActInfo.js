@@ -736,6 +736,9 @@ Character.DoCommands.DoScrollCount = function(character, args) {
 	}
 }
 
+Character.DoCommands.DoScan = function(character, args) { 
+	character.ScanDirection(args);
+}
 
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
