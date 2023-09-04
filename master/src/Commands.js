@@ -85,7 +85,8 @@ Commands = {
 		"duelchallenge": {Command: Dueling.DoIssueDuelChallenge, MinimumPosition: "Dead" },
 		"duelaccept": {Command: Dueling.DoDuelAccept, MinimumPosition: "Dead" },
 		"dueldecline": {Command: Dueling.DoDuelDecline, MinimumPosition: "Dead" },
-
+		"goto": {Command: Character.DoCommands.DoGoto, MinimumPosition: "Dead" },
+		"transfer": {Command: Character.DoCommands.DoTransfer, MinimumPosition: "Dead" },
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};

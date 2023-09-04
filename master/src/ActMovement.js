@@ -546,7 +546,7 @@ Character.DoCommands.DoRecall = function(ch, args)
 	// Get the recall room for the character
 	var room = ch.GetRecallRoom();
 
-	if (room != null)
+	if (room)
 	{
 		// If a valid recall room is found, perform the recall action
 
@@ -560,7 +560,7 @@ Character.DoCommands.DoRecall = function(ch, args)
 		ch.send("You pray for transportation to your temple.\n\r");
 
 		// Add the character to the recall room
-		ch.AddCharacterToRoom(ch.GetRecallRoom());
+		ch.AddCharacterToRoom(room);
 		
 		// Display a message to the room indicating the character's arrival
 		ch.Act("$n appears before the altar.\n\r", null, null, null, Character.ActType.ToRoom);
@@ -571,7 +571,7 @@ Character.DoCommands.DoRecall = function(ch, args)
 	else
 	{
 		// If the recall room is not found, send an error message to the character
-		ch.SendToChar("Room not found.\n\r");
+		ch.send("Room not found.\n\r");
 	}
 }
 	
