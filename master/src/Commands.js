@@ -78,6 +78,8 @@ Commands = {
 		"replay": {Command: Character.DoCommands.DoReplay, MinimumPosition: "Dead" },
 		
 		"recall": {Command: Character.DoCommands.DoRecall, MinimumPosition: "Standing" },
+		
+		"scrollcount": {Command: Character.DoCommands.DoScrollCount, MinimumPosition: "Dead" },
 
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
 		"heal": {Command: Magic.DoHeal, MinimumPosition: "Resting" },

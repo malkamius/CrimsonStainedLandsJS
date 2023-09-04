@@ -136,7 +136,7 @@ function DataReceived(socket, buffer) {
 									];
 
 									var Options = TelnetOptionFlags.FirstOrDefault(function(option) {
-										return ClientString.prefix(Object.keys(option)[0]) || ClientString.toUpperCase().replace(" ", "").indexOf(Object.keys(option)[0]) >= 0;
+										return ClientString.prefix(Object.keys(option)[0]) || ClientString.toUpperCase().replaceAll(" ", "").indexOf(Object.keys(option)[0]) >= 0;
 									});
 
 									if (Options)
@@ -210,9 +210,6 @@ function DataReceived(socket, buffer) {
 					player.input = player.input + String.fromCharCode(buffer[i]);
 				} 
 			}
-
-			//const message = buffer.toString("ascii").replace("\r", "");
-			//player.input = player.input + message;
 		}
 		catch(err) {
 			console.log("Error: " + err);

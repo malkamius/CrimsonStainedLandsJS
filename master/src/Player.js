@@ -70,18 +70,23 @@ class Player extends Character {
 	}
   	
 	send(data, ...params) {
-		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
+		data = Utility.Format(data.replaceAll("\r", "").replaceAll("\n", "\n\r"), params);
 		if(Character.CaptureCommunications) {
 			this.Communications.push(data);
 			if(this.Communications.length > 35) {
 				this.Communications.splice(0, this.Communications.length - 35);
 			}
 		}
-		this.output = this.output + data;
+
+		if(this.PagingText) {
+			this.PageText += data.replaceAll("\r", "");
+		} else {
+			this.output = this.output + data;
+		}
 	}
   	
 	sendnow = function(data, ...params) {
-		data = Utility.Format(data.replace("\r", "").replace("\n", "\n\r"), params);
+		data = Utility.Format(data.replaceAll("\r", "").replaceAll("\n", "\n\r"), params);
 		this.socket.write(Color.ColorString(data, !this.Flags.Color, this.TelnetOptions.Color256, this.TelnetOptions.ColorRGB));
 	};
 	Load(path) {
@@ -96,6 +101,7 @@ class Player extends Character {
   LoadPlayerData(xml) {
 	if(xml)	{
 		this.Name = xml.GetElementValue("Name");
+		this.ScrollCount = xml.GetElementValueInt("ScrollCount", 40);
 		this.ShortDescription = xml.GetElementValue("ShortDescription");
 		this.LongDescription = xml.GetElementValue("LongDescription");
 		this.Description = xml.GetElementValue("Description");
@@ -239,6 +245,7 @@ class Player extends Character {
 		var xmlelement = builder.create("PlayerData");
 		
 		xmlelement.ele("Name", this.Name);
+		xmlelement.ele("ScrollCount", this.ScrollCount);
 		xmlelement.ele("Description", this.Description);
 		xmlelement.ele("ShortDescription", this.ShortDescription);
 		xmlelement.ele("LongDescription", this.LongDescription);
@@ -339,7 +346,7 @@ class Player extends Character {
 
 		if(this.output != null && this.output != "")
 		{
-			this.output = this.output.replace("\r", "");
+			this.output = this.output.replaceAll("\r", "");
 			if(this.status == "Playing") {
 				if(this.Fighting)
 				this.Fighting.DisplayHealth(this);
@@ -348,10 +355,10 @@ class Player extends Character {
 				this.output = "\n" + this.output;
 			}
 			
-			this.output = this.output.replace("\r", "");
+			this.output = this.output.replaceAll("\r", "");
 			if(!this.output.endsWith("\n"))
 				this.output += "\u00FF\u00F9";
-			this.socket.write(Color.ColorString(this.output.replace("\n", "\n\r"), !this.Flags.Color, this.TelnetOptions.Color256, this.TelnetOptions.ColorRGB), "ascii");
+			this.socket.write(Color.ColorString(this.output.replaceAll("\n", "\n\r"), !this.Flags.Color, this.TelnetOptions.Color256, this.TelnetOptions.ColorRGB), "ascii");
 			
 			this.SittingAtPrompt = true;
 		}
@@ -364,7 +371,7 @@ class Player extends Character {
 		if(this.input != "")
 		{
 			if(this.status == "Playing" && this.Wait > 0) return;
-			this.input = this.input.replace("\r", "");
+			this.input = this.input.replaceAll("\r", "");
 			var index = this.input.indexOf("\n");
 			if(index != -1 && index != null)
 			{
@@ -381,6 +388,14 @@ class Player extends Character {
 					{
 						this.send("\n\r");
 						this.SittingAtPrompt = false;
+						if(this.PageText && this.PageText.length > 0) {
+							this.SendPage();
+						}
+						return;
+					}
+					if(this.PageText && this.PageText.length > 0) {
+						this.PageText = "";
+						this.send("Paged text cleared.\n\r");
 						return;
 					}
 					const Commands = require("./Commands");

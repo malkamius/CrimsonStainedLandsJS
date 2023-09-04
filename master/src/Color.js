@@ -184,7 +184,7 @@ function ColorString(text, StripColor = false, Support256 = false, SupportRGB = 
 }
 
 function EscapeColor(text) {
-	text = text.replace("\\", "\\\\");
+	text = text.replaceAll("\\", "\\\\");
 	return text;
 }
 exports.ColorString = ColorString;

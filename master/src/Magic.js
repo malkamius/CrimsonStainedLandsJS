@@ -458,8 +458,8 @@ class Magic {
         }
         else if (MethodUsed == "Sing")
         {
-            ch.Act("\\M$n sings \n\r\n\r{0}\\x\n\r\n\r", null, null, null, "ToRoom", spell.Lyrics);//.Replace("\r", "").Replace("\n", "\n\t"));
-            ch.Act("\\MYou sing \n\r\n\r{0}\\x\n\r\n\r", null, null, null, "ToChar", spell.Lyrics);//.Replace("\r", "").Replace("\n", "\n\t"));
+            ch.Act("\\M$n sings \n\r\n\r{0}\\x\n\r\n\r", null, null, null, "ToRoom", spell.Lyrics);
+            ch.Act("\\MYou sing \n\r\n\r{0}\\x\n\r\n\r", null, null, null, "ToChar", spell.Lyrics);
         }
         else if (MethodUsed == "Commune")
         {

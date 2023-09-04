@@ -213,6 +213,9 @@ class Character {
 	TotalWeight = 0;
 	MaxWeight = 600;
 	LastActivity = null;
+	PagingText = false;
+	PagedText = "";
+	ScrollCount = 40;
 
   	constructor(add = true) {
 		if(add)
@@ -2070,6 +2073,73 @@ class Character {
 		obj.Value = (silver + gold * 1000);
 		return obj;
 	} // end create money item
+
+	StartPaging() {
+		this.PageText = "";
+		this.PagingText = true;
+	}
+	
+	EndPaging() {
+		this.PagingText = false;
+		var index = 0;
+		var count = 0;
+		var text = this.PageText.replaceAll("\r", "");
+		for (index = text.indexOf("\n", index); count < this.ScrollCount + 1 && text.length > index + 2 && index > -1; index = text.indexOf("\n", index + 1))
+			count++;
+
+		if (count > this.ScrollCount)
+			this.SendPage();
+		else
+		{
+			this.send(this.PageText);
+			this.PageText = "";
+		}
+	}
+
+	SendPage()
+	{
+		var index = 0;
+		var count = 0;
+		var lastIndex = 0;
+		var text = this.PageText.replaceAll("\r", "");
+		for (index = text.indexOf("\n", index); count < this.ScrollCount && text.length > index + 1; index = text.indexOf("\n", index + 1)) {
+			count++;
+			lastIndex = index;
+		}
+		if(count == this.ScrollCount)
+			index = lastIndex;
+		
+		if (index >= 0 && index < text.length)
+		{
+			this.PageText = "";
+
+			if (text.length > index + 1) {
+				this.PageText += text.substring(index + 1);
+			}
+
+			this.send(text.substring(0, index + 1));
+
+			if (this.PageText && !this.PageText.ISEMPTY())
+			{
+
+				
+					if (this.status != "Playing") {
+						this.send("[Hit Enter to Continue]"); // output while playing will display a prompt and this line at time of output
+					} else {
+						this.SittingAtPrompt = true;
+						this.send("[Hit Enter to Continue]");
+					}
+			}
+			else
+			this.send("\n\r");
+		}
+		else
+		{
+			this.PageText = "";
+			this.send(text + "\n\r");
+
+		}
+	}
 }
 
 module.exports = Character;

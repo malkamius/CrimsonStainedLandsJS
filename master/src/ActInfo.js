@@ -26,7 +26,7 @@ function dohelp(player, args, plain = false) {
 	if(args.IsNullOrEmpty()) args = "help";
 	
 	var [oneargument, therest] = args.oneArgument();
-
+	player.StartPaging();
 	if(oneargument.equals("list")) {
 		var found = false;
 		for(var helpkey in AreaData.AllHelps) {
@@ -69,6 +69,7 @@ function dohelp(player, args, plain = false) {
 			player.send("No help on that.\n\r");
 		}
 	}
+	player.EndPaging();
 }
 
 /**
@@ -79,6 +80,7 @@ function dohelp(player, args, plain = false) {
  * @returns 
  */
 function dolook(player, args, auto) {
+	player.StartPaging();
 	if(player.Room == null) {
 		player.send("You are not in a room.\n\r");
 	} else if (!args || args.length == 0 || auto) {
@@ -151,12 +153,13 @@ function dolook(player, args, auto) {
 				    ch.send("{0} is closed.\n\r", target.Display(ch));
 			} else if(lookin && !target.ItemTypes.IsSet("Container")) {
 				ch.send("{0} isn't a container.\n\r", target.Display(ch));
+				player.EndPaging();
 				return;
 			} else if(!lookin) {
 				player.Act("$n looks at $p.", null, target, null, "ToRoom");
 				player.Act("You look at $p.", null, target, null, "ToChar");
 				if(!target.Description.IsNullOrEmpty())
-				player.send(target.Description + (target.Description.replace("\r", "").endsWith("\n")? "" : "\n"));
+				player.send(target.Description + (target.Description.replaceAll("\r", "").endsWith("\n")? "" : "\n"));
 			}
 			
 			if(lookin || target.ItemTypes.IsSet("Container")) {
@@ -184,6 +187,7 @@ function dolook(player, args, auto) {
 			player.send("You don't see them here.\n\r");
 		}
 	}
+	player.EndPaging();
 }
 
 function doexits(player, args) {
@@ -714,6 +718,21 @@ Character.DoCommands.DoWorth = function(ch, args)
 	} else {
 			ch.send("You have {0} silver, and {1} gold. You need {2} xp to level({3} of {4})\n\r",
 			ch.Silver, ch.Gold, (ch.XpToLevel * (ch.Level)) - ch.Xp, ch.XpTotal, ch.XpToLevel * (ch.Level));
+	}
+}
+
+Character.DoCommands.DoScrollCount = function(character, args) {
+	if(args.ISEMPTY()) {
+		character.send("Scroll count is {0}.\n\r", character.ScrollCount);
+	} else {
+		var count = Number(args);
+
+		if(count && count >= 1) {
+			character.ScrollCount = count;
+			character.send("Scroll count is {0}.\n\r", character.ScrollCount);
+		} else {
+			character.send("Scroll count must be greater than 0.\n\r")
+		}
 	}
 }
 
