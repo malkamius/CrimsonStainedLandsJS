@@ -501,7 +501,8 @@ class Combat {
                 var weapon = character.Equipment["Wield"];
                 character.Fighting = victim;
                 character.Position = "Fighting";
-                Combat.OneHit(character, victim, weapon);
+                if(!Combat.CheckIsSafe(character, victim))
+                    Combat.OneHit(character, victim, weapon);
             }
         }
     };
@@ -530,8 +531,6 @@ class Combat {
         misschance -= .05 / Math.max(character.HitRoll, 1);
 
         if(weapon) {
-            
-
             if(misschance * 100 > Utility.NumberPercent())
                 damage = 0;
             else
@@ -546,6 +545,11 @@ class Combat {
                     damage = 0;
                 else
                     damage = Utility.Roll(character.DamageDice);
+            } else {
+                if(misschance * 100 > Utility.NumberPercent())
+                    damage = 0;
+                else
+                    damage = Utility.Roll([Math.min(character.Level / 10, 2), character.Level, 0]);
             }
         }
         
