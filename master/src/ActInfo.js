@@ -12,6 +12,7 @@ const Settings = require("./Settings");
 function doquit(player, args) {
 	player.Act("The form of $n slowly fades away!", null, null, null, "ToRoom");
 	player.sendnow("Alas, all good things must come to an end.\n\r");
+	player.Save();
 	player.RemoveCharacterFromRoom();
 	player.socket.destroy();
 	Player.Players.splice(Player.Players.indexOf(player), 1)

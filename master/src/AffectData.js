@@ -232,47 +232,32 @@ class AffectData {
             this.StripAndSaveFlags = params.AffectData.StripAndSaveFlags.Clone();
             //this.ExtraState = params.AffectData.ExtraState;
          } else if(params && params.Xml) {
-            this.OwnerName = XmlHelper.GetAttributeValue(params.Xml,"OwnerName");
-            this.Name = XmlHelper.GetAttributeValue(params.Xml,"Name");
-            this.DisplayName = XmlHelper.GetAttributeValue("DisplayName");
-            this.Where = XmlHelper.GetAttributeValue(params.Xml,"Where");
-            this.Level = XmlHelper.GetAttributeValue(params.Xml,"Level");
-            this.Duration = XmlHelper.GetAttributeValueInt(params.Xml,"Duration");
-            this.Frequency = XmlHelper.GetAttributeValue(params.Xml,"Frequency");
-            this.Location = XmlHelper.GetAttributeValue(params.Xml, "Location");
-            this.Modifier = XmlHelper.GetAttributeValue(params.Xml, "Modifier");
-            this.Hidden = Utility.Compare(XmlHelper.GetAttributeValue(params.Xml, "Hidden"), "True");
-            this.AffectType = XmlHelper.GetAttributeValue(params.Xml, "AffectType");
+            this.OwnerName = params.Xml.GetAttributeValue("OwnerName");
+            this.Name = params.Xml.GetAttributeValue("Name");
+            this.DisplayName = params.Xml.GetAttributeValue("DisplayName");
+            this.Where = params.Xml.GetAttributeValue("Where");
+            this.Level = params.Xml.GetAttributeValue("Level");
+            this.Duration = params.Xml.GetAttributeValueInt("Duration");
+            this.Frequency = params.Xml.GetAttributeValue("Frequency");
+            this.Location = params.Xml.GetAttributeValue( "Location");
+            this.Modifier = params.Xml.GetAttributeValueInt( "Modifier");
+            this.Hidden = Utility.Compare(params.Xml.GetAttributeValue( "Hidden"), "True");
+            this.AffectType = params.Xml.GetAttributeValue( "AffectType");
             //this.SkillSpell = xml.GetAttributeValue( "SkillSpell");
-            this.EndMessage = XmlHelper.GetAttributeValue(params.Xml, "EndMessage");
-            this.EndMessageToRoom = XmlHelper.GetAttributeValue(params.Xml, "EndMessageToRoom");
-            this.BeginMessage = XmlHelper.GetAttributeValue(params.Xml, "BeginMessage");
-            this.BeginMessageToRoom = XmlHelper.GetAttributeValue(params.Xml, "BeginMessageToRoom");
+            this.EndMessage = params.Xml.GetAttributeValue( "EndMessage");
+            this.EndMessageToRoom = params.Xml.GetAttributeValue( "EndMessageToRoom");
+            this.BeginMessage = params.Xml.GetAttributeValue( "BeginMessage");
+            this.BeginMessageToRoom = params.Xml.GetAttributeValue( "BeginMessageToRoom");
 
             this.TickProgram = params.Xml.GetAttributeValue("TickProgram");
             this.EndProgram = params.Xml.GetAttributeValue("EndProgram");
 
-            //this.TickProgram = XmlHelper.GetAttributeValue(params.Xml, "TickProgram");
-            //this.EndProgram = XmlHelper.GetAttributeValue(params.Xml, "EndProgram");
-            // if(params.Xml.PROGRAMS && params.Xml.PROGRAMS[0]) {
-            //     if(params.Xml.PROGRAMS[0].TICKPROGRAM) {
-            //         for(var programxml of params.Xml.PROGRAMS[0].TICKPROGRAM) {
-            //             this.TickProgram[programxml.GetAttributeValue("Flag")] = programxml.GetAttributeValue("Include");
-            //         }
-            //     }
-            //     if(params.Xml.PROGRAMS[0].ENDPROGRAM) {
-            //         for(var programxml of params.Xml.PROGRAMS[0].ENDPROGRAM) {
-            //             this.EndProgram[programxml.GetAttributeValue("Flag")] = programxml.GetAttributeValue("Include");
-            //         }
-            //     }
-            // }
-
             //var dtypes = {};
-            Utility.ParseFlags(this.DamageTypes, XmlHelper.GetAttributeValue(params.Xml, "DamageTypes"));
+            Utility.ParseFlags(this.DamageTypes, params.Xml.GetAttributeValue( "DamageTypes"));
             //for(var dtype in dtypes)
             //    this.DamageTypes.push(dtype);
-            Utility.ParseFlags(this.Flags, XmlHelper.GetAttributeValue(params.Xml, "Flags"));
-            Utility.ParseFlags(this.StripAndSaveFlags, XmlHelper.GetAttributeValue(params.Xml, "StripAndSaveFlags"));
+            Utility.ParseFlags(this.Flags, params.Xml.GetAttributeValue( "Flags"));
+            Utility.ParseFlags(this.StripAndSaveFlags, params.Xml.GetAttributeValue( "StripAndSaveFlags"));
             //this.ExtraState = params.Xml.EXTRASTATE; //XmlHelper.GetElementValue("ExtraState");
          }
     }
@@ -311,23 +296,6 @@ class AffectData {
         if(this.EndProgram)
             AffectElement.attribute("EndProgram", this.EndProgram);
 
-        //ProgramsElement = AffectElement.Element("Programs")
-        // if(this.TickProgram) {
-            
-        //     for(var key in this.TickProgram) {
-        //         var program = ProgramsElement.ele("TickProgram");
-        //         program.attribute("Flag", key);
-        //         program.attribute("Include", this.TickProgram[key]);
-        //     }
-        // }
-        // if(this.EndProgram) {
-            
-        //     for(var key in this.EndProgram) {
-        //         var program = ProgramsElement.ele("EndProgram");
-        //         program.attribute("Flag", key);
-        //         program.attribute("Include", this.TickProgram[key]);
-        //     }
-        // }
         if(this.DamageTypes && this.DamageTypes.length > 0)
             AffectElement.attribute("DamageTypes", Utility.JoinArray(this.DamageTypes));
         if(Object.keys(this.Flags) > 0)
