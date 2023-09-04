@@ -655,7 +655,11 @@ class Combat {
                 }
             }
         }
-    };
+        for(var other of character.Room.Characters) {
+            Game.CheckAutoAssist(other);
+        }
+        
+    }
 
     static Damage(ch, victim, damage, skill = "attack",
         DamageType = "Bash", ownerName = "", weapon = null,

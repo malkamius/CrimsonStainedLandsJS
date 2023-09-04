@@ -222,12 +222,66 @@ class Game {
                     character.Fighting = randomPlayer;
                     Combat.ExecuteRound(character);
                 }
-            }
-            else if(character.IsNPC && character.Room && character.LastFighting)
-            {
+            } else if(character.IsNPC && character.Room && character.LastFighting) {
                 Game.CheckTrackAggro(character);
+            } else {
+                Game.CheckAutoAssist(character);
             }
         }
+    }
+
+    static CheckAutoAssist(character) {
+        const Character = require("./Character");
+        const Combat = require("./Combat");
+        const Utility = require("./Utility");
+
+        if(character.Fighting || Character.Positions.indexOf(character.Position) <= Character.Positions.indexOf("Sleeping")) {
+            return;
+        } 
+        if(!character.Fighting && character.Flags.ISSET(Character.ActFlags.AutoAssist)) {
+            var assist = character.Room.Characters.SelectRandom(c => c.Fighting && (c.IsSameGroup(character) || character.Master == c));
+            if(assist) {
+                character.Fighting = assist.Fighting;
+                Combat.ExecuteRound(character);
+            }
+        } 
+        if(!character.Fighting && character.Flags.ISSET(Character.ActFlags.AssistAll)) {
+            var assist = character.Room.Characters.SelectRandom(c => c.Fighting && c != character);
+            if(assist) {
+                character.Fighting = assist.Fighting;
+                Combat.ExecuteRound(character);
+            }
+        } 
+        if(!character.Fighting && character.Flags.ISSET(Character.ActFlags.AssistAlign)) {
+            var assist = character.Room.Characters.SelectRandom(c => c.Fighting && c.Alignment == character.Alignment);
+            if(assist) {
+                character.Fighting = assist.Fighting;
+                Combat.ExecuteRound(character);
+            }
+        } 
+        if(!character.Fighting && character.Flags.ISSET(Character.ActFlags.AssistPlayer)) {
+            var assist = character.Room.Characters.SelectRandom(c => c.Fighting && !c.IsNPC);   
+            if(assist) {
+                character.Fighting = assist.Fighting;
+                Combat.ExecuteRound(character);
+            }
+        } 
+        if(!character.Fighting && character.Flags.ISSET(Character.ActFlags.AssistRace)) {
+            var assist = character.Room.Characters.SelectRandom(c => c.Fighting && c.Race == character.Race);
+            if(assist) {            
+                character.Fighting = assist.Fighting;
+                Combat.ExecuteRound(character);
+            }
+        }
+
+        if(!character.Fighting && character.Flags.ISSET(Character.ActFlags.AssistVnum)) {
+            var assist = character.Room.Characters.SelectRandom(c => c.Fighting && c.VNum == character.VNum);
+            if(assist) {
+                character.Fighting = assist.Fighting;
+                Combat.ExecuteRound(character);
+            }
+        }
+
     }
 
     static UpdateCharactersTick() {

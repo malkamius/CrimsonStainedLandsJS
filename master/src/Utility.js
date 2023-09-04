@@ -302,15 +302,14 @@ class Utility {
 
 	static SelectRandom(arr, predicate) {
 		if(!arr) return null;
+		var results = Array();
 		if(predicate) {
-			var results = Array();
 			for(var key in arr) {
 				var item = arr[key];
 				if(predicate(item, key))
 					results.push(item);
 			}
 		} else {
-			var results = Array();
 			for(var key in arr) {
 				var item = arr[key];
 				results.push(item);
