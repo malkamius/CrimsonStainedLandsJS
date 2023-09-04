@@ -76,6 +76,7 @@ class RoomData {
 	Exits = Array(null, null, null, null, null, null);
 	Characters = Array();
 	Items = Array();
+    Affects = Array();
 	Flags = {};
 	Sector = "Inside";
 

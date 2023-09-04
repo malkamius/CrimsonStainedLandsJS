@@ -1,6 +1,7 @@
 const Character = require("./Character");
 const RoomData = require("./RoomData");
 const ItemData = require("./ItemData");
+const AffectData = require("./AffectData");
 
 function movechar(player, direction) {
 	if (player.Position != "Standing")
@@ -54,13 +55,33 @@ function movechar(player, direction) {
 			send("You can't fit.\n\r");
 			return;
 		}
+
+		if (!player.IsNPC)
+		{
+			const SkillSpell = require("./SkillSpell");
+			var trackskill = SkillSpell.SkillLookup("track");
+			var trackAffect = wasinroom.Affects.FirstOrDefault(aff => aff.SkillSpell == trackskill && aff.OwnerName == player.Name);
+			if (trackAffect)
+			{
+				trackAffect.Modifier = direction;
+			}
+			else
+			{
+				trackAffect = new AffectData();
+				trackAffect.Duration = -1
+				trackAffect.OwnerName = player.Name, 
+				trackAffect.SkillSpell = trackskill;
+				trackAffect.Modifier = direction;
+				wasinroom.Affects.unshift(trackAffect);
+			}
+		}
+
 		var destination = exit.Destination;
 		var reversedirections = ["south", "west", "north", "east", "below", "above" ];
 		var directionstring = RoomData.Directions[direction];
 		player.Act("$n leaves " + directionstring + ".", null, null, null, "ToRoom");
 		player.RemoveCharacterFromRoom();
-		var room = wasinroom.Exits[direction].Destination;
-		player.AddCharacterToRoom(room);
+		player.AddCharacterToRoom(destination);
 		var reversedirection = reversedirections[direction];
 		if(reversedirection != "below" && reversedirection != "above")
 			player.Act("$n arrives from the " + reversedirection + ".", null, null, null, "ToRoom");
@@ -68,7 +89,7 @@ function movechar(player, direction) {
 			player.Act("$n arrives from " + reversedirection + ".", null, null, null, "ToRoom");
 
 		// avoid circular follows
-		if(wasinroom != room) {
+		if(wasinroom != destination) {
 			for(var follower of wasinroom.Characters) {
 				if(follower.Following == player) {
 					follower.Act("You follow $N {0}.", player, null, null, Character.ActType.ToChar, directionstring);
@@ -517,6 +538,40 @@ Character.DoCommands.DoGroup = function(ch, args)
 			ch.Act("$n adds $N to their group.", groupWith, null, null, Character.ActType.ToRoomNotVictim);
 			groupWith.send(ch.Display(groupWith) + " adds you to the group.\n\r");
 		}
+	}
+}
+
+Character.DoCommands.DoRecall = function(ch, args)
+{
+	// Get the recall room for the character
+	var room = ch.GetRecallRoom();
+
+	if (room != null)
+	{
+		// If a valid recall room is found, perform the recall action
+
+		// Display a message to the room indicating the character's prayer
+		ch.Act("$n prays for transportation and disappears.\n\r", null, null, null, Character.ActType.ToRoom);
+
+		// Remove the character from the current room
+		ch.RemoveCharacterFromRoom();
+
+		// Send a message to the character indicating the successful recall
+		ch.send("You pray for transportation to your temple.\n\r");
+
+		// Add the character to the recall room
+		ch.AddCharacterToRoom(ch.GetRecallRoom());
+		
+		// Display a message to the room indicating the character's arrival
+		ch.Act("$n appears before the altar.\n\r", null, null, null, Character.ActType.ToRoom);
+
+		// Update the character's view with the newly arrived room
+		//DoLook(ch, "auto");
+	}
+	else
+	{
+		// If the recall room is not found, send an error message to the character
+		ch.SendToChar("Room not found.\n\r");
 	}
 }
 	

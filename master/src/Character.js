@@ -153,6 +153,11 @@ class Character {
 	Alignment = "neutral";
 	Ethos = "neutral";
 	_position = "Standing";
+	get Position() { return this._position; }
+
+	set Position(value) {
+		this._position = value;
+	}
 	Race = null;
 	Sex = "neutral";
 	Size = "Medium";
@@ -171,9 +176,16 @@ class Character {
 	Xp = 0;
 	XpTotal = 0;
 	_fighting = null;
-	Fighting = null;
+	
 	Following = null;
 	LastFighting = null;
+
+	get Fighting() { return this._fighting; }
+	set Fighting(value) {
+		if(value && value != this.LastFighting) this.LastFighting = value;
+		this._fighting = value;
+	}
+
 	Wait = 0;
 	Daze = 0;
 	HitRoll = 0;
@@ -210,13 +222,7 @@ class Character {
 	send(data) {}
 	sendnow(data) {}
 
-	get Position() {
-		return this._position;
-	}
-
-	set Position(value) {
-		this._position = value;
-	}
+	
 
 	AddCharacterToRoom(Room) {
 		if(this.Room != null)
@@ -592,21 +598,24 @@ class Character {
 
 	IsAffected(Flag) {
 		var found = false;
-		
-		found = this.Flags[Flag];
+		var skillspell = Flag instanceof SkillSpell;
+		if(!skillspell)
+			found = this.Flags[Flag];
 		if(!found) {
-			for(var setflag in this.Flags) { // case insensitive search
-				if(setflag.equals(Flag)) {
-					return Flags[setflag];
+			if(!skillspell) {
+				for(var setflag in this.Flags) { // case insensitive search
+					if(setflag.equals(Flag)) {
+						return Flags[setflag];
+					}
 				}
 			}
 			for(var aff of this.Affects) {
-				if(aff.Flags.IsSet(Flag)) {
+				if(!skillspell && aff.Flags.IsSet(Flag)) {
 					return aff;
 					//found = true;
 					//break;
 				}
-				else if(aff.SkillSpell == Flag || (aff.SkillSpell && aff.SkillSpell.Name.equals(Flag))) {
+				else if((skillspell && aff.SkillSpell == Flag) || (aff.SkillSpell && aff.SkillSpell.Name.equals(Flag))) {
 					return aff;
 					//found = true;
 					//break;

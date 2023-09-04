@@ -15,6 +15,8 @@ const WeatherInfo = require("./WeatherInfo");
 const TimeInfo = require("./TimeInfo");
 const Game = require("./Game");
 const Character = require("./Character");
+const SkillSpell = require("./SkillSpell");
+const AffectData = require("./AffectData");
 
 var server = startListening(Settings.Port); 
 var IsDataLoaded = false;
@@ -293,8 +295,9 @@ function pulse()
 	//console.log(totalpulse);
 }
 
-var UpdateCombatCounter = 0; // Game.PULSE_PER_VIOLENCE;
-var UpdateTickCounter = 0; //Game.PULSE_PER_TICK;
+var UpdateCombatCounter = 0;
+var UpdateTickCounter = 0;
+var UpdateTrackCounter = 0;
 
 function Update() {
 
@@ -308,6 +311,11 @@ function Update() {
 	if(--UpdateCombatCounter <= 0) {
 		UpdateCombat();
 		UpdateCombatCounter = Game.PULSE_PER_VIOLENCE;
+	}
+
+	if(--UpdateTrackCounter <= 0) {
+		UpdateTrack();
+		UpdateTrackCounter = Game.PULSE_TRACK;
 	}
 
 	UpdateAggro();
@@ -401,8 +409,38 @@ function UpdateCombat() {
 
 function UpdateAggro() {
 	const Character = require("./Character");
+	const Combat = require("./Combat");
 	for(var character of Utility.CloneArray(Character.Characters)) { 
 		if(character.Wait > 0) character.Wait--;
+
+		if (character.IsNPC && 
+			character.Room &&
+			character.Flags.ISSET(Character.ActFlags.Aggressive) && 
+			character.Fighting == null && character.IsAwake
+			&& !character.IsAffected(AffectData.AffectFlags.Calm)
+			&& !((character.Flags.ISSET(Character.ActFlags.Wimpy) && 
+				  character.HitPoints < character.MaxHitPoints / 5)))
+		{
+			var gentlewalk;
+			var randomPlayer = character.Room.Characters.SelectRandom(ch => 
+				!ch.IsNPC && character.CanSee(ch) && 
+				!ch.IsAffected(AffectData.AffectFlags.Ghost) &&
+				!(gentlewalk = ch.IsAffected("gentle walk") && gentlewalk.Duration == -1) &&
+				!ch.IsAffected(AffectData.AffectFlags.PlayDead) &&
+				ch.Level < character.Level + 5);
+			
+			if (randomPlayer && (character.Alignment != "Good" || randomPlayer.Alignment == "Evil"))
+			{
+				character.Act("$n screams and attacks YOU!", randomPlayer, null, null, Character.ActType.ToVictim);
+				character.Act("$n screams and attacks $N!", randomPlayer, null, null, Character.ActType.ToRoomNotVictim);
+				character.Fighting = randomPlayer;
+				Combat.ExecuteRound(character);
+			}
+		}
+		else if(character.IsNPC && character.Room && character.LastFighting)
+		{
+			CheckTrackAggro(character);
+		}
 	}
 }
 
@@ -590,6 +628,58 @@ function UpdateItemsTick() {
 	}
 }
 
+function CheckTrackAggro(character) {
+	const Combat = require("./Combat");
+	if (character.IsNPC &&
+		!character.Fighting && 
+		character.IsAwake &&
+		!character.IsAffected(AffectData.AffectFlags.Calm) &&
+		!((character.Flags.ISSET(Character.ActFlags.Wimpy) && character.HitPoints < character.MaxHitPoints / 5)) &&
+		character.LastFighting.Room == character.Room && 
+		character.CanSee(character.LastFighting) && 
+		!character.LastFighting.IsAffected(AffectData.AffectFlags.PlayDead) && 
+		!character.LastFighting.IsAffected(AffectData.AffectFlags.Ghost))
+	{
+		character.Act("$n screams and attacks YOU!", character.LastFighting, null, null, Character.ActType.ToVictim);
+		character.Act("$n screams and attacks $N!", character.LastFighting, Character.ActType.ToRoomNotVictim);
+
+		//aggressor.LastFighting = null;
+		character.Fighting = character.LastFighting;
+		Combat.ExecuteRound(character);
+	}
+}
+
+function TrackOnce(character) {
+	if(character.IsNPC && character.Fighting == null) {
+		var trackAffect = character.Room.Affects.FirstOrDefault(aff => aff.SkillSpell && aff.SkillSpell.Name == "track" && aff.OwnerName == character.LastFighting.Name);
+		if (trackAffect &&
+			(exit = character.Room.Exits[trackAffect.Modifier]) &&
+			exit.Destination  &&
+			(!character.Flags.ISSET(Character.ActFlags.StayArea) || exit.Destination.Area == character.Room.Area))
+		{
+			character.Act("$n checks the ground for tracks.", null, null, null, Character.ActType.ToRoom);
+			Character.Move(character, trackAffect.Modifier);
+
+			CheckTrackAggro(character);
+		}
+	}
+}
+
+function UpdateTrack() {
+	const Character = require("./Character");
+	var trackskill = SkillSpell.SkillLookup("track");
+	for(var character of Utility.CloneArray(Character.Characters)) { 
+		if (character.IsNPC && 
+			character.LastFighting && 
+			character.Position == "Standing" && 
+			character.Fighting == null && 
+			!character.Flags.ISSET(Character.ActFlags.Sentinel))
+		{
+			TrackOnce(character);
+			TrackOnce(character);
+		}
+	}
+}
 var _lasthour = TimeInfo.Hour;
 function UpdateWeather() {
 	var buf = "";
