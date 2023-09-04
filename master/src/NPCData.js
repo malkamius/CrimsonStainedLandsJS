@@ -1,4 +1,4 @@
-const NPCTemplateData = require("./NPCTemplateData");
+
 const Utility = require("./Utility");
 const Character = require("./Character");
 const Color = require("./Color");
@@ -6,16 +6,16 @@ const Color = require("./Color");
 class NPCData extends Character {
   constructor(VNum, room, xml) {
 	super();
-	
-	if(!NPCTemplateData.NPCTemplates) {
-		Character.Characters.splice(Character.Characters.indexOf(this), 1);
-		return;
-	}
+	const NPCTemplateData = require("./NPCTemplateData");
+
 	var template;
-	if(VNum instanceof NPCTemplateData)
+	if(VNum instanceof NPCTemplateData) {
 		template = VNum;
+		VNum = template.VNum;
+	}
 	else
 		template = NPCTemplateData.NPCTemplates[VNum];
+		
 
 	if(!template) {
   		Character.Characters.splice(Character.Characters.indexOf(this), 1);

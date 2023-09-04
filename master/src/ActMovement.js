@@ -4,6 +4,7 @@ const ItemData = require("./ItemData");
 const AffectData = require("./AffectData");
 
 function movechar(character, direction, crawl = false, creep = false, sendWalkMessage = true, first = true, movementCost = 0, movementWait = 0) {
+	const Utility = require("./Utility");
 	if (character.Position != "Standing")
 	{
 		if (character.Position == "Dead")
@@ -169,10 +170,10 @@ function movechar(character, direction, crawl = false, creep = false, sendWalkMe
 			character.Act("$n arrives from the " + reversedirection + ".", null, null, null, "ToRoom");
 		else
 			character.Act("$n arrives from " + reversedirection + ".", null, null, null, "ToRoom");
-
+		
 		// avoid circular follows
 		if(wasinroom != destination) {
-			for(var follower of wasinroom.Characters) {
+			for(var follower of Utility.CloneArray(wasinroom.Characters)) {
 				if(follower.Following == character) {
 					follower.Act("You follow $N {0}.", character, null, null, Character.ActType.ToChar, directionstring);
 					movechar(follower, direction, crawl, creep);

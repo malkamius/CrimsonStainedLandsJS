@@ -15,6 +15,8 @@ class Game {
         var player;
         for(player of Utility.CloneArray(Player.Players))
         {
+            if(player.Wait > 0) player.Wait--;
+
             try{
                 if(player.status == "WaitingOnLoad" && !player.socket.destroyed) {
                     player.status = "GetName";
@@ -28,7 +30,7 @@ class Game {
                 if(player.inanimate && new TimeSpan(Date.now() - player.inanimate).totalMinutes >= 1) {
                     player.Act("$n disappears into the void.", null, null, null, "ToRoom");
                     player.Save();
-                    player.RemoveCharacterFromRoom();
+                    player.Dispose();
                     if(!player.socket.destroyed)
                     player.socket.destroy();
                     //var index = -1;
@@ -195,7 +197,7 @@ class Game {
         const Combat = require("./Combat");
         const AffectData = require("./AffectData");
         for(var character of Utility.CloneArray(Character.Characters)) { 
-            if(character.Wait > 0) character.Wait--;
+            if(character.IsNPC && character.Wait > 0) character.Wait--;
 
             if (character.IsNPC && 
                 character.Room &&

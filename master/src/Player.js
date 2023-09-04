@@ -16,6 +16,7 @@ const AffectData = require("./AffectData");
 const Settings = require("./Settings");
 const SkillSpell = require("./SkillSpell");
 const SkillGroup = require("./SkillGroup");
+const NPCData = require("./NPCData");
 
 const parser = new xml2js.Parser({ strict: false, trim: false });
 
@@ -34,7 +35,7 @@ class Player extends Character {
 	Communications = [];
 	TelnetOptions = {};
 	inanimate = null;
-	RoomVNum = 0;
+	
 	IsNPC = false;
 	PcRace = null;
 	Title = "";
@@ -48,10 +49,12 @@ class Player extends Character {
 	ClientTypes = Array();
 
   	constructor(socket) {
-		super();
+		super(false);
 		this.socket = socket;
 		Player.Players.push(this);
   	}
+
+	
 
 	static GetPlayerByName(name, extracondition) {
 		for (const player of Player.Players) {
@@ -89,6 +92,7 @@ class Player extends Character {
 		data = Utility.Format(data.replaceAll("\r", "").replaceAll("\n", "\n\r"), params);
 		this.socket.write(Color.ColorString(data, !this.Flags.Color, this.TelnetOptions.Color256, this.TelnetOptions.ColorRGB));
 	};
+
 	Load(path) {
 		var player = this;
 		var data =fs.readFileSync(path, {encoding: "ascii"});
@@ -98,244 +102,81 @@ class Player extends Character {
 		});
   	}
 
-  LoadPlayerData(xml) {
-	if(xml)	{
-		this.Name = xml.GetElementValue("Name");
-		this.ScrollCount = xml.GetElementValueInt("ScrollCount", 40);
-		this.ShortDescription = xml.GetElementValue("ShortDescription");
-		this.LongDescription = xml.GetElementValue("LongDescription");
-		this.Description = xml.GetElementValue("Description");
-		this.Title = xml.GetElementValue("Title");
-		this.ExtendedTitle = xml.GetElementValue("ExtendedTitle");
-		this.Alignment = xml.GetElementValue("Alignment");
-		this.Ethos = xml.GetElementValue("Ethos");
-		this.Sex = xml.GetElementValue("Sex");
-		this.Level = xml.GetElementValueInt("Level");
-
-		this.Xp = xml.GetElementValueInt("Xp");
-		this.XpTotal = xml.GetElementValueInt("XpTotal");
-
-		this.DamageRoll = xml.GetElementValueInt("DamRoll");
-		this.HitRoll = xml.GetElementValueInt("HitRoll");
-		this.ArmorClass = xml.GetElementValueInt("ArmorClass");
-		this.Silver = xml.GetElementValueInt("Silver");
-		this.Gold = xml.GetElementValueInt("Gold");
-		this.SilverBank = xml.GetElementValueInt("SilverBank");
-		this.Practices = xml.GetElementValueInt("Practices");
-		this.Trains = xml.GetElementValueInt("Trains");
-		this.Hunger = xml.GetElementValueInt("Hunger");
-		this.Thirst = xml.GetElementValueInt("Thirst");
-		this.SavingThrow = xml.GetElementValueInt("SavingThrow");
-
-		this.AffectedBy = {};
-		Utility.ParseFlags(this.AffectedBy, XmlHelper.GetElementValue("AffectedBy"));
-
-		this.HitPoints = XmlHelper.GetElementValueFloat(xml,"HitPoints");
-		this.MaxHitPoints = XmlHelper.GetElementValueFloat(xml,"MaxHitPoints");
-		this.ManaPoints = XmlHelper.GetElementValueFloat(xml,"ManaPoints");
-		this.MaxManaPoints = XmlHelper.GetElementValueFloat(xml,"MaxManaPoints");
-		this.MovementPoints = XmlHelper.GetElementValueFloat(xml,"MovementPoints");
-		this.MaxMovementPoints = XmlHelper.GetElementValueFloat(xml,"MaxMovementPoints");
-		var race = xml.GetElementValue("Race", "human");
-		if(!(this.Race = RaceData.LookupRace(race)))
-			console.log(`Race ${race} not found`);
-		if(!(this.PcRace = PcRaceData.LookupRace(race)))
-			console.log(`Race ${race} not found`);
-		var guild = xml.GetElementValue( "Guild", "warrior");
-		if(!(this.Guild = GuildData.Lookup(guild, false)))
-			console.log(`Guild ${guild} not found`);
-		var title;
-		if(!this.Title || this.Title.IsNullOrEmpty()) {
-			if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
-			{
-				if (this.Sex == "Female")
-				{
-					this.Title = "the " + title.FemaleTitle;
-				}
-				else
-					this.Title = "the " + title.MaleTitle;
-
-			} 
-		}
-		Utility.ParseFlags(this.Flags, xml.GetElementValue("Flags"));
-
-		if(xml.PERMANENTSTATS) {
-			var stats = xml.PERMANENTSTATS[0];
-			this.PermanentStats[0] = XmlHelper.GetElementValueInt(stats, "STRENGTH");
-			this.PermanentStats[1] = XmlHelper.GetElementValueInt(stats, "WISDOM");
-			this.PermanentStats[2] = XmlHelper.GetElementValueInt(stats, "INTELLIGENCE");
-			this.PermanentStats[3] = XmlHelper.GetElementValueInt(stats, "DEXTERITY");
-			this.PermanentStats[4] = XmlHelper.GetElementValueInt(stats, "CONSTITUTION");
-			this.PermanentStats[5] = XmlHelper.GetElementValueInt(stats, "CHARISMA");
-		}
-
-		if(xml.MODIFIEDSTATS) {
-			var stats = xml.MODIFIEDSTATS[0];
-			
-			this.ModifiedStats[0] = XmlHelper.GetElementValueInt(stats, "STRENGTH");
-			this.ModifiedStats[1] = XmlHelper.GetElementValueInt(stats, "WISDOM");
-			this.ModifiedStats[2] = XmlHelper.GetElementValueInt(stats, "INTELLIGENCE");
-			this.ModifiedStats[3] = XmlHelper.GetElementValueInt(stats, "DEXTERITY");
-			this.ModifiedStats[4] = XmlHelper.GetElementValueInt(stats, "CONSTITUTION");
-			this.ModifiedStats[5] = XmlHelper.GetElementValueInt(stats, "CHARISMA");
-		}
-		
-		if(xml.LEARNED) {
-			for(var learned of xml.LEARNED) {
-				if(learned.SKILLSPELL)
-				for(var sp of learned.SKILLSPELL) {
-					var name = XmlHelper.GetAttributeValue(sp, "Name");
-					var percent = XmlHelper.GetAttributeValueInt(sp, "Value");
-					var level = XmlHelper.GetAttributeValueInt(sp, "Level");
-					var learnedas = {};
-					Utility.ParseFlags(learnedas, XmlHelper.GetAttributeValue("LearnedAs", "Skill Spell Song Supplication"));
-					this.Learned[name] = {Name: name, Percent: percent, Level: level, LearnedAs: learnedas};
-				}
+	LoadPets(xml) {
+		if(xml.PETS && xml.PETS[0] && xml.PETS[0].CHARACTER) {
+			for(var petxml of xml.PETS[0].CHARACTER) {
+				var pet = new NPCData(petxml.GetElementValueInt("VNum"), this.Room);
+				pet.Load(petxml);
+				pet.Following = this;
+				pet.Master = this;
+				pet.Leader = this;
 			}
 		}
-		
-		this.RoomVNum = xml.GetElementValueInt("Room");
-		this.Prompt = xml.GetElementValue("Prompt");
-
-		this.Password = xml.GetElementValue("Password");
-
-		if(xml.AFFECTS) {
-            this.Affects = Array();
-            for(const affectsxml of xml.AFFECTS) {
-				if(affectsxml.AFFECT)
-                    for(const affectxml of affectsxml.AFFECT) {
-                        var affect = new AffectData({Xml: affectxml});
-                        this.Affects.push(affect);
-                    }
-                }
-        }
-		
-		if(xml.EQUIPMENT) {
-			for(const equipmentxml of xml.EQUIPMENT) {
-				if(equipmentxml.SLOT)
-					for(const slotxml of equipmentxml.SLOT) {
-						var slotid = slotxml.$.SLOTID;
-						if(slotxml.ITEM && slotxml.ITEM) {
-							var itemxml = slotxml.ITEM[0];
-							var item = this.Equipment[slotid] = new ItemData(itemxml.VNUM[0], null, null);
-							item.Load(itemxml);
-						}
-					}
-			}
-		}
-
-		if(xml.INVENTORY) {
-			for(const inventoryxml of xml.INVENTORY) {
-				if(inventoryxml.ITEM)
-					for(const itemxml of inventoryxml.ITEM) {
-						var item = new ItemData(itemxml.VNUM[0]);
-						item.Load(itemxml);
-						this.Inventory.push(item);
-				}
-			}
-		}
-		
 	}
-  } // end LoadPlayerData
+
+	LoadPlayerData(xml) {
+		if(xml)	{
+			super.Load(xml);
+			
+
+			this.ScrollCount = xml.GetElementValueInt("ScrollCount", 40);
+			this.Title = xml.GetElementValue("Title");
+			this.ExtendedTitle = xml.GetElementValue("ExtendedTitle");
+			this.Xp = xml.GetElementValueInt("Xp");
+			this.XpTotal = xml.GetElementValueInt("XpTotal");
+			this.SilverBank = xml.GetElementValueInt("SilverBank");
+			this.Practices = xml.GetElementValueInt("Practices");
+			this.Trains = xml.GetElementValueInt("Trains");
+			this.Hunger = xml.GetElementValueInt("Hunger");
+			this.Thirst = xml.GetElementValueInt("Thirst");
+			this.Prompt = xml.GetElementValue("Prompt");
+			this.Password = xml.GetElementValue("Password");
+			if(!(this.PcRace = PcRaceData.LookupRace(this.Race.Name)))
+				console.log(`PcRace ${race} not found`);
+			var title;
+			if(!this.Title || this.Title.IsNullOrEmpty()) {
+				if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
+				{
+					if (this.Sex == "Female")
+					{
+						this.Title = "the " + title.FemaleTitle;
+					}
+					else
+						this.Title = "the " + title.MaleTitle;
+
+				} 
+			}
+
+			
+			
+		}
+  	} // end LoadPlayerData
 
 	Save(path) {
 		if(!path) path = Settings.PlayerDataPath + `/${this.Name}.xml`;
 
 		var builder = require('xmlbuilder');
-		var xmlelement = builder.create("PlayerData");
+		var xmlelement = super.Element();// builder.create("PlayerData");
 		
-		xmlelement.ele("Name", this.Name);
-		xmlelement.ele("ScrollCount", this.ScrollCount);
-		xmlelement.ele("Description", this.Description);
-		xmlelement.ele("ShortDescription", this.ShortDescription);
-		xmlelement.ele("LongDescription", this.LongDescription);
 		xmlelement.ele("Title", this.Title);
 		xmlelement.ele("ExtendedTitle", this.ExtendedTitle);
-		xmlelement.ele("Room", parseInt((this.Room? this.Room.VNum : 3700)));
-		xmlelement.ele("Race", (this.Race? this.Race.Name : "human"));
-		xmlelement.ele("Guild", (this.Guild? this.Guild.Name : "warrior"));
-		xmlelement.ele("Alignment", this.Alignment);
-		xmlelement.ele("Ethos", this.Ethos);
-		xmlelement.ele("Sex", this.Sex);
-		xmlelement.ele("Level", this.Level);
-		xmlelement.ele("HitPoints", this.HitPoints);
-		xmlelement.ele("MaxHitPoints", this.MaxHitPoints);
-		xmlelement.ele("ManaPoints", this.ManaPoints);
-		xmlelement.ele("MaxManaPoints", this.MaxManaPoints);
-		xmlelement.ele("MovementPoints", this.MovementPoints);
-		xmlelement.ele("MaxMovementPoints", this.MaxMovementPoints);
-
-		xmlelement.ele("DamRoll", this.DamageRoll);
-		xmlelement.ele("HitRoll", this.HitRoll);
-		xmlelement.ele("ArmorClass", this.ArmorClass);
-		xmlelement.ele("Silver", this.Silver);
-		xmlelement.ele("Gold", this.Gold);
+		xmlelement.ele("Xp", this.Xp);
+		xmlelement.ele("XpTotal", this.XpTotal);
 		xmlelement.ele("SilverBank", this.SilverBank);
 		xmlelement.ele("Practices", this.Practices);
 		xmlelement.ele("Trains", this.Trains);
 		xmlelement.ele("Hunger", this.Hunger);
 		xmlelement.ele("Thirst", this.Thirst);
-		xmlelement.ele("SavingThrow", this.SavingThrow);
-
-		xmlelement.ele("AffectedBy", Utility.JoinFlags(this.AffectedBy));
-		
-		
-		var stats = xmlelement.ele("PermanentStats");
-		stats.ele("Strength", this.PermanentStats[0]);
-		stats.ele("Wisdom", this.PermanentStats[1]);
-		stats.ele("Intelligence", this.PermanentStats[2]);
-		stats.ele("Dexterity", this.PermanentStats[3]);
-		stats.ele("Constitution", this.PermanentStats[4]);
-		stats.ele("Charisma", this.PermanentStats[5]);
-		stats = xmlelement.ele("ModifiedStats");
-		stats.ele("Strength", this.ModifiedStats[0]);
-		stats.ele("Wisdom", this.ModifiedStats[1]);
-		stats.ele("Intelligence", this.ModifiedStats[2]);
-		stats.ele("Dexterity", this.ModifiedStats[3]);
-		stats.ele("Constitution", this.ModifiedStats[4]);
-		stats.ele("Charisma", this.ModifiedStats[5]);
-
-		var learnedele = xmlelement.ele("Learned");
-		for(var skillname in this.Learned) {
-			var learned = this.Learned[skillname];
-			var skillele = learnedele.ele("SkillSpell");
-			skillele.attribute("Name", learned.Name);
-			skillele.attribute("Value", learned.Percent);
-			skillele.attribute("Level", learned.Level);
-			skillele.attribute("LearnedAs", Utility.JoinFlags(learned.LearnedAs));
-		}
-		xmlelement.ele("ArmorBash", this.ArmorBash);
-		xmlelement.ele("ArmorSlash", this.ArmorSlash);
-		xmlelement.ele("ArmorPierce", this.ArmorPierce);
-		xmlelement.ele("ArmorExotic", this.ArmorExotic);
-		xmlelement.ele("Xp", this.Xp);
-		xmlelement.ele("XpTotal", this.XpTotal);
-		xmlelement.ele("Flags", Utility.JoinFlags(this.Flags));
-
-		if(this.Affects && this.Affects.length > 0) {
-			var affectselement = xmlelement.ele("Affects");
-			for(var affect of this.Affects) {
-				affect.Element(affectselement);
-			}
-		}
-
-		var inventory = xmlelement.ele("Inventory")
-		for(var i = 0; i < this.Inventory.length; i++) {
-			if(this.Inventory[i].VNum == 0 || !this.Inventory[i] || !this.Inventory[i].Template) continue;
-			this.Inventory[i].Element(inventory);
-		}
-		
-		var equipment = xmlelement.ele("Equipment")
-		for(var key in this.Equipment) {
-			if(this.Equipment[key]) {
-				if(this.Equipment[key].VNum == 0 || !this.Equipment[key] || !this.Equipment[key].Template) continue;
-				var slot = equipment.ele("Slot").attribute("SlotID", key);
-				this.Equipment[key].Element(slot);
-			}
-		}
 		xmlelement.ele("Prompt", this.Prompt);
-
 		xmlelement.ele("Password", this.Password);
+		if (this.Room) {
+			var pets = xmlelement.ele("Pets");
+			for(var pet of this.Room.Characters) {
+				if(pet.Master == this) {
+					pet.Element(pets);
+				}
+			}
+		}
 
 		var xml = xmlelement.end({ pretty: true});
 		fs.writeFileSync(path, xml);
@@ -487,8 +328,8 @@ class Player extends Character {
 				}
 
 				this.Name = Utility.Capitalize(input);
-				if(fs.existsSync(`data/players/${this.Name}.xml`)) {
-					this.Load(`data/players/${this.Name}.xml`);
+				if(fs.existsSync(Settings.PlayerDataPath + `/${this.Name}.xml`)) {
+					this.Load(Settings.PlayerDataPath + `/${this.Name}.xml`);
 					if(this.Password != "") {
 						this.SetStatus("GetPasswordExisting");
 					} else {
@@ -859,15 +700,28 @@ class Player extends Character {
 				Character.DoCommands.DoHelp(this, "greeting", true);
 				Character.DoCommands.DoHelp(this, "MOTD", false);
 				this.send("\n\rWelcome to the Crimson Stained Lands!\n\r\n\r");
+				var character = this;
+				if(Character.Characters.indexOf(this) < 0)
+					Character.Characters.push(this);
+				
 				if(!this.Room) {
 					var room = RoomData.Rooms[this.RoomVNum];
 					this.AddCharacterToRoom(room? room : RoomData.Rooms["3700"]);
 					this.Act("The form of $n appears before you.", null, null, null, "ToRoom");
+
+					var path = Settings.PlayerDataPath + `/${this.Name}.xml`;
+					var data =fs.readFileSync(path, {encoding: "ascii"});
+
+					parser.parseString(data, function(err, xml) {
+						character.LoadPets(xml.PLAYERDATA);
+					});
+
 				} else {
 					Character.DoCommands.DoLook(this, "", true);
 					this.Act("$n regains their animation.", null, null, null, "ToRoom");
 				}
 
+				
 				this.LastActivity = new Date();
 
 				var count = 0;

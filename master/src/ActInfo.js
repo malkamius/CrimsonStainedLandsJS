@@ -13,7 +13,7 @@ function doquit(player, args) {
 	player.Act("The form of $n slowly fades away!", null, null, null, "ToRoom");
 	player.sendnow("Alas, all good things must come to an end.\n\r");
 	player.Save();
-	player.RemoveCharacterFromRoom();
+	player.Dispose();
 	player.socket.destroy();
 	Player.Players.splice(Player.Players.indexOf(player), 1)
 	console.log(`${player.Name} disconnected`)
@@ -478,7 +478,7 @@ function DoDelete(character, args) {
 	} else if(Utility.Compare(args, "yes")) {
 		character.Act("The form of $n explodes!", null, null, null, "ToRoom");
 		character.sendnow("Alas, all good things must come to an end.\n\r");
-		character.RemoveCharacterFromRoom();
+		character.Dispose();
 		character.socket.destroy();
 		Player.Players.splice(Player.Players.indexOf(character), 1)
 		console.log(`${character.Name} disconnected`)

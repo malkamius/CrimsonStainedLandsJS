@@ -5,7 +5,7 @@ const SkillSpell = require("./SkillSpell");
 const Utility = require("./Utility");
 const ItemTemplateData = require("./ItemTemplateData");
 const ItemData = require("./ItemData");
-const NPCTemplateData = require("./NPCTemplateData");
+
 const RoomData = require("./RoomData");
 class Character {
 	/**
@@ -142,6 +142,7 @@ class Character {
 	socket = null;
 	input = "";
 	output = "";
+	RoomVNum = 0;
 	Room = null;
 	ShortDescription = "";
 	LongDescription = "";
@@ -221,6 +222,22 @@ class Character {
   	constructor(add = true) {
 		if(add)
 		Character.Characters.push(this);
+	}
+
+	Dispose() {
+		if(!this.IsNPC) {
+			for(var pet of Character.Characters) {
+				if(pet.Master == this) {
+					pet.Dispose();
+				}
+			}
+		}
+
+		if(this.Room) {
+			this.RemoveCharacterFromRoom();
+		}
+
+		Character.Characters.Remove(this);
 	}
 
 	send(data) {}
@@ -2211,6 +2228,226 @@ class Character {
 
 		}
 	}
+
+	Load(xml) {
+		const RaceData = require('./RaceData');
+		const GuildData = require('./GuildData');
+		this.VNum = xml.GetElementValueInt("VNum");
+		const NPCTemplateData = require("./NPCTemplateData");
+		if(this.VNum != 0) {
+			this.Template = NPCTemplateData.NPCTemplates[this.VNum];
+		}
+
+		this.Name = xml.GetElementValue("Name");
+		
+		this.ShortDescription = xml.GetElementValue("ShortDescription");
+		this.LongDescription = xml.GetElementValue("LongDescription");
+		this.Description = xml.GetElementValue("Description");
+		var race = xml.GetElementValue("Race", "human");
+		if(!(this.Race = RaceData.LookupRace(race)))
+		console.log(`Race ${race} not found`);
+		this.Alignment = xml.GetElementValue("Alignment");
+		this.Ethos = xml.GetElementValue("Ethos");
+		this.Sex = xml.GetElementValue("Sex");
+		this.Level = xml.GetElementValueInt("Level");
+		this.DamageRoll = xml.GetElementValueInt("DamRoll");
+		this.HitRoll = xml.GetElementValueInt("HitRoll");
+		this.ArmorClass = xml.GetElementValueInt("ArmorClass");
+		this.Silver = xml.GetElementValueInt("Silver");
+		this.Gold = xml.GetElementValueInt("Gold");
+		
+		
+		this.SavingThrow = xml.GetElementValueInt("SavingThrow");
+
+		this.AffectedBy = {};
+		Utility.ParseFlags(this.AffectedBy, XmlHelper.GetElementValue("AffectedBy"));
+
+		this.HitPoints = XmlHelper.GetElementValueFloat(xml,"HitPoints");
+		this.MaxHitPoints = XmlHelper.GetElementValueFloat(xml,"MaxHitPoints");
+		this.ManaPoints = XmlHelper.GetElementValueFloat(xml,"ManaPoints");
+		this.MaxManaPoints = XmlHelper.GetElementValueFloat(xml,"MaxManaPoints");
+		this.MovementPoints = XmlHelper.GetElementValueFloat(xml,"MovementPoints");
+		this.MaxMovementPoints = XmlHelper.GetElementValueFloat(xml,"MaxMovementPoints");
+		
+		this.ArmorBash = xml.GetElementValueInt("ArmorBash");
+		this.ArmorPierce = xml.GetElementValueInt("ArmorPierce");
+		this.ArmorSlash = xml.GetElementValueInt("ArmorSlash");
+		this.ArmorExotic = xml.GetElementValueInt("ArmorExotic");
+
+		var guild = xml.GetElementValue( "Guild", "");
+		if(!guild.ISEMPTY() && !(this.Guild = GuildData.Lookup(guild, false)))
+			console.log(`Guild ${guild} not found`);
+		
+		Utility.ParseFlags(this.Flags, xml.GetElementValue("Flags"));
+
+		if(xml.PERMANENTSTATS) {
+			var stats = xml.PERMANENTSTATS[0];
+			this.PermanentStats[0] = XmlHelper.GetElementValueInt(stats, "STRENGTH");
+			this.PermanentStats[1] = XmlHelper.GetElementValueInt(stats, "WISDOM");
+			this.PermanentStats[2] = XmlHelper.GetElementValueInt(stats, "INTELLIGENCE");
+			this.PermanentStats[3] = XmlHelper.GetElementValueInt(stats, "DEXTERITY");
+			this.PermanentStats[4] = XmlHelper.GetElementValueInt(stats, "CONSTITUTION");
+			this.PermanentStats[5] = XmlHelper.GetElementValueInt(stats, "CHARISMA");
+		}
+
+		if(xml.MODIFIEDSTATS) {
+			var stats = xml.MODIFIEDSTATS[0];
+			
+			this.ModifiedStats[0] = XmlHelper.GetElementValueInt(stats, "STRENGTH");
+			this.ModifiedStats[1] = XmlHelper.GetElementValueInt(stats, "WISDOM");
+			this.ModifiedStats[2] = XmlHelper.GetElementValueInt(stats, "INTELLIGENCE");
+			this.ModifiedStats[3] = XmlHelper.GetElementValueInt(stats, "DEXTERITY");
+			this.ModifiedStats[4] = XmlHelper.GetElementValueInt(stats, "CONSTITUTION");
+			this.ModifiedStats[5] = XmlHelper.GetElementValueInt(stats, "CHARISMA");
+		}
+		
+		if(xml.LEARNED) {
+			for(var learned of xml.LEARNED) {
+				if(learned.SKILLSPELL)
+				for(var sp of learned.SKILLSPELL) {
+					var name = XmlHelper.GetAttributeValue(sp, "Name");
+					var percent = XmlHelper.GetAttributeValueInt(sp, "Value");
+					var level = XmlHelper.GetAttributeValueInt(sp, "Level");
+					var learnedas = {};
+					Utility.ParseFlags(learnedas, XmlHelper.GetAttributeValue("LearnedAs", "Skill Spell Song Supplication"));
+					this.Learned[name] = {Name: name, Percent: percent, Level: level, LearnedAs: learnedas};
+				}
+			}
+		}
+		
+		this.RoomVNum = xml.GetElementValueInt("Room");
+		
+
+		if(xml.AFFECTS) {
+            this.Affects = Array();
+            for(const affectsxml of xml.AFFECTS) {
+				if(affectsxml.AFFECT)
+                    for(const affectxml of affectsxml.AFFECT) {
+                        var affect = new AffectData({Xml: affectxml});
+                        this.Affects.push(affect);
+                    }
+                }
+        }
+		
+		if(xml.EQUIPMENT) {
+			for(const equipmentxml of xml.EQUIPMENT) {
+				if(equipmentxml.SLOT)
+					for(const slotxml of equipmentxml.SLOT) {
+						var slotid = slotxml.$.SLOTID;
+						if(slotxml.ITEM && slotxml.ITEM) {
+							var itemxml = slotxml.ITEM[0];
+							var item = this.Equipment[slotid] = new ItemData(itemxml.VNUM[0], null, null);
+							item.Load(itemxml);
+						}
+					}
+			}
+		}
+
+		if(xml.INVENTORY) {
+			for(const inventoryxml of xml.INVENTORY) {
+				if(inventoryxml.ITEM)
+					for(const itemxml of inventoryxml.ITEM) {
+						var item = new ItemData(itemxml.VNUM[0]);
+						item.Load(itemxml);
+						this.Inventory.push(item);
+				}
+			}
+		}
+	} // End Load
+
+	Element(parentelement) {
+		var builder = require('xmlbuilder');
+		if(!parentelement) parentelement = builder.create("PlayerData");
+		else parentelement = parentelement.ele("Character");
+		if(this.IsNPC) {
+			parentelement.ele("VNum", this.VNum);
+		}
+		parentelement.ele("Name", this.Name);
+		parentelement.ele("ScrollCount", this.ScrollCount);
+		parentelement.ele("Description", this.Description);
+		parentelement.ele("ShortDescription", this.ShortDescription);
+		parentelement.ele("LongDescription", this.LongDescription);
+
+		parentelement.ele("Room", parseInt((this.Room? this.Room.VNum : 3700)));
+		parentelement.ele("Race", (this.Race? this.Race.Name : "human"));
+		parentelement.ele("Guild", (this.Guild? this.Guild.Name : ""));
+		parentelement.ele("Alignment", this.Alignment);
+		parentelement.ele("Ethos", this.Ethos);
+		parentelement.ele("Sex", this.Sex);
+		parentelement.ele("Level", this.Level);
+		parentelement.ele("HitPoints", this.HitPoints);
+		parentelement.ele("MaxHitPoints", this.MaxHitPoints);
+		parentelement.ele("ManaPoints", this.ManaPoints);
+		parentelement.ele("MaxManaPoints", this.MaxManaPoints);
+		parentelement.ele("MovementPoints", this.MovementPoints);
+		parentelement.ele("MaxMovementPoints", this.MaxMovementPoints);
+
+		parentelement.ele("DamRoll", this.DamageRoll);
+		parentelement.ele("HitRoll", this.HitRoll);
+		parentelement.ele("ArmorClass", this.ArmorClass);
+		parentelement.ele("Silver", this.Silver);
+		parentelement.ele("Gold", this.Gold);
+
+		parentelement.ele("SavingThrow", this.SavingThrow);
+
+		parentelement.ele("AffectedBy", Utility.JoinFlags(this.AffectedBy));
+		
+		
+		var stats = parentelement.ele("PermanentStats");
+		stats.ele("Strength", this.PermanentStats[0]);
+		stats.ele("Wisdom", this.PermanentStats[1]);
+		stats.ele("Intelligence", this.PermanentStats[2]);
+		stats.ele("Dexterity", this.PermanentStats[3]);
+		stats.ele("Constitution", this.PermanentStats[4]);
+		stats.ele("Charisma", this.PermanentStats[5]);
+		stats = parentelement.ele("ModifiedStats");
+		stats.ele("Strength", this.ModifiedStats[0]);
+		stats.ele("Wisdom", this.ModifiedStats[1]);
+		stats.ele("Intelligence", this.ModifiedStats[2]);
+		stats.ele("Dexterity", this.ModifiedStats[3]);
+		stats.ele("Constitution", this.ModifiedStats[4]);
+		stats.ele("Charisma", this.ModifiedStats[5]);
+
+		var learnedele = parentelement.ele("Learned");
+		for(var skillname in this.Learned) {
+			var learned = this.Learned[skillname];
+			var skillele = learnedele.ele("SkillSpell");
+			skillele.attribute("Name", learned.Name);
+			skillele.attribute("Value", learned.Percent);
+			skillele.attribute("Level", learned.Level);
+			skillele.attribute("LearnedAs", Utility.JoinFlags(learned.LearnedAs));
+		}
+		parentelement.ele("ArmorBash", this.ArmorBash);
+		parentelement.ele("ArmorSlash", this.ArmorSlash);
+		parentelement.ele("ArmorPierce", this.ArmorPierce);
+		parentelement.ele("ArmorExotic", this.ArmorExotic);
+
+		parentelement.ele("Flags", Utility.JoinFlags(this.Flags));
+
+		if(this.Affects && this.Affects.length > 0) {
+			var affectselement = parentelement.ele("Affects");
+			for(var affect of this.Affects) {
+				affect.Element(affectselement);
+			}
+		}
+
+		var inventory = parentelement.ele("Inventory")
+		for(var i = 0; i < this.Inventory.length; i++) {
+			if(this.Inventory[i].VNum == 0 || !this.Inventory[i] || !this.Inventory[i].Template) continue;
+			this.Inventory[i].Element(inventory);
+		}
+		
+		var equipment = parentelement.ele("Equipment")
+		for(var key in this.Equipment) {
+			if(this.Equipment[key]) {
+				if(this.Equipment[key].VNum == 0 || !this.Equipment[key] || !this.Equipment[key].Template) continue;
+				var slot = equipment.ele("Slot").attribute("SlotID", key);
+				this.Equipment[key].Element(slot);
+			}
+		}
+		return parentelement;
+	}
+
 }
 
 module.exports = Character;
