@@ -100,6 +100,12 @@ Commands = {
 		"dueldecline": {Command: Dueling.DoDuelDecline, MinimumPosition: "Dead" },
 		"goto": {Command: Character.DoCommands.DoGoto, MinimumPosition: "Dead" },
 		"transfer": {Command: Character.DoCommands.DoTransfer, MinimumPosition: "Dead" },
+
+		"restore": {Command: Character.DoCommands.DoRestore, MinimumPosition: "Dead" },
+		"stripaffects": {Command: Character.DoCommands.DoStripAffects, MinimumPosition: "Dead" },
+		"load": {Command: Character.DoCommands.DoLoad, MinimumPosition: "Dead" },
+		"stat": {Command: Character.DoCommands.DoStat, MinimumPosition: "Dead" },
+
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};

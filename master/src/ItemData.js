@@ -192,11 +192,14 @@ class ItemData {
 
     constructor(vnum, room, character) {
         var template;
-        if(vnum instanceof ItemTemplateData)
+        if(vnum instanceof ItemTemplateData) {
             template = vnum;
-        else
+            vnum = template.VNum;
+        }
+        else {
             template = ItemTemplateData.ItemTemplates[vnum];
-        
+        }
+
         if(template) {
             this.Template = template;
             this.VNum = template.VNum;
@@ -230,7 +233,9 @@ class ItemData {
             this.ArmorSlash = template.ArmorSlash;
             this.ArmorExotic = template.ArmorExotic;
             this.Keys = Utility.CloneArray(template.Keys);
-            
+            for(var affect in template.Affects) {
+                this.Affects.push(new AffectData(affect));
+            }
             if(room) {
                 room.Items.unshift(this);
                 this.Room = room;
