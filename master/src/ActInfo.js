@@ -741,6 +741,31 @@ Character.DoCommands.DoScan = function(character, args) {
 	character.ScanDirection(args);
 }
 
+Character.DoCommands.DoScore = function(character, args) {
+	const PhysicalStats = require('./PhysicalStats');
+	character.send("You are {0} the {1} {2}, a {3} at level {4}.\n\r", character.Name, character.Sex != "None" ? character.Sex : "sexless", character.Race.Name.toLowerCase(), character.Guild.Name, character.Level);
+	character.send("Alignment: {0}, Ethos: {1}.\n\r", character.Alignment.toLowerCase(), character.Ethos.toLowerCase());
+	if (character.PermanentStats != null)
+		character.send("Strength: {0}(+{1}), Wisdom: {2}(+{3}), Intelligence: {4}(+{5}), Dexterity: {6}(+{7}), Constitution: {8}(+{9}), Charisma: {10}(+{11})\n\r",
+			character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength), (character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Strength) >= character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength) ? character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Strength) - character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength) : 0),
+			character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom), (character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Wisdom) > character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom) ? character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Wisdom) - character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom) : 0),
+			character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Intelligence), (character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Intelligence) >= character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Intelligence) ? character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Intelligence) - character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Intelligence) : 0),
+			character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity), (character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Dexterity) >= character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity) ? character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Dexterity) - character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity) : 0),
+			character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution), (character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Constitution) >= character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution) ? character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Constitution) - character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution) : 0),
+			character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Charisma), (character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Charisma) >= character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Charisma) ? character.GetModifiedStatUncapped(PhysicalStats.PhysicalStatTypes.Charisma) - character.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Charisma) : 0));
+	// var ac = ch.GetArmorClass();
+	// ch.send("AC Bash {0}, Slash {1}, Pierce {2}, Exotic {3}\n\r", ac.acBash, ac.acSlash, ac.acPierce, ac.acExotic);
+	character.send("Carry #: {0}/{1}, Weight {2}/{3}\n\r", character.Carry, character.MaxCarry, character.TotalWeight, character.MaxWeight);
+
+	character.send("Practices: {0}, Trains {1}\n\r", character.Practices, character.Trains);
+	character.send("Hitpoints: {0}/{1} Mana: {2}/{3} Movement: {4}/{5}.\n\r", character.HitPoints, character.MaxHitPoints, character.ManaPoints, character.MaxManaPoints, character.MovementPoints, character.MaxMovementPoints);
+	character.send("Damage Roll: {0}, Hit Roll: {1}\n\r", character.GetDamageRoll, character.GetHitRoll);
+
+	Character.DoCommands.DoWorth(character, args);
+	Character.DoCommands.DoAffects(character, args);
+}
+
+
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;
 Character.DoCommands.DoLook = dolook;
