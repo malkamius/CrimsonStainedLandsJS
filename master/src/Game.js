@@ -287,6 +287,10 @@ class Game {
     static UpdateCharactersTick() {
         const Character = require("./Character");
         const Program = require("./Program");
+        const AffectData = require("./AffectData");
+        const SkillSpell = require("./SkillSpell");
+        const Combat = require("./Combat");
+
         for(var character of Utility.CloneArray(Character.Characters)) { 
             try {
                 for(var affect of Utility.CloneArray(character.Affects)) {
@@ -312,24 +316,150 @@ class Game {
                 console.log(err);
             }
 
+            if(Character.Positions.indexOf(character.Position) > Character.Positions.indexOf("Stunned")) {
+                if(character.HitPoints < character.MaxHitPoints) {
+                    var gain = character.GetHitPointsGain();
 
-            if(character.HitPoints < character.MaxHitPoints) {
-                var gain = character.GetHitPointsGain();
+                    character.HitPoints = Math.min(character.HitPoints + gain, character.MaxHitPoints);
+                } else {
+                    character.HitPoints = Math.min(character.HitPoints, character.MaxHitPoints);
+                }
 
-                character.HitPoints = Math.min(character.HitPoints + gain, character.MaxHitPoints);
+                if(character.ManaPoints < character.MaxManaPoints) {
+                    var gain = character.GetManaPointsGain();
+
+                    character.ManaPoints = Math.min(character.ManaPoints + gain, character.MaxManaPoints);
+                } else {
+                    character.ManaPoints = Math.min(character.ManaPoints, character.MaxManaPoints);
+                }
+
+                if(character.MovementPoints < character.MaxMovementPoints) {
+                    var gain = character.GetMovementPointsGain();
+
+                    character.MovementPoints = Math.min(character.MovementPoints + gain, character.MaxMovementPoints);
+                } else {
+                    character.MovementPoints = Math.min(character.MovementPoints, character.MaxMovementPoints);
+                }
+            }
+            if (character.Position == "Stunned") {
+                const Combat = require('./Combat');
+                Combat.UpdatePosition(ch);
             }
 
-            if(character.ManaPoints < character.MaxManaPoints) {
-                var gain = character.GetManaPointsGain();
+            if (!character.IsNPC && !character.IsImmortal && !character.IsInactive && !character.IsAffected(AffectData.AffectFlags.Ghost))
+            {
 
-                character.ManaPoints = Math.min(character.ManaPoints + gain, character.MaxManaPoints);
+                var survivalist = 0;
+                if ((character.GetSkillPercentage("slow metabolism") <= 1 && (survivalist = character.GetSkillPercentage("survivalist")) <= 1) || Utility.Random(0, 15) == 0)
+                {
+                    if (survivalist > 1) character.CheckImprove("survivalist", false, 1);
+                    if (character.Hunger > 0 && !character.IsAffected(AffectData.AffectFlags.Sated))
+                    character.Hunger--;
+                    else if (character.Hunger <= 0 && !character.IsAffected(AffectData.AffectFlags.Sated))
+                        character.Starving++;
+                    if (character.Thirst > 0 && !character.IsAffected(AffectData.AffectFlags.Quenched))
+                        character.Thirst--;
+                    else if (character.Thirst <= 0 && !character.IsAffected(AffectData.AffectFlags.Quenched))
+                        character.Dehydrated++;
+
+                    if (character.Level > 10)
+                    {
+                        if (character.Hunger == 0 && !character.IsAffected(AffectData.AffectFlags.Sated))
+                            character.Starving++;
+                        if (character.Thirst == 0 && !character.IsAffected(AffectData.AffectFlags.Quenched))
+                            character.Dehydrated++;
+                    }
+                    else
+                    {
+                        character.Starving = 0;
+                        character.Dehydrated = 0;
+                    }
+
+                    if (character.Hunger > 0
+                        && character.Starving > 0)
+                    {
+                        var counter = character.Starving;
+                        if (counter <= 4)
+                            character.send("You are no longer famished.\n\r");
+                        else
+                            character.send("You are no longer starving.\n\r");
+                        character.Starving = 0;
+                        //ch.hunger = 2;
+                    }
+
+                    if (character.Thirst > 0
+                        && character.Dehydrated > 0)
+                    {
+                        var counter = character.Dehydrated;
+                        if (counter <= 5)
+                            character.send("You are no longer dehydrated.\n\r");
+                        else
+                            character.send("You are no longer dying of thirst.\n\r");
+                        character.Dehydrated = 0;
+                        //ch.thirst = 2;
+                    }
+
+
+                    if (character.Hunger < 4 && !character.IsAffected(AffectData.AffectFlags.Sated))
+                    {
+                        if (character.Starving < 2)
+                            character.send("You are hungry.\n\r");
+
+
+                    }
+                    if (character.Thirst < 4 && !character.IsAffected(AffectData.AffectFlags.Quenched))
+                    {
+                        if (character.Dehydrated < 2)
+                            character.send("You are thirsty.\n\r");
+                    }
+
+                    if (character.Starving > 1 && !character.IsAffected(AffectData.AffectFlags.Sated))
+                    {
+                        var counter = character.Starving;
+                        if (counter <= 5)
+                            character.send("You are famished!\n\r");
+                        else if (counter <= 8)
+                            character.send("You are beginning to starve!\n\r");
+                        else
+                        {
+                            character.send("You are starving!\n\r");
+                            if (character.Level > 10 && !character.IsAffected(AffectData.AffectFlags.Sated) && !character.IsAffected(AffectData.AffectFlags.Ghost))
+                                Combat.Damage(character, character, Utility.Random(counter - 3, 2 * (counter - 3)), SkillSpell.SkillLookup("starvation"));
+                        }
+
+                    }
+
+                    if (character.Dehydrated > 1 && !character.IsAffected(AffectData.AffectFlags.Quenched))
+                    {
+                        var counter = character.Dehydrated;
+                        if (counter <= 2)
+                            character.send("Your mouth is parched!\n\r");
+                        else if (counter <= 5)
+                            character.send("You are beginning to dehydrate!\n\r");
+                        else
+                        {
+                            character.send("You are dying of thirst!\n\r");
+                            if (character.Level > 10 && !character.IsAffected(AffectData.AffectFlags.Quenched) && !character.IsAffected(AffectData.AffectFlags.Ghost))
+                                Combat.Damage(character, character, Utility.Random(counter, 2 * counter), SkillSpell.SkillLookup("dehydration"));
+                        }
+                    }
+                }
+                else
+                {
+                    if (survivalist > 1) character.CheckImprove("survivalist", true, 1);
+                }
+
+            } // end !isnpc && !isimmortal
+
+            if (character.Drunk > 0)
+            {
+                character.Drunk = Math.max(Math.min(character.Drunk - 3, character.Drunk / 2), 0);
+                if (character.Drunk == 0)
+                {
+                    character.send("You are sober.\n\r");
+                }
             }
 
-            if(character.MovementPoints < character.MaxMovementPoints) {
-                var gain = character.GetMovementPointsGain();
-
-                character.MovementPoints = Math.min(character.MovementPoints + gain, character.MaxMovementPoints);
-            }
         }
     }
 

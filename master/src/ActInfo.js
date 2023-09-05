@@ -110,11 +110,14 @@ function dolook(player, args, auto) {
 			args = newargs;
 			lookin = true;
 		}
+		var target, count;
 
-		var [target, count] = player.GetItemHere(args, 0);
-		if(!target && !lookin) {
-			[target, count] = Character.CharacterFunctions.GetCharacterHere(player, args, count);
-			isitem = false;
+		[target, count] = Character.CharacterFunctions.GetCharacterHere(player, args, count);
+		isitem = false;
+		
+		if(!target || lookin) {
+			[target, count] = player.GetItemHere(args, 0);
+			isitem = true;
 		}
 		
 		if(target && target instanceof Character)	{
@@ -254,12 +257,10 @@ function GetCharacterList(player, list, args, count = 0) {
 	if(Utility.Compare(args, "self")) return [player, ++count, ""];
 	var [desiredcount, args] = Utility.NumberArgument(args);
 	
-	if(!args.ISEMPTY()) {
-		for(key in list) {
-			var ch = list[key];
-			if(player.CanSee(ch) && ((desiredcount && desiredcount > 0 && args.ISEMPTY()) || Utility.IsName(ch.Name, args)) && ++count > desiredcount)
-				return [ch, count, key];
-		}
+	for(key in list) {
+		var ch = list[key];
+		if(player.CanSee(ch) && ((desiredcount && desiredcount > 0 && args.ISEMPTY()) || Utility.IsName(ch.Name, args)) && ++count >= desiredcount)
+			return [ch, count, key];
 	}
 	return [null, count, ""];
 }

@@ -40,6 +40,7 @@ class Player extends Character {
 	PcRace = null;
 	Title = "";
 	ExtendedTitle = "";
+	SilverBank = 0;
 	socket = null;
 	input = "";
 	output = "";
@@ -124,11 +125,14 @@ class Player extends Character {
 			this.ExtendedTitle = xml.GetElementValue("ExtendedTitle");
 			this.Xp = xml.GetElementValueInt("Xp");
 			this.XpTotal = xml.GetElementValueInt("XpTotal");
-			this.SilverBank = xml.GetElementValueInt("SilverBank");
+			this.SilverBank = xml.GetElementValueInt("SilverBank", 0);
 			this.Practices = xml.GetElementValueInt("Practices");
 			this.Trains = xml.GetElementValueInt("Trains");
 			this.Hunger = xml.GetElementValueInt("Hunger");
 			this.Thirst = xml.GetElementValueInt("Thirst");
+			this.Starving = xml.GetElementValueInt("Starving");
+			this.Dehydrated = xml.GetElementValueInt("Dehydrated");
+			this.Drunk = xml.GetElementValueInt("Drunk");
 			this.Prompt = xml.GetElementValue("Prompt");
 			this.Password = xml.GetElementValue("Password");
 			if(!(this.PcRace = PcRaceData.LookupRace(this.Race.Name)))
@@ -167,6 +171,10 @@ class Player extends Character {
 		xmlelement.ele("Trains", this.Trains);
 		xmlelement.ele("Hunger", this.Hunger);
 		xmlelement.ele("Thirst", this.Thirst);
+		xmlelement.ele("Starving", this.Starving);
+		xmlelement.ele("Dehydrated", this.Dehydrated);
+		xmlelement.ele("Drunk", this.Drunk);
+
 		xmlelement.ele("Prompt", this.Prompt);
 		xmlelement.ele("Password", this.Password);
 		if (this.Room) {

@@ -1620,7 +1620,7 @@ class Character {
 						if (gch != this)
 						{
 							if (gch.Position != "Sleeping")
-								Act(buf, gch, null, null, Character.ActType.ToVictim);
+								gch.Act(buf, gch, null, null, Character.ActType.ToVictim);
 							gch.Gold += share_gold;
 							gch.Silver += share_silver;
 						}
