@@ -8,16 +8,16 @@ const DamageMessage = require("./DamageMessage");
 const SkillGroup = require("./SkillGroup");
 const ResetData = require("./ResetData");
 const Program = require("./Program");
+const Liquid = require("./Liquid");
 
 function LoadData(callback) {
 	Settings.Load();
 	DamageMessage.Load();
 	SkillSpell.LoadAll();
 	SkillGroup.Load();
-    
-	LoadRaces(callback);
-
+    Liquid.Load();
 	Program.LoadPrograms();
+	LoadRaces(callback);
 }
 
 function LoadRaces(callback) {

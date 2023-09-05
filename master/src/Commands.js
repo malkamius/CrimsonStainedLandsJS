@@ -66,6 +66,9 @@ Commands = {
 		"buy": {Command: Character.DoCommands.DoBuy, MinimumPosition: "Resting" },
 		"sell": {Command: Character.DoCommands.DoSell, MinimumPosition: "Resting" },
 
+		"drink": {Command: Character.DoCommands.DoDrink, MinimumPosition: "Resting" },
+		"eat": {Command: Character.DoCommands.DoEat, MinimumPosition: "Resting" },
+
 		"yell": {Command: Character.DoCommands.DoYell, MinimumPosition: "Resting" },
 		"sayto": {Command: Character.DoCommands.DoSayTo, MinimumPosition: "Resting" },
 		"whisper": {Command: Character.DoCommands.DoWhisper, MinimumPosition: "Resting" },

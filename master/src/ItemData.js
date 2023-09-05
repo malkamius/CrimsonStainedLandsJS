@@ -221,6 +221,8 @@ class ItemData {
             this.Gold = template.Gold;
             this.Charges = template.Charges;
             this.MaxCharges = template.MaxCharges;
+            this.Nutrition = template.Nutrition;
+            
             this.Timer = template.Timer;
 
             this.ArmorBash = template.ArmorBash;

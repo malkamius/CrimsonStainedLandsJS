@@ -658,8 +658,314 @@ Character.DoCommands.DoValue = function (character, args) {
 
         character.Act("$N says '\\yI'd say $p is worth about {0} coins.\\x'.", shopkeeper, item, null, Character.ActType.ToChar, amount);
     }
-}
+} // end dovalue
 
+Character.DoCommands.DoEat = function(character, args) {
+    const AffectData = require("./AffectData");
+    const SkillSpell = require("./SkillSpell");
+    const Magic = require("./Magic");
+    var foodName = "";
+    [foodName, args] = args.OneArgument();
+    var item = null;
+    var count = 0;
+    var carrionskill = SkillSpell.SkillLookup("carrion feeding");
+    var carrionfeeding = character.GetSkillPercentage(carrionskill);
+
+    if (Utility.IsNullOrEmpty(foodName))
+    {
+        character.send("Eat what?\n\r");
+        return;
+    }
+    else if (!character.Form && ([item, count] = character.GetItemInventory(foodName)) && !item)
+    {
+        character.send("You don't have that item.\n\r");
+        return;
+    }
+    else if (character.Form && ([item, count] = character.GetItemRoom(foodName, count)) && !item)
+    {
+        character.send("You don't see that here.\n\r");
+        return;
+    }
+    else if (!item)
+    {
+        character.send("You don't have that item.\n\r");
+        return;
+    }
+    else if (character.Fighting)
+    {
+        character.send("You are too busy fighting to worry about food\n\r");
+        return;
+    }
+    else if (carrionfeeding > 1 && character.IsAffected(carrionskill))
+    {
+        character.Act("You are not ready to carrion feed yet.");
+    }
+    else if (!item.ItemTypes.ISSET(ItemData.ItemTypes.Food) && !item.ItemTypes.ISSET(ItemData.ItemTypes.Pill) &&
+        (carrionfeeding <= 1 ||
+            !(item.ItemTypes.ISSET(ItemData.ItemTypes.NPCCorpse) || (item.VNum >= 8 && item.VNum <= 12))))
+    {
+        character.send("That's not edible.\n\r");
+        return;
+    }
+    else if (!character.IsNPC && !character.IsImmortal && character.Hunger > 40 &&
+        (carrionfeeding <= 1 ||
+            !(item.ItemTypes.ISSET(ItemData.ItemTypes.NPCCorpse) || (item.VNum >= 8 && item.VNum <= 12))))
+    {
+        character.send("You are too full to eat more.\n\r");
+        return;
+    }
+    else
+    {
+
+        if (carrionfeeding > 1 && (((item.ItemTypes.ISSET(ItemData.ItemTypes.NPCCorpse) || (item.Vnum >= 8 && item.Vnum <= 12)))))
+        {
+            item.Nutrition = 40;
+            character.Thirst = 40;
+            character.Dehydrated = 0;
+
+            character.HitPoints += ch.MaxHitPoints * 0.2;
+            character.HitPoints = Math.min(ch.HitPoints, ch.MaxHitPoints);
+            character.Act("You devour $p ravenously.", null, item, null, Character.ActType.ToChar);
+            character.Act("$n devours $p ravenously.", null, item, null, Character.ActType.ToRoom);
+
+            var feeding = new AffectData();
+            feeding.Duration = 1;
+            feeding.DisplayName = "carrion feeding";
+            feeding.EndMessage = "You feel ready to carrion feed again.";
+            feeding.SkillSpell = carrionskill;
+            character.AffectToChar(feeding);
+        }
+        else
+        {
+            character.Act("You eat $p.", null, item, null, Character.ActType.ToChar);
+            character.Act("$n eats $p.", null, item, null, Character.ActType.ToRoom);
+
+        }
+        character.Hunger += item.Nutrition;
+        character.Starving = 0;
+        if (character.Hunger <= 4)
+            character.send("You are no longer hungry.\n\r");
+        else if (character.Hunger > 40)
+            character.send("You are full.\n\r");
+
+        character.Hunger = Math.min(character.Hunger, 48);
+        if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.Heart))
+        {
+            character.send("You feel empowered by eating the heart of your foe.\n\r");
+            character.HitPoints += 15;
+        }
+        if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.Poison) && carrionfeeding <= 1)
+        {
+            var affect = new AffectData();
+            affect.DisplayName = "food poisoning";
+            affect.SkillSpell = SkillSpell.SkillLookup("poison");
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Level = item.Level;
+            affect.Duration = 2;
+            character.AffectToChar(affect);
+            character.send("You choke and gag.\n\r");
+            character.Act("$n chokes and gags.\n\r", null, null, null, Character.ActType.ToRoom);
+
+        }
+
+        if (character.Inventory.indexOf(item) >= 0)
+        {
+            character.Inventory.Remove(item);
+            item.CarriedBy = null;
+        }
+        else if (character.Room.Items.indexOf(item) >= 0)
+        {
+            character.Room.Items.Remove(item);
+            item.Room = null;
+        }
+        if (item.Spells)
+            for (var spell of item.Spells)
+            {
+                if (spell.Spell != null)
+                    Magic.ItemCastSpell(SkillSpell.CastType.Cast, spell.Spell, spell.Level, character, character, item, character.Room);
+            }
+    }
+} // end do eat
+
+Character.DoCommands.DoDrink = function(character, args) {
+    const AffectData = require("./AffectData");
+    const SkillSpell = require("./SkillSpell");
+    const Liquid = require("./Liquid");
+    var containerName = "";
+    [containerName, args] = args.OneArgument();
+    var container = null;
+    var count = 0;
+
+    if (Utility.IsNullOrEmpty(containerName))
+    {
+        for (var item of character.Room.items)
+        {
+            if (item.ItemTypes.ISSET(ItemData.ItemTypes.Fountain))
+            {
+                container = item;
+            }
+        }
+
+        if (container == null)
+        {
+            character.send("Drink what?\n\r");
+            return;
+        }
+    }
+    else
+    {
+        if (character.Form || (([container] = character.GetItemInventory(containerName)) && !container))
+        {
+            character.send("You can't find it.\n\r");
+            return;
+        }
+    }
+
+    if (character.Fighting != null)
+    {
+        character.send("You're too busy fighting to drink anything.\n\r");
+        return;
+    }
+
+
+
+    var amount;
+    var liquid;
+    var charges;
+
+    if (container.ItemTypes.ISSET(ItemData.ItemTypes.Fountain))
+    {
+        liquid = container.Liquid;
+        amount = container.Nutrition;
+    }
+
+    else if (container.ItemTypes.ISSET(ItemData.ItemTypes.DrinkContainer))
+    {
+        liquid = container.Liquid;
+        amount = container.Nutrition;
+        charges = container.Charges;
+
+        if (charges == 0)
+        {
+            character.send("It's empty.\n\r");
+            return;
+        }
+        else container.Charges--;
+
+    }
+    else
+    {
+        character.send("You can't drink from that.\n\r");
+        return;
+    }
+    var hunger = 0;
+    var thirst = amount;
+    var drunk = 0;
+
+    var liq = Liquid.Liquids.FirstOrDefault(l => l.Name.equals(liquid));
+    if (liq)
+    {
+        amount = Math.max(liq.ServingSize, amount);
+        thirst = amount * liq.Thirst / 3;
+        hunger = amount * liq.Full / 3;
+        drunk = amount * liq.Proof / 36;
+
+    }
+
+    if (character.Drunk >= 48 && drunk > 0)
+    {
+        character.send("You fail to reach your mouth. *Hic*\n\r");
+        return;
+    }
+
+    //if (amount > 0)
+    {
+
+
+        character.Act("You drink {0} from $p.\n\r", null, container, null, Character.ActType.ToChar, liquid.toLowerCase());
+        character.Act("$n drinks {0} from $p.\n\r", null, container, null, Character.ActType.ToRoom, liquid.toLowerCase());
+
+        if (thirst != 0)
+            character.Thirst = Math.min(character.Thirst + thirst, 48);
+
+        if (hunger != 0)
+            character.Hunger = Math.min(character.Hunger + hunger, 48);
+
+        if (character.Thirst > 0)
+            character.Dehydrated = 0;
+
+        if (character.Hunger > 0)
+            character.Starving = 0;
+
+        if (drunk != 0)
+            character.Drunk = character.Drunk + drunk;
+
+        if (!character.IsNPC && character.Thirst >= 48 && thirst > 0)
+        {
+            character.send("Your thirst is quenched.\n\r");
+            character.Dehydrated = 0;
+        }
+
+        if (!character.IsNPC && character.Hunger >= 48 && hunger > 0)
+        {
+            character.send("You are full.\n\r");
+            character.Dehydrated = 0;
+            character.Starving = 0;
+        }
+
+        if (!character.IsNPC && character.Drunk >= 20)
+        {
+            character.send("You're smashed!\n\r");
+            var affect;
+            var alcoholpoisoning = SkillSpell.SkillLookup("alcohol poisoning");
+
+            if ((affect = character.FindAffect(alcoholpoisoning)))
+            {
+                affect.Duration = character.Drunk / 10;
+            }
+            else
+            {
+                affect = new AffectData();
+                affect.displayName = "alcohol poisoning";
+                affect.skillSpell = alcoholpoisoning;
+                affect.location = ApplyTypes.None;
+                affect.where = AffectWhere.ToAffects;
+                affect.level = 1;
+                affect.duration = character.Drunk / 10;
+                character.AffectToChar(affect);
+            }
+        }
+        else if (!character.IsNPC && character.Drunk >= 10)
+        {
+            character.send("You feel drunk.\n\r");
+
+        }
+        else if (!character.IsNPC && character.Drunk >= 2)
+        {
+            character.send("You feel tipsy.\n\r");
+
+        }
+
+        if (container.ExtraFlags.ISSET(ItemData.ExtraFlags.Poison))
+        {
+
+            var affect = new AffectData();
+
+            affect.SkillSpell = SkillSpell.SkillLookup("poison");
+            affect.Location = AffectData.ApplyTypes.None;
+            affect.Flags.SETBIT(AffectData.AffectFlags.Poison);
+            affect.Where = AffectData.AffectWhere.ToAffects;
+            affect.Level = container.Level;
+            affect.DisplayName = "food poisoning";
+            affect.Duration = 2;
+            character.AffectToChar(affect);
+            character.send("You choke and gag.\n\r");
+            character.Act("$n chokes and gags.\n\r", null, null, null, Character.ActType.ToRoom);
+
+        }
+    }
+} // end do drink
 Character.DoCommands.DoGet = DoGet;
 Character.DoCommands.DoDrop = DoDrop;
 Character.DoCommands.DoRemove = DoRemove;

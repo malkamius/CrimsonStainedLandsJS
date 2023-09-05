@@ -1,6 +1,7 @@
 const XmlHelper = require("./XmlHelper");
 
 const Utility = require("./Utility");
+const SkillSpell = require("./SkillSpell");
 
 class ItemTemplateData {
     static ItemTemplates = {};
@@ -9,7 +10,7 @@ class ItemTemplateData {
     ShortDescription = "";
     LongDescription = "";
     Description = "";
-    ExtraDescriptions = {};
+    ExtraDescriptions = [];
     Contains = Array();
     Affects = Array();
     Room = null;
@@ -41,6 +42,7 @@ class ItemTemplateData {
     Timer = -1;
     Keys = [];
     
+    
     constructor(area, xml) {
         this.VNum = xml.GetElementValue( "vnum");
         this.Name = xml.GetElementValue( "Name");
@@ -70,7 +72,9 @@ class ItemTemplateData {
         this.ArmorPierce = xml.GetElementValueInt( "ArmorPierce");
         this.ArmorSlash = xml.GetElementValueInt( "ArmorSlash");
         this.ArmorExotic = xml.GetElementValueInt( "ArmorExotic");
-        this.Timer = xml.GetElementValueInt("Timer", -1)
+        this.Nutrition = xml.GetElementValueInt( "Nutrition");
+
+        this.Timer = xml.GetElementValueInt("Timer", -1);
 
         if(xml.KEYS && xml.KEYS[0].KEY) {
             for(var key of xml.KEYS[0].KEY) {
@@ -81,6 +85,21 @@ class ItemTemplateData {
             }
         }
         
+        if(xml.SPELLS && xml.SPELLS[0].SPELL) {
+            for(var spellxml of xml.SPELLS[0].SPELL) {
+                var spell = {Level: spellxml.GetAttributeValueInt("Level"), SpellName: spellxml.GetAttributeValue("SpellName")};
+                spell.Spell = SkillSpell.SkillLookup(spell.SpellName);
+                this.Spells.push(spell);
+            }
+        }
+
+        if(xml.EXTRADESCRIPTIONS && xml.EXTRADESCRIPTIONS[0].EXTRADESCRIPTION) {
+            for(var edxml of xml.EXTRADESCRIPTIONS[0].EXTRADESCRIPTION) {
+                var extradescription = {Keyword: edxml.GetElementValue("Keyword"), Description: edxml.GetElementValue("Description")};
+                this.ExtraDescriptions.push(extradescription);
+            }
+        }
+
         if(!area.ItemTemplates[this.VNum])
             area.ItemTemplates[this.VNum] = this;
         else

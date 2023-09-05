@@ -100,6 +100,7 @@ class RoomData {
     Affects = Array();
 	Flags = {};
 	Sector = "Inside";
+    ExtraDescriptions = [];
 
 	constructor(area, roomxml) {
 		const ExitData = require('./ExitData');
@@ -125,6 +126,14 @@ class RoomData {
 				}
 			}
 		}
+
+        if(roomxml.EXTRADESCRIPTIONS && roomxml.EXTRADESCRIPTIONS[0].EXTRADESCRIPTION) {
+            for(var edxml of roomxml.EXTRADESCRIPTIONS[0].EXTRADESCRIPTION) {
+                var extradescription = {Keyword: edxml.GetElementValue("Keyword"), Description: edxml.GetElementValue("Description")};
+                this.ExtraDescriptions.push(extradescription);
+            }
+        }
+
 		RoomData.Rooms[this.VNum] = this;
 	}
 
