@@ -287,7 +287,7 @@ class Magic {
                 return;
             }
 
-            if (MethodUsed == CastType.Sing && !spell.SkillTypes.IsSet("Song"))
+            if (MethodUsed == Magic.CastType.Sing && !spell.SkillTypes.IsSet("Song"))
             {
                 ch.send("You can't sing that.\n\r");
                 return;

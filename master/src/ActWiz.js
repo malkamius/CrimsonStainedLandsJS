@@ -7,6 +7,7 @@ const ItemTemplateData = require("./ItemTemplateData");
 const NPCData = require("./NPCData");
 
 const RoomData = require("./RoomData");
+const SkillSpell = require("./SkillSpell");
 const Utility = require("./Utility");
 
 Character.DoCommands.DoPeace = function(character, args) {
@@ -447,4 +448,73 @@ Character.DoCommands.DoStat = function(character, args) {
     {
         character.send("Stat [npc|item|character|room] @name|@vnum.\n\r");
     }
+}
+
+Character.DoCommands.DoGrant = function(character, args) {
+    var targetname;
+    var command;
+    [targetname, args] = args.OneArgument();
+    [command, args] = args.OneArgument();
+    var [target] = Character.CharacterFunctions.GetCharacterList(character, Character.Characters, targetname);
+    var commands = ["level","title","extendedtitle", "extitle", "skill"];
+    if(targetname.ISEMPTY() || args.ISEMPTY() || command.ISEMPTY() || !commands.some(s => s.prefix(command))) {
+        character.send("grant @playername [level|title|extendedtitle|extitle|skill] arguments")
+    } else if(!target) {
+        character.send("You couldn't find them.\n\r");
+    } else if("level".prefix(command)) {
+        var level = Number(args);
+
+        if(!level || level > character.Level || level < 1 || level > 60) {
+            character.send("Provide a valid level between 1 and {0}", character.Level);
+        } else {
+            if(level == target.Level) {
+                character.send("They are already level {0}.", level);
+            } else if(level < target.Level) {
+                target.Level = level;
+                target.Save();
+                target.send("You have been demoted to level {0}.\n\r", level);
+                character.send("You have demoted them to level {0}.\n\r", level)
+            } else {
+                for(var i = target.Level; i < level - 1; i++) {
+                    target.AdvanceLevel(false);
+                }
+                target.AdvanceLevel(true);
+                target.send("You have been promoted to level {0}.\n\r", level);
+                character.Act("You have promoted $N to level {0}.\n\r", target, null, null, Character.ActType.ToChar, level);
+            }
+        }
+    } else if("title".prefix(command)) {
+        target.Title = args;
+        character.send("OK.\n\r");
+    } else if("extitle".prefix(command) || "extendedtitle".prefix(command)) {
+        target.ExtendedTitle = args;
+        character.send("OK.\n\r");
+    } else if("skill".prefix(command)) {
+        var skillname;
+        var percentage;
+        [skillname, args] = args.OneArgument();
+        var skill = SkillSpell.SkillLookup(skillname, true);
+        if(args.ISEMPTY()) {
+            percentage = 1;
+        } else {
+            percentage = Number(args);
+        }
+        if(skillname.ISEMPTY()) {
+            character.send("Grant what skill?\n\r");
+        } else if(!skill && !skillname.equals("all")) {
+            character.send("Skill not found.\n\r");
+        } else if(skillname.equals("all")) {
+            for(var skillname in SkillSpell.Skills) {
+                skill = SkillSpell.Skills[skillname];
+                target.Learned[skill.Name] = {Name: skill.Name, Percent: percentage, Level: target.Level, LearnedAs: {Skill: true, Spell: true, Song: true, Supplication: true}};    
+            }
+            target.send("You have been granted all skills, spells, supplications and songs.\n\r");
+            character.Act("You have granted $N all skills, spells, supplications and songs.", target, null, null, Character.ActType.ToChar);
+        } else {
+            target.Learned[skill.Name] = {Name: skill.Name, Percent: percentage, Level: target.Level, LearnedAs: {Skill: true, Spell: true, Song: true, Supplication: true}};
+            target.send("You have been granted {0}.\n\r", skill.Name);
+            character.Act("You have granted $N {0}.", target, null, null, Character.ActType.ToChar, skill.Name);
+        }
+    }
+    
 }

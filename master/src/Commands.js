@@ -100,6 +100,7 @@ Commands = {
 		"dueldecline": {Command: Dueling.DoDuelDecline, MinimumPosition: "Dead" },
 		"goto": {Command: Character.DoCommands.DoGoto, MinimumPosition: "Dead" },
 		"transfer": {Command: Character.DoCommands.DoTransfer, MinimumPosition: "Dead" },
+		"grant": {Command: Character.DoCommands.DoGrant, MinimumPosition: "Dead" },
 
 		"restore": {Command: Character.DoCommands.DoRestore, MinimumPosition: "Dead" },
 		"stripaffects": {Command: Character.DoCommands.DoStripAffects, MinimumPosition: "Dead" },
