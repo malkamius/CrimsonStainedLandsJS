@@ -61,6 +61,7 @@ Commands = {
 		"time": {Command: Character.DoCommands.DoTime, MinimumPosition: "Dead" },
 		"weather": {Command: Character.DoCommands.DoWeather, MinimumPosition: "Dead" },
 		"score": {Command: Character.DoCommands.DoScore, MinimumPosition: "Dead" },
+		"prompt": {Command: Character.DoCommands.DoPrompt, MinimumPosition: "Dead" },
 
 		"list": {Command: Character.DoCommands.DoList, MinimumPosition: "Resting" },
 		"value": {Command: Character.DoCommands.DoValue, MinimumPosition: "Resting" },

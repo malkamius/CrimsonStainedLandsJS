@@ -746,6 +746,28 @@ Character.DoCommands.DoScore = function(character, args) {
 	Character.DoCommands.DoAffects(character, args);
 }
 
+Character.DoCommands.DoPrompt = function(ch,  args)
+{
+	const Color = require('./Color');
+	if (!(ch instanceof Player)) return;
+
+	ch.send("The default prompt is: <%1%%h %2%%m %3%%mv %W> \n\r");
+
+	if (!args.ISEMPTY() && (args.equals("all") || args.equals("default")))
+	{
+		player.Prompt = "<%1%%h %2%%m %3%%mv %W> ";
+	}
+	else if (!args.ISEMPTY() && args.equals("?"))
+	{
+		Character.DoCommands.DoHelp(ch, "prompt");
+	}
+	else if (!args.ISEMPTY())
+	{
+		player.Prompt = args + (!args.EndsWith(" ") ? " " : "");
+	}
+
+	ch.send("Your prompt is: " + Color.EscapeColor(player.Prompt) + "\n\r");
+}
 
 Character.DoCommands.DoQuit = doquit;
 Character.DoCommands.DoHelp = dohelp;

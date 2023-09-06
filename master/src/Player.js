@@ -199,7 +199,8 @@ class Player extends Character {
 			if(this.status == "Playing") {
 				if(this.Fighting)
 				this.Fighting.DisplayHealth(this);
-				this.output = this.output + (!this.output.endsWith("\n\n")? "\n" : "") + this.GetPrompt();
+				//this.output = this.output + (!this.output.endsWith("\n\n")? "\n" : "");
+				this.DisplayPrompt();
 				if (this.SittingAtPrompt && !this.output.startsWith("\n"))
 				this.output = "\n" + this.output;
 			}

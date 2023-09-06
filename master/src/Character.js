@@ -219,7 +219,8 @@ class Character {
 	ScrollCount = 40;
 	PoofIn = "$n fizzles into existence.";
 	PoofOut = "$n fizzles out of existence.";
-
+	Prompt = "";
+	
   	constructor(add = true) {
 		if(add)
 		Character.Characters.push(this);
@@ -2307,6 +2308,7 @@ class Character {
 
 		this.PoofIn = xml.GetElementValue("PoofIn", this.PoofIn);
 		this.PoofOut = xml.GetElementValue("PoofOut", this.PoofOut);
+		this.Prompt = xml.GetElementValue("Prompt", this.PoofOut);
 
 		var guild = xml.GetElementValue( "Guild", "");
 		if(!guild.ISEMPTY() && !(this.Guild = GuildData.Lookup(guild, false)))
@@ -2426,7 +2428,10 @@ class Character {
 
 		parentelement.ele("AffectedBy", Utility.JoinFlags(this.AffectedBy));
 		
-		
+		if(!this.Prompt.ISEMPTY()) {
+			parentelement.ele("Prompt", this.Prompt);
+		}
+
 		var stats = parentelement.ele("PermanentStats");
 		stats.ele("Strength", this.PermanentStats[0]);
 		stats.ele("Wisdom", this.PermanentStats[1]);
@@ -2455,9 +2460,12 @@ class Character {
 		parentelement.ele("ArmorSlash", this.ArmorSlash);
 		parentelement.ele("ArmorPierce", this.ArmorPierce);
 		parentelement.ele("ArmorExotic", this.ArmorExotic);
-
-		parentelement.ele("PoofIn", this.PoofIn);
-		parentelement.ele("PoofOut", this.PoofOut);
+		if(!this.PoofIn.ISEMPTY()) {
+			parentelement.ele("PoofIn", this.PoofIn);
+		}
+		if(!this.PoofOut.ISEMPTY()) {
+			parentelement.ele("PoofOut", this.PoofOut);
+		}
 
 		parentelement.ele("Flags", Utility.JoinFlags(this.Flags));
 
@@ -2588,6 +2596,189 @@ class Character {
 			this.Act("You trample around loudly.", null, null, null, Character.ActType.ToChar);
 		}
 	}
+
+	DisplayPrompt()
+	{
+		if (this.EditingArea)
+		{
+			this.send("\nEditing Area {0} - {1} - {2}", this.EditingArea.Name, this.EditingArea.VNumStart, this.EditingArea.VNumEnd);
+		}
+		if (this.EditingRoom)
+		{
+			this.send("\nEditing room \\y{0}\\x - \\Y{1}\\x", this.EditingRoom.VNum, this.EditingRoom.Name.ISEMPTY() ? "no name" : this.EditingRoom.Name);
+		}
+		if (this.EditingNPCTemplate)
+		{
+			this.send("\nEditing npc {0} - {1}", this.EditingNPCTemplate.VNum, this.EditingNPCTemplate.Name.ISEMPTY() ? "no name" : this.EditingNPCTemplate.Name);
+		}
+		if (this.EditingItemTemplate)
+		{
+			this.send("\nEditing item {0} - {1}", this.EditingItemTemplate.VNum, this.EditingItemTemplate.Name.ISEMPTY() ? "no name" : this.EditingItemTemplate.Name);
+		}
+		if (this.EditingHelp)
+		{
+			this.send("\nEditing help {0} - {1}", this.EditingHelp.VNum, this.EditingHelp.Keyword);
+		}
+		if (this.Prompt.ISEMPTY())
+			this.send("\n" + this.FormatPrompt("<%1%%h %2%%m %3%%mv %W> "));
+		else
+			this.send("\n" + this.FormatPrompt(this.Prompt));
+	}
+
+	FormatPrompt(prompt)
+	{
+		const ExitData = require("./ExitData");
+		const WeatherInfo = require("./WeatherInfo");
+		const TimeInfo = require("./TimeInfo");
+
+		var buf = "";
+		var i = 0;
+		while (i < prompt.length)
+		{
+			if (prompt[i] != '%')
+			{
+				buf += (prompt[i++]);
+				continue;
+			}
+			++i;
+			switch (prompt[i])
+			{
+				default:
+					buf += ' ';
+					break;
+				case '1':
+					buf += Utility.Format("{0}{1}\\x",
+						this.HitPoints < (this.MaxHitPoints * 4) / 10 ?
+						this.HitPoints < (this.MaxHitPoints * 2) / 10 ? "\\r" : "\\y" : "\\x",
+						Math.floor(this.HitPoints / this.MaxHitPoints * 100));
+					break;
+				case '2':
+					buf += (Math.floor(this.ManaPoints / this.MaxManaPoints * 100));
+					break;
+				case '3':
+					buf += (Math.floor(this.MovementPoints / this.MaxMovementPoints * 100));
+					break;
+				case 'e':
+					var found = false;
+					if (!this.IsAffected(AffectData.AffectFlags.Blind))
+					{
+						for (var exit of Room.Exits.Select(e => e && e.Destination
+						&& !e.Flags.ISSET(ExitData.ExitFlags.Hidden)
+						&& (!e.Flags.ISSET(ExitData.ExitFlags.HiddenWhileClosed) || !e.Flags.ISSET(ExitData.ExitFlags.Closed))))
+						{
+							found = true;
+							buf += exit.Direction.toLowerCase();
+						}
+					}
+
+					if (!found)
+						buf += "none";
+					break;
+				case 'c':
+					buf += "\n\r";
+					break;
+				case 'h':
+
+					buf += Utility.Format("{0}{1}\\x",
+					this.HitPoints < (this.MaxHitPoints * 4) / 10 ?
+					this.HitPoints < (this.MaxHitPoints * 2) / 10 ? "\\r" : "\\y" : "\\x",
+					this.HitPoints);
+					break;
+
+				case 'H':
+					buf += (this.MaxHitPoints);
+					break;
+				case 'm':
+					buf += (this.ManaPoints);
+					break;
+				case 'M':
+					buf += (this.MaxManaPoints);
+					break;
+				case 'v':
+					buf += (this.MovementPoints);
+					break;
+				case 'V':
+					buf += (this.MaxMovementPoints);
+					break;
+				case 'x':
+					buf += (this.XpTotal);
+					break;
+				case 'X':
+					buf += (this.XpToLevel * (this.Level) - this.XpTotal);
+					break;
+				case 'g':
+					buf += (this.Gold);
+					break;
+				case 's':
+					buf += (this.Silver);
+					break;
+				case 'a':
+					buf += (this.Alignment.toLowerCase());
+					break;
+				case 'r':
+					if (this.Room != null)
+						buf += 
+						this.Flags.ISSET(Character.ActFlags.HolyLight) ||
+						(!this.IsAffected(AffectData.AffectFlags.Blind) && !this.Room.IsDark)
+						? (TimeInfo.IsNight && !this.Room.NightName.ISEMPTY() ? this.Room.NightName : this.Room.Name) : "darkness";
+					else
+						buf += (' ');
+					break;
+				case 'R':
+					if (this.IsImmortal && this.Room != null)
+						buf += (this.Room.VNum);
+					else
+						buf += (' ');
+					break;
+				case 'z':
+					if (this.IsImmortal && this.Room != null)
+						buf += (this.Room.Area.Name);
+					else
+						buf += (' ');
+					break;
+				case 'Z':
+					buf += (this.Flags.ISSET(Character.ActFlags.HolyLight) ? " HOLYLIGHT" : "");
+					break;
+				case '%':
+					buf += ("%");
+					break;
+
+				case 't':
+					buf += new Date().toString();
+					break;
+				case 'T':
+					buf += ((TimeInfo.Hour % 12 == 0 ? 12 : TimeInfo.Hour % 12) + (TimeInfo.Hour > 12 ? "PM" : "AM"));
+					break;
+				case 'w':
+					{
+						var sky_look = [
+							"cloudless",
+							"cloudy",
+							"rainy",
+							"stormy"
+						];
+
+						buf += (sky_look[WeatherInfo.Sky]);
+
+						break;
+					}
+				case 'P':
+					buf += (this.Position.toLowerCase());
+					break;
+				case 'W':
+					buf += Utility.Format("{0} {1}",
+						this.Room != null ? (!this.Room.IsWilderness ? "\\wcivilized\\x" : "\\Gwilderness\\x") : "",
+						this.Room != null ? RoomData.Sectors[this.Room.Sector].Display : ""
+						);
+					break;
+				case 'I':
+					buf += (this.Room.Sector == RoomData.SectorTypes.Inside || this.Room.Flags.ISSET(RoomData.RoomFlags.Indoors) ? "\\windoors\\x" : "\\coutdoors\\x");
+					break;
+			}
+			i++;
+		}
+		return buf;
+	} // end FormatPrompt
 }
 
 module.exports = Character;

@@ -5,6 +5,22 @@ const RoomData = require("./RoomData");
 
 
 class ExitData {
+
+	static ExitFlags = {
+		"Door": "Door",
+		"Closed": "Closed",
+		"Locked": "Locked",
+		"Window": "Window",
+		"PickProof": "PickProof",
+		"NoPass": "NoPass",
+		"NoBash": "NoBash",
+		"Hidden": "Hidden",
+		"HiddenWhileClosed": "HiddenWhileClosed",
+		"MustUseKeyword": "MustUseKeyword",
+		"NoRandomize": "NoRandomize",
+		"NonObvious": "Hidden",
+	}
+	
 	Direction = "north";
 	Display = "the door north";
 	Keywords = "";
