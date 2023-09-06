@@ -763,7 +763,7 @@ Character.DoCommands.DoPrompt = function(ch,  args)
 	}
 	else if (!args.ISEMPTY())
 	{
-		player.Prompt = args + (!args.EndsWith(" ") ? " " : "");
+		player.Prompt = args + (!args.endsWith(" ") ? " " : "");
 	}
 
 	ch.send("Your prompt is: " + Color.EscapeColor(player.Prompt) + "\n\r");
