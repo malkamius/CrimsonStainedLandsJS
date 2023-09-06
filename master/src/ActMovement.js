@@ -162,14 +162,14 @@ function movechar(character, direction, crawl = false, creep = false, sendWalkMe
 
 		var reversedirections = ["south", "west", "north", "east", "below", "above" ];
 		var directionstring = RoomData.Directions[direction];
-		character.Act("$n {0} {1}.", null, null, null, "ToRoom", crawl? "crawls" : "leaves", directionstring);
+		character.Act("$n {0} {1}.", null, null, null, {type: Character.ActType.ToRoom, flags: {WizInvis: "WizInvis"}}, crawl? "crawls" : "leaves", directionstring);
 		character.RemoveCharacterFromRoom();
 		character.AddCharacterToRoom(destination);
 		var reversedirection = reversedirections[direction];
 		if(reversedirection != "below" && reversedirection != "above")
-			character.Act("$n arrives from the " + reversedirection + ".", null, null, null, "ToRoom");
+			character.Act("$n arrives from the " + reversedirection + ".", null, null, null, {type: Character.ActType.ToRoom, flags: {WizInvis: "WizInvis"}});
 		else
-			character.Act("$n arrives from " + reversedirection + ".", null, null, null, "ToRoom");
+			character.Act("$n arrives from " + reversedirection + ".", null, null, null, {type: Character.ActType.ToRoom, flags: {WizInvis: "WizInvis"}});
 		
 		// avoid circular follows
 		if(wasinroom != destination) {

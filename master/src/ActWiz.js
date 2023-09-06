@@ -64,7 +64,7 @@ Character.DoCommands.DoGoto = function(ch, args)
 		// If a valid recall room is found, perform the recall action
 
 		// Display a message to the room indicating the character's prayer
-		ch.Act("$n steps into a cloud of smoke.\n\r", null, null, null, Character.ActType.ToRoom);
+		ch.Act(ch.PoofOut, null, null, null, {type: Character.ActType.ToRoom, flags: {WizInvis: "WizInvis"}});
 
 		// Remove the character from the current room
 		ch.RemoveCharacterFromRoom();
@@ -76,7 +76,7 @@ Character.DoCommands.DoGoto = function(ch, args)
 		ch.AddCharacterToRoom(room);
 		
 		// Display a message to the room indicating the character's arrival
-		ch.Act("$n steps out of a cloud of smoke.\n\r", null, null, null, Character.ActType.ToRoom);
+		ch.Act(ch.PoofIn, null, null, null, {type: Character.ActType.ToRoom, flags: {WizInvis: "WizInvis"}});
 
 		// Update the character's view with the newly arrived room
 		//DoLook(ch, "auto");
@@ -515,6 +515,19 @@ Character.DoCommands.DoGrant = function(character, args) {
             target.send("You have been granted {0}.\n\r", skill.Name);
             character.Act("You have granted $N {0}.", target, null, null, Character.ActType.ToChar, skill.Name);
         }
+    }    
+} // Do Grant
+
+Character.DoCommands.DoPoofIn = function(character, args) {
+    if(!args.ISEMPTY()) {
+        character.PoofIn = args;
     }
-    
+    character.send("Your PoofIn is `{0}`.\n\r", character.PoofIn);
+}
+
+Character.DoCommands.DoPoofOut = function(character, args) {
+    if(!args.ISEMPTY()) {
+        character.PoofOut = args;
+    }
+    character.send("Your PoofOut is `{0}`.\n\r", character.PoofOut);
 }

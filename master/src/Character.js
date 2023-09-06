@@ -218,6 +218,8 @@ class Character {
 	PagingText = false;
 	PagedText = "";
 	ScrollCount = 40;
+	PoofIn = "$n fizzles into existence.";
+	PoofOut = "$n fizzles out of existence.";
 
   	constructor(add = true) {
 		if(add)
@@ -310,6 +312,11 @@ class Character {
 	}
 
 	Act(message, victim = null, item = null, item2 = null, acttype = "ToChar", ...params) {
+		var flags;
+		if(!(acttype instanceof String || typeof acttype == "string")) {
+			flags = acttype.flags;
+			acttype = acttype.type;
+		} 
 		if(!message || message.length == 0)
 			return;
 		if(this.Room == null && acttype != "ToChar")
@@ -319,8 +326,12 @@ class Character {
 			return;
 
 		if (acttype == "ToRoom" || acttype == "ToRoomNotVictim") {
-			for (let index = 0; index < this.Room.Characters.length; ++index) {
-				const other = this.Room.Characters[index];
+			for(var other of this.Room.Characters) {
+				if(flags && flags.WizInvis && 
+				  this.Flags.ISSET(Character.ActFlags.WizInvis) && 
+				  (!other.Flags.ISSET(Character.ActFlags.HolyLight) || this.Level > other.Level)) {
+					continue;
+				}
 				if(other != this && (other != victim || acttype != "ToRoomNotVictim") &&
 				other.Position != "Sleeping") {
 					var output = this.FormatActMessage(message, other, victim, item, item2, params);
@@ -328,6 +339,11 @@ class Character {
 				}
 			}
 		} else if(acttype == "ToVictim") {
+			if(flags && flags.WizInvis && 
+				this.Flags.ISSET(Character.ActFlags.WizInvis) && 
+				(!victim.Flags.ISSET(Character.ActFlags.HolyLight) || this.Level > victim.Level)) {
+				  return;
+			  }
 			var output = this.FormatActMessage(message, victim, victim, item, item2, params);
 			victim.send(output);
 		} else if(acttype == "ToChar") {
@@ -336,6 +352,11 @@ class Character {
 		} else if (acttype == Character.ActType.GlobalNotVictim) {
 			for (var other of Character.Characters)
 			{
+				if(flags && flags.WizInvis && 
+				  this.Flags.ISSET(Character.ActFlags.WizInvis) && 
+				  (!other.Flags.ISSET(Character.ActFlags.HolyLight) || this.Level > other.Level)) {
+					continue;
+				}
 				if (other != this && other != victim)
 				{
 					var output = this.FormatActMessage(message, this, victim, item, item2, params);
@@ -2276,6 +2297,9 @@ class Character {
 		this.ArmorSlash = xml.GetElementValueInt("ArmorSlash");
 		this.ArmorExotic = xml.GetElementValueInt("ArmorExotic");
 
+		this.PoofIn = xml.GetElementValue("PoofIn", this.PoofIn);
+		this.PoofOut = xml.GetElementValue("PoofOut", this.PoofOut);
+
 		var guild = xml.GetElementValue( "Guild", "");
 		if(!guild.ISEMPTY() && !(this.Guild = GuildData.Lookup(guild, false)))
 			console.log(`Guild ${guild} not found`);
@@ -2423,6 +2447,9 @@ class Character {
 		parentelement.ele("ArmorSlash", this.ArmorSlash);
 		parentelement.ele("ArmorPierce", this.ArmorPierce);
 		parentelement.ele("ArmorExotic", this.ArmorExotic);
+
+		parentelement.ele("PoofIn", this.PoofIn);
+		parentelement.ele("PoofOut", this.PoofOut);
 
 		parentelement.ele("Flags", Utility.JoinFlags(this.Flags));
 

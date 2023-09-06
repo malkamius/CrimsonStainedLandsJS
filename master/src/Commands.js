@@ -107,6 +107,8 @@ Commands = {
 		"stripaffects": {Command: Character.DoCommands.DoStripAffects, MinimumPosition: "Dead" },
 		"load": {Command: Character.DoCommands.DoLoad, MinimumPosition: "Dead" },
 		"stat": {Command: Character.DoCommands.DoStat, MinimumPosition: "Dead" },
+		"poofin": {Command: Character.DoCommands.DoPoofIn, MinimumPosition: "Dead" },
+		"poofout": {Command: Character.DoCommands.DoPoofOut, MinimumPosition: "Dead" },
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
