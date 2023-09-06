@@ -129,7 +129,9 @@ Character.DoCommands.DoRestore = function(character, args) {
             }
         }
     } else if(([target] = character.GetCharacterWorld(args)) && target) {
-        character.Act("You restored $N.", target);
+        if(target != character) {
+            character.Act("You restored $N.", target);
+        }
         target.HitPoints = target.MaxHitPoints
         target.ManaPoints = target.MaxManaPoints;
         target.MovementPoints = target.MaxMovementPoints;

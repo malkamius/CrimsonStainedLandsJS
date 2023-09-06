@@ -399,7 +399,7 @@ class Character {
 								var display = item.Display(to);
 								if (display.startsWith("a ")) display = display.substr(2);
 								if (display.startsWith("the ")) display = display.substr(4);
-								formatmsg.Append(display);
+								output += display;
 							}
 							break;
 						case 'e':
@@ -731,14 +731,21 @@ class Character {
 		
 			skillentry = SkillSpell.GetSkill(skillname, false);
 		}
-		if (Utility.IsNullOrEmpty(skillname) || !skillentry)
+		if (Utility.IsNullOrEmpty(skillname) || !skillentry) {
+			if(this.IsNPC) return 10000;
 			return 60;
-		else if (skillentry && !skillentry.PrerequisitesMet(this))
+		}
+		else if (skillentry && !skillentry.PrerequisitesMet(this)) {
+			if(this.IsNPC) return 10000;
 			return 60;
-		else if (this.Learned[skillname])
+		}
+		else if (this.Learned[skillname]) {
 			return this.Learned[skillname].Level;
-		else if (!this.Guild || !skillentry.LearnedLevel[this.Guild.Name])
+		}
+		else if (!this.Guild || !skillentry.LearnedLevel[this.Guild.Name]) {
+			if(this.IsNPC) return 10000;
 			return 60;
+		}
 		else
 			return skillentry.LearnedLevel[this.Guild.Name];
 	}
@@ -757,7 +764,7 @@ class Character {
 			skillentry = SkillSpell.GetSkill(skillname, false);
 		}
 		
-		if (Utility.IsNullOrEmpty(skillname) || !skillentry)
+		if (Utility.IsNullOrEmpty(skillname) || !skillentry) 
 			return 0;
 		else if (this.IsImmortal)
 			return 100;
@@ -2501,6 +2508,85 @@ class Character {
 		var results = this.GetCharacterList(Character.Characters, args, count);
 	
 		return results;
+	}
+
+	StripCamouflage(creep = false)
+	{
+		if (this.AffectedBy.ISSET(AffectData.AffectFlags.Camouflage))
+		{
+			var aff;
+			while ((aff = FindAffect(AffectData.AffectFlags.Camouflage))) {
+				AffectFromChar(aff, AffectData.AffectRemoveReason.WoreOff);
+			}
+			this.AffectedBy.RemoveFlag(AffectData.AffectFlags.Camouflage);
+
+			if (creep)
+			{
+				this.Act("You try to creep but step out of your cover.", null, null, null, Character.ctType.ToChar);
+				this.Act("$n tries to creep but steps out of $s cover.", null, null, null, Character.ActType.ToRoom);
+			}
+			else
+			{
+				this.Act("You step out of your cover.", null, null, null, Character.ActType.ToChar);
+				this.Act("$n steps out of $s cover.", null, null, null, Character.ActType.ToRoom);
+			}
+		}
+	}
+
+	StripHidden()
+	{
+		if (this.AffectedBy.ISSET(AffectData.AffectFlags.Hide))
+		{
+			var affects = this.FindAffects(AffectData.AffectFlags.Hide);
+
+			if (!affects.some(aff => !aff.EndMessage.ISEMPTY()))
+			{
+				this.Act("You step out of the shadows.", null, null, null, Character.ActType.ToChar);
+				this.Act("$n steps out of the shadows.", null, null, null, Character.ActType.ToRoom);
+			}
+
+			for (var aff of affects) {
+				this.AffectFromChar(aff, AffectData.AffectRemoveReason.WoreOff);
+			}
+			this.AffectedBy.RemoveFlag(AffectData.AffectFlags.Hide);
+		}
+	}
+
+
+	StripInvis()
+	{
+		if (this.AffectedBy.ISSET(AffectData.AffectFlags.Invisible))
+		{
+			var affects = this.FindAffects(AffectData.AffectFlags.Invisible);
+
+			if (!affects.some(aff => !aff.EndMessage.ISEMPTY()))
+			{
+				this.Act("You fade into existence.", null, null, null, Character.ActType.ToChar);
+				this.Act("$n fades into existence.", null, null, null, Character.ActType.ToRoom);
+			}
+
+			for (var aff of affects) {
+				this.AffectFromChar(aff, AffectData.AffectRemoveReason.WoreOff);
+			}
+			this.AffectedBy.RemoveFlag(AffectData.AffectFlags.Invisible);
+
+		}
+	}
+
+	StripSneak()
+	{
+		if (this.Race && this.Race.Aff.ISSET(AffectData.AffectFlags.Sneak))
+			return;
+
+		if (this.AffectedBy.ISSET(AffectData.AffectFlags.Sneak))
+		{
+			var aff;
+			while ((aff = FindAffect(AffectData.AffectFlags.Sneak)) != null) {
+				this.AffectFromChar(aff, AffectData.AffectRemoveReason.WoreOff);
+			}
+			this.AffectedBy.RemoveFlag(AffectData.AffectFlags.Sneak);
+			this.Act("You trample around loudly.", null, null, null, Character.ActType.ToChar);
+		}
 	}
 }
 

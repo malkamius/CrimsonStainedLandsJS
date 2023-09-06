@@ -715,11 +715,11 @@ class Combat {
                 Combat.SetFighting(ch, victim);
 
             // Strip various hiding and camouflage effects from the attacker
-            // if (ch != victim)
-            //     ch.StripCamouflage();
-            // ch.StripHidden();
-            // ch.StripInvis();
-            // ch.StripSneak();
+            if (ch != victim)
+                ch.StripCamouflage();
+            ch.StripHidden();
+            ch.StripInvis();
+            ch.StripSneak();
 
             // Apply additional effects if the attacker is affected by Burrow
             if (ch != victim && ch.IsAffected("Burrow"))
@@ -787,7 +787,48 @@ class Combat {
             victim.Act("$n's skin shimmers as $e avoids your {0}.", ch, null, null, "ToVictim", nounDamage);
             return false; // Damage is avoided, return false
         }
+        if(damage) {
+            var Armor = victim.ArmorClass;
 
+            switch(DamageType.toLowerCase()) {
+                default: Armor += victim.ArmorExotic; break;
+                case "bash": Armor += victim.ArmorBash; break;
+                case "slash": Armor += victim.ArmorSlash; break;
+                case "pierce": Armor += victim.ArmorPierce; break;
+            }
+
+            var items = [];
+
+            for(var key in victim.Equipment) {
+                var item = victim.Equipment[key];
+                var contribution = 0;
+                if(item) {
+                    switch(DamageType.toLowerCase()) {
+                        default: Armor += (contribution = item.ArmorExotic); break;
+                        case "bash": Armor += (contribution = item.ArmorBash); break;
+                        case "slash": Armor += (contribution = item.ArmorSlash); break;
+                        case "pierce": Armor += (contribution = item.ArmorPierce); break;
+                    }
+                    if(contribution < 0) Armor += contribution * -2;
+                    if(item.ItemTypes.ISSET(ItemData.ItemTypes.Armor)) {
+                        items.push({Item: item, Contribution: contribution});
+                    }
+                }
+            }
+
+            var damagereductionpercent = (Armor / (Armor + 400 + 60 * ch? ch.Level : 1)) / 100;
+
+            for(var item of items) {
+                if(item.Contribution / Armor * 5 > Utility.NumberPercent()) {
+                    victim.Act("Your $o blocks some of $N's {0}.", ch, item.Item, null, Character.ActType.ToChar, nounDamage);
+                    victim.Act("$n's $p blocks some of $N's {0}.", ch, item.Item, null, Character.ActType.ToRoom, nounDamage);
+                    damagereductionpercent += .1;
+                    break;
+                }
+            }
+
+            damage -= damage * damagereductionpercent;  
+        } else { damage = 0; }
         var immune = false;
 
         // Check the victim's immunity status against the damage type
@@ -813,10 +854,10 @@ class Combat {
         // Remove hiding and camouflage effects from the victim if damage is greater than 0
         if (damage > 0)
         {
-            // victim.StripHidden();
-            // victim.StripInvis();
-            // victim.StripSneak();
-            // victim.StripCamouflage();
+            victim.StripHidden();
+            victim.StripInvis();
+            victim.StripSneak();
+            victim.StripCamouflage();
         }
 
         // Display the damage message if show is true
