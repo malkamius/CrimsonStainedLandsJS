@@ -310,7 +310,7 @@ class Magic {
             case "targetcharoffensive":
                 if (arg2.ISEMPTY())
                     victim = ch.Fighting;
-                else if (([victim, count] = Character.CharacterFunctions.GetCharacterHere(ch, targetName, count)) && !victim)
+                else if (([victim, count] = ch.GetCharacterHere(targetName, count)) && !victim)
                 {
                     ch.send("They aren't here.\n\r");
                     return;
@@ -329,7 +329,7 @@ class Magic {
             case "targetchardefensive":
                 if (arg2.IsNullOrEmpty())
                     victim = ch;
-                else if (([victim, count] = Character.CharacterFunctions.GetCharacterHere(ch, targetName, count)) && !victim)
+                else if (([victim, count] = ch.GetCharacterHere(targetName, count)) && !victim)
                 {
                     ch.send("They aren't here.\n\r");
                     return;
@@ -382,7 +382,7 @@ class Magic {
                 {
                     target = "targetItem";
                 }
-                else if (([victim, count] = Character.CharacterFunctions.GetCharacterHere(ch, targetName, count)) && victim)
+                else if (([victim, count] = ch.GetCharacterHere(targetName, count)) && victim)
                 {
                     target = "targetChar";
                 }
@@ -560,7 +560,7 @@ class Magic {
         }
 
 
-        switch (spell.targetType.toLowerCase())
+        switch (spell.TargetType.toLowerCase())
         {
             default:
                 console.log("ItemCastSpell: bad target for spell {0}.", spell.Name);
@@ -1668,10 +1668,9 @@ class Magic {
 
     static SpellSummon(castType, spell, level, ch, victim, item, args, target)
     {
+        [victim] = ch.GetCharacterWorld(args);
 
-
-        if (([victim] = Character.CharacterFunctions.GetCharacterList(ch, Character.Characters, args)) == null
-            || victim == null
+        if (   victim == null
             || victim == ch
             || victim.Room == null
             || (!victim.IsNPC && victim.Room.Area != ch.Room.Area)
@@ -2716,9 +2715,9 @@ class Magic {
     static SpellLightningBolt(castType, spell, level, ch, victim, item, args, target)
     {
         var sector = ch.Room.Sector;
-        var checkSector = ((sector == SectorTypes.WaterSwim) || (sector == SectorTypes.Swim) ||
-            (sector == SectorTypes.WaterNoSwim) || (sector == SectorTypes.Ocean) ||
-            (sector == SectorTypes.River) || (sector == SectorTypes.Underwater));
+        var checkSector = ((sector == RoomData.SectorTypes.WaterSwim) || (sector == RoomData.SectorTypes.Swim) ||
+            (sector == RoomData.SectorTypes.WaterNoSwim) || (sector == RoomData.SectorTypes.Ocean) ||
+            (sector == RoomData.SectorTypes.River) || (sector == RoomData.SectorTypes.Underwater));
 
         var dam = ch.GetDamage(level, .5, 1);// dam = Utility.Random(dam_each[level] / 2, dam_each[level] * 2);
         ch.Act(checkSector ? "Due to the nearness of water, A HUGE bolt of lightning shoots forth from your hands!" :
@@ -4658,9 +4657,8 @@ class Magic {
     {
         var other;
         var count = 0;
-
-        if (([other, count] = Character.CharacterFunctions.GetCharacterFromList(ch, Character.Characters, arguments, count))
-            && other
+        [other, count] = ch.GetCharacterWorld(args, count);
+        if (   other
             && other.Room && (ch.IsImmortal || ch.IsNPC || (ch.Level <= other.Room.MaxLevel && ch.Level >= other.Room.MinLevel)))
         {
             ch.Act("$n creates a gate, then steps in, then $n and the gate disappears.\n\r", null, null, null, Character.ActType.ToRoom);

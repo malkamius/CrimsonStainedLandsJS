@@ -4,7 +4,7 @@ const Utility = require("./Utility");
 
 
 
-function DoGet(character, args) {
+Character.DoCommands.DoGet = function (character, args) {
     var itemName, containerName;
     [itemName, containerName] = args.oneArgument();
     var fAll = Utility.Compare(itemName, "all");
@@ -106,7 +106,7 @@ function DoGet(character, args) {
     }
 }
 
-function DoDrop(character, args) {
+Character.DoCommands.DoDrop = function (character, args) {
     if(Utility.Compare(args, "all")) {
         var inventory = Utility.CloneArray(character.Inventory);
         for(key in inventory) {
@@ -181,7 +181,7 @@ function DoDrop(character, args) {
 }
 
 
-function DoRemove(character, args) {
+Character.DoCommands.DoRemove = function (character, args) {
     if(Utility.Compare(args, "all")) {
         for(slotkey in Character.WearSlots) {
             var item = character.Equipment[slotkey];
@@ -199,7 +199,7 @@ function DoRemove(character, args) {
 }
 
 
-function DoWear(character, args) {
+Character.DoCommands.DoWear = function (character, args) {
     
     if (Utility.IsNullOrEmpty(args)) {
         character.send("Wear what?\n\r");
@@ -966,7 +966,332 @@ Character.DoCommands.DoDrink = function(character, args) {
         }
     }
 } // end do drink
-Character.DoCommands.DoGet = DoGet;
-Character.DoCommands.DoDrop = DoDrop;
-Character.DoCommands.DoRemove = DoRemove;
-Character.DoCommands.DoWear = DoWear;
+
+Character.DoCommands.DoRecite = function(character, args) {
+    const Game = require("./Game");
+    const Magic = require("./Magic");
+    var itemName = "";
+    var victimName = "";
+    var scroll;
+    var targetItem;
+    var count = 0;
+    var victim;
+
+    [itemName, args] = args.OneArgument();
+    [victimName, args] = args.OneArgument();
+    if(!victimName.ISEMPTY()) {
+        [targetItem, count] = character.GetItemHere(victimName, count)
+        [victim, count] = character.GetCharacterHere(victimName, count);
+    }
+    if (itemName.ISEMPTY())
+    {
+        character.send("What scroll would you like to recite?\n\r");
+        return;
+    }
+    else if (([scroll] = character.GetItemInventory(itemName)) == null)
+    {
+        character.send("You aren't carrying that scroll.\n\r");
+        return;
+    }
+    else if (!scroll.ItemTypes.ISSET(ItemData.ItemTypes.Scroll))
+    {
+        character.send("You can only recite magical scrolls.\n\r");
+        return;
+    }
+    else if (character.Level < scroll.Level)
+    {
+        character.send("This scroll is too complex for you to comprehend.\n\r");
+        return;
+    }
+    else if (targetItem)
+    {
+        character.Act("$n recites $p at $P.", null, scroll, targetItem, Character.ActType.ToRoom);
+        character.Act("You recite $p at $P.", null, scroll, targetItem, Character.ActType.ToChar);
+        character.WaitState(Game.PULSE_VIOLENCE);
+
+        if (Utility.NumberPercent() >= character.GetSkillPercentage("scrolls") * 4 / 5)
+        {
+            character.send("You mispronounce a syllable.\n\r");
+            character.CheckImprove("scrolls", false, 2);
+        }
+        else
+        {
+            for (var spell of scroll.Spells)
+            {
+                Magic.ItemCastSpell(Magic.CastType.Cast, spell.Spell, spell.Level, character, null, targetItem, null);
+            }
+            character.CheckImprove("scrolls", true, 2);
+        }
+
+        character.Inventory.Remove(scroll);
+        scroll.CarriedBy = null;
+
+    }
+    else if (victim || (victimName.ISEMPTY() && (victim = character.Fighting)))
+    {
+        character.Act("$n recites $p at $N.", victim, scroll, null, Character.ActType.ToRoom);
+        character.Act("You recite $p at $N.", victim, scroll, null, Character.ActType.ToChar);
+        character.WaitState(Game.PULSE_PER_VIOLENCE);
+
+        if (Utility.NumberPercent() >= character.GetSkillPercentage("scrolls") * 4 / 5)
+        {
+            character.send("You mispronounce a syllable.\n\r");
+            character.CheckImprove("scrolls", false, 2);
+        }
+        else
+        {
+            for (var spell of scroll.Spells)
+            {
+                Magic.ItemCastSpell(Magic.CastType.Cast, spell.Spell, spell.Level, character, victim, null, null);
+            }
+            character.CheckImprove("scrolls", true, 2);
+        }
+        character.Inventory.Remove(scroll);
+        scroll.CarriedBy = null;
+    }
+    else if (!victimName.ISEMPTY())
+    {
+        character.send("You don't see them here.\n\r");
+        return;
+    }
+    else
+    {
+        character.Act("$n recites $p at $mself.", null, scroll, null, Character.ActType.ToRoom);
+        character.Act("You recite $p at yourself.", null, scroll, null, Character.ActType.ToChar);
+        character.WaitState(Game.PULSE_PER_VIOLENCE);
+        if (Utility.NumberPercent() >= character.GetSkillPercentage("scrolls") * 4 / 5)
+        {
+            character.send("You mispronounce a syllable.\n\r");
+            character.CheckImprove("scrolls", false, 2);
+        }
+        else
+        {
+            for (var spell of scroll.Spells)
+            {
+                Magic.ItemCastSpell(Magic.CastType.Cast, spell.Spell, spell.Level, character, character, null, null);
+            }
+            character.CheckImprove("scrolls", true, 2);
+        }
+        character.Inventory.Remove(scroll);
+        scroll.CarriedBy = null;
+    }
+} // do recite
+
+Character.DoCommands.DoZap = function(character, args) {
+    const Game = require("./Game");
+    const Magic = require("./Magic");
+    var wand = null;
+    var count = 0;
+    var argument = "";
+    var victim = null;
+    var zapTarget = null;
+    [argument, args] = args.OneArgument();
+    [victim, count] = character.GetCharacterHere(argument, count);
+    [zapTarget, count] = character.GetItemInventory(argument, count);
+
+    if (argument.ISEMPTY())
+    {
+        character.send("Who do you want to zap?\n\r");
+    }
+    else if (!(wand = character.Equipment[ItemData.WearSlotIDs.Held]))
+    {
+        character.send("You aren't holding a wand.\n\r");
+    }
+    else if (!wand.ItemTypes.ISSET(ItemData.ItemTypes.Wand))
+    {
+        character.send("You can only zap with wands.\n\r");
+    }
+    //else if (character.Fighting != null)
+    //{
+    //    character.send("You are too busy fighting to zap anyone.\n\r");
+    //}
+    else if (!victim && !zapTarget)
+    {
+        character.send("You don't see them or that here.\n\r");
+    }
+    else if (victim || (argument.ISEMPTY() && (victim = character.Fighting)))
+    {
+        if (victim != character)
+        {
+            character.Act("$n zaps $N with $p.", victim, wand, null, Character.ActType.ToRoomNotVictim);
+            character.Act("$n zaps you with $p.", victim, wand, null, Character.ActType.ToVictim);
+            character.Act("You zap $N with $p.", victim, wand, null, Character.ActType.ToChar);
+        }
+        else
+        {
+            character.Act("$n zaps $mself with $p.", victim, wand, null, Character.ActType.ToRoomNotVictim);
+            character.Act("You zap yourself with $p.", victim, wand, null, Character.ActType.ToChar);
+        }
+        character.WaitState(Game.PULSE_VIOLENCE);
+
+        if (character.Level < wand.Level || Utility.NumberPercent() >= character.GetSkillPercentage("wands") * 4 / 5)
+        {
+            character.Act("Your efforts with $p produce only smoke and sparks.", null, wand);
+            character.Act("$n's efforts with $p produce only smoke and sparks.", null, wand, null, Character.ActType.ToRoom);
+            character.CheckImprove("wands", false, 2);
+        }
+        else
+        {
+            for (var spell of wand.Spells)
+            {
+                Magic.ItemCastSpell(Magic.CastType.Cast, spell.Spell, spell.Level, character, victim, wand, null);
+            }
+            character.CheckImprove("wands", true, 2);
+        }
+    }
+
+    else if (zapTarget)
+    {
+
+        character.Act("$n zaps $P with $p.", victim, wand, zapTarget, Character.ActType.ToRoom);
+        character.Act("You zap $P with $p.", victim, wand, zapTarget, Character.ActType.ToChar);
+        character.WaitState(Game.PULSE_VIOLENCE);
+        if (character.Level < wand.Level || Utility.NumberPercent() >= character.GetSkillPercentage("wands") * 4 / 5)
+        {
+            character.Act("Your efforts with $p produce only smoke and sparks.", null, wand);
+            character.Act("$n's efforts with $p produce only smoke and sparks.", null, wand, null, Character.ActType.ToRoom);
+            character.CheckImprove("wands", false, 2);
+        }
+        else
+        {
+            for (var spell of wand.Spells)
+            {
+                Magic.ItemCastSpell(Magic.CastType.Cast, spell.Spell, spell.Level, character, null, zapTarget, null);
+            }
+            character.CheckImprove("wands", true, 2);
+        }
+    }
+    if(wand && (victim || zapTarget)) {
+        wand.Charges--;
+        if (wand.Charges <= 0) {
+            character.Act("$n's $p explodes into fragments.", victim, wand, null, Character.ActType.ToRoom);
+            character.Act("Your $p explodes into fragments.", victim, wand, null, Character.ActType.ToChar);
+            character.Equipment[ItemData.WearSlotIDs.Held].CarriedBy = null;
+            delete character.Equipment[ItemData.WearSlotIDs.Held];
+        }    
+    }
+} // do zap
+
+Character.DoCommands.DoBrandish = function(character, args) {
+    const Game = require("./Game");
+    const Magic = require("./Magic");
+    var staff = character.Equipment[ItemData.WearSlotIDs.Held];
+
+    if (!staff)
+    {
+        character.send("You aren't using a staff.\n\r");
+        return;
+    }
+    else if (!staff.ItemTypes.ISSET(ItemData.ItemTypes.Staff) && !staff.ItemTypes.ISSET("Talisman"))
+    {
+        character.send("You can only brandish a staff.\n\r");
+        return;
+    }
+    else if (character.Fighting)
+    {
+        character.send("You are too busy fighting to brandish your staff.\n\r");
+        return;
+    }
+    else
+    {
+        character.Act("$n brandishes $p.", null, staff, null, Character.ActType.ToRoom);
+        character.Act("You brandish $p.", null, staff, null, Character.ActType.ToChar);
+        character.WaitState(Game.PULSE_VIOLENCE);
+        if (Utility.NumberPercent() >= 20 + character.GetSkillPercentage("talismans") * 4 / 5)
+        {
+            character.Act("You fail to invoke $p.\n\r", null, staff);
+            character.Act("... and nothing happens.", null, null, null, Character.ActType.ToRoom);
+            character.CheckImprove("talismans", false, 2);
+
+        }
+        else
+        {
+            for (var spell of staff.Spells)
+            {
+                Magic.ItemCastSpell(Magic.CastType.Cast, spell.Spell, spell.Level, character, character, staff, null);
+            }
+            character.CheckImprove("talismans", true, 2);
+        }
+    }
+
+
+    staff.Charges--;
+    if (staff.Charges <= 0)
+    {
+        character.Act("Your $p disinitgrates in your hands.", null, staff, null, Character.ActType.ToChar);
+        character.Act("$n's $p disingtates in their hands.", null, staff, null, Character.ActType.ToRoom);
+        character.Equipment[ItemData.WearSlotIDs.Held].CarriedBy = null;
+        delete character.Equipment[ItemData.WearSlotIDs.Held];
+    }    
+} // do brandish
+
+Character.DoCommands.DoQuaf = function(character, args) {
+    const Game = require("./Game");
+    const Magic = require("./Magic");
+
+    var itemName = "";
+    var potion;
+    [itemName, args] = args.OneArgument();
+    [potion] = character.GetItemInventory(itemName);
+
+    if (itemName.ISEMPTY())
+    {
+        character.send("Quaf what?\n\r");
+    }
+    else if (!potion) 
+    {
+        character.send("You don't have that.\n\r");
+    }
+    else if (!potion.ItemTypes.ISSET(ItemData.ItemTypes.Potion))
+    {
+        character.send("You can only quaf potions.\n\r");
+    }
+    else if (character.Fighting)
+    {
+        character.send("You are too busy fighting to quaf anything.\n\r");
+    }
+    else
+    {
+        character.Act("$n quaffs $p.", null, potion, null, Character.ActType.ToRoom);
+        character.Act("You quaff $p.", null, potion, null, Character.ActType.ToChar);
+        character.WaitState(Game.PULSE_VIOLENCE);
+
+        for(var spell of potion.Spells)
+        {
+            Magic.ItemCastSpell(Magic.CastType.Cast, spell.Spell, spell.Level, character, character, null, null);
+        }
+
+        character.Inventory.Remove(potion);
+        potion.CarriedBy = null;
+    }   
+} // do quaf
+
+Character.DoCommands.DoUse = function(character, args) {
+    const Game = require("./Game");
+    const Magic = require("./Magic");
+    const Program = require("./Program");
+    if (args.ISEMPTY())
+    {
+        character.send("Use what?\n\r");
+        return;
+    }
+
+    var itemname = "";
+
+    [itemname, args] = args.OneArgument();
+
+    var item = character.GetItemHere(itemname);
+
+    if (item == null)
+    {
+        character.send("You don't see that here.\n\r");
+        return;
+    }
+
+    // bool found = false;
+
+    // Program.Execute(Programs.ProgramTypes.Use, ch, item, "");
+
+    // if (!found)
+    character.send("You can't seem to figure out how to do that.\n\r");
+} // do use

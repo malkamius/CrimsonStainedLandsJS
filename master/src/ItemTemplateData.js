@@ -1,7 +1,6 @@
 const XmlHelper = require("./XmlHelper");
 
 const Utility = require("./Utility");
-const SkillSpell = require("./SkillSpell");
 
 class ItemTemplateData {
     static ItemTemplates = {};
@@ -85,11 +84,20 @@ class ItemTemplateData {
             }
         }
         
+        const SkillSpell = require('./SkillSpell');
         if(xml.SPELLS && xml.SPELLS[0].SPELL) {
             for(var spellxml of xml.SPELLS[0].SPELL) {
                 var spell = {Level: spellxml.GetAttributeValueInt("Level"), SpellName: spellxml.GetAttributeValue("SpellName")};
                 spell.Spell = SkillSpell.SkillLookup(spell.SpellName);
                 this.Spells.push(spell);
+            }
+        }
+
+        const AffectData = require('./AffectData');
+        if(xml.AFFECTS && xml.AFFECTS[0].AFFECT) {
+            for(var affxml of xml.AFFECTS[0].AFFECT) {
+                var aff = new AffectData({Xml: affxml});
+                this.Affects.push(aff);
             }
         }
 

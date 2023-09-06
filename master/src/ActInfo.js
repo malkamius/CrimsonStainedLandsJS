@@ -112,7 +112,7 @@ function dolook(player, args, auto) {
 		}
 		var target, count;
 
-		[target, count] = Character.CharacterFunctions.GetCharacterHere(player, args, count);
+		[target, count] = player.GetCharacterHere(args, count);
 		isitem = false;
 		
 		if(!target || lookin) {
@@ -251,25 +251,6 @@ function doinventory(player, args) {
 		for(key in items)
 			player.send("   " + (items[key] > 1? "[" + items[key] + "]" : "") + key + "\n\r");
 	}
-}
-
-function GetCharacterList(player, list, args, count = 0) {
-	if(Utility.Compare(args, "self")) return [player, ++count, ""];
-	var [desiredcount, args] = Utility.NumberArgument(args);
-	
-	for(key in list) {
-		var ch = list[key];
-		if(player.CanSee(ch) && ((desiredcount && desiredcount > 0 && args.ISEMPTY()) || Utility.IsName(ch.Name, args)) && ++count >= desiredcount)
-			return [ch, count, key];
-	}
-	return [null, count, ""];
-}
-
-function GetCharacterHere(player, args, count = 0) {
-	var results = GetCharacterList(player, player.Room.Characters, args, count);
-
-	return results;
-
 }
 
 function DoSave(player, args) {
@@ -778,8 +759,6 @@ Character.DoCommands.DoSkills = DoSkills;
 Character.DoCommands.DoDelete = DoDelete;
 Character.DoCommands.DoWhere = DoWhere;
 
-Character.CharacterFunctions.GetCharacterHere = GetCharacterHere;
-Character.CharacterFunctions.GetCharacterList = GetCharacterList;
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");

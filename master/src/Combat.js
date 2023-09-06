@@ -495,7 +495,7 @@ class Combat {
         }
         else {
             var victim, count;
-            [victim, count] = Character.CharacterFunctions.GetCharacterHere(character, args);
+            [victim, count] = character.GetCharacterHere(args);
             if(!victim) {
                 character.send("You don't see them here.\n\r");
             }
@@ -1206,7 +1206,7 @@ class Combat {
             return;
         }
         var count = 0;
-        if (!(victim = ch.Fighting) && !(args.IsNullOrEmpty() || (([victim, count] = Character.CharacterFunctions.GetCharacterHere(ch, args, count)) && victim)))
+        if (!(victim = ch.Fighting) && !(args.IsNullOrEmpty() || (([victim, count] = ch.GetCharacterHere(args, count)) && victim)))
         {
             ch.send("You aren't fighting anyone.\n\r");
             return;
@@ -2011,7 +2011,7 @@ class Combat {
             ch.send("You aren't fighting anyone.\n\r");
             return;
         }
-        else if ((!args.ISEMPTY() && ([victim] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && victim) || (args.ISEMPTY() && !(victim = ch.Fighting)))
+        else if ((!args.ISEMPTY() && ([victim] = ch.GetCharacterHere(args)) && victim) || (args.ISEMPTY() && !(victim = ch.Fighting)))
         {
             ch.send("You don't see them here.\n\r");
             return;
@@ -2309,7 +2309,7 @@ class Combat {
             ch.send("You aren't fighting anyone.\n\r");
             return;
         }
-        else if ((!args.ISEMPTY() && ([victim] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && !victim) || (args.ISEMPTY() && !(victim = ch.Fighting)))
+        else if ((!args.ISEMPTY() && ([victim] = ch.GetCharacterHere(args)) && !victim) || (args.ISEMPTY() && !(victim = ch.Fighting)))
         {
             ch.send("You don't see them here.\n\r");
             return;

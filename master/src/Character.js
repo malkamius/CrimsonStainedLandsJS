@@ -133,7 +133,6 @@ class Character {
     };
 
 	static DoCommands = {};
-    static CharacterFunctions = {};
 	static CaptureCommunications = false;
 	
 	IsNPC = true;
@@ -228,10 +227,12 @@ class Character {
 
 	Dispose() {
 		if(!this.IsNPC) {
-			for(var pet of Character.Characters) {
-				if(pet.Master == this) {
-					pet.Dispose();
+			for(var other of Character.Characters) {
+				if(other.Master == this) {
+					other.Dispose();
 				}
+
+				if(other.LastFighting == this) other.LastFighting = null;
 			}
 		}
 
@@ -1752,7 +1753,7 @@ class Character {
 		for(var key in Character.WearSlots) {
 			var item = this.Equipment[key];
 
-			if(((number && Utility.IsNullOrEmpty(itemname)) || 
+			if(item && ((number && Utility.IsNullOrEmpty(itemname)) || 
 				(!Utility.IsNullOrEmpty(itemname) && Utility.IsName(item.Name, itemname))) 
 				&& ++count >= number) {
 				return [item, count, key];
@@ -2477,6 +2478,30 @@ class Character {
 		return parentelement;
 	}
 
+	GetCharacterList(list, args, count = 0) {
+		if(Utility.Compare(args, "self")) return [player, ++count, ""];
+		var [desiredcount, args] = Utility.NumberArgument(args);
+		
+		for(var key in list) {
+			var ch = list[key];
+			if((ch.IsNPC || ch.status == "Playing") && this.CanSee(ch) && ((desiredcount && desiredcount > 0 && args.ISEMPTY()) || Utility.IsName(ch.Name, args)) && ++count >= desiredcount)
+				return [ch, count, key];
+		}
+		return [null, count, ""];
+	}
+	
+	GetCharacterHere(args, count = 0) {
+		var results = this.GetCharacterList(this.Room.Characters, args, count);
+	
+		return results;
+	
+	}
+
+	GetCharacterWorld(args, count = 0) {
+		var results = this.GetCharacterList(Character.Characters, args, count);
+	
+		return results;
+	}
 }
 
 module.exports = Character;

@@ -485,7 +485,7 @@ Character.DoCommands.DoFollow = function(ch,args)
 	var follow = null;
 	if(args.ISEMPTY()) {
 		ch.send("Follow who?\n\r");
-	} else if (args.equals("self") || ([follow, count] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && follow == ch) {
+	} else if (args.equals("self") || ([follow, count] = ch.GetCharacterHere(args)) && follow == ch) {
 		if (ch.Following)
 		{
 			ch.send("You stop following " + (ch.Following.Display(ch)) + ".\n\r");
@@ -595,7 +595,7 @@ Character.DoCommands.DoGroup = function(ch, args)
 		ch.send("In your dreams, or what?\n\r");
 		return;
 	}
-	else if (args.equals("self") || ([groupWith] = Character.CharacterFunctions.GetCharacterHere(ch, args)) && groupWith == ch)
+	else if (args.equals("self") || ([groupWith] = ch.GetCharacterHere(args)) && groupWith == ch)
 	{
 		ch.send("You can't group with yourself.\n\r");
 	}

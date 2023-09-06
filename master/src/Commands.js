@@ -70,6 +70,12 @@ Commands = {
 		"drink": {Command: Character.DoCommands.DoDrink, MinimumPosition: "Resting" },
 		"eat": {Command: Character.DoCommands.DoEat, MinimumPosition: "Resting" },
 
+		"recite": {Command: Character.DoCommands.DoRecite, MinimumPosition: "Resting" },
+		"zap": {Command: Character.DoCommands.DoZap, MinimumPosition: "Resting" },
+		"brandish": {Command: Character.DoCommands.DoBrandish, MinimumPosition: "Resting" },
+		"quaf": {Command: Character.DoCommands.DoQuaf, MinimumPosition: "Resting" },
+		"use": {Command: Character.DoCommands.DoUse, MinimumPosition: "Resting" },
+
 		"yell": {Command: Character.DoCommands.DoYell, MinimumPosition: "Resting" },
 		"sayto": {Command: Character.DoCommands.DoSayTo, MinimumPosition: "Resting" },
 		"whisper": {Command: Character.DoCommands.DoWhisper, MinimumPosition: "Resting" },

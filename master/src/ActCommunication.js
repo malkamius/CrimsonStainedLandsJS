@@ -20,7 +20,7 @@ Character.DoCommands.DoSayTo = function(character, args, to = null) {
         character.send("Say what to who?\n\r");
         return;
     } 
-    if(!to) [to] = Character.CharacterFunctions.GetCharacterHere(character, name);
+    if(!to) [to] = character.GetCharacterHere(name);
 
     if(!to) {
         character.send("You don't see them here.\n\r");
@@ -69,7 +69,7 @@ Character.DoCommands.DoWhisperTo = function(character, args, to = null) {
         character.send("Whisper what to who?\n\r");
         return;
     } 
-    if(!to) [to] = Character.CharacterFunctions.GetCharacterHere(character, name);
+    if(!to) [to] = character.GetCharacterHere(name);
 
     if(!to) {
         character.send("You don't see them here.\n\r");
@@ -99,7 +99,7 @@ Character.DoCommands.DoTell = function(character, args, to = null) {
         character.send("Tell who what?\n\r");
         return;
     } 
-    if(!to) [to] = Character.CharacterFunctions.GetCharacterList(character, Character.Characters, name);
+    if(!to) [to] = character.GetCharacterWorld(name);
 
     if(!to) {
         character.send("You don't see them here.\n\r");

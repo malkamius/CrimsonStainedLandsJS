@@ -19,8 +19,7 @@ class Dueling
 
     static DoIssueDuelChallenge(character, args)
     {
-        var [victim, count] = Character.CharacterFunctions.GetCharacterList(character, 
-            Character.Characters.Select(ch => ch.status == "Playing"), args);
+        var [victim, count] = character.GetCharacterWorld(args);
         
         if (victim)
         {

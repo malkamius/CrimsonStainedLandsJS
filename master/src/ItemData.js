@@ -151,7 +151,30 @@ class ItemData {
         "Invis": "Invisibility"
     };
 
-
+    static WearSlotIDs = {
+        "None": "None",
+        "LeftFinger": "LeftFinger",
+        "RightFinger": "RightFinger",
+        "About": "About",
+        "Neck1": "Neck1",
+        "Neck2": "Neck2",
+        "Head": "Head",
+        "Chest": "Chest",
+        "Legs": "Legs",
+        "Feet": "Feet",
+        "LeftWrist": "LeftWrist",
+        "RightWrist": "RightWrist",
+        "Wield": "Wield",
+        "DualWield": "DualWield",
+        "Held": "Held",
+        "Shield": "Shield",
+        "Floating": "Floating",
+        "Tattoo": "Tattoo",
+        "Hands": "Hands",
+        "Arms": "Arms",
+        "Waist": "Waist"
+    };
+    
     Template = null;
     VNum = 0;
     Name = "";
@@ -233,12 +256,21 @@ class ItemData {
             this.ArmorSlash = template.ArmorSlash;
             this.ArmorExotic = template.ArmorExotic;
             this.Keys = Utility.CloneArray(template.Keys);
-            for(var affect in template.Affects) {
+
+            for(var spell of template.Spells) {
+                this.Spells.push({Level: spell.Level, SpellName: spell.SpellName, Spell: spell.Spell});
+            }
+
+            for(var affect of template.Affects) {
                 this.Affects.push(new AffectData(affect));
             }
+
             if(room) {
                 room.Items.unshift(this);
                 this.Room = room;
+            } else if(character) {
+                character.Inventory.unshift(this);
+                this.CarriedBy = character;
             }
             ItemData.Items.unshift(this);
         } else {

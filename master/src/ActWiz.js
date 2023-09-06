@@ -23,7 +23,7 @@ Character.DoCommands.DoPeace = function(character, args) {
 }
 
 Character.DoCommands.DoSlay = function(character, args) {
-    var [victim, count] = Character.CharacterFunctions.GetCharacterHere(character, args, 0);
+    var [victim, count] = character.GetCharacterHere(args, 0);
 
     if(victim) {
         character.Act("$n SLAYS $N!", victim, null, null, "ToRoomNotVictim");
@@ -47,7 +47,7 @@ Character.DoCommands.DoGoto = function(ch, args)
     var target;
     var room;
 	if(!vnum) {
-        [target] = Character.CharacterFunctions.GetCharacterList(ch, Character.Characters, args);
+        [target] = ch.GetCharacterWorld(args);
         if(target && target.Room) {
             room = target.Room;
         } else {
@@ -90,7 +90,7 @@ Character.DoCommands.DoTransfer = function(ch, args)
 {
     var target;
 	
-    [target] = Character.CharacterFunctions.GetCharacterList(ch, Character.Characters, args);
+    [target] = ch.GetCharacterWorld(args);
        
     if(target) {
         target.Act("You transfer $n.\n\r", ch, null, null, Character.ActType.ToVictim);
@@ -128,7 +128,7 @@ Character.DoCommands.DoRestore = function(character, args) {
                 player.send("You have been restored.\n\r");
             }
         }
-    } else if(([target] = Character.CharacterFunctions.GetCharacterList(character, Character.Characters, args)) && target) {
+    } else if(([target] = character.GetCharacterWorld(args)) && target) {
         character.Act("You restored $N.", target);
         target.HitPoints = target.MaxHitPoints
         target.ManaPoints = target.MaxManaPoints;
@@ -141,7 +141,7 @@ Character.DoCommands.DoRestore = function(character, args) {
 
 Character.DoCommands.DoStripAffects = function(character, args) {
     const AffectData = require('./AffectData');
-    var [target] = Character.CharacterFunctions.GetCharacterList(character, Character.Characters, args);
+    var [target] = character.GetCharacterWorld(args);
     if(Utility.IsNullOrEmpty(args)) {
         character.send("Stripaffects who?\n\r");
     } else if(target) {
@@ -306,7 +306,7 @@ Character.DoCommands.DoStat = function(character, args) {
                 character.send("Level {0}\n\r", item.Level);
                 character.send("Item Types: {0}\n\r", Utility.JoinFlags(item.ItemTypes));
 
-                var damagemessage = DamageMessage.GetWeaponDamageMessage(itemTemplate.WeaponDamageType);
+                var damagemessage = DamageMessage.GetWeaponDamageMessage(item.WeaponDamageType);
                 if (damagemessage) {
                     character.send("Weapon Damage Type {0}\n\r", damagemessage.Keyword);
                 }
@@ -383,8 +383,8 @@ Character.DoCommands.DoStat = function(character, args) {
         else
         {
             args = args;
-            var [target, count] = Character.CharacterFunctions.GetCharacterHere(character, args);
-            if (!target) [target, count] = Character.CharacterFunctions.GetCharacterList(character, Character.Characters, args, count);
+            var [target, count] = character.GetCharacterHere(args);
+            if (!target) [target, count] = character.GetCharacterWorld(args, count);
             if (!target)
             {
                 character.send("You don't see them here or they are not an NPC.\n\r");
@@ -455,7 +455,7 @@ Character.DoCommands.DoGrant = function(character, args) {
     var command;
     [targetname, args] = args.OneArgument();
     [command, args] = args.OneArgument();
-    var [target] = Character.CharacterFunctions.GetCharacterList(character, Character.Characters, targetname);
+    var [target] = character.GetCharacterWorld(targetname);
     var commands = ["level","title","extendedtitle", "extitle", "skill"];
     if(targetname.ISEMPTY() || args.ISEMPTY() || command.ISEMPTY() || !commands.some(s => s.prefix(command))) {
         character.send("grant @playername [level|title|extendedtitle|extitle|skill] arguments")
