@@ -344,6 +344,9 @@ class Player extends Character {
 						this.SetStatus("CreateNewPassword");
 					}
 					
+				} else if(!this.CheckName(this.Name)) {
+					this.send("Name unavailable.\n\r");
+					this.SetStatus("GetName");
 				} else {
 					this.send("New player detected.\n\r");
 					this.SetStatus("GetNewPassword");
@@ -749,6 +752,15 @@ class Player extends Character {
 	} // end of Set Status
 
 	IsInanimate() {	return this.inanimate; };
+
+	CheckName(name) {
+		if("self".prefix(name) || name.prefix("self")) return false;
+		for(var character of Character.Characters) {
+			if(character.IsNPC && character.Name.IsName(name))
+				return false;
+		}
+		return true;
+	}
 }
 
 module.exports = Player;
