@@ -48,6 +48,7 @@ class Player extends Character {
 	SittingAtPrompt = false;
 	Prompt = "";
 	ClientTypes = Array();
+	LastSavedTime = 0;
 
   	constructor(socket) {
 		super(false);
@@ -118,7 +119,7 @@ class Player extends Character {
 	LoadPlayerData(xml) {
 		if(xml)	{
 			super.Load(xml);
-			
+			this.LastSavedTime = new Date();
 
 			this.ScrollCount = xml.GetElementValueInt("ScrollCount", 40);
 			this.Title = xml.GetElementValue("Title");
@@ -158,7 +159,7 @@ class Player extends Character {
 
 	Save(path) {
 		if(!path) path = Settings.PlayerDataPath + `/${this.Name}.xml`;
-
+		this.LastSavedTime = new Date();
 		var builder = require('xmlbuilder');
 		var xmlelement = super.Element();// builder.create("PlayerData");
 		
@@ -302,8 +303,15 @@ class Player extends Character {
 				}
 
 			}
+		} // input != ""
+		if(this.status == "Playing") {
+			const TimeSpan = require('./TimeSpan');
+			if(this.LastSavedTime && new TimeSpan(new Date() - this.LastSavedTime).totalMinutes >= 5) {
+				this.send("Auto-saving.\n\r");
+				this.Save();
+			}
 		}
-	}
+	} // end HandleInput
 
 	nanny(input) {
 		switch(this.status) {
