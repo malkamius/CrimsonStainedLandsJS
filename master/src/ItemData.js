@@ -212,6 +212,8 @@ class ItemData {
     ArmorExotic = 0;
     Spells = Array();
     Keys = [];
+    Durability = 100;
+    MaxDurability = 100;
 
     constructor(vnum, room, character) {
         var template;
@@ -256,6 +258,8 @@ class ItemData {
             this.ArmorSlash = template.ArmorSlash;
             this.ArmorExotic = template.ArmorExotic;
             this.Keys = Utility.CloneArray(template.Keys);
+            this.Durability = template.Durability;
+            this.MaxDurability = template.MaxDurability;
 
             for(var spell of template.Spells) {
                 this.Spells.push({Level: spell.Level, SpellName: spell.SpellName, Spell: spell.Spell});
@@ -325,7 +329,8 @@ class ItemData {
         this.LongDescription = xml.GetElementValue( "LongDescription", this.LongDescription);
         this.Value = xml.GetElementValueInt("Cost", this.Value);
         this.Value = xml.GetElementValueInt("Value", this.Value);
-
+        this.Durability = xml.GetElementValueInt("Durability", this.Durability)
+        this.MaxDurability = xml.GetElementValueInt("MaxDurability", this.Durability)
         this.Timer = xml.GetElementValueInt("Value", this.Timer);
         if(xml.WEARFLAGS) {
             this.WearFlags = {};
@@ -383,6 +388,8 @@ class ItemData {
         }
 
         itemele.ele("Value", this.Value);
+        itemele.ele("Durability", this.Durability);
+        itemele.ele("MaxDurability", this.MaxDurability);
         itemele.ele("ItemTypes", Utility.JoinFlags(this.ItemTypes));
         itemele.ele("WearFlags", Utility.JoinFlags(this.WearFlags));
         itemele.ele("ExtraFlags", Utility.JoinFlags(this.ExtraFlags));

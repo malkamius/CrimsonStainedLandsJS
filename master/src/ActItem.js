@@ -125,8 +125,8 @@ Character.DoCommands.DoDrop = function (character, args) {
                 character.Act("$n drops $p.", null, item, null, "ToRoom");
 
                 if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.MeltDrop)) {
-                    ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
-                    ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
+                    character.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
+                    character.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
                     item.Dispose();
                 }
             }    
@@ -150,8 +150,8 @@ Character.DoCommands.DoDrop = function (character, args) {
                 character.Act("$n drops $p.", null, item, null, "ToRoom");
 
                 if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.MeltDrop)) {
-                    ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
-                    ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
+                    character.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
+                    character.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
                     item.Dispose();
                 }
             }    
@@ -172,8 +172,8 @@ Character.DoCommands.DoDrop = function (character, args) {
             character.Act("You drop $p.", null, item, null, "ToChar");
             character.Act("$n drops $p.", null, item, null, "ToRoom");
             if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.MeltDrop)) {
-                ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
-                ch.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
+                character.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
+                character.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
                 item.Dispose();
             }
         }
@@ -723,8 +723,8 @@ Character.DoCommands.DoEat = function(character, args) {
             character.Thirst = 40;
             character.Dehydrated = 0;
 
-            character.HitPoints += ch.MaxHitPoints * 0.2;
-            character.HitPoints = Math.min(ch.HitPoints, ch.MaxHitPoints);
+            character.HitPoints += character.MaxHitPoints * 0.2;
+            character.HitPoints = Math.min(character.HitPoints, character.MaxHitPoints);
             character.Act("You devour $p ravenously.", null, item, null, Character.ActType.ToChar);
             character.Act("$n devours $p ravenously.", null, item, null, Character.ActType.ToRoom);
 
@@ -1295,3 +1295,122 @@ Character.DoCommands.DoUse = function(character, args) {
     // if (!found)
     character.send("You can't seem to figure out how to do that.\n\r");
 } // do use
+
+Character.DoCommands.DoRepair = function(character, args) {
+    var shopKeeper = null;
+
+    // Check if the player character is in a form
+    if (character.Form)
+    {
+        character.send("They wouldn't be able to understand you.\n\r");
+        return;
+    }
+
+    // Search for a shopkeeper NPC character in the same room as the player character
+    for (var npc of character.Room.Characters)
+    {
+        if (npc.IsNPC && npc.Flags.ISSET(Character.ActFlags.Shopkeeper))
+        {
+            shopKeeper = npc;
+            break;
+        }
+    }
+
+    // If a shopkeeper is found, proceed with repairs
+    if (shopKeeper && shopKeeper.BuyTypes)
+    {
+        // Display repairable item types and damaged items the player character is wearing or carrying
+        if (args.ISEMPTY()) {
+            character.send("This shop will repair the following types of things: ");
+            character.send("{0}\n\r", Utility.JoinFlags(shopKeeper.BuyTypes));
+            character.Act("$N will repair for you the following goods:", shopKeeper);
+
+            // Get the damaged items from the player character's equipment and inventory
+            var items = [];
+            
+            for(var key in character.Equipment) {
+                var item = character.Equipment[key];
+                if(item && item.Durability < item.MaxDurability && shopKeeper.BuyTypes.IsSetAny(item.ItemTypes)) {
+                    items.push(item);
+                }
+            }
+            for(var item of character.Inventory) {
+                if(item && item.Durability < item.MaxDurability && shopKeeper.BuyTypes.IsSetAny(item.ItemTypes)) {
+                    items.push(item);
+                }
+            }
+
+
+            if (items.length == 0)
+            {
+                character.send("You aren't wearing or carrying any damaged items that this shopkeeper can fix.\n\r");
+                return;
+            }
+
+            // Display the damaged items and their repair costs
+            for (var item of items)
+            {
+                var value = item.Value * shopKeeper.SellProfitPercent / 100 * (item.Durability / item.MaxDurability);
+                character.send("[{0,3}] {1,7} - {2}\n\r", item.Level, value, item.DisplayFlags(character) + item.Display(character));
+            }
+        }
+        else // Repair a specific item
+        {
+            var count = 0;
+
+            // Get the damaged items from the player character's equipment and inventory
+            var items = [];
+        
+            for(var key in character.Equipment) {
+                var item = character.Equipment[key];
+                if(item && item.Durability < item.MaxDurability && shopKeeper.BuyTypes.IsSetAny(item.ItemTypes)) {
+                    items.push(item);
+                }
+            }
+            for(var item of character.Inventory) {
+                if(item && item.Durability < item.MaxDurability && shopKeeper.BuyTypes.IsSetAny(item.ItemTypes)) {
+                    items.push(item);
+                }
+            }
+
+            // Retrieve the specific item to repair
+            var [item] = character.GetItemList(items, args);
+
+            if (!item)
+            {
+                character.send("You don't have that item or it isn't damaged.\n\r");
+                return;
+            }
+
+            // Calculate the repair cost
+            var value = item.Value * shopKeeper.SellProfitPercent / 100 * (item.Durability / item.MaxDurability);
+            var gold = value / 1000;
+            var silver = value % 1000;
+
+            // Check if the player character has enough coins to cover the repair cost
+            if (character.Silver + (character.Gold * 1000) < value)
+            {
+                character.send("You don't have enough coins.\n\r");
+                return;
+            }
+            else
+            {
+                // Deduct the repair cost from the player character's gold and silver
+                character.Silver -= silver;
+                character.Gold -= gold;
+
+                // Repair the item by setting its durability to the maximum
+                item.Durability = item.MaxDurability;
+
+                // Send messages to indicate the successful repair
+                character.Act("$N repairs $p.", shopKeeper, item, null, Character.ActType.ToChar);
+                character.Act("$N repairs $n's $p.", shopKeeper, item, null, Character.ActType.ToRoomNotVictim);
+                character.Act("You repair $n's $p.", shopKeeper, item, null, Character.ActType.ToVictim);
+            }
+        }
+    }
+    else
+    {
+        character.send("You see no shopkeepers here.\n\r");
+    }
+}

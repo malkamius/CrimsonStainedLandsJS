@@ -40,7 +40,8 @@ class ItemTemplateData {
     Spells = Array();
     Timer = -1;
     Keys = [];
-    
+    Durability = 100;
+    MaxDurability = 100;
     
     constructor(area, xml) {
         this.VNum = xml.GetElementValue( "vnum");
@@ -72,6 +73,9 @@ class ItemTemplateData {
         this.ArmorSlash = xml.GetElementValueInt( "ArmorSlash");
         this.ArmorExotic = xml.GetElementValueInt( "ArmorExotic");
         this.Nutrition = xml.GetElementValueInt( "Nutrition");
+
+        this.Durability = xml.GetElementValueInt( "Durability", 100);
+        this.MaxDurability = xml.GetElementValueInt( "MaxDurability", 100);
 
         this.Timer = xml.GetElementValueInt("Timer", -1);
 
