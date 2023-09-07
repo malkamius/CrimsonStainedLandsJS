@@ -111,6 +111,7 @@ Commands = {
 		"trip": {Command: Character.DoCommands.DoTrip, MinimumPosition: "Fighting" },
 		"charge": {Command: Character.DoCommands.DoCharge, MinimumPosition: "Fighting" },
 		"shieldbash": {Command: Character.DoCommands.DoShieldBash, MinimumPosition: "Fighting" },
+		"warcry": {Command: Character.DoCommands.DoWarCry, MinimumPosition: "Fighting" },
 
 		"whirl": {Command: Character.DoCommands.DoWhirl, MinimumPosition: "Fighting" },
 		"boneshatter": {Command: Character.DoCommands.DoBoneshatter, MinimumPosition: "Fighting" },

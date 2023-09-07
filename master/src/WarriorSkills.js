@@ -1021,3 +1021,77 @@ Character.DoCommands.DoCharge = function(ch, args)
     }
     return;
 }
+
+Character.DoCommands.DoWarCry = function(ch, args)
+{
+    var affect;
+    var skill = SkillSpell.SkillLookup("warcry");
+    var skillPercent;
+
+    //if (!ch.IsNPC && ch.Guild != null && !sn.skillLevel.TryGetValue(ch.Guild.name, out lvl))
+    //    lvl = -1;
+
+    //if (!ch.Learned.TryGetValue(sn, out lvl) || lvl <= 1)
+    if ((skillPercent = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("Huh?\n\r");
+        return;
+    }
+
+    if ((affect = ch.FindAffect(skill)) != null)
+    {
+        ch.send("You are already inspired!\n\r");
+        return;
+    }
+    else if (ch.Position == "Standing" && !ch.Fighting)
+    {
+        ch.send("You must be fighting to warcry!\n\r");
+        return;
+    }
+    else if (ch.ManaPoints < 20)
+    {
+        ch.send("You don't have enough mana to warcry.\n\r");
+        return;
+    }
+
+    else
+    {
+        ch.WaitState(skill.WaitTime);
+        if (skillPercent > Utility.NumberPercent())
+        {
+            affect = new AffectData();
+            affect.SkillSpell = skill;
+            affect.Level = ch.Level;
+            affect.Location = AffectData.ApplyTypes.Saves;
+            affect.Duration = 10;
+            affect.Modifier = -8;
+            affect.DisplayName = "warcry";
+            affect.AffectType = AffectData.AffectTypes.Skill;
+            ch.AffectToChar(affect);
+
+            affect = new AffectData();
+            affect.SkillSpell = skill;
+            affect.Level = ch.Level;
+            affect.Location = AffectData.ApplyTypes.Hitroll;
+            affect.Duration = 10;
+            affect.Modifier = +8;
+            affect.DisplayName = "warcry";
+            affect.EndMessage = "Your warcry subsides.\n\r";
+            affect.EndMessageToRoom = "$n's warcry subsides.\n\r";
+            affect.AffectType = AffectData.AffectTypes.Skill;
+            ch.AffectToChar(affect);
+
+            ch.ManaPoints -= 20;
+
+            ch.send("You are inspired by your warcry.\n\r");
+            ch.Act("$n becomes inspired by $s warcry.\n\r", null, null, null, Character.ActType.ToRoom);
+            ch.CheckImprove(skill, true, 1);
+        }
+        else
+        {
+            ch.send("You choke up and fail to yell your warcry.\n\r");
+            ch.Act("$n chokes up and fails to yell their warcry.\n\r", null, null, null, Character.ActType.ToRoom);
+            ch.CheckImprove(skill, false, 1);
+        }
+    }
+}
