@@ -96,7 +96,33 @@ Commands = {
 		"replay": {Command: Character.DoCommands.DoReplay, MinimumPosition: "Dead" },
 		
 		"recall": {Command: Character.DoCommands.DoRecall, MinimumPosition: "Standing" },
-		
+
+
+		"whirl": {Command: Character.DoCommands.DoWhirl, MinimumPosition: "Fighting" },
+		"boneshatter": {Command: Character.DoCommands.DoBoneshatter, MinimumPosition: "Fighting" },
+		"crossdownparry": {Command: Character.DoCommands.DoCrossDownParry, MinimumPosition: "Fighting" },
+		"pummel": {Command: Character.DoCommands.DoPummel, MinimumPosition: "Fighting" },
+		"backhand": {Command: Character.DoCommands.DoBackhand, MinimumPosition: "Fighting" },
+		"sting": {Command: Character.DoCommands.DoSting, MinimumPosition: "Fighting" },
+		"bludgeon": {Command: Character.DoCommands.DoBludgeon, MinimumPosition: "Fighting" },
+		"legsweep": {Command: Character.DoCommands.DoLegsweep, MinimumPosition: "Fighting" },
+		"vitalarea": {Command: Character.DoCommands.DoVitalArea, MinimumPosition: "Fighting" },
+		"doublethrust": {Command: Character.DoCommands.DoDoubleThrust, MinimumPosition: "Fighting" },
+		"jab": {Command: Character.DoCommands.DoJab, MinimumPosition: "Fighting" },
+		"chop": {Command: Character.DoCommands.DoChop, MinimumPosition: "Fighting" },
+		"crescentstrike": {Command: Character.DoCommands.DoCrescentStrike, MinimumPosition: "Fighting" },
+		"overhead": {Command: Character.DoCommands.DoOverhead, MinimumPosition: "Fighting" },
+		"disembowel": {Command: Character.DoCommands.DoDisembowel, MinimumPosition: "Fighting" },
+		"pincer": {Command: Character.DoCommands.DoPincer, MinimumPosition: "Fighting" },
+		"underhandstab": {Command: Character.DoCommands.DoUnderhandStab, MinimumPosition: "Fighting" },
+		"leveragekick": {Command: Character.DoCommands.DoLeverageKick, MinimumPosition: "Fighting" },
+		"cranial": {Command: Character.DoCommands.DoCranial, MinimumPosition: "Fighting" },
+		"entrapweapon": {Command: Character.DoCommands.DoEntrapWeapon, MinimumPosition: "Fighting" },
+		"stripweapon": {Command: Character.DoCommands.DoStripWeapon, MinimumPosition: "Fighting" },
+		"hookweapon": {Command: Character.DoCommands.DoHookWeapon, MinimumPosition: "Fighting" },
+		"weaponbreaker": {Command: Character.DoCommands.DoWeaponBreaker, MinimumPosition: "Fighting" },
+		"dent": {Command: Character.DoCommands.DoDent, MinimumPosition: "Fighting" },
+
 		"scan": {Command: Character.DoCommands.DoScan, MinimumPosition: "Resting" },
 
 		"scrollcount": {Command: Character.DoCommands.DoScrollCount, MinimumPosition: "Dead" },

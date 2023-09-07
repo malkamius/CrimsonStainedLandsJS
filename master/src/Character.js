@@ -1604,11 +1604,11 @@ class Character {
 
 				if (splitamongst.length > 0)
 				{
-					var share_silver = item.Silver / (splitamongst.Count + 1);
-					var extra_silver = item.Silver % (splitamongst.Count + 1);
+					var share_silver = item.Silver / (splitamongst.length + 1);
+					var extra_silver = item.Silver % (splitamongst.length + 1);
 
-					var share_gold = item.Gold / (splitamongst.Count + 1);
-					var extra_gold = item.Gold % (splitamongst.Count + 1);
+					var share_gold = item.Gold / (splitamongst.length + 1);
+					var extra_gold = item.Gold % (splitamongst.length + 1);
 
 
 					this.Silver -= item.Silver;
@@ -2779,6 +2779,52 @@ class Character {
 		}
 		return buf;
 	} // end FormatPrompt
+
+	CheckEnhancedDamage(damage)
+	{
+		// Retrieve the "enhanced damage" skill
+		var enhancedDamageSkill = SkillSpell.SkillLookup("enhanced damage");
+
+		var skillLevel = 0;
+		var diceroll = 0;
+
+		// Check if the character has the enhanced damage skill and a skill level greater than 1
+		if (damage > 0 && enhancedDamageSkill != null && (skillLevel = ch.GetSkillPercentage(enhancedDamageSkill)) > 1)
+		{
+			// Roll a random diceroll value
+			if (skillLevel > (diceroll = Utility.NumberPercent()))
+			{
+				// The character successfully performed enhanced damage
+				ch.CheckImprove(enhancedDamageSkill, true, 1);
+
+				// Increase the damage by a percentage of the original damage based on the diceroll value
+				damage += (damage * diceroll / 50);
+
+				// Check for "enhanced damage II" skill
+				if ((skillLevel = ch.GetSkillPercentage("enhanced damage II")) > 1 && skillLevel > (diceroll = Utility.NumberPercent()))
+				{
+					// The character successfully performed enhanced damage II
+					damage += (damage * diceroll / 50);
+					ch.CheckImprove("enhanced damage II", true, 1);
+				}
+				else if (skillLevel > 1)
+				{
+					// The character failed to perform enhanced damage II
+					ch.CheckImprove("enhanced damage II", false, 1);
+				}
+			}
+			else
+			{
+				// The character failed to perform enhanced damage
+				ch.CheckImprove(enhancedDamageSkill, false, 1);
+			}
+
+			return damage;
+		}
+
+		// No enhanced damage bonus applied
+		return damage;
+	}
 }
 
 module.exports = Character;
@@ -2789,3 +2835,4 @@ ActItem = require("./ActItem");
 ActWiz = require("./ActWiz");
 ActCommunication = require("./ActCommunication");
 Mapper = require("./Mapper");
+WarriorSpecialization = require("./WarriorSpecialization");
