@@ -2358,6 +2358,93 @@ class Combat {
         var skill = SkillSpell.SkillLookup("kotegaeshi");
         ch.WaitState(skill.WaitTime);
         Combat.DoAssassinKotegaeshi(ch, victim);
+    } // end do kotegaeshi
+
+    static Disarm(ch, victim)
+    {
+        var obj;
+
+        if (!(obj = victim.GetEquipment(ItemData.WearSlotIDs.Wield)) && !(obj = victim.GetEquipment(ItemData.WearSlotIDs.DualWield)))
+        {
+            ch.send("They don't seem to be wielding a weapon.\n\r");
+            return;
+        }
+        if (ch.IsAffected(AffectData.AffectFlags.Blind))
+
+        {
+            ch.send("You can't see the person to disarm them!\n\r");
+            return;
+        }
+        if (obj.ExtraFlags.ISSET(ItemData.ExtraFlags.NoRemove) || obj.ExtraFlags.ISSET(ItemData.ExtraFlags.NoDisarm) || victim.IsAffected(SkillSpell.SkillLookup("spiderhands")))
+        {
+            ch.Act("$S weapon won't budge!", victim, null, null, Character.ActType.ToChar);
+            ch.Act("$n tries to disarm you, but your weapon won't budge!", victim, null, null, Character.ActType.ToVictim);
+            ch.Act("$n tries to disarm $N, but fails.", victim, null, null, Character.ActType.ToRoomNotVictim);
+            return;
+        }
+
+        ch.Act("$n DISARMS you and sends your weapon flying!", victim, null, null, Character.ActType.ToVictim);
+        ch.Act("You disarm $N!", victim, null, null, Character.ActType.ToChar);
+        ch.Act("$n disarms $N!", victim, null, null, Character.ActType.ToRoomNotVictim);
+
+        //victim.Equipment[victim.GetEquipmentWearSlot(obj).id] = null;
+        victim.RemoveEquipment(obj, false, false);
+        
+        if (!obj.ExtraFlags.ISSET(ExtraFlags.NoDrop) && !obj.ExtraFlags.ISSET(ExtraFlags.Inventory))
+        {
+            victim.Inventory.Remove(obj);
+            victim.Room.items.unshift(obj);
+            obj.Room = victim.Room;
+            obj.CarriedBy = null;
+            if (victim.IsNPC && victim.Wait == 0 && victim.CanSee(obj))
+            {
+                if (victim.GetItem(obj))
+                    victim.WearItem(obj);
+
+            }
+        }
+        return;
+    }
+
+    static CheckAcrobatics(ch, victim)
+    {
+        var acrobatics;
+        if (!victim.IsAwake) return false;
+        Combat.SetFighting(victim, ch);
+
+        if ((acrobatics = victim.GetSkillPercentage("acrobatics")) > 1 && acrobatics > Utility.NumberPercent())
+        {
+            ch.Act("They nimbly avoid your detrimental attack.");
+            victim.CheckImprove("acrobatics", true, 1);
+            return true;
+        }
+        else if (acrobatics > 1)
+        {
+            victim.CheckImprove("acrobatics", false, 1);
+            return false;
+        }
+        return false;
+    }
+
+    static CheckPreventSurpriseAttacks(ch, victim)
+    {
+        var awareness;
+
+        if (!victim.IsAwake) return false;
+        Combat.SetFighting(victim, ch);
+
+        if (Combat.CheckAcrobatics(ch, victim)) return true;
+        if ((awareness = victim.GetSkillPercentage("awareness")) > 1 && awareness > Utility.NumberPercent())
+        {
+            ch.Act("They were immune to your surprise attack.");
+            victim.CheckImprove("awareness", true, 1);
+            return true;
+        }
+        else if (awareness > 1)
+        {
+            victim.CheckImprove("awareness", false, 1);
+        }
+        return false;
     }
 }
 

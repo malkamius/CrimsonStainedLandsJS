@@ -332,6 +332,10 @@ class SkillSpell {
         return results[0];
         } else return null;
     }
+
+    static GetWeaponSkill(item) {
+        return SkillSpell.GetSkill(item.WeaponType);
+    }
 }
 
 module.exports = SkillSpell;

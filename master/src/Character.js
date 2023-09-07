@@ -2824,6 +2824,10 @@ class Character {
 
 		// No enhanced damage bonus applied
 		return damage;
+	} // End check enhanced damage
+
+	GetEquipment(slot) {
+		return this.Equipment[slot];
 	}
 }
 

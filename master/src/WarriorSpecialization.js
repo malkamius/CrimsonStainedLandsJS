@@ -3,6 +3,7 @@ const Utility = require("./Utility");
 const Character = require("./Character");
 const ItemData = require("./ItemData");
 const Combat = require("./Combat");
+const Game = require("./Game");
 const SkillSpell = require("./SkillSpell");
 const AffectData = require("./AffectData");
 const DamageMessage = require("./DamageMessage");
@@ -1750,3 +1751,414 @@ Character.DoCommands.DoDent = function(ch, argument)
 	}
 	return;
 } // end dent
+
+Character.DoCommands.DoStab = function( ch, argument)
+{
+	var [victim] = ch.GetCharacterHere(argument);
+	var obj;
+	var chance = 0;
+	var dam;
+
+	var dam_each = [
+		0,
+		4,  5,  6,  7,  8,  10, 13, 15, 20, 25,
+		30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
+		58, 58, 59, 60, 61, 61, 62, 63, 64, 64,
+		65, 66, 67, 67, 68, 69, 70, 70, 71, 72,
+		73, 73, 74, 75, 76, 76, 77, 78, 79, 79,
+		90,110,120,150,170,200,230,500,500,500
+	];
+
+	var skill = SkillSpell.SkillLookup("stab");
+	if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+	{
+		ch.send("You don't know how to do that.\n\r");
+	}
+
+	else if (argument.ISEMPTY() && (victim = ch.Fighting) == null)
+	{
+		ch.send("But you aren't fighting anyone.\n\r");
+	}
+	else if (!argument.ISEMPTY() && !victim)
+	{
+		ch.send("They aren't here.\n\r");
+	}
+	else if (victim == ch)
+	{
+		ch.send("You don't want to stab yourself.\n\r");
+	}
+	else if ((!(obj = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) || obj.WeaponType != ItemData.WeaponTypes.Dagger)
+		&& (!(obj = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) || obj.WeaponType != ItemData.WeaponTypes.Dagger))
+	{
+		ch.send("You must wield a dagger to stab someone.\n\r");
+		return;
+	}
+	else if (chance > Utility.NumberPercent())
+	{
+		ch.WaitState(skill.waitTime);
+		ch.Act("You unleash with a viscious stab on $N.", victim, null, null, Character.ActType.ToChar);
+		ch.Act("$n unleashes with a viscious stab.", victim, null, null, Character.ActType.ToVictim);
+		ch.Act("$n unleashes with a viscious stab on $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
+		ch.CheckImprove(skill, true, 1);
+
+
+		var level = ch.Level;
+		if (ch.IsNPC) level = Math.min(level, 51);
+		level = Math.min(level, dam_each.Length - 1);
+		level = Math.max(0, level);
+
+		dam = Utility.Random(dam_each[level] / 2, dam_each[level] * 2);
+		Combat.Damage(ch, victim, dam, skill, obj.WeaponDamageType);
+	}
+	else
+	{
+		ch.WaitState(skill.waitTime);
+		ch.Act("You try to unleash a viscious stab on $N but fail.", victim, null, null, Character.ActType.ToChar);
+		ch.Act("$n tries to unleash a viscious stab but fails.", victim, null, null, Character.ActType.ToVictim);
+		ch.Act("$n tries to unleash a viscious stab on $N but fails.", victim, null, null, Character.ActType.ToRoomNotVictim);
+		ch.CheckImprove(skill, false, 1);
+		Combat.Damage(ch, victim, 0, skill, obj.WeaponDamageType);
+	}
+} // end stab
+
+Character.DoCommands.DoDrum = function(ch, argument)
+{
+	var victim;
+	var chance, numhits, i, dam, learned;
+	var weapon;
+	var weapon2;
+
+	var skill = SkillSpell.SkillLookup("drum");
+	learned = ch.GetSkillPercentage(skill);
+
+	if (learned <= 1)
+	{
+		ch.send("Huh?\n\r");
+		return;
+	}
+
+	if ((victim = ch.Fighting) == null)
+	{
+		ch.send("You aren't fighting anyone.\n\r");
+		return;
+	}
+
+	weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield);
+	if (!weapon)
+	{
+		ch.send("You first need to find a weapon to drum with.\n\r");
+		return;
+	}
+
+	weapon2 = ch.GetEquipment(ItemData.WearSlotIDs.DualWield);
+	if (!weapon2)
+	{
+		ch.send("You need to find another weapon to drum with.\n\r");
+		return;
+	}
+
+	if ((weapon.WeaponType != WeaponTypes.Mace) || (weapon2.WeaponType != WeaponTypes.Mace))
+	{
+		ch.send("You must be wielding two maces to drum.\n\r");
+		return;
+	}
+
+	chance = Utility.NumberPercent();
+
+	if (chance > learned)
+	{
+		ch.Act("You attempt to start drumming with your maces, but fail.", victim, null, null, Character.ActType.ToChar);
+		ch.Act("$n attempts to start drumming with two maces, but fails.", null, null, null, Character.ActType.ToRoom);
+		ch.CheckImprove(skill, false, 1);
+		ch.WaitState(2 * Game.PULSE_VIOLENCE);
+		return;
+	}
+
+	if ((chance + learned) > 170)
+	{
+		numhits = 5;
+	}
+	else if ((chance + learned) > 160)
+	{
+		numhits = 4;
+	}
+	else if ((chance + learned) > 145)
+	{
+		numhits = 3;
+	}
+	else
+	{
+		numhits = 2;
+	}
+
+	ch.Act("$n drums at $N with $s maces.", victim, null, null, Character.ActType.ToRoomNotVictim);
+	ch.Act("$n drums at you with $s maces.", victim, null, null, Character.ActType.ToVictim);
+	ch.Act("You drum at $N with your maces.", victim, null, null, Character.ActType.ToChar);
+
+	for (i = 0; i < numhits; i++)
+	{
+		dam = Utility.dice(51 / 3, 7);
+
+		if (Utility.NumberPercent() > 95)
+		{
+			Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.None);
+			dam = dam - dam / 5;
+			if (ch.Fighting != victim)
+				break;
+			continue;
+		}
+		Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
+		//Combat.OneHit(ch, victim, weapon, false, skill);
+		if (ch.Fighting != victim)
+			break;
+	}
+	if (ch.Fighting == victim) {
+		Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
+	}
+	ch.CheckImprove(skill, true, 1);
+	ch.WaitState(2 * Game.PULSE_VIOLENCE);
+	return;
+} // end do drum
+
+Character.DoCommands.DoImpale = function(ch, args)
+{
+
+	var dam_each = [
+		0,
+		5,  6,  7,  8,  9,  11,  14,  16,  21,  26,
+		31, 36, 41, 46, 51, 56, 56, 56, 57, 58,
+		59, 59, 60, 61, 62, 62, 63, 64, 65, 65,
+		66, 67, 68, 68, 69, 70, 71, 71, 72, 73,
+		74, 74, 75, 76, 77, 77, 78, 79, 80, 80,
+		95, 115, 125, 155, 175, 210, 240, 550, 550, 550
+	];
+	var skill = SkillSpell.SkillLookup("impale");
+	var chance;
+	var dam;
+	var level = ch.Level;
+	var wield = null;
+
+	if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+	{
+		ch.send("You don't know how to do that.\n\r");
+		return;
+	}
+
+	if (ch.Form)
+	{
+		dam_each = [36, 63, 78, 95];
+		level = 3 - ch.Form.Tier;
+		//ch.send("Only animals can impale someone.\n\r");
+		//return;
+	}
+	else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Spear)
+	{
+		ch.send("You must be wearing a spear to impale your enemy.\n\r");
+		return;
+	}
+	var [victim] = ch.GetCharacterHere(args);
+
+	if (args.ISEMPTY() && (victim = ch.Fighting) == null)
+	{
+		ch.send("You aren't fighting anyone.\n\r");
+		return;
+	}
+	else if (!args.ISEMPTY() && !victim)
+	{
+		ch.send("You don't see them here.\n\r");
+		return;
+	}
+
+	//chance += (level * 2);
+	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
+
+	ch.WaitState(skill.WaitTime);
+	if (chance > Utility.NumberPercent())
+	{
+		if (ch.IsNPC)
+			level = Math.min(level, 51);
+		level = Math.min(level, dam_each.Length - 1);
+		level = Math.max(0, level);
+
+
+		ch.Act("$n impales $N, leaving behind a vicious wound.", victim, null, null, Character.ActType.ToRoomNotVictim);
+		ch.Act("$n impale you, leaving behind a vicious wound.", victim, null, null, Character.ActType.ToVictim);
+		ch.Act("You impale $N, leaving behind a vicious wound.", victim, null, null, Character.ActType.ToChar);
+
+		dam = Utility.Random(dam_each[level], dam_each[level] * 2);
+		ch.CheckImprove(skill, true, 1);
+		Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Pierce);
+
+		var bleeding = SkillSpell.SkillLookup("bleeding");
+
+		if (!victim.FindAffect(bleeding))
+		{
+			var aff = new AffectData();
+			aff.SkillSpell = bleeding;
+			aff.Duration = Utility.Random(5, 10);
+			aff.EndMessage = "Your bleeding stops.";
+			aff.EndMessageToRoom = "$n stops bleeding.";
+			aff.OwnerName = ch.Name;
+			aff.Level = ch.Level;
+			aff.Modifier = -4;
+			aff.Location = AffectData.ApplyTypes.Strength;
+			aff.AffectType = AffectData.AffectTypes.Skill;
+			aff.DisplayName = "bleeding";
+			aff.Where = AffectData.AffectWhere.ToAffects;
+
+			victim.AffectToChar(aff);
+		}
+	}
+	else
+	{
+		ch.Act("$n attempts to impale $N but doesn't connect.", victim, null, null, Character.ActType.ToRoomNotVictim);
+		ch.Act("$n tries to impale you!", victim, null, null, Character.ActType.ToVictim);
+		ch.Act("You try to impale $N but fail to connect.", victim, null, null, Character.ActType.ToChar);
+
+		ch.CheckImprove(skill, false, 1);
+		Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.Pierce);
+	}
+	return;
+} // end do impale
+
+
+Character.DoCommands.DoFlurry = function(ch, argument)
+{
+	var victim;
+	var chance = 0, numhits = 0, i = 0, dam = 0;
+	var weapon;
+	var weapon2;
+
+	var skill = SkillSpell.SkillLookup("flurry");
+
+	if (ch.GetSkillPercentage(skill) <= 1)
+	{
+		ch.send("Huh?\n\r");
+		return;
+	}
+
+	if ((victim = ch.Fighting) == null)
+	{
+		ch.send("You aren't fighting anyone.\n\r");
+		return;
+	}
+
+	weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield);
+	if (weapon == null)
+	{
+		ch.send("You first need to find a weapon to flurry with.\n\r");
+		return;
+	}
+
+	weapon2 = ch.GetEquipment(ItemData.WearSlotIDs.DualWield);
+	if (weapon2 == null)
+	{
+		ch.send("You need to find another weapon to flurry with.\n\r");
+		return;
+	}
+
+	if ((weapon.WeaponType != ItemData.WeaponTypes.Sword) || (weapon2.WeaponType != ItemData.WeaponTypes.Sword))
+	{
+		ch.send("You must be wielding two swords to flurry.\n\r");
+		return;
+	}
+
+	chance = Utility.NumberPercent();
+
+	var learned = ch.GetSkillPercentage(skill);
+
+	if (chance > learned)
+	{
+		ch.Act("You attempt to start a flurry, but fail.", victim, null, null, Character.ActType.ToChar);
+		ch.Act("$n flails out wildly with $s swords but blunders.", null, null, null, Character.ActType.ToRoom);
+		ch.CheckImprove(skill, false, 2);
+		ch.WaitState(2 * Game.PULSE_VIOLENCE);
+		return;
+	}
+
+
+
+	if ((chance + learned) > 175)
+	{
+		numhits = 7;
+	}
+	else if ((chance + learned) > 160)
+	{
+		numhits = 6;
+	}
+	else if ((chance + learned) > 145)
+	{
+		numhits = 5;
+	}
+	else if ((chance + learned) > 130)
+	{
+		numhits = 4;
+	}
+	else if ((chance + learned) > 115)
+	{
+		numhits = 3;
+	}
+	else if ((chance + learned) > 100)
+	{
+		numhits = 2;
+	}
+	else if ((chance + learned) > 85)
+	{
+		numhits = 2;
+	}
+	else
+	{
+		numhits = 2;
+	}
+
+	ch.Act("You begin a wild flurry of attacks!", victim, null, null, Character.ActType.ToChar);
+	ch.Act("$n begins a wild flurry of attacks!", null, null, null, Character.ActType.ToRoom);
+	for (i = 0; i < numhits; i++)
+	{
+		if (Utility.NumberPercent() > 80)
+		{
+			dam = Utility.dice(45 / 4, 7);
+			Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Slash);
+			//dam = dam - dam / 5;
+			if (ch.Fighting != victim)
+				break;
+		} else {
+			//dam = Utility.dice(45 / 4, 7);
+			//Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Slash);
+			Combat.OneHit(ch, victim, wield, false, skill);
+		}
+		if (ch.Fighting != victim)
+			break;
+	}
+	ch.CheckImprove(skill, true, 1);
+	ch.WaitState(2 * Game.PULSE_VIOLENCE);
+	if ((numhits == 2))
+	{
+		ch.MovementPoints -= 25;
+	}
+	else if ((numhits == 3))
+	{
+		ch.MovementPoints -= 50;
+	}
+	else if ((numhits == 4))
+	{
+		ch.MovementPoints -= 75;
+	}
+	else if ((numhits == 5))
+	{
+		ch.MovementPoints -= 100;
+	}
+	else if ((numhits == 6))
+	{
+		ch.MovementPoints -= 125;
+	}
+	else if ((numhits == 7))
+	{
+		ch.MovementPoints -= 150;
+	}
+	else
+	{
+		ch.MovementPoints -= 25;
+	}
+	return;
+}

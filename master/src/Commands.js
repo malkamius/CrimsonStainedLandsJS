@@ -104,6 +104,13 @@ Commands = {
 		"slice": {Command: Character.DoCommands.DoSlice, MinimumPosition: "Fighting" },
 		"thrust": {Command: Character.DoCommands.DoThrust, MinimumPosition: "Fighting" },
 		"pierce": {Command: Character.DoCommands.DoPierce, MinimumPosition: "Fighting" },
+		"kick": {Command: Character.DoCommands.DoKick, MinimumPosition: "Fighting" },
+		"disarm": {Command: Character.DoCommands.DoDisarm, MinimumPosition: "Fighting" },
+		"pugil": {Command: Character.DoCommands.DoPugil, MinimumPosition: "Fighting" },
+		"bash": {Command: Character.DoCommands.DoBash, MinimumPosition: "Fighting" },
+		"trip": {Command: Character.DoCommands.DoTrip, MinimumPosition: "Fighting" },
+		"charge": {Command: Character.DoCommands.DoCharge, MinimumPosition: "Fighting" },
+		"shieldbash": {Command: Character.DoCommands.DoShieldBash, MinimumPosition: "Fighting" },
 
 		"whirl": {Command: Character.DoCommands.DoWhirl, MinimumPosition: "Fighting" },
 		"boneshatter": {Command: Character.DoCommands.DoBoneshatter, MinimumPosition: "Fighting" },
@@ -129,6 +136,10 @@ Commands = {
 		"hookweapon": {Command: Character.DoCommands.DoHookWeapon, MinimumPosition: "Fighting" },
 		"weaponbreaker": {Command: Character.DoCommands.DoWeaponBreaker, MinimumPosition: "Fighting" },
 		"dent": {Command: Character.DoCommands.DoDent, MinimumPosition: "Fighting" },
+		"stab": {Command: Character.DoCommands.DoStab, MinimumPosition: "Fighting" },
+		"drum": {Command: Character.DoCommands.DoDrum, MinimumPosition: "Fighting" },
+		"impale": {Command: Character.DoCommands.DoImpale, MinimumPosition: "Fighting" },
+		"flurry": {Command: Character.DoCommands.DoFlurry, MinimumPosition: "Fighting" },
 
 		"scan": {Command: Character.DoCommands.DoScan, MinimumPosition: "Resting" },
 

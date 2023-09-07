@@ -89,7 +89,7 @@ Character.DoCommands.DoFeint = function(ch, args)
 
     if (CheckIsSafe(ch, victim)) return;
 
-    ch.WaitState(skill.waitTime);
+    ch.WaitState(skill.WaitTime);
 
     /* stats */
     chance += ch.GetCurrentStat(PhysicalStatTypes.Dexterity);
@@ -165,7 +165,7 @@ Character.DoCommands.DoBerserk = function(ch, args)
 
     else
     {
-        ch.WaitState(skill.waitTime);
+        ch.WaitState(skill.WaitTime);
         if (skillPercent > Utility.NumberPercent())
         {
             affect = new AffectData();
@@ -239,7 +239,7 @@ Character.DoCommands.DoBerserkersStrike = function(ch, args)
     chance += level / 10;
     var wield = ch.Equipment[ItemData.WearSlotIDs.Wield];
 
-    ch.WaitState(skill.waitTime);
+    ch.WaitState(skill.WaitTime);
     if (chance > Utility.NumberPercent())
     {
         if (wield != null)
@@ -284,7 +284,7 @@ Character.DoCommands.DoRisingKick = function(ch, args)
         return;
     }
 
-    ch.WaitState(skill.waitTime);
+    ch.WaitState(skill.WaitTime);
     var improved = false;
     for (var victim of Utility.CloneArray(ch.Room.Characters))
     {
@@ -428,7 +428,7 @@ Character.DoCommands.DoThrust = function(ch, args)
         return;
     }
 
-    ch.WaitState(skill.waitTime);
+    ch.WaitState(skill.WaitTime);
     if (chance > Utility.NumberPercent())
     {
         ch.Act("$n thrusts at $N, knocking $M back.", victim, null, null, Character.ActType.ToRoomNotVictim);
@@ -500,7 +500,7 @@ Character.DoCommands.DoSlice = function(ch, args)
         return;
     }
 
-    ch.WaitState(skill.waitTime);
+    ch.WaitState(skill.WaitTime);
     if (chance > Utility.NumberPercent())
     {
         ch.Act("$n slices $N with $p, leaving behind a bleeding wound.", victim, wield, null, Character.ActType.ToRoomNotVictim);
@@ -535,6 +535,486 @@ Character.DoCommands.DoSlice = function(ch, args)
         ch.Act("$n attempts to slice $N with $p but doesn't connect.", victim, wield, null, Character.ActType.ToRoomNotVictim);
         ch.Act("$n tries to slice you with $p!", victim, wield, null, Character.ActType.ToVictim);
         ch.Act("You try to slice $N with $p but don't connect.", victim, wield, null, Character.ActType.ToChar);
+
+        ch.CheckImprove(skill, false, 1);
+        Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.Pierce);
+    }
+    return;
+}
+
+Character.DoCommands.DoDisarm = function(ch, args)
+{
+    var victim = null;
+    var obj = null;
+    var wield = null;
+
+    var chance, hth, ch_weapon, vict_weapon, ch_vict_weapon;
+    var skill = SkillSpell.SkillLookup("disarm");
+
+    hth = 0;
+
+    if (skill == null || (chance = ch.GetSkillPercentage("disarm")) <= 1)
+    {
+        ch.send("You don't know how to disarm opponents.\n\r");
+        return;
+    }
+
+    if ((!(wield = ch.GetEquipment(ItemData.WearSlotIDs.Wield))
+        && ((hth = ch.GetSkillPercentage("hand to hand")) <= 1)) || ch.IsNPC)
+    {
+        ch.send("You must wield a weapon to disarm.\n\r");
+        return;
+    }
+
+    if (ch.IsAffected(AffectData.AffectFlags.Blind))
+    {
+        ch.Act("You can't see the person to disarm them!", null, null, null, Character.ActType.ToChar);
+        return;
+    }
+
+    if (!(victim = ch.Fighting))
+    {
+        ch.send("You aren't fighting anyone.\n\r");
+        return;
+    }
+
+    if (!(obj = victim.GetEquipment(ItemData.WearSlotIDs.Wield)) && !(obj = victim.GetEquipment(ItemData.WearSlotIDs.DualWield)))
+    {
+        ch.send("Your opponent is not wielding a weapon.\n\r");
+        return;
+    }
+
+    /* find weapon skills */
+    ch_weapon = ch.GetSkillPercentage(SkillSpell.GetWeaponSkill(wield));
+    vict_weapon = victim.GetSkillPercentage(SkillSpell.GetWeaponSkill(obj));
+    ch_vict_weapon = ch.GetSkillPercentage(SkillSpell.GetWeaponSkill(obj));
+
+    /* skill */
+    if (wield == null)
+        chance = (chance + hth) / 2;
+    else
+        chance = (chance + ch_weapon) / 2;
+
+    //chance += (ch_vict_weapon / 2 - vict_weapon) / 2;
+
+    /* dex vs. strength */
+    //chance += ch.GetCurrentStat(PhysicalStatTypes.Dexterity);
+    //chance -= 2 * ch.GetCurrentStat(PhysicalStatTypes.Strength);
+
+    /* level */
+    chance += (ch.Level - victim.Level);
+
+    /* and now the attack */
+    if (Utility.NumberPercent() < chance)
+    {
+        ch.WaitState(skill.WaitTime);
+        Combat.Disarm(ch, victim);
+        ch.CheckImprove(skill, true, 1);
+    }
+    else
+    {
+        ch.WaitState(skill.WaitTime);
+        ch.Act("You fail to disarm $N.", victim, null, null, Character.ActType.ToChar);
+        ch.Act("$n tries to disarm you, but fails.", victim, null, null, Character.ActType.ToVictim);
+        ch.Act("$n tries to disarm $N, but fails.", victim, null, null, Character.ActType.ToRoomNotVictim);
+        ch.CheckImprove(skill, false, 1);
+    }
+
+    return;
+} // end do disarm
+
+Character.DoCommands.DoKick = function(ch, args)
+{
+    var victim;
+    var dam;
+    var skillPercent = 0;
+
+    var skill = SkillSpell.SkillLookup("kick");
+
+    if ((skillPercent = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You better leave the martial arts to fighters.\n\r");
+        return;
+    }
+
+    if (!(victim = ch.Fighting))
+    {
+        ch.send("You aren't fighting anyone.\n\r");
+        return;
+    }
+
+    ch.WaitState(skill.WaitTime);
+    if (skillPercent > Utility.NumberPercent())
+    {
+        dam = (ch.Level) / 2;
+        dam += Utility.Random(0, (ch.Level) / 6);
+        dam += Utility.Random(0, (ch.Level) / 6);
+        dam += Utility.Random(0, (ch.Level) / 6);
+        dam += Utility.Random(0, (ch.Level) / 6);
+        dam += Utility.Random(0, (ch.Level) / 6);
+        dam += Utility.Random(0, (ch.Level) / 6);
+        dam += Utility.Random(ch.Level / 5, ch.Level / 4);
+
+        Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
+        ch.CheckImprove(skill, true, 1);
+    }
+    else
+    {
+        Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.Bash);
+        ch.CheckImprove(skill, false, 1);
+    }
+} // end do kick
+
+
+Character.DoCommands.DoPugil = function(ch, args)
+{
+    var dam_each = [
+        0,
+        4,  5,  6,  7,  8,   10,  13,  15,  20,  25,
+        30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
+        58, 58, 59, 60, 61, 61
+    ];
+    var skill = SkillSpell.SkillLookup("pugil");
+    var chance;
+    if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You don't know how to do that.\n\r");
+        return;
+    }
+
+    var dam;
+    var level = ch.Level;
+    var [victim] = ch.GetCharacterHere(args);
+
+    if (args.ISEMPTY() && (victim = ch.Fighting) == null)
+    {
+        ch.send("You aren't fighting anyone.\n\r");
+        return;
+    }
+    else if (!args.ISEMPTY() && !victim)
+    {
+        ch.send("You don't see them here.\n\r");
+        return;
+    }
+
+    chance += level / 10;
+    var wield = ch.GetEquipment(ItemData.WearSlotIDs.Wield);
+
+    if (wield == null || wield.WeaponType != ItemData.WeaponTypes.Staff)
+    {
+        ch.send("You must use a staff to pugil someone.\n\r");
+        return;
+    }
+
+    ch.WaitState(skill.WaitTime);
+    if (chance > Utility.NumberPercent())
+    {
+        if (ch.IsNPC)
+            level = Math.min(level, 51);
+        level = Math.min(level, dam_each.Length - 1);
+        level = Math.max(0, level);
+
+        var roll = Utility.Roll(wield.DamageDice);
+        dam = Utility.Random(dam_each[level] + roll, dam_each[level] * 2 + roll);
+
+        ch.Act("$n pugils $N with $p.", victim, wield, null, Character.ActType.ToRoomNotVictim);
+        ch.Act("$n pugils you with $p!", victim, wield, null, Character.ActType.ToVictim);
+        ch.Act("You pugil $N with $p.", victim, wield, null, Character.ActType.ToChar);
+        ch.CheckImprove(skill, true, 1);
+        Combat.Damage(ch, victim, dam, skill, wield != null ? wield.WeaponDamageType.Type : WeaponDamageTypes.Bash);
+    }
+    else
+    {
+        ch.Act("$n attempts to pugil $N with $p.", victim, wield, null, Character.ActType.ToRoomNotVictim);
+        ch.Act("$n attempts to pugil you with $p!", victim, wield, null, Character.ActType.ToVictim);
+        ch.Act("You attempt to pugil $N with $p.", victim, wield, null, Character.ActType.ToChar);
+        ch.CheckImprove(skill, false, 1);
+        Combat.Damage(ch, victim, 0, skill, wield != null ? wield.WeaponDamageType.Type : WeaponDamageTypes.Bash);
+    }
+    return;
+} // end do pugil
+
+Character.DoCommands.DoBash = function(ch, args)
+{
+    var victim;
+    var dam = 0;
+    var skillPercent = 0;
+    var count = 0;
+    var skill = SkillSpell.SkillLookup("bash");
+
+    //if (!ch.IsNPC && ch.Guild != null && !skill.skillLevel.TryGetValue(ch.Guild.name, out lvl))
+    //    lvl = -1;
+
+    if ((skillPercent = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You fall flat on your face.\n\r");
+        ch.WaitState(Game.PULSE_VIOLENCE * 1);
+        return;
+    }
+    var shield;
+    if ((shield = ch.GetEquipment(ItemData.WearSlotIDs.Shield))) {
+        ch.send("You must shield bash someone while holding a shield.\n\r");
+        return;
+    }
+    [victim] = ch.GetCharacterHere(args);
+    if (!(victim || ch.Fighting))
+    {
+        ch.send("You aren't fighting anyone.\n\r");
+        return;
+    }
+
+    if (Combat.CheckIsSafe(ch, victim)) return;
+
+    if (victim == ch)
+        ch.send("You can't bash yourself!.\n\r");
+    else if (Combat.CheckAcrobatics(ch, victim)) return;
+    else if (victim.FindAffect(SkillSpell.SkillLookup("protective shield")))
+    {
+        ch.WaitState(Game.PULSE_VIOLENCE);
+        ch.Act("You try to bash $N but fall straight through $M.\n\r", victim, null, null, Character.ActType.ToChar);
+        ch.Act("$n tries to bash $N but falls straight through $M.\n\r", victim, null, null, Character.ActType.ToRoomNotVictim);
+    }
+    else if (skillPercent > Utility.NumberPercent())
+    {
+        dam += Utility.Random(10, (ch.Level) / 2);
+        if(!ch.Fighting) {
+            ch.Position = "Fighting";
+            ch.Fighting = victim;
+        }
+        ch.Act("You bash $N and they fall to the ground.\n\r", victim, null, null, Character.ActType.ToChar);
+        ch.Act("$n bashes $N to the ground.\n\r", victim, null, null, Character.ActType.ToRoomNotVictim);
+        victim.send("{0} bashes you to the ground.\n\r", ch.Display(victim));
+        victim.Position = "Sitting";
+        Combat.Damage(ch, victim, dam, skill);
+        ch.WaitState(Game.PULSE_VIOLENCE * 2);
+        victim.WaitState(Game.PULSE_VIOLENCE * 1);
+        ch.CheckImprove(skill, true, 1);
+        Combat.CheckCheapShot(victim);
+        Combat.CheckGroundControl(victim);
+    }
+    else
+    {
+        ch.WaitState(Game.PULSE_VIOLENCE * 1);
+        ch.send("You fall flat on your face.\n\r");
+        ch.Position = Positions.Sitting;
+        ch.CheckImprove(skill, false, 1);
+    }
+} // end do bash
+
+Character.DoCommands.DoTrip = function(ch, args)
+{
+    var victim = null;
+    var dam = 0;
+    var skillPercent = 0;
+    var count = 0;
+    var skill = SkillSpell.SkillLookup("trip");
+    [victim] = ch.GetCharacterHere(args)
+
+    if ((skillPercent = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You stumble and your feet get crossed.\n\r");
+    }
+
+    else if (args.ISEMPTY() && !(victim = ch.Fighting))
+    {
+        ch.Act("You aren't fighting anyone.\n\r");
+    }
+    else if (!args.ISEMPTY() && !victim)
+    {
+        ch.Act("They aren't here!\n\r");
+    }
+    else if (Combat.CheckIsSafe(ch, victim))
+    {
+
+    }
+    else if (victim == ch)
+    {
+        ch.send("You can't trip yourself!.\n\r");
+    }
+
+    else if (Combat.CheckAcrobatics(ch, victim)) return;
+
+    else if (victim.IsAffected(AffectData.AffectFlags.Flying))
+    {
+        ch.send("Their feet aren't on the ground.\n\r");
+    }
+    else if (skillPercent > Utility.NumberPercent())
+    {
+        dam += Utility.dice(2, 3, 8);
+
+        //Utility.Random(6, Math.Max(8,(ch.Level) / 5));
+        if(!ch.Fighting) {
+            ch.Position = "Fighting";
+            ch.Fighting = victim;
+        }
+        ch.Act("You trip $N and $E falls to the ground.\n\r", victim);
+        ch.Act("$n trips $N and $E falls to the ground.\n\r", victim, null, null, Character.ActType.ToRoomNotVictim);
+        victim.Act("$N trips you to the ground.\n\r", ch);
+
+        Combat.Damage(ch, victim, dam, skill);
+        ch.WaitState(skill.WaitTime);
+        victim.WaitState(Game.PULSE_VIOLENCE * 1);
+        ch.CheckImprove(skill, true, 1);
+        Combat.CheckCheapShot(victim);
+        Combat.CheckGroundControl(victim);
+    }
+    else
+    {
+        ch.WaitState(skill.WaitTime);
+        ch.Act("You fail to trip them.\n\r");
+        Combat.Damage(ch, victim, 0, skill);
+        ch.CheckImprove(skill, false, 1);
+    }
+} // end do trip
+
+Character.DoCommands.DoShieldBash = function(ch, args)
+{
+    var victim;
+    var dam = 0;
+    var skillPercent = 0;
+    var count = 0;
+    var skill = SkillSpell.SkillLookup("shield bash");
+
+    //if (!ch.IsNPC && ch.Guild != null && !skill.skillLevel.TryGetValue(ch.Guild.name, out lvl))
+    //    lvl = -1;
+
+    if ((skillPercent = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You don't know how to do that.\n\r");
+        ch.WaitState(Game.PULSE_VIOLENCE * 1);
+        return;
+    }
+    var shield;
+    if (!(shield = ch.GetEquipment(ItemData.WearSlotIDs.Shield)))
+    {
+        ch.send("You must be holding a shield to shield bash someone.\n\r");
+        return;
+    }
+    if (!(victim = (ch.GetCharacterHere(args)) || ch.Fighting))
+    {
+        ch.send("You aren't fighting anyone.\n\r");
+        return;
+    }
+
+    if (Combat.CheckIsSafe(ch, victim)) return;
+
+    if (victim == ch)
+        ch.send("You can't shield bash yourself!.\n\r");
+
+    else if (Combat.CheckAcrobatics(ch, victim)) return;
+
+    else if (victim.FindAffect(SkillSpell.SkillLookup("protective shield")))
+    {
+        ch.WaitState(Game.PULSE_VIOLENCE);
+        ch.Act("You try to shield bash $N but miss $M.\n\r", victim, null, null, Character.ActType.ToChar);
+        ch.Act("$n tries to shield bash $N but miss $M.\n\r", victim, null, null, Character.ActType.ToRoomNotVictim);
+    }
+    else if (skillPercent > Utility.NumberPercent())
+    {
+        dam += Utility.Random(10, (ch.Level) / 2);
+
+        if(!ch.Fighting) {
+            ch.Position = "Fighting";
+            ch.Fighting = victim;
+        }
+        ch.Act("You shield bash $N and they fall to the ground.\n\r", victim, null ,null, Character.ActType.ToChar);
+        ch.Act("$n shield bashes $N to the ground.\n\r", victim, null ,null, Character.ActType.ToRoomNotVictim);
+        ch.Act("$n shield bashes you to the ground.\n\r", victim, null ,null, Character.ActType.ToVictim);
+
+        Combat.Damage(ch, victim, dam, skill);
+        ch.WaitState(Game.PULSE_VIOLENCE * 2);
+        victim.WaitState(Game.PULSE_VIOLENCE * 1);
+        ch.CheckImprove(skill, true, 1);
+        Combat.CheckCheapShot(victim);
+        Combat.CheckGroundControl(victim);
+    }
+    else
+    {
+        ch.WaitState(Game.PULSE_VIOLENCE * 1);
+        ch.send("You failed to shield bash.\n\r");
+        ch.CheckImprove(skill, false, 1);
+    }
+} // end shield bash
+
+
+Character.DoCommands.DoCharge = function(ch, args)
+{
+
+    var dam_each = [
+        0,
+        5,  6,  7,  8,  9,  11,  14,  16,  21,  26,
+        31, 36, 41, 46, 51, 56, 56, 56, 57, 58,
+        59, 59, 60, 61, 62, 62, 63, 64, 65, 65,
+        66, 67, 68, 68, 69, 70, 71, 71, 72, 73,
+        74, 74, 75, 76, 77, 77, 78, 79, 80, 80,
+        95, 115, 125, 155, 175, 210, 240, 550, 550, 550
+    ];
+    var skill = SkillSpell.SkillLookup("charge");
+    var chance;
+    var dam;
+    var level = ch.Level;
+    var wield = null;
+
+    if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You don't know how to do that.\n\r");
+        return;
+    }
+
+    if (ch.Form)
+    {
+        dam_each = [36, 63, 78, 95];
+        level = 3 - ch.Form.Tier;
+    }
+    else if (!(wield = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) || (wield.WeaponType != ItemData.WeaponTypes.Spear && wield.WeaponType != ItemData.WeaponTypes.Polearm))
+    {
+        ch.send("You must be wearing a spear or polearm to charge your enemy.\n\r");
+        return;
+    }
+    var victim = null;
+
+    if (ch.Position == "Fighting")
+    {
+        ch.send("You're too busy fighting already!\n\r");
+        return;
+    }
+
+    victim = ch.GetCharacterHere(args);
+
+    if (args.ISEMPTY() || !victim)
+    {
+        ch.send("You don't see them here.\n\r");
+        return;
+    }
+
+    //chance += (level * 2);
+
+    ch.WaitState(skill.WaitTime);
+
+    if (Combat.CheckPreventSurpriseAttacks(ch, victim)) return;
+
+    if (chance > Utility.NumberPercent())
+    {
+        if (ch.IsNPC)
+            level = Math.min(level, 51);
+        level = Math.min(level, dam_each.Length - 1);
+        level = Math.max(0, level);
+
+
+        ch.Act("$n charges $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
+        ch.Act("$n charges you.", victim, null, null, Character.ActType.ToVictim);
+        ch.Act("You charge $N.", victim, null, null, Character.ActType.ToChar);
+
+        dam = Utility.Random(dam_each[level] * 3, dam_each[level] * 4);
+        ch.CheckImprove(skill, true, 1);
+        Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Pierce);
+
+    }
+    else
+    {
+        ch.Act("$n tries to charge $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
+        ch.Act("$n tries to charge you but fails!", victim, null, null, Character.ActType.ToVictim);
+        ch.Act("You try to charge $N but fail.", victim, null, null, Character.ActType.ToChar);
 
         ch.CheckImprove(skill, false, 1);
         Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.Pierce);
