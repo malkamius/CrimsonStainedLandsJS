@@ -2836,3 +2836,4 @@ ActWiz = require("./ActWiz");
 ActCommunication = require("./ActCommunication");
 Mapper = require("./Mapper");
 WarriorSpecialization = require("./WarriorSpecialization");
+WarriorSkills = require("./WarriorSkills");

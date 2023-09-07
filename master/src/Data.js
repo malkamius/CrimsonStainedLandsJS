@@ -17,6 +17,17 @@ function LoadData(callback) {
 	SkillGroup.Load();
     Liquid.Load();
 	Program.LoadPrograms();
+	const Commands = require("./Commands");
+	var count = 0;
+	for(var skillname in SkillSpell.Skills) {
+		var skill = SkillSpell.Skills[skillname];
+		if(!skill.SpellFuncName && skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) && !Commands[skillname.replaceAll(" ", "")]) {
+			console.log("Unlinked skill: " + skillname);
+			count++;
+		}
+	}
+	console.log(count + " unlinked skills");
+
 	LoadRaces(callback);
 }
 

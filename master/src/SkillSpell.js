@@ -18,6 +18,19 @@ class SkillSpell {
         "InForm",
         "WarriorSpecialization",
     ];
+
+    static SkillSpellTypesList = {
+        "None": "None",
+        "Skill": "Skill",
+        "Spell": "Spell",
+        "Commune": "Commune",
+        "Power": "Power",
+        "Song": "Song",
+        "Form": "Form",
+        "InForm": "InForm",
+        "WarriorSpecialization": "WarriorSpecialization",
+    };
+
     static CastType =
     {
         "None" : "None",

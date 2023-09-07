@@ -97,6 +97,13 @@ Commands = {
 		
 		"recall": {Command: Character.DoCommands.DoRecall, MinimumPosition: "Standing" },
 
+		"rescue": {Command: Character.DoCommands.DoRescue, MinimumPosition: "Fighting" },
+		"berserk": {Command: Character.DoCommands.DoBerserk, MinimumPosition: "Fighting" },
+		"berserkersstrike": {Command: Character.DoCommands.DoBerserkersStrike, MinimumPosition: "Fighting" },
+		"risingkick": {Command: Character.DoCommands.DoRisingKick, MinimumPosition: "Fighting" },
+		"slice": {Command: Character.DoCommands.DoSlice, MinimumPosition: "Fighting" },
+		"thrust": {Command: Character.DoCommands.DoThrust, MinimumPosition: "Fighting" },
+		"pierce": {Command: Character.DoCommands.DoPierce, MinimumPosition: "Fighting" },
 
 		"whirl": {Command: Character.DoCommands.DoWhirl, MinimumPosition: "Fighting" },
 		"boneshatter": {Command: Character.DoCommands.DoBoneshatter, MinimumPosition: "Fighting" },
@@ -147,5 +154,5 @@ Commands = {
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};
-
+	
 module.exports = Commands;
