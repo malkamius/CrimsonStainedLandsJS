@@ -2098,8 +2098,8 @@ class Character {
 		var obj;
 
 		if (gold < 0 || silver < 0 || (gold == 0 && silver == 0)) {
-			gold = Math.Max(1, gold);
-			silver = Math.Max(1, silver);
+			gold = Math.max(1, gold);
+			silver = Math.max(1, silver);
 		}
 
 		if (gold == 0 && silver == 1) {

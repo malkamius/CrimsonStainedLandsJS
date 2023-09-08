@@ -668,20 +668,20 @@ Character.DoCommands.DoBindWounds = function(ch, args)
 	ch.HitPoints += ch.MaxHitPoints * 0.2;
 	ch.HitPoints = Math.min(ch.HitPoints, ch.MaxHitPoints);
 
-	if (Utility.NumberPercent() < Math.Max(1, ch.Level / 4) && ch.IsAffected(AffectData.AffectFlags.Plague))
+	if (Utility.NumberPercent() < Math.max(1, ch.Level / 4) && ch.IsAffected(AffectData.AffectFlags.Plague))
 	{
 		ch.AffectFromChar(ch.FindAffect(SkillSpell.SkillLookup("plague")), AffectData.AffectRemoveReason.Cleansed);
 		ch.Act("The sores on $n's body vanish.\n\r", null, null, null, Character.ActType.ToRoom);
 		ch.send("The sores on your body vanish.\n\r");
 	}
 
-	if (Utility.NumberPercent() < Math.Max(1, (ch.Level)) && ch.IsAffected(AffectData.AffectFlags.Blind))
+	if (Utility.NumberPercent() < Math.max(1, (ch.Level)) && ch.IsAffected(AffectData.AffectFlags.Blind))
 	{
 		ch.AffectFromChar(ch.FindAffect(SkillSpell.SkillLookup("blindness")), AffectData.AffectRemoveReason.Cleansed);
 		ch.send("Your vision returns!\n\r");
 	}
 
-	if (Utility.NumberPercent() < Math.Max(1, ch.Level / 2) && ch.IsAffected(AffectData.AffectFlags.Poison))
+	if (Utility.NumberPercent() < Math.max(1, ch.Level / 2) && ch.IsAffected(AffectData.AffectFlags.Poison))
 	{
 		ch.AffectFromChar(ch.FindAffect(SkillSpell.SkillLookup("poison")), AffectData.AffectRemoveReason.Cleansed);
 		ch.send("A warm feeling goes through your body.\n\r");
@@ -916,13 +916,13 @@ Character.DoCommands.DoStrangle = function(ch, args)
             ch.Act("$n strangles you.", victim, null, null, Character.ActType.ToVictim);
             ch.Act("You strangle $N.", victim, null, null, Character.ActType.ToChar);
 
-            StopFighting(victim, true);
-            victim.Position = Positions.Sleeping;
+            Combat.StopFighting(victim, true);
+            victim.Position = "Sleeping";
             var affect = new AffectData();
             affect.DisplayName = "strangle";
             affect.Flags.SETBIT(AffectData.AffectFlags.Sleep);
             affect.Duration = 3;
-            affect.Where = AffectWhere.ToAffects;
+            affect.Where = AffectData.AffectWhere.ToAffects;
             affect.SkillSpell = skill;
             affect.EndMessage = "You feel able to wake yourself up.";
 
@@ -974,11 +974,11 @@ Character.DoCommands.DoBlindnessDust = function(ch, args)
             continue;
         if (Combat.CheckIsSafe(ch, victim))
             continue;
-        if ((victim.ImmuneFlags.ISSET(DamageMessage.WeaponDamageTypes.Blind) || (victim.Form && victim.Form.ImmuneFlags.ISSET(DamageMessage.WeaponDamageTypes.Blind))) && !victim.IsAffected(AffectData.AffectFlags.Deafen))
-        {
-            victim.Act("$n is immune to blindness.", null, null, null, Character.ActType.ToRoom);
-            continue;
-        }
+        // if ((victim.ImmuneFlags.ISSET(DamageMessage.WeaponDamageTypes.Blind) || (victim.Form && victim.Form.ImmuneFlags.ISSET(DamageMessage.WeaponDamageTypes.Blind))) && !victim.IsAffected(AffectData.AffectFlags.Deafen))
+        // {
+        //     victim.Act("$n is immune to blindness.", null, null, null, Character.ActType.ToRoom);
+        //     continue;
+        // }
         if (victim.IsAffected(AffectData.AffectFlags.Blind))
         {
             ch.Act("$N is already blind.", victim);
@@ -1059,8 +1059,10 @@ Character.DoCommands.DoPoisonDust = function(ch, args)
             victim.AffectToChar(affect);
             victim.Act("$n is poisoned by inhaling poison dust!", null, null, null, Character.ActType.ToRoom);
         }
-        if (victim.Fighting == null)
-            Combat.multiHit(victim, ch);
+        if (victim.Fighting == null && victim.Position != "Sleeping") {
+            victim.Fighting = ch;
+            Combat.ExecuteRound(victim);
+        }
     }
     ch.CheckImprove(skill, true, 1);
 

@@ -6,6 +6,7 @@ const Combat = require("./Combat");
 const SkillSpell = require("./SkillSpell");
 const AffectData = require("./AffectData");
 const DamageMessage = require("./DamageMessage");
+const Game = require("./Game");
 
 
 Character.DoCommands.DoRescue = function(ch, args)
@@ -711,7 +712,7 @@ Character.DoCommands.DoPugil = function(ch, args)
     {
         if (ch.IsNPC)
             level = Math.min(level, 51);
-        level = Math.min(level, dam_each.Length - 1);
+        level = Math.min(level, dam_each.length - 1);
         level = Math.max(0, level);
 
         var roll = Utility.Roll(wield.DamageDice);
@@ -840,9 +841,9 @@ Character.DoCommands.DoTrip = function(ch, args)
     }
     else if (skillPercent > Utility.NumberPercent())
     {
-        dam += Utility.dice(2, 3, 8);
+        dam += Utility.Roll([2, 3, 8]);
 
-        //Utility.Random(6, Math.Max(8,(ch.Level) / 5));
+        //Utility.Random(6, Math.max(8,(ch.Level) / 5));
         if(!ch.Fighting) {
             ch.Position = "Fighting";
             ch.Fighting = victim;
@@ -997,7 +998,7 @@ Character.DoCommands.DoCharge = function(ch, args)
     {
         if (ch.IsNPC)
             level = Math.min(level, 51);
-        level = Math.min(level, dam_each.Length - 1);
+        level = Math.min(level, dam_each.length - 1);
         level = Math.max(0, level);
 
 

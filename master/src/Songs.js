@@ -20,7 +20,7 @@ class Songs {
             {
                 var FuzzyRefreshAmount = Utility.Random(RefreshAmount - 5, RefreshAmount + 5);
 
-                GroupMember.MovementPoints = Math.Min(GroupMember.MovementPoints + FuzzyRefreshAmount, GroupMember.MaxMovementPoints);
+                GroupMember.MovementPoints = Math.min(GroupMember.MovementPoints + FuzzyRefreshAmount, GroupMember.MaxMovementPoints);
 
                 GroupMember.Act("You feel able to walk further.\n\r\n\r");
             }
@@ -49,7 +49,7 @@ class Songs {
             {
                 var FuzzyRefreshAmount = Utility.Random(HealAmount - 5, HealAmount + 5);
 
-                GroupMember.HitPoints = Math.Min(GroupMember.HitPoints + FuzzyRefreshAmount, GroupMember.MaxHitPoints);
+                GroupMember.HitPoints = Math.min(GroupMember.HitPoints + FuzzyRefreshAmount, GroupMember.MaxHitPoints);
 
                 GroupMember.Act("You feel a little better.\n\r\n\r");
             }
@@ -77,7 +77,7 @@ class Songs {
             {
                 var FuzzyRefreshAmount = Utility.Random(HealAmount - 10, HealAmount + 10);
 
-                GroupMember.HitPoints = Math.Min(GroupMember.HitPoints + FuzzyRefreshAmount, GroupMember.MaxHitPoints);
+                GroupMember.HitPoints = Math.min(GroupMember.HitPoints + FuzzyRefreshAmount, GroupMember.MaxHitPoints);
 
                 GroupMember.Act("You feel much better.\n\r\n\r");
             }
@@ -447,7 +447,7 @@ class Songs {
             {
                 var FuzzyManaAmount = Utility.Random(ManaAmount - 10, ManaAmount + 10);
 
-                GroupMember.ManaPoints = Math.Min(GroupMember.ManaPoints + FuzzyManaAmount, GroupMember.MaxManaPoints);
+                GroupMember.ManaPoints = Math.min(GroupMember.ManaPoints + FuzzyManaAmount, GroupMember.MaxManaPoints);
 
                 GroupMember.Act("You feel better able to concentrate.\n\r\n\r");
             }

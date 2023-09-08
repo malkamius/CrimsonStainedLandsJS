@@ -48,7 +48,7 @@ Character.DoCommands.DoAngelsWing = function(ch, args)
 
 		if (ch.IsNPC)
 			level = Math.min(level, 51);
-		level = Math.min(level, dam_each.Length - 1);
+		level = Math.min(level, dam_each.length - 1);
 		level = Math.max(0, level);
 
 		dam = Utility.Random(dam_each[level], dam_each[level] * 2);
@@ -119,7 +119,7 @@ Character.DoCommands.DoPalmSmash = function(ch, args)
 	{
 		if (ch.IsNPC)
 			level = Math.min(level, 51);
-		level = Math.min(level, dam_each.Length - 1);
+		level = Math.min(level, dam_each.length - 1);
 		level = Math.max(0, level);
 
 		dam = Utility.Random(dam_each[level] * 2, dam_each[level] * 3);
@@ -225,7 +225,7 @@ Character.DoCommands.DoHandFlurry = function(ch, args)
 
 	if (ch.IsNPC)
 		level = Math.min(level, 51);
-	level = Math.min(level, dam_each.Length - 1);
+	level = Math.min(level, dam_each.length - 1);
 	level = Math.max(0, level);
 
 	for (i = 0; i < numhits; i++)
@@ -311,7 +311,7 @@ Character.DoCommands.DoMaceFlurry = function(ch, args)
 
 	if (ch.IsNPC)
 		level = Math.min(level, 51);
-	level = Math.min(level, dam_each.Length - 1);
+	level = Math.min(level, dam_each.length - 1);
 	level = Math.max(0, level);
 
 	for (i = 0; i < numhits; i++)
@@ -382,7 +382,7 @@ Character.DoCommands.DoLanceCharge = function(ch, args)
 	{
 		if (ch.IsNPC)
 			level = Math.min(level, 51);
-		level = Math.min(level, dam_each.Length - 1);
+		level = Math.min(level, dam_each.length - 1);
 		level = Math.max(0, level);
 
 
@@ -448,7 +448,7 @@ Character.DoCommands.DoSabreCharge = function(ch, args)
 
 	if (ch.IsNPC)
 		level = Math.min(level, 51);
-	level = Math.min(level, dam_each.Length - 1);
+	level = Math.min(level, dam_each.length - 1);
 	level = Math.max(0, level);
 
 	if (chance > Utility.NumberPercent())
@@ -517,7 +517,7 @@ Character.DoCommands.DoCrushingCharge = function(ch, args)
 
 	if (ch.IsNPC)
 		level = Math.min(level, 51);
-	level = Math.min(level, dam_each.Length - 1);
+	level = Math.min(level, dam_each.length - 1);
 	level = Math.max(0, level);
 
 	if (chance > Utility.NumberPercent())
@@ -666,7 +666,7 @@ Character.DoCommands.DoCrusaderStrike = function(ch, args)
         ch.WaitState(skill.WaitTime);
         if (ch.IsNPC)
             level = Math.min(level, 51);
-        level = Math.min(level, dam_each.Length - 1);
+        level = Math.min(level, dam_each.length - 1);
         level = Math.max(0, level);
         var roll = Utility.Roll(weapon.DamageDice);
 

@@ -1212,9 +1212,9 @@ Character.DoCommands.DoPepperDust = function(ch, args)
         if (chance > Utility.NumberPercent())
         {
             if (ch.IsNPC)
-                level = Math.Min(level, 51);
-            level = Math.Min(level, dam_each.Length - 1);
-            level = Math.Max(0, level);
+                level = Math.min(level, 51);
+            level = Math.min(level, dam_each.length - 1);
+            level = Math.max(0, level);
 
             dam = Utility.Random(dam_each[level] / 2, dam_each[level]);
 
@@ -1295,9 +1295,9 @@ Character.DoCommands.DoBlisterAgent = function(ch, args)
         if (chance > Utility.NumberPercent())
         {
             if (ch.IsNPC)
-                level = Math.Min(level, 51);
-            level = Math.Min(level, dam_each.Length - 1);
-            level = Math.Max(0, level);
+                level = Math.min(level, 51);
+            level = Math.min(level, dam_each.length - 1);
+            level = Math.max(0, level);
 
             dam = Utility.Random(dam_each[level] / 2, dam_each[level]);
 
@@ -1380,9 +1380,9 @@ Character.DoCommands.DoEarClap = function(ch, args)
     else if (chance > Utility.NumberPercent())
     {
         if (ch.IsNPC)
-            level = Math.Min(level, 51);
-        level = Math.Min(level, dam_each.Length - 1);
-        level = Math.Max(0, level);
+            level = Math.min(level, 51);
+        level = Math.min(level, dam_each.length - 1);
+        level = Math.max(0, level);
 
         ch.Act("$n deafens $N with a powerful ear clap.", victim, null, null, Character.ActType.ToRoomNotVictim);
         ch.Act("$n deafens you with a powerful ear clap.", victim, null, null, Character.ActType.ToVictim);
@@ -1459,9 +1459,9 @@ Character.DoCommands.DoStenchCloud = function(ch, args)
         if (chance > Utility.NumberPercent())
         {
             if (ch.IsNPC)
-                level = Math.Min(level, 51);
-            level = Math.Min(level, dam_each.Length - 1);
-            level = Math.Max(0, level);
+                level = Math.min(level, 51);
+            level = Math.min(level, dam_each.length - 1);
+            level = Math.max(0, level);
 
             dam = Utility.Random(dam_each[level] / 2, dam_each[level]);
 
@@ -1619,9 +1619,9 @@ Character.DoCommands.DoKnife = function(ch, argument)
 		var roll = Utility.Roll(obj.DamageDice) + ch.DamageRoll;
 
 		if (ch.IsNPC)
-			level = Math.Min(level, 51);
-		level = Math.Min(level, dam_each.Length - 1);
-		level = Math.Max(0, level);
+			level = Math.min(level, 51);
+		level = Math.min(level, dam_each.length - 1);
+		level = Math.max(0, level);
 
 		dam = Utility.Random(dam_each[level] + roll, dam_each[level] * 3 / 2 + roll);
 
@@ -1720,9 +1720,9 @@ Character.DoCommands.DoBackstab = function(ch, argument)
 		var roll = Utility.Roll(obj.DamageDice) + ch.DamageRoll;
 
 		if (ch.IsNPC)
-			level = Math.Min(level, 51);
-		level = Math.Min(level, dam_each.Length - 1);
-		level = Math.Max(0, level);
+			level = Math.min(level, 51);
+		level = Math.min(level, dam_each.length - 1);
+		level = Math.max(0, level);
 
 		dam = Utility.Random(dam_each[level] + roll, dam_each[level] * 2 + roll);
 
@@ -1817,9 +1817,9 @@ Character.DoCommands.DoDualBackstab = function(ch, argument)
 		ch.Act("$n backstabs you with $s daggers.\n\r", victim, null, Character.ActType.ToVictim);
 
 		if (ch.IsNPC)
-			level = Math.Min(level, 51);
-		level = Math.Min(level, dam_each.Length - 1);
-		level = Math.Max(0, level);
+			level = Math.min(level, 51);
+		level = Math.min(level, dam_each.length - 1);
+		level = Math.max(0, level);
 
 		var roll = Utility.Roll(weapon.DamageDice);
 		dam = Utility.Random(dam_each[level] + roll, dam_each[level] * 2 + roll);

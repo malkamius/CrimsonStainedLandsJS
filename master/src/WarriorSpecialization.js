@@ -1804,7 +1804,7 @@ Character.DoCommands.DoStab = function( ch, argument)
 
 		var level = ch.Level;
 		if (ch.IsNPC) level = Math.min(level, 51);
-		level = Math.min(level, dam_each.Length - 1);
+		level = Math.min(level, dam_each.length - 1);
 		level = Math.max(0, level);
 
 		dam = Utility.Random(dam_each[level] / 2, dam_each[level] * 2);
@@ -1977,7 +1977,7 @@ Character.DoCommands.DoImpale = function(ch, args)
 	{
 		if (ch.IsNPC)
 			level = Math.min(level, 51);
-		level = Math.min(level, dam_each.Length - 1);
+		level = Math.min(level, dam_each.length - 1);
 		level = Math.max(0, level);
 
 

@@ -2483,6 +2483,13 @@ class Combat {
         else ch.CheckImprove(skill, false, 1);
         return dam;
     } // prey on the weak
+
+    static multiHit(character, victim) {
+        if(!character.Fighting && character.Position != "Sleeping") {
+            character.Fighting = victim;
+            Combat.ExecuteRound(character);
+        }
+    }
 }
 
 module.exports = Combat;
