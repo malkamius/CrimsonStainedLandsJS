@@ -789,8 +789,8 @@ Character.DoCommands.DoBash = function(ch, args)
         ch.WaitState(Game.PULSE_VIOLENCE * 2);
         victim.WaitState(Game.PULSE_VIOLENCE * 1);
         ch.CheckImprove(skill, true, 1);
-        Combat.CheckCheapShot(victim);
-        Combat.CheckGroundControl(victim);
+        Combat.CheckCheapShotRoom(victim);
+        Combat.CheckGroundControlRoom(victim);
     }
     else
     {
@@ -855,8 +855,8 @@ Character.DoCommands.DoTrip = function(ch, args)
         ch.WaitState(skill.WaitTime);
         victim.WaitState(Game.PULSE_VIOLENCE * 1);
         ch.CheckImprove(skill, true, 1);
-        Combat.CheckCheapShot(victim);
-        Combat.CheckGroundControl(victim);
+        Combat.CheckCheapShotRoom(victim);
+        Combat.CheckGroundControlRoom(victim);
     }
     else
     {
@@ -925,8 +925,8 @@ Character.DoCommands.DoShieldBash = function(ch, args)
         ch.WaitState(Game.PULSE_VIOLENCE * 2);
         victim.WaitState(Game.PULSE_VIOLENCE * 1);
         ch.CheckImprove(skill, true, 1);
-        Combat.CheckCheapShot(victim);
-        Combat.CheckGroundControl(victim);
+        Combat.CheckCheapShotRoom(victim);
+        Combat.CheckGroundControlRoom(victim);
     }
     else
     {

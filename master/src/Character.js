@@ -689,7 +689,7 @@ class Character {
 		for(var aff of this.Affects) {
 			if(Flag instanceof SkillSpell) {
 				if(aff.SkillSpell == Flag) return aff;
-			} else if(aff.Flags.IsSet(Flag)) {
+			} else if(aff.Flags.ISSET(Flag)) {
 				return aff;
 			} else if(aff.SkillSpell && aff.SkillSpell.Name.equals(Flag)) {
 				return aff;
@@ -2840,3 +2840,5 @@ ActCommunication = require("./ActCommunication");
 Mapper = require("./Mapper");
 WarriorSpecialization = require("./WarriorSpecialization");
 WarriorSkills = require("./WarriorSkills");
+RangerSkills = require("./RangerSkills");
+PaladinSkills = require("./PaladinSkills");
