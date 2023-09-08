@@ -23,6 +23,7 @@ function LoadData(callback) {
 		var skill = SkillSpell.Skills[skillname];
 		if(!skill.SpellFuncName && skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) && !Commands[skillname.replaceAll(" ", "")]) {
 			console.log("Unlinked skill: " + skillname);
+			console.dir(skill.LearnedLevel);
 			count++;
 		}
 	}

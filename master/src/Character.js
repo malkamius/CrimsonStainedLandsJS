@@ -2509,7 +2509,6 @@ class Character {
 		var results = this.GetCharacterList(this.Room.Characters, args, count);
 	
 		return results;
-	
 	}
 
 	GetCharacterWorld(args, count = 0) {

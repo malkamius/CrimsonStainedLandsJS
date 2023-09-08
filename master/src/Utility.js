@@ -445,6 +445,20 @@ class Utility {
 		}
 		return result;
 	}
+
+	static GetEnumValueStrPrefix(arr, str) {
+
+		if(Array.isArray(arr)) {
+			for(var value of arr) {
+				if(value.prefix(str)) return value;
+			}
+		} else {
+			for(var key in arr) {
+				if(key.prefix(str)) return key;
+			}
+		}
+
+	}
 }
 
 const xml2js = require('xml2js');
