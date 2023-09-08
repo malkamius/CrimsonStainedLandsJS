@@ -2446,6 +2446,43 @@ class Combat {
         }
         return false;
     }
+
+    static CheckPreyOnTheWeak(ch, victim, dam)
+    {
+        var skillPercent = 0;
+        var skill = SkillSpell.SkillLookup("prey on the weak");
+
+        if ((skillPercent = ch.GetSkillPercentage(skill)) <= 1)
+        {
+            return;
+        }
+
+        if (skillPercent > Utility.NumberPercent())
+        {
+            var health = victim.HitPoints.Percent(victim.MaxHitPoints);
+
+            if (health > 90) dam += 0;
+            else if (health > 85) dam *= 1.1;
+            else if (health > 80) dam *= 1.2;
+            else if (health > 75) dam *= 1.3;
+            else if (health > 70) dam *= 1.4;
+            else if (health > 65) dam *= 1.5;
+            else if (health > 60) dam *= 1.6;
+            else if (health > 55) dam *= 1.7;
+            else if (health > 50) dam *= 1.8;
+            else if (health > 45) dam *= 1.9;
+            else if (health > 40) dam *= 2.0;
+            else if (health > 35) dam *= 2.1;
+            else if (health > 30) dam *= 2.2;
+            else if (health > 25) dam *= 2.3;
+            else if (health > 20) dam *= 2.4;
+            else dam *= 2.5;
+
+            ch.CheckImprove(skill, true, 1);
+        }
+        else ch.CheckImprove(skill, false, 1);
+        return dam;
+    } // prey on the weak
 }
 
 module.exports = Combat;

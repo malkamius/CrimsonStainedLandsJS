@@ -17,6 +17,9 @@ function LoadData(callback) {
 	SkillGroup.Load();
     Liquid.Load();
 	Program.LoadPrograms();
+	const Socials = require("./Socials");
+	Socials.Load();
+	
 	const Commands = require("./Commands");
 	var count = 0;
 	for(var skillname in SkillSpell.Skills) {
@@ -25,6 +28,8 @@ function LoadData(callback) {
 			console.log("Unlinked skill: " + skillname);
 			console.dir(skill.LearnedLevel);
 			count++;
+		} else if(skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) && Commands[skillname.replaceAll(" ", "")]) {
+			Commands[skillname.replaceAll(" ", "")].Skill = skill;
 		}
 	}
 	console.log(count + " unlinked skills");

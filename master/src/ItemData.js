@@ -429,6 +429,22 @@ class ItemData {
 
         ItemData.Items.Remove(this);
     }
+
+    IsAffected(Flag) {
+		var found = false;
+		var skillspell = Flag instanceof SkillSpell;
+		
+        
+        for(var aff of this.Affects) {
+            if(!skillspell && aff.Flags.ISSET(Flag)) {
+                return aff;
+            }
+            else if((skillspell && aff.SkillSpell == Flag) || (aff.SkillSpell && aff.SkillSpell.Name.equals(Flag))) {
+                return aff;
+            }
+        }
+		return found;
+	}
 }
 
 module.exports = ItemData;

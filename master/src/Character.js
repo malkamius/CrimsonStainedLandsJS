@@ -2828,6 +2828,173 @@ class Character {
 	GetEquipment(slot) {
 		return this.Equipment[slot];
 	}
+
+	CheckSocials(command, args, exactmatch = false) {
+		const Socials = require("./Socials");
+		for(var socialkey in Socials.Socials) {
+			var social = Socials.Socials[socialkey];
+			if((exactmatch && social.Name.equals(command)) || (!exactmatch && social.Name.prefix(command))) {
+				switch (this.Position)
+				{
+					// Check the character's position against certain positions that restrict social commands
+					case "Dead":
+						this.send("Lie still; you are DEAD.\n\r");
+						return true;
+					case "Mortal":
+					case "Incapacitated":
+						this.send("You are hurt far too bad for that.\n\r");
+						return true;
+					case "Stunned":
+						this.send("You are too stunned to do that.\n\r");
+						return true;
+					case "Sleeping":
+						if (social.Name == "snore")
+							break; // Continue executing the social command
+							this.send("In your dreams or what?\n\r");
+						return true;
+				}
+
+				var [victim] = this.GetCharacterHere(args)
+				if (Utility.IsNullOrEmpty(args) && !Utility.IsNullOrEmpty(social.OthersNoArg) && !Utility.IsNullOrEmpty(social.CharNoArg))
+				{
+					// Perform the social command actions without any arguments
+					this.Act(social.OthersNoArg, null, null, null, Character.ActType.ToRoom);
+					this.Act(social.CharNoArg, null, null, null, Character.ActType.ToChar);
+				}
+				else if (Utility.IsNullOrEmpty(args) || !victim)
+				{
+					// The victim is not found in the room
+					this.send("They aren't here.\n\r");
+				}
+				else if (victim == this)
+				{
+					// Perform the social command actions targeting oneself
+					this.Act(social.OthersAuto, victim, null, null, Character.ActType.ToRoom);
+					this.Act(social.CharAuto, victim, null, null, Character.ActType.ToChar);
+				}
+				else
+				{
+					if (!Utility.IsNullOrEmpty(social.OthersFound))
+					{
+						// Perform the social command actions with a specific victim found message
+						this.Act(social.OthersFound, victim, null, null, Character.ActType.ToRoomNotVictim);
+					}
+					else
+					{
+						// Perform the social command actions without a specific victim found message
+						this.Act(social.OthersNoArg, null, null, null, Character.ActType.ToRoomNotVictim);
+					}
+
+					if (!Utility.IsNullOrEmpty(social.CharFound))
+					{
+						// Perform the social command actions with a specific character found message
+						this.Act(social.CharFound, victim, null, null, Character.ActType.ToChar);
+					}
+					else
+					{
+						// Perform the social command actions without a specific character found message
+						this.Act(social.CharNoArg, null, null, null, Character.ActType.ToChar);
+					}
+
+					if (!Utility.IsNullOrEmpty(social.VictimFound) && victim.Position != "Sleeping")
+					{
+						// Perform the social command actions with a specific victim found message if the victim is not sleeping
+						this.Act(social.VictimFound, victim, null, null, Character.ActType.ToVictim);
+					}
+
+					if (!Utility.IsNullOrEmpty(social.OthersFound) && !Utility.IsNullOrEmpty(social.CharFound) && !this.IsNPC && victim.IsNPC && victim.IsAwake)
+					{
+						// Perform additional social command actions when the character is not an NPC, the victim is an NPC and awake
+						switch (Utility.Random(0, 12))
+						{
+							case 0:
+							case 1:
+							case 2:
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+							case 7:
+							case 8:
+								victim.Act(social.OthersFound, this, null, null, Character.ActType.ToRoomNotVictim);
+								victim.Act(social.CharFound, this, null, null, Character.ActType.ToChar);
+								victim.Act(social.VictimFound, this, null, null, Character.ActType.ToVictim);
+								break;
+
+							case 9:
+							case 10:
+							case 11:
+							case 12:
+								victim.Act("$n slaps $N.", this, null, null, Character.ActType.ToRoomNotVictim);
+								victim.Act("You slap $N.", this, null, null, Character.ActType.ToChar);
+								victim.Act("$n slaps you.", this, null, null, Character.ActType.ToVictim);
+								break;
+						}
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	DoCommand(command, args) {
+		this.SittingAtPrompt = false;
+		const Commands = require("./Commands");
+		//const Player = require("./Player");
+		
+		if(this.CheckSocials(command, args, true))
+			return;
+		for(var key in Commands) {
+			var Command = Commands[key];
+			if(Utility.Prefix(key, command) && (!Command.Skill || this.GetSkillPercentage(Command.Skill.Name) > 1)) {
+				this.LastActivity = new Date();
+				this.SittingAtPrompt = false;
+				if (Character.Positions.indexOf(this.Position) < Character.Positions.indexOf(Commands[key].MinimumPosition))
+				{
+					// Send an appropriate message based on the character's position
+					switch (this.Position)
+					{
+						case "Dead":
+							this.send("Lie still; you are DEAD.\n\r");
+							break;
+						case "Mortal":
+						case "Incapacitated":
+							this.send("You are hurt far too bad for that.\n\r");
+							break;
+						case "Stunned":
+							this.send("You are too stunned to do that.\n\r");
+							break;
+						case "Sleeping":
+							this.send("In your dreams or what?\n\r");
+							break;
+						case "Resting":
+							this.send("Nah... You feel too relaxed...\n\r");
+							break;
+						case "Sitting":
+							this.send("Better stand up first.\n\r");
+							break;
+						case "Fighting":
+							this.send("No way! You are still fighting!\n\r");
+							break;
+					}
+					return;
+				}
+
+				Command.Command(this, args);
+				if(this.status != "Playing")
+					this.SetStatus(this.status);
+				
+				
+				return;
+			}
+		} // end for commands
+
+		if(this.CheckSocials(command, args, false)) return;
+		
+		this.send("Huh?\n\r");
+
+	}
 }
 
 module.exports = Character;
@@ -2843,3 +3010,4 @@ WarriorSkills = require("./WarriorSkills");
 RangerSkills = require("./RangerSkills");
 PaladinSkills = require("./PaladinSkills");
 AssassinSkills = require("./AssassinSkills");
+ThiefSkills = require("./ThiefSkills");

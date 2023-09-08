@@ -791,7 +791,7 @@ Character.DoCommands.DoHide = function(ch, args)
         return;
     }
 
-    if (ch.IsAffected(fog) || ch.IsAffected(fire) || ch.IsAffected(AffectFlags.FaerieFire))
+    if (ch.IsAffected(fog) || ch.IsAffected(fire) || ch.IsAffected(AffectData.AffectFlags.FaerieFire))
     {
         ch.send("You can't hide while glowing.\n\r");
         return;
@@ -835,7 +835,7 @@ Character.DoCommands.DoSneak = function(ch, args)
         return;
     }
 
-    if (ch.IsAffected(fog) || ch.IsAffected(fire) || ch.IsAffected(AffectFlags.FaerieFire))
+    if (ch.IsAffected(fog) || ch.IsAffected(fire) || ch.IsAffected(AffectData.AffectFlags.FaerieFire))
     {
         ch.send("You can't hide while glowing.\n\r");
         return;
@@ -902,7 +902,7 @@ Character.DoCommands.DoStrangle = function(ch, args)
     {
         ch.send("You can't sneak up on them.\n\r");
     }
-    else if (victim.IsAffected(AffectFlags.Sleep))
+    else if (victim.IsAffected(AffectData.AffectFlags.Sleep))
     {
         ch.send("They are already asleep.\n\r");
         return;
@@ -920,7 +920,7 @@ Character.DoCommands.DoStrangle = function(ch, args)
             victim.Position = Positions.Sleeping;
             var affect = new AffectData();
             affect.DisplayName = "strangle";
-            affect.Flags.SETBIT(AffectFlags.Sleep);
+            affect.Flags.SETBIT(AffectData.AffectFlags.Sleep);
             affect.Duration = 3;
             affect.Where = AffectWhere.ToAffects;
             affect.SkillSpell = skill;
@@ -979,7 +979,7 @@ Character.DoCommands.DoBlindnessDust = function(ch, args)
             victim.Act("$n is immune to blindness.", null, null, null, Character.ActType.ToRoom);
             continue;
         }
-        if (victim.IsAffected(AffectFlags.Blind))
+        if (victim.IsAffected(AffectData.AffectFlags.Blind))
         {
             ch.Act("$N is already blind.", victim);
         }
@@ -1039,7 +1039,7 @@ Character.DoCommands.DoPoisonDust = function(ch, args)
             continue;
         if (Combat.CheckIsSafe(ch, victim))
             continue;
-        if (victim.IsAffected(AffectFlags.Poison))
+        if (victim.IsAffected(AffectData.AffectFlags.Poison))
         {
             ch.Act("$N is already poisoned.", victim);
         }
