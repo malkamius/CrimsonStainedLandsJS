@@ -1795,7 +1795,7 @@ Character.DoCommands.DoStab = function( ch, argument)
 	}
 	else if (chance > Utility.NumberPercent())
 	{
-		ch.WaitState(skill.waitTime);
+		ch.WaitState(skill.WaitTime);
 		ch.Act("You unleash with a viscious stab on $N.", victim, null, null, Character.ActType.ToChar);
 		ch.Act("$n unleashes with a viscious stab.", victim, null, null, Character.ActType.ToVictim);
 		ch.Act("$n unleashes with a viscious stab on $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
@@ -1812,7 +1812,7 @@ Character.DoCommands.DoStab = function( ch, argument)
 	}
 	else
 	{
-		ch.WaitState(skill.waitTime);
+		ch.WaitState(skill.WaitTime);
 		ch.Act("You try to unleash a viscious stab on $N but fail.", victim, null, null, Character.ActType.ToChar);
 		ch.Act("$n tries to unleash a viscious stab but fails.", victim, null, null, Character.ActType.ToVictim);
 		ch.Act("$n tries to unleash a viscious stab on $N but fails.", victim, null, null, Character.ActType.ToRoomNotVictim);

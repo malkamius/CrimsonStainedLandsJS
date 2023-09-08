@@ -3742,7 +3742,7 @@ class Magic {
                 ch.send("You failed.\n\r");
                 return;
             }
-            ch.WaitState(spell.waitTime * 2);
+            ch.WaitState(spell.WaitTime * 2);
             ch.Act("$n imbues $p with a measure of $s life force.", null, null, null, Character.ActType.ToRoom);
             ch.Act("You imbue $p with a measure of your life force.", null, null, null, Character.ActType.ToChar);
 

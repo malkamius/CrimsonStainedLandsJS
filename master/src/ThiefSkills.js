@@ -1715,7 +1715,7 @@ Character.DoCommands.DoBackstab = function(ch, argument)
 
 	else if (chance > Utility.NumberPercent() || !victim.IsAwake)
 	{
-		ch.WaitState(skill.waitTime);
+		ch.WaitState(skill.WaitTime);
 
 		var roll = Utility.Roll(obj.DamageDice) + ch.DamageRoll;
 
@@ -1735,7 +1735,7 @@ Character.DoCommands.DoBackstab = function(ch, argument)
 	}
 	else
 	{
-		ch.WaitState(skill.waitTime);
+		ch.WaitState(skill.WaitTime);
 		ch.Act("You try backstab $N with your dagger but fail.\n\r", victim);
 		ch.Act("$n tries to backstab $N with $s dagger but fails.\n\r", victim, null, Character.ActType.ToRoomNotVictim);
 		ch.Act("$n tries to backstab you with $s dagger but fails.\n\r", victim, null, Character.ActType.ToVictim);
@@ -1811,7 +1811,7 @@ Character.DoCommands.DoDualBackstab = function(ch, argument)
 
 	else if (Utility.NumberPercent() < chance || !victim.IsAwake)
 	{
-		ch.WaitState(skill.waitTime);
+		ch.WaitState(skill.WaitTime);
 		ch.Act("You backstab $N with your daggers.\n\r", victim);
 		ch.Act("$n backstabs $N with $s daggers.\n\r", victim, null, Character.ActType.ToRoomNotVictim);
 		ch.Act("$n backstabs you with $s daggers.\n\r", victim, null, Character.ActType.ToVictim);
@@ -1832,7 +1832,7 @@ Character.DoCommands.DoDualBackstab = function(ch, argument)
 	}
 	else
 	{
-		ch.WaitState(skill.waitTime);
+		ch.WaitState(skill.WaitTime);
 		ch.Act("You try double backstab $N with your daggers but fail.\n\r", victim);
 		ch.Act("$n tries to double backstab $N with $s daggers but fails.\n\r", victim, null, Character.ActType.ToRoomNotVictim);
 		ch.Act("$n tries to double backstab you with $s daggers but fails.\n\r", victim, null, Character.ActType.ToVictim);
