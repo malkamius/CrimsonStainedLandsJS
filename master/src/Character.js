@@ -2842,3 +2842,4 @@ WarriorSpecialization = require("./WarriorSpecialization");
 WarriorSkills = require("./WarriorSkills");
 RangerSkills = require("./RangerSkills");
 PaladinSkills = require("./PaladinSkills");
+AssassinSkills = require("./AssassinSkills");

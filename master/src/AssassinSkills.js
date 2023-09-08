@@ -909,7 +909,7 @@ Character.DoCommands.DoStrangle = function(ch, args)
     }
     else
     {
-        ch.WaitState(skill.waitTime);
+        ch.WaitState(skill.WaitTime);
         if (chance > Utility.NumberPercent())
         {
             ch.Act("$n strangles $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
@@ -956,7 +956,7 @@ Character.DoCommands.DoBlindnessDust = function(ch, args)
         return;
     }
 
-    ch.WaitState(skill.waitTime);
+    ch.WaitState(skill.WaitTime);
     ch.Act("$n throws some blinding dust.", null, null, null, Character.ActType.ToRoom);
     ch.Act("You throw some blinding dust.", null, null, null, Character.ActType.ToChar);
 
@@ -1019,7 +1019,7 @@ Character.DoCommands.DoPoisonDust = function(ch, args)
         return;
     }
 
-    ch.WaitState(skill.waitTime);
+    ch.WaitState(skill.WaitTime);
     ch.Act("$n throws some poison dust.", null, null, null, Character.ActType.ToRoom);
     ch.Act("You throw some poison dust.", null, null, null, Character.ActType.ToChar);
 
@@ -1084,7 +1084,7 @@ Character.DoCommands.DoPoisonDagger = function(ch, args)
         ch.send("You fail.\n\r");
         return;
     }
-    ch.WaitState(skill.waitTime);
+    ch.WaitState(skill.WaitTime);
     ch.Act("$n crafts a poisonous dagger.", null, null, null, Character.ActType.ToRoom);
     ch.Act("You craft a poisonous dagger.", null, null, null, Character.ActType.ToChar);
 
@@ -1126,62 +1126,6 @@ Character.DoCommands.DoThrow = function(ch, args)
     else if (Combat.CheckAcrobatics(ch, victim)) return;
 
     var skill = SkillSpell.SkillLookup("throw");
-    ch.WaitState(skill.waitTime);
-    AssassinThrow(ch, victim);
-}
-
-function AssassinThrow(ch, victim)
-{
-    var dam_each = [
-        0,
-        4,  5,  6,  7,  8,   10,  13,  15,  20,  25,
-        30, 35, 40, 45, 50, 55, 55, 55, 56, 57,
-        58, 58, 59, 60, 61, 61, 62, 63, 64, 64,
-        65, 66, 67, 67, 68, 69, 70, 70, 71, 72,
-        73, 73, 74, 75, 76, 76, 77, 78, 79, 79,
-        90,110,120,150,170,200,230,500,500,500
-    ];
-    var skill = SkillSpell.SkillLookup("throw");
-    var chance;
-    if ((chance = ch.GetSkillPercentage(skill) + 20) <= 21)
-    {
-        ch.send("You don't know how to do that.\n\r");
-        return false;
-    }
-
-    var dam;
-    var level = ch.Level;
-
-    //chance += level / 10;
-
-    if (chance > Utility.NumberPercent())
-    {
-        if (ch.IsNPC)
-            level = Math.min(level, 51);
-        level = Math.min(level, dam_each.Length - 1);
-        level = Math.max(0, level);
-
-        dam = Utility.Random(dam_each[level], dam_each[level] * 2);
-
-        ch.Act("$n throws $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
-        ch.Act("$n throws you!", victim, null, null, Character.ActType.ToVictim);
-        ch.Act("You throw $N.", victim, null, null, Character.ActType.ToChar);
-        ch.CheckImprove(skill, true, 1);
-
-        Combat.Damage(ch, victim, dam, skill, DamageMessage.WeaponDamageTypes.Bash);
-        victim.WaitState(Game.PULSE_VIOLENCE);
-        Combat.CheckGroundControlRoom(victim);
-        Combat.CheckCheapShotRoom(victim);
-        return true;
-    }
-    else
-    {
-        ch.Act("$n attempts to throw $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
-        ch.Act("$n tries to throw you!", victim, null, null, Character.ActType.ToVictim);
-        ch.Act("You try to throw $N.", victim, null, null, Character.ActType.ToChar);
-
-        ch.CheckImprove(skill, false, 1);
-        Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.Bash);
-    }
-    return false;
+    ch.WaitState(skill.WaitTime);
+    Combat.AssassinThrow(ch, victim);
 }
