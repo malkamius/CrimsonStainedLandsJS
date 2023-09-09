@@ -353,7 +353,7 @@ class Combat {
                 victim.Gold = 0;
                 victim.Silver = 0;
             }
-
+            if(victim.Form) ShapeshiftForm.DoRevert(victim, "");
             // Remove the character from the room
             victim.RemoveCharacterFromRoom();
 

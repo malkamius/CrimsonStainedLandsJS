@@ -800,7 +800,7 @@ Character.DoCommands.DoDrink = function(character, args) {
 
     if (Utility.IsNullOrEmpty(containerName))
     {
-        for (var item of character.Room.items)
+        for (var item of character.Room.Items)
         {
             if (item.ItemTypes.ISSET(ItemData.ItemTypes.Fountain))
             {

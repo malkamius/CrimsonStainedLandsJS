@@ -130,8 +130,11 @@ Character.DoCommands.DoLook = function(player, args, auto) {
 			if(target == player) {
 				player.Act("You look at yourself.", target, null, null, "ToChar");
 				player.Act("$n looks at $mself.", target, null, null, "ToRoomNotVictim");
-				
-				player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about yourself." : target.Description, target);
+				if(target.Form && !Utility.IsNullOrEmpty(target.Form.Description)) {
+					player.Act(target.Form.Description.trim(), target);
+				} else {
+					player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about yourself." : target.Description, target);
+				}
 				target.DisplayHealth(player);
 				player.Act("You are wearing: ", target);
 			}
@@ -140,20 +143,25 @@ Character.DoCommands.DoLook = function(player, args, auto) {
 				player.Act("You look at $N.", target, null, null, "ToChar");
 				player.Act("$n looks at $N.", target, null, null, "ToRoomNotVictim");
 				player.Act("$n looks at you.", target, null, null, "ToVictim");
-
-				player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about $N." : target.Description, target);
+				if(target.Form && !Utility.IsNullOrEmpty(target.Form.Description)) {
+					player.Act(target.Form.Description.trim(), target);
+				} else {
+					player.Act(Utility.IsNullOrEmpty(target.Description)? "You see nothing special about $N." : target.Description, target);
+				}
 				target.DisplayHealth(player);
 				player.Act("$N is wearing: ", target);
 			}
 			var anyitems = false;
-			for(var slotkey in Character.WearSlots) {
-				var slot = Character.WearSlots[slotkey];
-				var item = target.Equipment[slotkey];
-				if(item) {
-					player.send(slot.Slot + item.DisplayFlags(player) + item.Display(player) + "\n\r");
-					anyitems = true;
+			if(!target.Form) {
+				for(var slotkey in Character.WearSlots) {
+					var slot = Character.WearSlots[slotkey];
+					var item = target.Equipment[slotkey];
+					if(item) {
+						player.send(slot.Slot + item.DisplayFlags(player) + item.Display(player) + "\n\r");
+						anyitems = true;
+					}
+					
 				}
-				
 			}
 			if(!anyitems)
 					player.send("   nothing.\n\r");
@@ -225,16 +233,18 @@ Character.DoCommands.DoExits = function(player, args) {
 Character.DoCommands.DoEquipment = function(player, args) {
 	player.send("You are wearing: \n\r");
 	var anyitems = false;
-	for(slot in Character.WearSlots) {
-		var wearslot = Character.WearSlots[slot];
-		var item = player.Equipment[slot];
-		if(item) {
-			player.send(wearslot.Slot + " " + item.DisplayFlags(player) + item.Display(player) + "\n\r");
-			anyitems = true;
-		}
-		
-	}
 
+	if(!player.Form) {
+		for(slot in Character.WearSlots) {
+			var wearslot = Character.WearSlots[slot];
+			var item = player.Equipment[slot];
+			if(item) {
+				player.send(wearslot.Slot + " " + item.DisplayFlags(player) + item.Display(player) + "\n\r");
+				anyitems = true;
+			}
+			
+		}
+	}
 	if(!anyitems) player.send("   nothing.\n\r");
 
 }
@@ -242,15 +252,16 @@ Character.DoCommands.DoEquipment = function(player, args) {
 Character.DoCommands.DoInventory = function(player, args) {
 	var items = {};
 	player.send("You are carrying:\n\r");
-	for(i = 0; i < player.Inventory.length; i++) {
-		var item = player.Inventory[i];
-		var display = item.DisplayFlags(player) + item.Display(player);
-		if(items[display])
-			items[display]++;
-		else
-			items[display] = 1;
+	if(!player.Form) {
+		for(i = 0; i < player.Inventory.length; i++) {
+			var item = player.Inventory[i];
+			var display = item.DisplayFlags(player) + item.Display(player);
+			if(items[display])
+				items[display]++;
+			else
+				items[display] = 1;
+		}
 	}
-
 	if(Object.keys(items) == 0) {
 		player.send("   nothing.\n\r");
 	} else {

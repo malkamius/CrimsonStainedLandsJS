@@ -7,6 +7,7 @@ const ItemTemplateData = require("./ItemTemplateData");
 const ItemData = require("./ItemData");
 
 const RoomData = require("./RoomData");
+const ShapeshiftForm = require("./Shapeshift");
 class Character {
 	/**
 	 * Array of NPC and Player characters in the world.
@@ -239,6 +240,8 @@ class Character {
 			}
 		}
 
+		if(this.Form) ShapeshiftForm.DoRevert(this, "");
+		
 		if(this.Room) {
 			this.RemoveCharacterFromRoom();
 		}
@@ -406,25 +409,25 @@ class Character {
 							}
 							break;
 						case 'e':
-							output += this.Sex == "Male" ? "he" : (this.Sex == "Female" ? "she" : "it");
+							output += this.Sex.equals("Male") ? "he" : (this.Sex.equals("Female") ? "she" : "it");
 							break;
 						case 'E':
 							if (victim != null)
-							output += victim.Sex == "Male" ? "he" : (victim.Sex == "Female" ? "she" : "it");
+							output += victim.Sex.equals("Male") ? "he" : (victim.Sex.equals("Female") ? "she" : "it");
 							break;
 						case 'm':
-							output += this.Sex == "Male" ? "him" : (this.Sex == "Female" ? "her" : "it");
+							output += this.Sex .equals( "Male" ) ? "him" : (this.Sex .equals( "Female" ) ? "her" : "it");
 							break;
 						case 'M':
 							if (victim != null)
-							output += victim.Sex == "Male" ? "him" : (victim.Sex == "Female" ? "her" : "it");
+							output += victim.Sex .equals("Male") ? "him" : (victim.Sex .equals( "Female" ) ? "her" : "it");
 							break;
 						case 's':
-							output += this.Sex == "Male" ? "his" : (this.Sex == "Female" ? "her" : "their");
+							output += this.Sex .equals("Male") ? "his" : (this.Sex.equals( "Female") ? "her" : "their");
 							break;
 						case 'S':
 							if (victim != null)
-							output += victim.Sex == "Male" ? "his" : (victim.Sex == "Female" ? "her" : "their");
+							output += victim.Sex.equals( "Male") ? "his" : (victim.Sex.equals( "Female") ? "her" : "their");
 							break;
 	
 						case '$':
@@ -793,14 +796,15 @@ class Character {
 		
 			skillentry = SkillSpell.GetSkill(skillname, false);
 		}
+		if(this.Form && this.Form.FormSkill == skillentry && this.Learned[skillname]) return this.Learned[skillname].Level;
 		var informskills = ["control speed", "trance", "meditation", "control phase", "control skin", "control levitation"];
-		if (this.Form && !skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.InForm) && 
+		if(this.Form && this.Form.Skills[skillname]) {
+			return this.GetLevelSkillLearnedAt(this.Form.FormSkill);
+		} else if (this.Form && !skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.InForm) && 
 			informskills.indexOf(skillname) < 0 && !skillentry.SpellFun)
 		{
 			if(this.IsNPC) return 10000;
 			return 60;
-		} else if(this.Form && this.Form.Skills[skillname]) {
-			return this.GetLevelSkillLearnedAt(this.Form.FormSkill);
 		}
 
 		if (Utility.IsNullOrEmpty(skillname) || !skillentry) {
@@ -845,20 +849,20 @@ class Character {
 
 				if (this.Form.Skills[skillname])
 					return (formskill * this.Form.Skills[skillname] / 100);
-				else if (skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form) && this.Learned[skillname])
-					return Learned[skillname].Percent;
+				else if (skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Form) && this.Learned[skillname])
+					return this.Learned[skillname].Percent;
 				else if (informskills.indexOf(skillname) >= 0 && this.Learned[skillname])
-					return Learned[skillname].Percent;
-				else if ((informskills.indexOf(skillname) >= 0 || skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form)) && this.IsImmortal)
+					return this.Learned[skillname].Percent;
+				else if ((informskills.indexOf(skillname) >= 0 || skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Form)) && this.IsImmortal)
 					return 100;
 				else
 					return 0;
 			}
 			else if (this.Form.FormSkill == skillentry && this.Learned[skillname])
 				return this.Learned[skillname].Percent;
-			else if (skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form) && Learned[skillname])
+			else if (skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Form) && Learned[skillname])
 				return this.Learned[skillname].Percent;
-			else if (this.IsImmortal && !skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.InForm))
+			else if (this.IsImmortal && !skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.InForm))
 				return 100;
 			else
 				return 0;
@@ -2607,8 +2611,12 @@ class Character {
 		
 		for(var key in list) {
 			var ch = list[key];
-			if((ch.IsNPC || ch.status == "Playing") && this.CanSee(ch) && ((desiredcount && desiredcount > 0 && args.ISEMPTY()) || Utility.IsName(ch.Name, args)) && ++count >= desiredcount)
-				return [ch, count, key];
+			if((ch.IsNPC || ch.status == "Playing")) {
+				if(ch.Form && this.CanSee(ch) && ((desiredcount && desiredcount > 0 && args.ISEMPTY()) || Utility.IsName(ch.Form.Name, args)) && ++count >= desiredcount) {
+					return [ch, count, key];
+				} else if((!ch.Form || this.IsImmortal) && this.CanSee(ch) && ((desiredcount && desiredcount > 0 && args.ISEMPTY()) || Utility.IsName(ch.Name, args)) && ++count >= desiredcount)
+					return [ch, count, key];
+			}
 		}
 		return [null, count, ""];
 	}
