@@ -720,6 +720,65 @@ class Character {
 		return !this.IsNPC && this.Level > 51;
 	}
 
+	GetLevelSkillLearnedAtOutOfForm(skillname) {
+		var skillentry;
+		if(skillname instanceof SkillSpell) {
+			skillentry = skillname;
+			skillname = skillentry.Name;
+		}
+		else {
+			if(Utility.IsNullOrEmpty(skillname)) return 60;
+			skillname = skillname.toLowerCase();
+		
+			skillentry = SkillSpell.GetSkill(skillname, false);
+		}
+		if (Utility.IsNullOrEmpty(skillname) || !skillentry) {
+			if(this.IsNPC) return 10000;
+			return 60;
+		}
+		else if (skillentry && !skillentry.PrerequisitesMet(this)) {
+			if(this.IsNPC) return 10000;
+			return 60;
+		}
+		else if (this.Learned[skillname]) {
+			return this.Learned[skillname].Level;
+		}
+		else if (!this.Guild || !skillentry.LearnedLevel[this.Guild.Name]) {
+			if(this.IsNPC) return 10000;
+			return 60;
+		}
+		else
+			return skillentry.LearnedLevel[this.Guild.Name];
+	}
+
+	GetSkillPercentageOutOfForm(skillname) {
+		
+		var skillentry;
+		if(skillname instanceof SkillSpell) {
+			skillentry = skillname;
+			skillname = skillentry.Name;
+		}
+		else {
+			if(Utility.IsNullOrEmpty(skillname)) return 0;
+			skillname = skillname.toLowerCase();
+		
+			skillentry = SkillSpell.GetSkill(skillname, false);
+		}
+		
+		if (Utility.IsNullOrEmpty(skillname) || !skillentry) 
+			return 0;
+		else if (this.IsImmortal)
+			return 100;
+		else if ((this.IsNPC || this.Level < 60) &&  this.GetLevelSkillLearnedAt(skillname) == 60)
+			return 0;
+		else if (this.Learned[skillname] && this.Level >= this.GetLevelSkillLearnedAt(skillname) && skillentry.PrerequisitesMet(this))
+			return this.Learned[skillname].Percent;
+		else if (this.Guild != null && (this.Level >= this.GetLevelSkillLearnedAt(skillname)) && skillentry.PrerequisitesMet(this))
+			return 1;
+		else
+			return 0;
+	}
+
 	GetLevelSkillLearnedAt(skillname) {
 		var skillentry;
 		if(skillname instanceof SkillSpell) {
@@ -2994,6 +3053,33 @@ class Character {
 		
 		this.send("Huh?\n\r");
 
+	}
+
+	LearnSkill(skill, percentage, Level = 60)
+	{
+		var learned;
+		if (skill == null) return;
+		if (!(learned = this.Learned[skill]))
+		{
+			if (Level == 60 && this.Guild && skill.LearnedLevel[this.Guild.Name])
+				Level = skill.LearnedLevel[this.Guild.Name];
+			var learnastype = {};
+			if(skill.SkillTypes["Skill"]) learnastype = {Skill: true};
+			else if(skill.SkillTypes["Supplication"] && this.Guild.CastType == "Commune") learnastype = {Supplication: true};
+			else if(skill.SkillTypes["Spell"] && this.Guild.CastType == "Cast") learnastype = {Spell: true};
+			else if(skill.SkillTypes["Song"] && this.Guild.CastType == "Sing") learnastype = {Song: true};
+
+			this.Learned[skill.Name] = { Name: skill.Name, Percent: percentage, Level: Level, LearnedAs: learnastype };
+			
+		}
+		else
+		{
+			if (Level == 60 && this.Guild && skill.LearnedLevel[Guild.Name])
+				Level = skill.LearnedLevel[this.Guild.Name];
+			if (learned.Level == 0 || Level < learned.Level)
+				learned.Level = Level;
+			learned.Percentage = percentage;
+		}
 	}
 }
 

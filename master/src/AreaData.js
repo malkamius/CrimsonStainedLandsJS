@@ -1,5 +1,5 @@
 
-const Settings = require("./Settings");
+
 const ItemData = require("./ItemData");
 
 
@@ -71,6 +71,7 @@ class AreaData {
 		const xml2js = require('xml2js');
 		const parser = new xml2js.Parser({ strict: false, trim: false });
 		var counter = 0;
+		const Settings = require("./Settings");
 		var areasdirectory = Settings.AreaDataPath;
 		fs.readdir(areasdirectory, function(err, filenames) {
 			if (err) {

@@ -89,6 +89,10 @@ Commands = {
 		
 		"pray": {Command: Character.DoCommands.DoPray, MinimumPosition: "Dead" },
 
+		"train": {Command: Character.DoCommands.DoTrain, MinimumPosition: "Standing" },
+		"gain": {Command: Character.DoCommands.DoGain, MinimumPosition: "Standing" },
+		"practice": {Command: Character.DoCommands.DoPractice, MinimumPosition: "Dead" },
+		
 		"newbiechannel": {Command: Character.DoCommands.DoNewbie, MinimumPosition: "Dead" },
 		"oocchannel": {Command: Character.DoCommands.DoOOC, MinimumPosition: "Dead" },
 		"generalchannel": {Command: Character.DoCommands.DoGeneral, MinimumPosition: "Dead" },

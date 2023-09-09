@@ -290,7 +290,7 @@ class Utility {
 	}
 
 	static Select(arr, predicate) {
-		if(!arr) return null;
+		if(!arr) return [];
 		var results = Array();
 		for(var key in arr) {
 			var item = arr[key];
@@ -482,7 +482,7 @@ Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback
 	parser.parseString(this, (err, result) => {if(err) throw new Error(err); content = result;});
 	return content;
 }} );
-Object.defineProperty( String.prototype, 'isString', { value: function () { return this instanceof String; }} );
+Object.defineProperty( String.prototype, 'isString', { value: function () { return this instanceof String || typeof this == "string" || Object.prototype.toString.call(this) === "[object String]"; }} );
 
 
 Object.defineProperty( Array.prototype, 'joinWithTransform', { value: function (transform, separator) { return Utility.JoinArray(this, transform, separator); }} );
@@ -502,12 +502,15 @@ Object.defineProperty( Array.prototype, 'Remove', { value: function (item) {
 	} 
 });
 
+Object.defineProperty( Object.prototype, 'Select', { value: function (predicate) { return Utility.Select(this, predicate) }} );
+Object.defineProperty( Object.prototype, 'SelectRandom', { value: function (predicate) { return Utility.SelectRandom(this, predicate) }} );
+Object.defineProperty( Object.prototype, 'FirstOrDefault', { value: function (predicate) { return Utility.FirstOrDefault(this, predicate) }} );
 Object.defineProperty( Object.prototype, 'IsSet', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Object.prototype, 'IsSetAny', { value: function (...flags) { return Utility.IsSetAny(this, flags) }} );
 Object.defineProperty( Object.prototype, 'ISSET', { value: function (flag) { return Utility.IsSet(this, flag) }} );
 Object.defineProperty( Object.prototype, 'SETBIT', { value: function (flag) { return Utility.SETBIT(this, flag) }} );
 Object.defineProperty( Object.prototype, 'RemoveFlag', { value: function (flag) { return Utility.RemoveFlag(this, flag) }} );
-Object.defineProperty( Object.prototype, 'isString', { value: function () { return Object.prototype.toString.call(this) === "[object String]"; }} );
+Object.defineProperty( Object.prototype, 'isString', { value: function () { return this instanceof String || typeof this == "string" || Object.prototype.toString.call(this) === "[object String]" }} );
 Object.defineProperty( Object.prototype, 'Clone', { value: function () { 
 	var result = {};
 	Object.assign(result, this); 

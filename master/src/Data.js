@@ -1,9 +1,12 @@
+const fs = require('fs');
+const XmlHelper = require("./XmlHelper");
+const Utility = require("./Utility")
 const RaceData = require("./RaceData");
 const PcRaceData = require("./PcRaceData");
 const GuildData = require("./GuildData");
 const AreaData = require("./AreaData");
 const SkillSpell = require("./SkillSpell");
-const Settings = require("./Settings");
+
 const DamageMessage = require("./DamageMessage");
 const SkillGroup = require("./SkillGroup");
 const ResetData = require("./ResetData");
@@ -11,6 +14,7 @@ const Program = require("./Program");
 const Liquid = require("./Liquid");
 
 function LoadData(callback) {
+	const Settings = require("./Settings");
 	Settings.Load();
 	DamageMessage.Load();
 	SkillSpell.LoadAll();
@@ -19,20 +23,30 @@ function LoadData(callback) {
 	Program.LoadPrograms();
 	const Socials = require("./Socials");
 	Socials.Load();
-	
+
 	const Commands = require("./Commands");
 	var count = 0;
 	for(var skillname in SkillSpell.Skills) {
 		var skill = SkillSpell.Skills[skillname];
-		if(!skill.SpellFuncName && skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) && !Commands[skillname.replaceAll(" ", "")]) {
-			console.log("Unlinked skill: " + skillname);
-			console.dir(skill.LearnedLevel);
-			count++;
-		} else if(skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) && Commands[skillname.replaceAll(" ", "")]) {
+		// if(!skill.SpellFuncName && skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) && !Commands[skillname.replaceAll(" ", "")]) {
+		// 	console.log("Unlinked skill: " + skillname);
+		// 	console.dir(skill.LearnedLevel);
+		// 	count++;
+		//} else 
+		if(skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) && Commands[skillname.replaceAll(" ", "")]) {
 			Commands[skillname.replaceAll(" ", "")].Skill = skill;
 		}
 	}
-	console.log(count + " unlinked skills");
+
+	var netcommands = fs.readFileSync(Settings.DataPath + "/commandslist.txt", "ascii");
+	var commands = netcommands.replaceAll("\r", "").split("\n");
+
+	for(var command of commands) {
+		if(!Commands[command]) {
+			console.log(command);
+		}
+	}
+	//console.log(count + " unlinked skills");
 
 	LoadRaces(callback);
 }

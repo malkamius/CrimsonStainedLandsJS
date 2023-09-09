@@ -4,12 +4,12 @@ const RoomData = require("./RoomData");
 const AreaData = require("./AreaData");
 const Character = require("./Character");
 const Utitlity = require("./Utility");
-const Settings = require("./Settings");
 
 
 
 
-function doquit(player, args) {
+
+Character.DoCommands.DoQuit = function(player, args) {
 	player.Act("The form of $n slowly fades away!", null, null, null, "ToRoom");
 	player.sendnow("Alas, all good things must come to an end.\n\r");
 	player.Save();
@@ -19,7 +19,7 @@ function doquit(player, args) {
 	console.log(`${player.Name} disconnected`)
 }
 
-function dohelp(player, args, plain = false) {
+Character.DoCommands.DoHelp = function(player, args, plain = false) {
 	
 	var helps;
 	//var args = oneargument(str);
@@ -79,14 +79,14 @@ function dohelp(player, args, plain = false) {
  * @param {boolean} auto 
  * @returns 
  */
-function dolook(player, args, auto) {
+Character.DoCommands.DoLook = function(player, args, auto) {
 	player.StartPaging();
 	if(player.Room == null) {
 		player.send("You are not in a room.\n\r");
 	} else if (!args || args.length == 0 || auto) {
 		player.send(`\\c   ${player.Room.Name}\\x\n\r`);
 		player.send(`${player.Room.Description}\n\r\n\r`);
-		doexits(player, "");
+		Character.DoCommands.DoExits(player, "");
 		var items = {};
 		for(const item of player.Room.Items){
 			var display = item.DisplayFlags(player) + item.DisplayToRoom(player);
@@ -193,7 +193,7 @@ function dolook(player, args, auto) {
 	player.EndPaging();
 }
 
-function doexits(player, args) {
+Character.DoCommands.DoExits = function(player, args) {
 	var anyexits = false;
 	player.send("\\g[Exits");
 	if(player.Room) {	
@@ -216,7 +216,7 @@ function doexits(player, args) {
 	
 }
 
-function doequipment(player, args) {
+Character.DoCommands.DoEquipment = function(player, args) {
 	player.send("You are wearing: \n\r");
 	var anyitems = false;
 	for(slot in Character.WearSlots) {
@@ -233,7 +233,7 @@ function doequipment(player, args) {
 
 }
 
-function doinventory(player, args) {
+Character.DoCommands.DoInventory = function(player, args) {
 	var items = {};
 	player.send("You are carrying:\n\r");
 	for(i = 0; i < player.Inventory.length; i++) {
@@ -253,14 +253,14 @@ function doinventory(player, args) {
 	}
 }
 
-function DoSave(player, args) {
+Character.DoCommands.DoSave = function(player, args) {
 	if(player && !player.IsNPC) {
 		player.Save();
 		player.send("Your character has been saved.\n\r");
 	}
 }
 
-function DoWho(ch, args) {
+Character.DoCommands.DoWho = function(ch, args) {
 	var whoList = "";
 	var playersOnline = 0;
 	whoList += "You can see:\n\r";
@@ -282,6 +282,7 @@ function DoWho(ch, args) {
 			playersOnline++;
 		}
 	}
+	const Settings = require("./Settings");
 	whoList += "Visible players: " + playersOnline + "\n\r";
 	whoList += "Max players online at once since last reboot: " + Player.PlayersOnlineAtOnceSinceLastReboot + "\n\r";
 	whoList += "Max players online at once ever: " + Settings.PlayersOnlineAtOnceEver + "\n\r";
@@ -290,7 +291,7 @@ function DoWho(ch, args) {
 		ch.send(whoList);
 }
 
-function DoSkills(ch, args) {
+Character.DoCommands.DoSkills = function(ch, args) {
 	if (!Utitlity.IsNullOrEmpty(args))
 	{
 		var skills = [];
@@ -376,6 +377,9 @@ function ShowSpells(ch, args, type = "Spell") {
 			}
 		}
 
+		skills.sort((a,b) => ch.GetLevelSkillLearnedAt(a.Name) < ch.GetLevelSkillLearnedAt(b.Name)? -1 : 
+		(ch.GetLevelSkillLearnedAt(a.Name) == ch.GetLevelSkillLearnedAt(b.Name)? 0 : 1));
+
 		if (skills.length == 0)
 		{
 			ch.send("You don't know any {0}s by that name", typename);
@@ -410,6 +414,7 @@ function ShowSpells(ch, args, type = "Spell") {
 		skills.sort((a,b) => ch.GetLevelSkillLearnedAt(a.Name) < ch.GetLevelSkillLearnedAt(b.Name)? -1 : 
 							 (ch.GetLevelSkillLearnedAt(a.Name) == ch.GetLevelSkillLearnedAt(b.Name)? 0 : 1));
 		
+		var anyskills = false;
 		for(var skill of skills)
 		{
 			var percent = ch.GetSkillPercentage(skill.Name);
@@ -425,7 +430,7 @@ function ShowSpells(ch, args, type = "Spell") {
 					text += ("Lvl " + lvl + ": ").padEnd(8);
 					text += "\n\r";
 				}
-
+				anyskills = true;
 				text += ("    " + (skill.Name + " " + (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A") + " " + skill.MinimumMana + " mana").padStart(30).padEnd(35));
 
 				if (column == 1)
@@ -437,6 +442,11 @@ function ShowSpells(ch, args, type = "Spell") {
 					column++;
 			}
 		}
+		if(!anyskills) {
+			ch.send("You don't know any {0}.\n\r", typename == "song"? "songs" : typename == "spell" ? "spells" : typename == "supplication"? "supplications" : "powers" );
+			return;
+		}
+
 		ch.send(text + "\n\r");
 	}
 }
@@ -453,7 +463,7 @@ Character.DoCommands.DoSongs = function(ch, args) {
 	ShowSpells(ch, args, "Song");
 }
 
-function DoDelete(character, args) {
+Character.DoCommands.DoDelete = function(character, args) {
 	if(!character.Flags["ConfirmDelete"]) {
 		character.Flags["ConfirmDelete"] = true;
 		character.send("Type `delete yes` to delete your character.\n\rThis process is irreversible.\n\r")
@@ -464,7 +474,7 @@ function DoDelete(character, args) {
 		character.socket.destroy();
 		Player.Players.splice(Player.Players.indexOf(character), 1)
 		console.log(`${character.Name} disconnected`)
-
+		const Settings = require("./Settings");
 		path = Settings.PlayerDataPath + `/${character.Name}.xml`;
 		FileSystem.unlinkSync(path);
 	} else {
@@ -473,7 +483,7 @@ function DoDelete(character, args) {
 	}
 }
 
-function DoWhere(character, args) {
+Character.DoCommands.DoWhere = function(character, args) {
 	var count = 0;
 	var desiredcount;
 	var playersonly = args.IsNullOrEmpty();
@@ -769,17 +779,249 @@ Character.DoCommands.DoPrompt = function(ch,  args)
 	ch.send("Your prompt is: " + Color.EscapeColor(player.Prompt) + "\n\r");
 }
 
-Character.DoCommands.DoQuit = doquit;
-Character.DoCommands.DoHelp = dohelp;
-Character.DoCommands.DoLook = dolook;
-Character.DoCommands.DoExits = doexits;
-Character.DoCommands.DoEquipment = doequipment;
-Character.DoCommands.DoInventory = doinventory;
-Character.DoCommands.DoSave = DoSave;
-Character.DoCommands.DoWho = DoWho;
-Character.DoCommands.DoSkills = DoSkills;
-Character.DoCommands.DoDelete = DoDelete;
-Character.DoCommands.DoWhere = DoWhere;
+Character.DoCommands.DoPractice = function(ch, args)
+{
+	const PhysicalStats = require('./PhysicalStats');
+	// var skills = from skill in ch.learned where skill.Key.skillType.Contains(SkillSpellTypes.Skill) && (skill.Key.skillLevel.ContainsKey(ch.guild.name) || skill.Value > 0) orderby skill.Key.skillLevel.ContainsKey(ch.guild.name) ? skill.Key.skillLevel[ch.guild.name] : 100 select skill;
+	if (Utility.IsNullOrEmpty(args))
+	{
+		var column = 0;
+		var text = "";
+		var skills = SkillSpell.Skills.Select(tempskill => tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) ||
+		tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Spell) ||
+		tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Commune) ||
+		tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Song) ||
+		(tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.InForm) && tempskill.SpellFun));
+		skills.sort((a, b) => ch.GetLevelSkillLearnedAtOutOfForm(a) < ch.GetLevelSkillLearnedAtOutOfForm(b)? -1 : ch.GetLevelSkillLearnedAtOutOfForm(a) > ch.GetLevelSkillLearnedAtOutOfForm(b)? 1 : 0);
+		for(var skill of skills)
+		{
+			var percent = ch.GetSkillPercentageOutOfForm(skill); // ch.Learned.TryGetValue(skill, out int percent);
+			//skill.skillLevel.TryGetValue(ch.Guild.name, out int lvl);
+			var lvl = ch.GetLevelSkillLearnedAtOutOfForm(skill);
+
+			if (percent > 1 || ch.Level >= lvl && skill.PrerequisitesMet(ch)) // && (lvl < (game.LEVEL_HERO + 1)) || ch.IS_IMMORTAL))
+			{
+				text += Utility.Format("     {0,30} {1,-5} ", skill.Name, (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A"));
+				//text += ("    " + (skill.Name.padEnd(25) + " " + (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A").padStart(4)).padEnd(30));
+
+				if (column == 1)
+				{
+					text += "\n";
+					column = 0;
+				}
+				else
+					column++;
+			}
+		}
+		ch.send(text + "\n\rYou have {0} practice sessions left.\n\r", ch.Practices);
+	}
+	else
+	{
+		if (!ch.IsAwake)
+		{
+			ch.SendToChar("In your dreams or what?\n\r");
+			return;
+		}
+
+		if (ch.Form != null)
+		{
+			ch.send("You can't do that in form.\n\r");
+			return;
+		}
+		var skill;
+		var skills = SkillSpell.Skills.Select(tempskill => (tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) ||
+		tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Spell) ||
+		tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Commune) ||
+		tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Song) ||
+		(tempskill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.InForm) && tempskill.SpellFun)) &&
+		tempskill.Name.prefix(args));
+		if(skills.length > 0) {
+			skills.sort((a, b) => ch.GetLevelSkillLearnedAtOutOfForm(a) < ch.GetLevelSkillLearnedAtOutOfForm(b)? -1 : ch.GetLevelSkillLearnedAtOutOfForm(a) > ch.GetLevelSkillLearnedAtOutOfForm(b)? 1 : 0);
+			skill = skills[0];
+		}
+		//skill = SkillSpell.SkillLookup(arguments);
+		var practiceMob = null;
+		for (var mob of ch.Room.Characters)
+		{
+			if (mob.Flags.ISSET(Character.ActFlags.GuildMaster))// && (!mob.Guild || mob.Guild == ch.Guild))
+			{
+				practiceMob = mob;
+				break;
+			}
+		}
+
+		if (practiceMob && practiceMob.Guild && practiceMob.Guild != ch.Guild)
+		{
+			ch.send("They won't teach you because you aren't a {0}.\n\r", practiceMob.Guild.Name);
+			return;
+		}
+		if (skill)
+		{
+			var learned = ch.GetSkillPercentage(skill);
+			//ch.Learned.TryGetValue(skill, out int learned);
+
+			if (ch.Level >= ch.GetLevelSkillLearnedAt(skill) && ch.Practices >= 1 && practiceMob && learned < 75)
+			{
+				ch.LearnSkill(skill, Math.min(learned + PhysicalStats.IntelligenceApply[ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Intelligence)].Learn, 75));
+				ch.Practices -= 1;
+				ch.send("You practice and learn in the ability {0}.\n\r", skill.Name);
+				if (ch.Learned[skill.Name].Percentage == 75)
+				{
+					ch.send("\\gYou are now learned in the ability {0}.\\x\n\r", skill.Name);
+				}
+			}
+			else if (learned >= 75)
+			{
+				ch.send("You are already learned at " + skill.Name + ".\n\r");
+			}
+			else if (!practiceMob)
+				ch.send("Find a guild master and have practices.\n\r");
+			else if (ch.Practices == 0)
+			{
+				ch.send("You don't have enough practice sessions.\n\r");
+			}
+			else
+				ch.send("What skill is that?\n\r");
+		}
+		else
+			ch.send("What skill is that?\n\r");
+	}
+}
+
+Character.DoCommands.DoTrain = function(ch, args)
+{
+	const PhysicalStats = require('./PhysicalStats');
+	var Trainer = null;
+
+	for (var mob of ch.Room.Characters)
+	{
+		if (mob.Flags.ISSET(Character.ActFlags.Trainer))
+		{
+			Trainer = mob;
+			break;
+		}
+	}
+
+	if (Trainer)
+	{
+		if (ch.Form)
+		{
+			ch.send("You can't do that in form.\n\r");
+			return;
+		}
+
+		if (args.ISEMPTY())
+		{
+
+			ch.send("You can train: \n\r");
+			
+			for (var stat in PhysicalStats.PhysicalStatTypes)
+			{
+				var statindex = PhysicalStats.PhysicalStatTypes[stat];
+				if (ch.PermanentStats[statindex] < ch.PcRace.MaxStats[statindex])
+				{
+					ch.send("\t" + stat.toLowerCase() + "\n\r");
+				}
+			}
+			ch.send("\tHitpoints\n\r\tMana\n\r");
+			ch.send("You have " + ch.Trains + " trains.\n\r");
+			return;
+		}
+
+
+		if (ch.Trains > 0)
+		{
+			for (var stat in PhysicalStats.PhysicalStatTypes)
+			{
+				var statindex = PhysicalStats.PhysicalStatTypes[stat];
+				if (stat.prefix(args) && ch.PermanentStats[statindex] < ch.PcRace.MaxStats[statindex])
+				{
+					ch.send("You train your " + stat.toLowerCase() + ".\n\r");
+					ch.Act("$n's " + stat.toLowerCase() + " increases.\n\r", null, null, null, Character.ActType.ToRoom);
+					ch.PermanentStats[statindex]++;
+					ch.Trains--;
+					return;
+				}
+			}
+
+			if ("hitpoints".prefix(args) || args.equals("hp"))
+			{
+				ch.send("You train your hitpoints.\n\r");
+				ch.Act("$n's hitpoints increase.\n\r", null, null, null, Character.ActType.ToRoom);
+				ch.MaxHitPoints += 10;
+				ch.Trains--;
+				return;
+			}
+
+			if ("mana".prefix(args))
+			{
+				ch.send("You train your mana.\n\r");
+				ch.Act("$n's mana increases.\n\r", null, null, null, Character.ActType.ToRoom);
+				ch.MaxManaPoints += 10;
+				ch.Trains--;
+				return;
+			}
+
+			ch.send("You can't train that.\n\r");
+		}
+		else
+			ch.send("You have no trains.\n\r");
+	}
+	else
+		ch.send("There is no trainer here.\n\r");
+
+}
+
+Character.DoCommands.DoGain = function(ch, args)
+{
+	var Trainer = null;
+
+	for (var mob of ch.Room.Characters)
+	{
+		if (mob.Flags.ISSET(Character.ActFlags.Trainer))
+		{
+			Trainer = mob;
+			break;
+		}
+	}
+
+	if (Trainer)
+	{
+		if (ch.Form)
+		{
+			ch.send("You can't do that in form.\n\r");
+			return;
+		}
+
+		if ("revert".prefix(args))
+		{
+			if (ch.Trains > 0)
+			{
+				ch.Practices += 10;
+				ch.Trains--;
+				ch.Act("You convert 1 train into 10 practices.");
+			}
+			else
+				ch.send("You have no trains.\n\r");
+		}
+		else if ("convert".prefix(args))
+		{
+			if (ch.Practices >= 10)
+			{
+				ch.Practices -= 10;
+				ch.Trains++;
+				ch.Act("You convert 10 practices into 1 train.");
+			}
+			else
+				ch.send("You don't have enough practices.\n\r");
+		}
+		else
+			ch.send("Gain [convert|revert]");
+	}
+	else
+		ch.send("There is no trainer here.\n\r");
+
+}
 
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");

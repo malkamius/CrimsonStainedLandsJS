@@ -1,4 +1,6 @@
 const net = require("net");
+const dns = require("dns");
+
 const RoomData = require("./RoomData");
 const AreaData = require("./AreaData");
 const Player = require("./Player");
@@ -84,6 +86,14 @@ function HandleNewSocket(socket) {
 	socket.on("data", (buffer) => {
 		DataReceived(socket, buffer);
 	});
+	dns.reverse(socket.remoteAddress, function(err, hostnames) {
+		if(!err) {
+			socket.hostnames = hostnames;
+			console.log(`Socket ${socket.remoteAddress} hostnames are ` + hostnames.join(", "));
+		} else {
+			console.log(`Socket ${socket.remoteAddress} reversedns error  ` + err);
+		}
+	})
 }
 
 

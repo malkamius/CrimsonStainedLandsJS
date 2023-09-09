@@ -1,6 +1,6 @@
 const fs = require("fs");
 const xml2js = require('xml2js');
-const Settings = require("./Settings");
+
 const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility");
 
@@ -68,7 +68,7 @@ class DamageMessage {
     
     static Load() {
         const parser = new xml2js.Parser({ strict: false, trim: false });
-
+        const Settings = require("./Settings");
         var path = Settings.DataPath + "/damage_messages.xml";
 
         var data = fs.readFileSync(path, {encoding: "ascii"});

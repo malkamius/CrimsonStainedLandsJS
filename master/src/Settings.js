@@ -22,7 +22,7 @@ class Settings {
         else {
             var content = fs.readFileSync(this.SettingsPath, { encoding: "utf-8" });
             const parser = new xml2js.Parser({ strict: false, trim: false });
-            parser.parseString(content, function(err, xml) {
+            var xml = content.ParseXml(); //parser.parseString(content, function(err, xml) {
                 Settings.Port = xml.GetAttributeValueInt( "Port");
                 Settings.PlayersOnlineAtOnceEver = xml.GetAttributeValueInt( "PlayersOnlineAtOnceEver");
                 Settings.DataPath = xml.GetAttributeValue( "DataPath");
@@ -30,7 +30,7 @@ class Settings {
                 Settings.AreaDataPath = xml.GetAttributeValue( "AreaDataPath");
                 Settings.TitleDataPath = xml.GetAttributeValue( "TitleDataPath");
                 Settings.RaceDataPath = xml.GetAttributeValue( "RaceDataPath");
-            });
+            //});
         }
     }
 
