@@ -722,7 +722,7 @@ class Character {
 				}
 			}
 		}
-		return found;
+		return found || false;
 	}
 
 	FindAffect(Flag) {
@@ -1093,7 +1093,7 @@ class Character {
 		if (!this.Room)
 			return 0;
 
-		if (!this.IsNPC && !this.IsAffectedFlag("Ghost"))
+		if (!this.IsImmortal && !this.IsNPC && !this.IsAffectedFlag("Ghost"))
 		{
 			if (this.Starving > 6 && !this.IsAffected("Sated"))
 				return 0;
@@ -1181,7 +1181,7 @@ class Character {
 		if (!this.Room)
 			return 0;
 
-		if (!this.IsNPC && !this.IsAffected("Ghost"))
+		if (!this.IsImmortal && !this.IsNPC && !this.IsAffected("Ghost"))
 		{
 			if (this.Starving > 6 && !this.IsAffected("Sated"))
 				return 0;
@@ -1267,7 +1267,7 @@ class Character {
 		if (!this.Room)
 			return 0;
 
-		if (!this.IsNPC && !this.IsAffected("Ghost"))
+		if (!this.IsImmortal && this.IsNPC && !this.IsAffected("Ghost"))
 		{
 			if (this.Starving > 6 && !this.IsAffected("Sated"))
 				return 0;

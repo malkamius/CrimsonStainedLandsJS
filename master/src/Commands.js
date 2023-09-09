@@ -286,6 +286,8 @@ Commands = {
 		"globalecho": {Command: Character.DoCommands.DoGlobalEcho, MinimumPosition: "Dead" },
 		"areaecho": {Command: Character.DoCommands.DoAreaEcho, MinimumPosition: "Dead" },
 		"echo": {Command: Character.DoCommands.DoEcho, MinimumPosition: "Dead" },
+		"connections": {Command: Character.DoCommands.DoConnections, MinimumPosition: "Dead" },
+		"forcetick": {Command: Character.DoCommands.DoForceTick, MinimumPosition: "Dead" },
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 

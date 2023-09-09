@@ -603,3 +603,22 @@ Character.DoCommands.DoEcho = function(ch, args)
         }
     }
 }
+
+Character.DoCommands.DoForceTick = function(ch, args) {
+    const Game = require('./Game');
+    Game.UpdateTickCounter = 0;
+    Game.Pulse();
+    ch.send("OK.\n\r");
+}
+
+Character.DoCommands.DoConnections = function(ch, args) {
+    const Player = require('./Player');
+    ch.send("The following connections are established:\n\r");
+    for(var player of Player.Players) {
+        ch.send("{0,10} :: {1,16} :: {2,20}\n\r", 
+        player.socket && !player.socket.isDestroyed? player.socket.remoteAddress : "unknown", 
+        player.Name,
+        player.inanimate? "Inanimate" : player.status);
+    }
+    ch.send("{0} players.\n\r", Player.Players.length)
+}
