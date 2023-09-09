@@ -333,7 +333,8 @@ Character.DoCommands.DoSkills = function(ch, args) {
 		var skills = [];
 		var text = "";
 		for(var skillname in SkillSpell.Skills) {
-			if(SkillSpell.Skills[skillname].SkillTypes["Skill"]) {
+			if((SkillSpell.Skills[skillname].SkillTypes["Skill"] || SkillSpell.Skills[skillname].SkillTypes["InForm"])
+			&& !SkillSpell.Skills[skillname].SpellFun) {
 				skills.push(SkillSpell.Skills[skillname]);
 			}
 		}
@@ -345,7 +346,7 @@ Character.DoCommands.DoSkills = function(ch, args) {
 		{
 			var percent = ch.GetSkillPercentage(skill.Name);
 			var lvl = ch.GetLevelSkillLearnedAt(skill.Name);
-
+			if(percent < 1 && lvl <= this.Level) continue;
 			if ((lvl < 52 || ch.IsImmortal) || percent > 1)  //if (lvl > 0 || percent > 1 || (ch.Level > lvl && lvl > 0))
 			{
 				if (lvl != lastLevel)

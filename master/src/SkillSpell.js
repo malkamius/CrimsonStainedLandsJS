@@ -199,7 +199,7 @@ class SkillSpell {
         
         if(prefix) {
             for(var skillname in this.Skills) {
-                if(Utility.Prefix(skillname, name)) {
+                if(Utility.IsName(skillname, name)) {
                     return this.Skills[skillname];
                 }
             }

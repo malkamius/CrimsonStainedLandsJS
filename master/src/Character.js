@@ -220,6 +220,8 @@ class Character {
 	PoofIn = "$n fizzles into existence.";
 	PoofOut = "$n fizzles out of existence.";
 	Prompt = "";
+	ShapeFocusMajor = "";
+	ShapeFocusMinor = "";
 	
   	constructor(add = true) {
 		if(add)
@@ -791,6 +793,16 @@ class Character {
 		
 			skillentry = SkillSpell.GetSkill(skillname, false);
 		}
+		var informskills = ["control speed", "trance", "meditation", "control phase", "control skin", "control levitation"];
+		if (this.Form && !skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.InForm) && 
+			informskills.indexOf(skillname) < 0 && !skillentry.SpellFun)
+		{
+			if(this.IsNPC) return 10000;
+			return 60;
+		} else if(this.Form && this.Form.Skills[skillname]) {
+			return this.GetLevelSkillLearnedAt(this.Form.FormSkill);
+		}
+
 		if (Utility.IsNullOrEmpty(skillname) || !skillentry) {
 			if(this.IsNPC) return 10000;
 			return 60;
@@ -824,6 +836,34 @@ class Character {
 			skillentry = SkillSpell.GetSkill(skillname, false);
 		}
 		
+		if (this.Form && skillentry)
+		{
+			var informskills = ["control speed", "trance", "meditation", "control phase", "control skin", "control levitation"];
+			if (this.Form.FormSkill != skillentry) // no stack overflow
+			{
+				var formskill = this.GetSkillPercentage(this.Form.FormSkill);
+
+				if (this.Form.Skills[skillname])
+					return (formskill * this.Form.Skills[skillname] / 100);
+				else if (skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form) && this.Learned[skillname])
+					return Learned[skillname].Percent;
+				else if (informskills.indexOf(skillname) >= 0 && this.Learned[skillname])
+					return Learned[skillname].Percent;
+				else if ((informskills.indexOf(skillname) >= 0 || skillentry.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form)) && this.IsImmortal)
+					return 100;
+				else
+					return 0;
+			}
+			else if (this.Form.FormSkill == skillentry && this.Learned[skillname])
+				return this.Learned[skillname].Percent;
+			else if (skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form) && Learned[skillname])
+				return this.Learned[skillname].Percent;
+			else if (this.IsImmortal && !skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.InForm))
+				return 100;
+			else
+				return 0;
+		}
+
 		if (Utility.IsNullOrEmpty(skillname) || !skillentry) 
 			return 0;
 		else if (this.IsImmortal)
@@ -1466,7 +1506,8 @@ class Character {
 		this.Practices += add_prac;
 		if (this.Level % 5 == 0)
 			this.Trains += 1;
-
+		
+		const ShapeshiftForm = require('./Shapeshift');
 		if (show)
 		{
 			this.send("\\gYou gain {0}/{1} hp, {2}/{3} mana, {4}/{5} move, and {6}/{7} practices.\\x\n\r",
@@ -1482,15 +1523,15 @@ class Character {
 				this.WeaponSpecializations++;
 			}
 
-			// if (this is Player && this.Guild != null && this.Guild.name == "shapeshifter" && (((Player)this).ShapeFocusMajor == ShapeshiftForm.FormType.None
-			// 	|| ((Player)this).ShapeFocusMinor == ShapeshiftForm.FormType.None))
-			// {
-			// 	send("\\RYou have not chosen both of your shapefocuses yet. Type shapefocus major/minor to set it.\\x\n\r");
-			// }
+			if (this.Guild && this.Guild.Name == "shapeshifter" && !this.ShapeFocusMajor || this.ShapeFocusMajor == ShapeshiftForm.FormType.None
+				|| !this.ShapeFocusMinor || this.ShapeFocusMinor == ShapeshiftForm.FormType.None)
+			{
+				this.send("\\RYou have not chosen both of your shapefocuses yet. Type shapefocus major/minor to set it.\\x\n\r");
+			}
 		}
 
-		// if (this is Player && this.Guild != null && this.Guild.name == "shapeshifter")
-		// 	ShapeshiftForm.CheckGainForm(this);
+		if (this.Guild && this.Guild.Name == "shapeshifter")
+			ShapeshiftForm.CheckGainForm(this);
 		
 		return;
 	}
@@ -2367,7 +2408,10 @@ class Character {
 
 		this.PoofIn = xml.GetElementValue("PoofIn", this.PoofIn);
 		this.PoofOut = xml.GetElementValue("PoofOut", this.PoofOut);
-		this.Prompt = xml.GetElementValue("Prompt", this.PoofOut);
+		this.Prompt = xml.GetElementValue("Prompt", this.Prompt);
+
+		this.ShapeFocusMajor = xml.GetElementValue("ShapeFocusMajor", "None");
+		this.ShapeFocusMinor = xml.GetElementValue("ShapeFocusMinor", "None");
 
 		var guild = xml.GetElementValue( "Guild", "");
 		if(!guild.ISEMPTY() && !(this.Guild = GuildData.Lookup(guild, false)))
@@ -2482,6 +2526,11 @@ class Character {
 		parentelement.ele("ArmorClass", this.ArmorClass);
 		parentelement.ele("Silver", this.Silver);
 		parentelement.ele("Gold", this.Gold);
+
+		if(this.ShapeFocusMajor)
+		parentelement.ele("ShapeFocusMajor", this.ShapeFocusMajor);
+		if(this.ShapeFocusMinor)
+		parentelement.ele("ShapeFocusMinor", this.ShapeFocusMinor);
 
 		parentelement.ele("SavingThrow", this.SavingThrow);
 

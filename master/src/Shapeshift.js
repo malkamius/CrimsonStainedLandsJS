@@ -49,6 +49,7 @@ class ShapeshiftForm {
     FormSkill = "";
     ShortDescription = "";
     LongDescription = "";
+    Description = "";
     Yell = "";
     AffectedBy = {};
     AttacksPerRound = 1;
@@ -64,6 +65,8 @@ class ShapeshiftForm {
     ArmorExotic = 0;
     Parts = {};
     ParryModifier = 0;
+    Stats = [20,20,20,20,20,20];
+    Skills = {};
 
     constructor(xml) {
         this.Name = xml.GetAttributeValue("Name");
@@ -72,6 +75,7 @@ class ShapeshiftForm {
         this.FormSkill = SkillSpell.SkillLookup(xml.GetAttributeValue("FormSkill"));
         this.ShortDescription = xml.GetAttributeValue("ShortDescription");
         this.LongDescription = xml.GetAttributeValue("LongDescription");
+        
         this.Yell = xml.GetAttributeValue("Yell");
         Utility.ParseFlags(this.AffectedBy, xml.GetAttributeValue("AffectedBy"));
         this.AttacksPerRound = xml.GetAttributeValueInt("AttacksPerRound");
@@ -91,6 +95,24 @@ class ShapeshiftForm {
         Utility.ParseFlags(this.Parts, xml.GetAttributeValue("Parts"));
         this.ParryModifier = xml.GetAttributeValueInt("ParryModifier");
         
+
+        this.Description = xml.GetElementValue("Description");
+        if(xml.STATS) {
+            var stats = xml.STATS[0];
+            this.Stats[0] = XmlHelper.GetElementValueInt(stats, "Strength");
+            this.Stats[1] = XmlHelper.GetElementValueInt(stats, "Wisdom");
+            this.Stats[2] = XmlHelper.GetElementValueInt(stats, "Intelligence");
+            this.Stats[3] = XmlHelper.GetElementValueInt(stats, "Dexterity");
+            this.Stats[4] = XmlHelper.GetElementValueInt(stats, "Constitution");
+            this.Stats[5] = XmlHelper.GetElementValueInt(stats, "Charisma");
+        }
+
+        if(xml.SKILLS && xml.SKILLS[0] && xml.SKILLS[0].SKILL) {
+            for(var skillxml of xml.SKILLS[0].SKILL) {
+                this.Skills[skillxml.GetAttributeValue("Name")] = skillxml.GetAttributeValueInt("Value");
+            }
+        }
+
     }
 
     static GetForm(ch, name, strprefix = true)
@@ -191,12 +213,12 @@ class ShapeshiftForm {
     static CheckGainForm(ch)
     {
         //;
-        if (!ch.Guild || ch.Guild.name != "shapeshifter") return;
+        if (!ch.Guild || ch.Guild.Name != "shapeshifter") return;
         
-        var tier4forms = Forms.Select(form => form.Tier == ShapeshiftForm.FormTier.Tier4 && form.Type == ch.ShapeFocusMajor && ch.GetSkillPercentage(form.FormSkill) > 1).length;
-        var tier3forms = Forms.Select(form => form.Tier == ShapeshiftForm.FormTier.Tier3 && (form.Type == ch.ShapeFocusMajor || form.Type == ch.ShapeFocusMinor) && ch.GetSkillPercentage(form.FormSkill) > 1).length;
-        var tier2forms = Forms.Select(form => form.Tier == ShapeshiftForm.FormTier.Tier2 && (form.Type == ch.ShapeFocusMajor || form.Type == ch.ShapeFocusMinor) && ch.GetSkillPercentage(form.FormSkill) > 1).length;
-        var tier1forms = Forms.Select(form => form.Tier == ShapeshiftForm.FormTier.Tier1 && (form.Type == ch.ShapeFocusMajor || form.Type == ch.ShapeFocusMinor) && ch.GetSkillPercentage(form.FormSkill) > 1).length;
+        var tier4forms = ShapeshiftForm.Forms.Select(form => form.Tier == ShapeshiftForm.FormTier.Tier4 && form.Type == ch.ShapeFocusMajor && ch.GetSkillPercentage(form.FormSkill) > 1).length;
+        var tier3forms = ShapeshiftForm.Forms.Select(form => form.Tier == ShapeshiftForm.FormTier.Tier3 && (form.Type == ch.ShapeFocusMajor || form.Type == ch.ShapeFocusMinor) && ch.GetSkillPercentage(form.FormSkill) > 1).length;
+        var tier2forms = ShapeshiftForm.Forms.Select(form => form.Tier == ShapeshiftForm.FormTier.Tier2 && (form.Type == ch.ShapeFocusMajor || form.Type == ch.ShapeFocusMinor) && ch.GetSkillPercentage(form.FormSkill) > 1).length;
+        var tier1forms = ShapeshiftForm.Forms.Select(form => form.Tier == ShapeshiftForm.FormTier.Tier1 && (form.Type == ch.ShapeFocusMajor || form.Type == ch.ShapeFocusMinor) && ch.GetSkillPercentage(form.FormSkill) > 1).length;
        
         if (ch.Level >= 5 || (ch.Level >= 8 && 30 > Utility.NumberPercent()))
         {
@@ -211,7 +233,7 @@ class ShapeshiftForm {
                 {
                     var skill = selectedform.FormSkill;
                     ch.LearnSkill(skill, 75, ch.Level);
-                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".Contains(selectedform.Name[0]) ? "an " : "a ", selectedform.Name);
+                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".indexOf(selectedform.Name[0]) >= 0? "an " : "a ", selectedform.Name);
                     ch.Save();
                 }
             }
@@ -340,7 +362,7 @@ class ShapeshiftForm {
     {
         var [arg, args] = args.OneArgument();
 
-        if (!ch.Guild || ch.Guild.name != "shapeshifter")
+        if (!ch.Guild || ch.Guild.Name != "shapeshifter")
         {
             ch.Act("Only shapeshifters can choose a shapefocus.");
             return;
@@ -383,7 +405,7 @@ class ShapeshiftForm {
             }
             else if (ch.ShapeFocusMajor != ShapeshiftForm.FormType.None)
             {
-                ch.send("Your major shapefocus is in {0} forms.\n\r", ch.ShapeFocusMajor.ToString().ToLower());
+                ch.send("Your major shapefocus is in {0} forms.\n\r", ch.ShapeFocusMajor.toLowerCase());
             }
             else
                 ch.send("Syntax: shapefocus major [{0}].\n\r", Utility.JoinArray(ShapeshiftForm.FormType.Select((f, k) => f != ShapeshiftForm.FormType.Water && f != ShapeshiftForm.FormType.Air && f == k), null, ", "));
