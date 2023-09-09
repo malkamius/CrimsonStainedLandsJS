@@ -108,6 +108,9 @@ Commands = {
 		"afk": {Command: Character.DoCommands.DoAFK, MinimumPosition: "Dead" },
 
 		"replay": {Command: Character.DoCommands.DoReplay, MinimumPosition: "Dead" },
+		"deposit": {Command: Character.DoCommands.DoDeposit, MinimumPosition: "Resting" },
+		"withdraw": {Command: Character.DoCommands.DoWithdraw, MinimumPosition: "Resting" },
+		"balance": {Command: Character.DoCommands.DoBalance, MinimumPosition: "Resting" },
 		
 		"recall": {Command: Character.DoCommands.DoRecall, MinimumPosition: "Standing" },
 
@@ -256,6 +259,8 @@ Commands = {
 		"poofout": {Command: Character.DoCommands.DoPoofOut, MinimumPosition: "Dead" },
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
+
+		"suicide": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Standing" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};
 	

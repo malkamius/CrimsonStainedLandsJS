@@ -1118,6 +1118,167 @@ Character.DoCommands.DoAFK = function(character, args) {
 
 	character.send("AFK is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.AFK)? "\\GON\\x" : "\\ROFF\\x")
 }
+
+Character.DoCommands.DoDeposit = function(ch, args)
+{
+	var banker;
+	var arg = "";
+	var amount;
+
+	banker = ch.Room.Characters.FirstOrDefault(npc => npc.Flags.ISSET(Character.ActFlags.Banker));
+
+	if (!banker)
+	{
+		ch.send("You can't do that here.\n\r");
+		return;
+	}
+
+	if (ch.Form)
+	{
+		ch.send("You can't speak to the banker.\n\r");
+		return;
+	}
+
+	[arg, args] = args.OneArgument();
+	if (arg.ISEMPTY())
+	{
+		ch.send("Deposit how much of which coin type?\n\r");
+		return;
+	}
+	var amount = Number(arg);
+	if (!amount || !Number.isInteger(amount))
+	{
+		ch.send("Deposit how much of which type of coin?\n\r");
+		return;
+	}
+
+	[arg, args] = args.OneArgument();
+	if (amount <= 0 || (!arg.equals("gold") && !arg.equals("silver")))
+	{
+		ch.Act("$N tells you, 'Sorry, deposit how much of which coin type?'", banker);
+		return;
+	}
+
+	if (arg.equals("gold"))
+	{
+		if (ch.Gold < amount)
+		{
+			ch.Act("$N tells you, 'You don't have that much gold on you!'", banker);
+			return;
+		}
+		ch.SilverBank += amount * 1000;
+		ch.Gold -= amount;
+	}
+	else if (arg.equals("silver"))
+	{
+		if (ch.Silver < amount)
+		{
+			ch.Act("$N tells you, 'You don't have that much silver on you!'", banker);
+			return;
+		}
+		ch.SilverBank += amount;
+		ch.Silver -= amount;
+	}
+	ch.send("You deposit {0} {1}.\n\r", amount, arg.toLowerCase());
+	ch.send("Your new balance is {0} silver.\n\r", ch.SilverBank);
+	return;
+}
+
+Character.DoCommands.DoWithdraw = function( ch, args)
+{
+	var banker;
+	var arg = "";
+	var amount;
+
+
+	banker = ch.Room.Characters.FirstOrDefault(npc => npc.Flags.ISSET(Character.ActFlags.Banker));
+
+	if (!banker)
+	{
+		ch.send("You can't do that here.\n\r");
+		return;
+	}
+	//var charges;
+	if (ch.Form)
+	{
+		ch.send("You can't speak to the banker.\n\r");
+		return;
+	}
+
+	[arg, args] = args.OneArgument();
+	if (arg.ISEMPTY())
+	{
+		ch.send("Withdraw how much of which coin type?\n\r");
+		return;
+	}
+	amount = Number(arg);
+	if (!amount || !Number.isInteger(amount))
+	{
+		ch.send("Withdraw how much of which type of coin?\n\r", ch);
+		return;
+	}
+
+	[arg, args] = args.OneArgument();
+	if (amount <= 0 || (!arg.equals("gold") && !arg.equals("silver")))
+	{
+		ch.Act("$N tells you, 'Sorry, withdraw how much of which coin type?'", banker);
+		return;
+	}
+	//charges = 10 * amount / 100;
+
+	if (arg.equals("gold"))
+	{
+		if (ch.SilverBank < amount * 1000)
+		{
+			ch.Act("$N tells you, 'Sorry you do not have we don't give loans.'", banker);
+			return;
+		}
+		ch.SilverBank -= amount * 1000;
+		ch.Gold += amount;
+		// if(Math.floor(charges) != charges) {
+		// 	ch.Silver -= (charges - Math.floor(charges)) * 1000;
+		// }
+		// ch.Gold -= Math.floor(charges);
+	}
+	else if (arg.equals("silver"))
+	{
+		if (ch.SilverBank < amount)
+		{
+			ch.Act("$N tells you, 'You don't have that much silver in the bank.'", banker);
+			return;
+		}
+		ch.SilverBank -= amount;
+		ch.Silver += amount;
+		//ch.Silver -= charges;
+	}
+
+	ch.send("You withdraw {0} {1}.\n\r", amount, arg.toLowerCase());
+	//ch.send("You are charged a small fee of {0} {1}.\n\r", charges, arg.ToLower());
+	return;
+}
+
+Character.DoCommands.DoBalance = function(ch, args)
+{
+	var banker;
+
+	banker = ch.Room.Characters.FirstOrDefault(npc => npc.Flags.ISSET(Character.ActFlags.Banker));
+
+	if (!banker)
+	{
+		ch.send("You can't do that here.\n\r");
+		return;
+	}
+	if (ch.Form)
+	{
+		ch.send("You can't speak to the banker.\n\r");
+		return;
+	}
+	if (ch.SilverBank == 0)
+		ch.send("You have no account here!\n\r");
+	else
+		ch.send("You have {0} silver in your account.\n\r", ch.SilverBank);
+	return;
+}
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");

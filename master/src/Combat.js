@@ -2490,6 +2490,13 @@ class Combat {
             Combat.ExecuteRound(character);
         }
     }
+
+    static DoSuicide(character, args) {
+        character.Act("$n commits suicide!", null, null, null, Character.ActType.ToRoom);
+        character.Act("You commit suicide!");
+        character.HitPoints = -15;
+        Combat.CheckIsDead(null, character, character.MaxHitPoints + 15);
+    }
 }
 
 module.exports = Combat;
