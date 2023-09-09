@@ -1367,6 +1367,12 @@ Character.DoCommands.DoSocials = function(character, args) {
 	character.send("\n\r");
 }
 
+Character.DoCommands.DoBug = function(character, args) {
+	const fs = require('fs');
+	const Settings = require('./Settings');
+	fs.appendFileSync(Settings.DataPath + "/bugs.txt", Utility.Format("{0} {1} :: {2} - {3}\n", new Date().toDateString(), new Date().toTimeString(), character.Name, args));
+	character.send("Bug logged.\n\r");
+}
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");

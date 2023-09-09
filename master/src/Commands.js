@@ -115,6 +115,8 @@ Commands = {
 		"brief": {Command: Character.DoCommands.DoBrief, MinimumPosition: "Dead" },
 		"afk": {Command: Character.DoCommands.DoAFK, MinimumPosition: "Dead" },
 
+		"bug": {Command: Character.DoCommands.DoBug, MinimumPosition: "Dead" },
+
 		"forms": {Command: ShapeshiftForm.DoForms, MinimumPosition: "Dead" },
 		"shapeshift": {Command: ShapeshiftForm.DoShapeshift, MinimumPosition: "Dead" },
 		"shapefocus": {Command: ShapeshiftForm.DoShapeFocus, MinimumPosition: "Dead" },

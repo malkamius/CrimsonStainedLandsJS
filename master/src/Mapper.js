@@ -142,7 +142,7 @@ class Mapper
 
         for (var ch of maproom.room.Characters)
         {
-            if (ch.Flags.IsSetAny("Practice", "Train", "Shopkeeper", "Healer", "Trainer"))
+            if (ch.Flags.IsSetAny("Practice", "Train", "Shopkeeper", "Healer", "Trainer", "Gain", Character.ActFlags.GuildMaster))
             {
                 var POIChar;
                 var keys = Object.keys(maproom.POIs);
@@ -159,8 +159,10 @@ class Mapper
 
                 if (POIChar != '\0')
                 {
-                    maproom.map[(maproom.x * 3 + 1) + "," + (maproom.y * 3 + 1)] = POIChar;
-                    maproom.POIs[POIChar] = ch.GetShortDescription(null);
+                    if(maproom.map[(maproom.x * 3 + 1) + "," + (maproom.y * 3 + 1)] != "\\Y*\\x") {
+                        maproom.map[(maproom.x * 3 + 1) + "," + (maproom.y * 3 + 1)] = POIChar;
+                        maproom.POIs[POIChar] = ch.GetShortDescription(null);
+                    }
                 }
             }
         }
