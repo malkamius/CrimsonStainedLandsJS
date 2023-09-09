@@ -533,3 +533,73 @@ Character.DoCommands.DoPoofOut = function(character, args) {
     }
     character.send("Your PoofOut is `{0}`.\n\r", character.PoofOut);
 }
+
+Character.DoCommands.DoGlobalEcho = function(ch, args)
+{
+    if (args.ISEMPTY())
+    {
+        ch.send("GlobalEcho what?\n\r");
+    }
+    else
+    {
+        for (var player of Character.Characters)
+        {
+            if (player.status == "Playing")
+            {
+                if (ch != null && player.Level >= ch.Level)
+                {
+                    player.send("({0}) {1}\\x\n\r", ch.Display(player), args);
+                }
+                else
+                    player.send("{0}\\x\n\r", args);
+            }
+        }
+    }
+}
+
+Character.DoCommands.DoAreaEcho = function(ch, args)
+{
+    if (args.ISEMPTY())
+    {
+        ch.send("AreaEcho what?\n\r");
+    }
+    else
+    {
+        for (var player of Character.Characters)
+        {
+            if (player.status == "Playing" &&
+                player.Room && ch.Room && player.Room.Area == ch.Room.Area)
+            {
+                if (ch != null && player.Level >= ch.Level)
+                {
+                    player.send("({0}) {1}\\x\n\r", ch.Display(player), args);
+                }
+                else
+                    player.send("{0}\\x\n\r", args);
+            }
+        }
+    }
+}
+
+Character.DoCommands.DoEcho = function(ch, args)
+{
+    if (args.ISEMPTY())
+    {
+        ch.send("Echo what?\n\r");
+    }
+    else
+    {
+        for (var player of ch.Room.Characters)
+        {
+            if (player.status == "Playing")
+            {
+                if (ch != null && player.Level >= ch.Level)
+                {
+                    player.send("({0}) {1}\\x\n\r", ch.Display(player), args);
+                }
+                else
+                    player.send("{0}\\x\n\r", args);
+            }
+        }
+    }
+}

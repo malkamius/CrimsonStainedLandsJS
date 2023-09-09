@@ -277,6 +277,11 @@ Commands = {
 		"stat": {Command: Character.DoCommands.DoStat, MinimumPosition: "Dead" },
 		"poofin": {Command: Character.DoCommands.DoPoofIn, MinimumPosition: "Dead" },
 		"poofout": {Command: Character.DoCommands.DoPoofOut, MinimumPosition: "Dead" },
+		"gecho": {Command: Character.DoCommands.DoGlobalEcho, MinimumPosition: "Dead" },
+		"aecho": {Command: Character.DoCommands.DoAreaEcho, MinimumPosition: "Dead" },
+		"globalecho": {Command: Character.DoCommands.DoGlobalEcho, MinimumPosition: "Dead" },
+		"areaecho": {Command: Character.DoCommands.DoAreaEcho, MinimumPosition: "Dead" },
+		"echo": {Command: Character.DoCommands.DoEcho, MinimumPosition: "Dead" },
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 
