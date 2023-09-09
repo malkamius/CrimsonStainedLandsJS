@@ -749,7 +749,7 @@ class Character {
 				if(aff.SkillSpell == Flag) affects.push(aff);
 			} else if(aff.Flags.IsSet(Flag)) {
 				affects.push(aff);
-			} else if(aff.SkillSpell == Flag || (aff.SkillSpell && aff.SkillSpell.Name.equals(flag))) {
+			} else if(aff.SkillSpell == Flag || (aff.SkillSpell && aff.SkillSpell.Name.equals(Flag))) {
 				affects.push(aff);
 			}
 		}
@@ -2882,7 +2882,7 @@ class Character {
 		if (this.AffectedBy.ISSET(AffectData.AffectFlags.Sneak))
 		{
 			var aff;
-			while ((aff = FindAffect(AffectData.AffectFlags.Sneak)) != null) {
+			while ((aff = this.FindAffect(AffectData.AffectFlags.Sneak))) {
 				this.AffectFromChar(aff, AffectData.AffectRemoveReason.WoreOff);
 			}
 			this.AffectedBy.RemoveFlag(AffectData.AffectFlags.Sneak);

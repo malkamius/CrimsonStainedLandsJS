@@ -801,7 +801,7 @@ Character.DoCommands.DoHide = function(ch, args)
             RoomData.SectorTypes.Inside, 
             RoomData.SectorTypes.Forest, 
             RoomData.SectorTypes.Cave, 
-            RoomData.SectorTypes.Road]).indexOf(ch.Room.Sector) >= 0)
+            RoomData.SectorTypes.Road]).indexOf(ch.Room.Sector) < 0)
     {
         ch.send("The shadows here are too natural to blend with.\n\r");
         return;

@@ -117,6 +117,8 @@ Commands = {
 
 		"bug": {Command: Character.DoCommands.DoBug, MinimumPosition: "Dead" },
 
+		"visible": {Command: Character.DoCommands.DoVisible, MinimumPosition: "Resting" },
+
 		"forms": {Command: ShapeshiftForm.DoForms, MinimumPosition: "Dead" },
 		"shapeshift": {Command: ShapeshiftForm.DoShapeshift, MinimumPosition: "Dead" },
 		"shapefocus": {Command: ShapeshiftForm.DoShapeFocus, MinimumPosition: "Dead" },
@@ -175,8 +177,8 @@ Commands = {
 		"owaza": {Command: Character.DoCommands.DoOwaza, MinimumPosition: "Fighting" },
 		"detecthidden": {Command: Character.DoCommands.DoDetectHidden, MinimumPosition: "Fighting" },
 		"heightenedawareness": {Command: Character.DoCommands.DoHeightenedAwareness, MinimumPosition: "Fighting" },
-		"hide": {Command: Character.DoCommands.DoHeightenedAwareness, MinimumPosition: "Standing" },
-		"sneak": {Command: Character.DoCommands.DoHeightenedAwareness, MinimumPosition: "Standing" },
+		"hide": {Command: Character.DoCommands.DoHide, MinimumPosition: "Standing" },
+		"sneak": {Command: Character.DoCommands.DoSneak, MinimumPosition: "Standing" },
 		"throw": {Command: Character.DoCommands.DoThrow, MinimumPosition: "Fighting" },
 		"strangle": {Command: Character.DoCommands.DoStrangle, MinimumPosition: "Standing" },
 		"blindnessdust": {Command: Character.DoCommands.DoBlindnessDust, MinimumPosition: "Fighting" },
