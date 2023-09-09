@@ -728,6 +728,36 @@ class Player extends Character {
 		}
 		return true;
 	}
+
+	static DoPassword(ch, args)
+	{
+		var password = "";
+		var passwordConfirm = "";
+
+		if (ch.IsNPC)
+		{
+			return;
+		}
+
+		[password, args] = args.OneArgument();
+		[passwordConfirm, args]= args.OneArgument();
+
+		if (password.ISEMPTY() || passwordConfirm.ISEMPTY())
+		{
+			ch.send("Syntax: Password {New Password} {Confirm New Password}\n\r");
+		}
+		else if (password != passwordConfirm)
+		{
+			ch.send("Passwords do not match.\n\r");
+		}
+		else
+		{
+			let hash = crypto.createHash('md5').update(password + "salt").digest("hex");
+			ch.Password = hash;
+			ch.Save();
+			ch.send("Password changed.\n\r");
+		}
+	}
 }
 
 module.exports = Player;

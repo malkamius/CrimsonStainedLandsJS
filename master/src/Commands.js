@@ -4,6 +4,8 @@ const Combat = require("./Combat");
 const Magic = require("./Magic");
 const Dueling = require("./Dueling");
 
+const Player = require("./Player");
+
 Commands = {
 		"north": {Command: Character.DoCommands.DoNorth, MinimumPosition: "Standing" },
 		"east": {Command: Character.DoCommands.DoEast, MinimumPosition: "Standing" },
@@ -260,7 +262,9 @@ Commands = {
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 
-		"suicide": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Standing" },
+		"suicide": {Command: Combat.DoSuicide, MinimumPosition: "Standing" },
+
+		"password": {Command: Player.DoPassword, MinimumPosition: "Dead" },
 		"delete": {Command: Character.DoCommands.DoDelete, MinimumPosition: "Dead" },
 	};
 	
