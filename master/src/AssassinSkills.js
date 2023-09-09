@@ -1131,3 +1131,54 @@ Character.DoCommands.DoThrow = function(ch, args)
     ch.WaitState(skill.WaitTime);
     Combat.AssassinThrow(ch, victim);
 }
+
+Character.DoCommands.DoVanish = function(ch, args)
+{
+
+	var skill = SkillSpell.SkillLookup("vanish");
+	var chance;
+	if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+	{
+		ch.send("You don't know how to do that.\n\r");
+		return;
+	}
+
+
+	ch.WaitState(skill.WaitTime);
+	if (chance > Utility.NumberPercent())
+	{
+
+		ch.Act("$n throws down a globe of dust, vanishing from sight.", null, null, null, Character.ActType.ToRoom);
+		ch.Act("You throw down a globe of dust, vanishing from sight.", null, null, null, Character.ActType.ToChar);
+		ch.CheckImprove(skill, true, 1);
+		Combat.StopFighting(ch, true);
+
+		if (Object.keys(ch.Room.Area.Rooms).length > 1)
+		{
+			var attempts = 0;
+			var newroom = ch.Room.Area.Rooms.SelectRandom();
+			while ((newroom == null || newroom == ch.Room || newroom.Flags.ISSET(RoomData.RoomFlags.Indoors) || newroom.Sector == RoomData.SectorTypes.Inside || !(ch.IsImmortal || ch.IsNPC || (ch.Level <= newroom.MaxLevel && ch.Level >= newroom.MinLevel))) && attempts <= 10)
+			{
+				newroom = ch.Room.Area.Rooms.SelectRandom();
+				attempts++;
+			}
+			if (attempts < 10)
+			{
+				ch.RemoveCharacterFromRoom();
+				ch.AddCharacterToRoom(newroom);
+				//Character.DoLook(ch, "auto");
+			} else {
+				ch.send("You fail.\n\r");
+			}
+		}
+
+	}
+	else
+	{
+		ch.Act("$n throws down a globe of dust, but nothing happens.", null, null, null, Character.ActType.ToRoom);
+		ch.Act("You throw down a globe of dust, but fail to vanish.", null, null, null, Character.ActType.ToChar);
+		ch.CheckImprove(skill, false, 1);
+
+	}
+	return;
+}

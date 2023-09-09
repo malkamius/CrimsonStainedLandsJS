@@ -184,6 +184,7 @@ Commands = {
 		"blindnessdust": {Command: Character.DoCommands.DoBlindnessDust, MinimumPosition: "Fighting" },
 		"poisondust": {Command: Character.DoCommands.DoPoisonDust, MinimumPosition: "Fighting" },
 		"poisondagger": {Command: Character.DoCommands.DoPoisonDagger, MinimumPosition: "Standing" },
+		"vanish": {Command: Character.DoCommands.DoVanish, MinimumPosition: "Fighting" },
 
 		"circlestab": {Command: Character.DoCommands.DoCircleStab, MinimumPosition: "Fighting" },
 		"steal": {Command: Character.DoCommands.DoSteal, MinimumPosition: "Fighting" },
