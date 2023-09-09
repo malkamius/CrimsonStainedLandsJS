@@ -317,7 +317,7 @@ class SkillSpell {
             tempskill.SkillTypes.IsSet("Song") ||
             (tempskill.SkillTypes.IsSet("InForm"))) && tempskill.SpellFun)
             && tempskill.Name.prefix(name)
-            && (ch.Level >= ch.GetLevelSkillLearnedAt(tempskill) && ch.GetSkillPercentage(tempskill) >= 1)
+            && (ch.Level >= ch.GetLevelSkillLearnedAtOutOfForm(tempskill) && ch.GetSkillPercentageOutOfForm(tempskill) >= 1)
             ) {
                 results.push(tempskill);
             }

@@ -921,7 +921,7 @@ Character.DoCommands.DoPractice = function(ch, args)
 				ch.LearnSkill(skill, Math.min(learned + PhysicalStats.IntelligenceApply[ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Intelligence)].Learn, 75));
 				ch.Practices -= 1;
 				ch.send("You practice and learn in the ability {0}.\n\r", skill.Name);
-				if (ch.Learned[skill.Name].Percentage == 75)
+				if (ch.Learned[skill.Name].Percent == 75)
 				{
 					ch.send("\\gYou are now learned in the ability {0}.\\x\n\r", skill.Name);
 				}
@@ -951,7 +951,7 @@ Character.DoCommands.DoTrain = function(ch, args)
 
 	for (var mob of ch.Room.Characters)
 	{
-		if (mob.Flags.ISSET(Character.ActFlags.Trainer))
+		if (mob.Flags.ISSET(Character.ActFlags.Trainer) || mob.Flags.ISSET("Gain"))
 		{
 			Trainer = mob;
 			break;
@@ -1034,7 +1034,7 @@ Character.DoCommands.DoGain = function(ch, args)
 
 	for (var mob of ch.Room.Characters)
 	{
-		if (mob.Flags.ISSET(Character.ActFlags.Trainer))
+		if (mob.Flags.ISSET(Character.ActFlags.Trainer) || mob.Flags.ISSET("Gain"))
 		{
 			Trainer = mob;
 			break;

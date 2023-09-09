@@ -409,8 +409,8 @@ Character.DoCommands.DoStat = function(character, args) {
                 character.send("Race {0}\n\r", target.Race? target.Race.Name : "unknown");
                 if (template)
                 {
-                    character.send("Hitpoint Dice {0} avg ({1})\n\r", template.HitPointDice, Utility.Average(template.HitPointDice.Average));
-                    character.send("Manapoint Dice {0} avg ({1})\n\r", template.ManaPointDice, Utility.Average(template.ManaPointDice.Average));
+                    character.send("Hitpoint Dice {0} avg ({1})\n\r", template.HitPointDice, Utility.Average(template.HitPointDice));
+                    character.send("Manapoint Dice {0} avg ({1})\n\r", template.ManaPointDice, Utility.Average(template.ManaPointDice));
                     character.send("Damage Dice {0} avg ({1})\n\r", template.DamageDice, Utility.Average(template.DamageDice));
                 }
                 character.send("Hitpoints {0}/{1}, Mana {2}/{3}, Moves {4}/{5}\n\r", target.HitPoints, target.MaxHitPoints, target.ManaPoints, target.MaxManaPoints, target.MovementPoints, target.MaxMovementPoints);

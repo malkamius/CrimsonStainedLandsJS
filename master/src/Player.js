@@ -17,6 +17,7 @@ const Settings = require("./Settings");
 const SkillSpell = require("./SkillSpell");
 const SkillGroup = require("./SkillGroup");
 const NPCData = require("./NPCData");
+const PhysicalStats = require("./PhysicalStats");
 
 const parser = new xml2js.Parser({ strict: false, trim: false });
 
@@ -142,7 +143,7 @@ class Player extends Character {
 			if(!this.Title || this.Title.IsNullOrEmpty()) {
 				if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
 				{
-					if (this.Sex == "Female")
+					if (this.Sex.equals("Female"))
 					{
 						this.Title = "the " + title.FemaleTitle;
 					}
@@ -395,7 +396,7 @@ class Player extends Character {
 								var title;
 								if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
 								{
-									if (this.Sex == "Female")
+									if (this.Sex.equals("Female"))
 									{
 										this.Title = "the " + title.FemaleTitle;
 									}
@@ -526,6 +527,10 @@ class Player extends Character {
 						this.Flags.SETBIT(Character.ActFlags.AutoSplit);
 						this.Flags.SETBIT(Character.ActFlags.AutoAssist);
 						this.Flags.SETBIT(Character.ActFlags.AutoExit);
+
+						var extrapractice = Math.ceil(PhysicalStats.WisdomApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice / 2);
+						this.Practices = 5 + extrapractice;
+						this.Trains = 3;
 
 						this.Save();
 						this.SetStatus("Playing");

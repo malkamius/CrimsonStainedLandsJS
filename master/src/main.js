@@ -18,8 +18,9 @@ const Character = require("./Character");
 const SkillSpell = require("./SkillSpell");
 const AffectData = require("./AffectData");
 
-var server = startListening(Settings.Port); 
 var IsDataLoaded = false;
+
+var server = startListening(Settings.Port); 
 
 Data.LoadData(DataLoaded);
 

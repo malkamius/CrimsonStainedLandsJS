@@ -918,6 +918,26 @@ class Character {
 			return 0;
 	}
 
+	GetSkillRating(sk) {
+		var skill;
+		var rating;
+		if(sk instanceof SkillSpell) {
+			skill = sk;
+			sk = skill.Name;
+		} else {
+			skill = SkillSpell.SkillLookup(sk);
+			sk = skill.Name;
+		}
+		if (!skill || !this.Guild)
+			return 0;
+		else if (this.IsImmortal)
+			return 0;
+		else if (this.Guild && (rating = skill.Rating[Guild.Name]))
+			return rating;
+		else
+			return 0;
+	}
+
 	IsInanimate() {	return false; };
 
 	IsAffectedSkill(skillspell) {
@@ -1008,8 +1028,8 @@ class Character {
 			chance = Utility.URANGE(5, 100 - GetSkillPercentage(sk), 95);
 			if (Utility.NumberPercent() < chance)
 			{
-				Learned[sk].Percentage += 1;
-				GainExperience(2 * GetSkillRating(sk));
+				Learned[sk].Percent += 1;
+				GainExperience(4 + (2 * GetSkillRating(sk)));
 				if (sk.SkillTypes.ISSET(SkillSpellTypes.Form) && this.Form)
 				{
 					if (GetSkillPercentage(sk) == 100)
@@ -1033,9 +1053,9 @@ class Character {
 			chance = Utility.URANGE(5, GetSkillPercentage(sk) / 2, 30);
 			if (Utility.NumberPercent() - 28 < chance)
 			{
-				Learned[sk].Percentage += Utility.Random(1, 3);
-				Learned[sk].Percentage = Math.min(Learned[sk].Percentage, 100);
-				GainExperience(2 * GetSkillRating(sk));
+				Learned[sk].Percent += Utility.Random(1, 3);
+				Learned[sk].Percent = Math.min(Learned[sk].Percent, 100);
+				GainExperience(4 + 2 * GetSkillRating(sk));
 
 				if (sk.SkillTypes.ISSET(SkillSpellTypes.Form) && this.Form)
 				{
@@ -1584,7 +1604,7 @@ class Character {
 			var title;
 			if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
 			{
-				if (this.Sex == "Female")
+				if (this.Sex.equals("Female"))
 				{
 					this.Title = "the " + title.FemaleTitle;
 				}
@@ -3305,7 +3325,7 @@ class Character {
 				Level = skill.LearnedLevel[this.Guild.Name];
 			if (learned.Level == 0 || Level < learned.Level)
 				learned.Level = Level;
-			learned.Percentage = percentage;
+			learned.Percent = percentage;
 		}
 	}
 }
