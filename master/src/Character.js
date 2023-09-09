@@ -2610,7 +2610,7 @@ class Character {
 					var percent = XmlHelper.GetAttributeValueInt(sp, "Value");
 					var level = XmlHelper.GetAttributeValueInt(sp, "Level");
 					var learnedas = {};
-					Utility.ParseFlags(learnedas, XmlHelper.GetAttributeValue("LearnedAs", "Skill Spell Song Supplication"));
+					Utility.ParseFlags(learnedas, sp.GetAttributeValue("LearnedAs", "Skill Spell Song Supplication"));
 					this.Learned[name] = {Name: name, Percent: percent, Level: level, LearnedAs: learnedas};
 				}
 			}

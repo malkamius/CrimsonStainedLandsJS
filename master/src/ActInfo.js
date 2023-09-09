@@ -415,7 +415,7 @@ function ShowSpells(ch, args, type = "Spell") {
 					return;
 				}
 
-				ch.send(skill.Name + " " + percent + "%" + " " + skill.MinimumMana + " mana" + "\n\r");
+				ch.send(skill.Name + " " + percent + "%" + " " + Math.ceil(skill.GetManaCost(ch)).toString().padStart(3) + " mana" + "\n\r");
 			}
 		}
 	} else {
@@ -425,6 +425,8 @@ function ShowSpells(ch, args, type = "Spell") {
 		var text = "";
 		for(var skillname in SkillSpell.Skills) {
 			if(SkillSpell.Skills[skillname].SkillTypes.ISSET(type)) {
+				if(ch.Learned && ch.Learned[skillname] && !ch.Learned[skillname].LearnedAs.ISSET(type))
+				continue;
 				skills.push(SkillSpell.Skills[skillname]);
 			}
 		}
@@ -449,7 +451,7 @@ function ShowSpells(ch, args, type = "Spell") {
 					text += "\n\r";
 				}
 				anyskills = true;
-				text += ("    " + (skill.Name + " " + (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A") + " " + skill.MinimumMana + " mana").padStart(30).padEnd(35));
+				text += ("    " + (skill.Name + " " + (ch.Level >= lvl || percent > 1 ? percent + "%" : "N/A") + " " + Math.ceil(skill.GetManaCost(ch)).toString().padStart(3) + " mana").padStart(30).padEnd(35));
 
 				if (column == 1)
 				{
@@ -877,7 +879,7 @@ Character.DoCommands.DoPractice = function(ch, args)
 			return;
 		}
 
-		if (ch.Form != null)
+		if (ch.Form)
 		{
 			ch.send("You can't do that in form.\n\r");
 			return;

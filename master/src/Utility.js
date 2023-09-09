@@ -419,8 +419,8 @@ class Utility {
 			DiceBonus = DiceSides[2];
 			DiceSides = DiceSides[1];
 		}
-		if(!DiceCount) DiceBonus = 0;
-		if(!DiceSides) DiceBonus = 0;
+		if(!DiceCount) DiceCount = 0;
+		if(!DiceSides) DiceSides = 0;
 		if(!DiceBonus) DiceBonus = 0;
 		return ( (DiceCount + DiceBonus) + (DiceCount * DiceSides + DiceBonus)) / 2;
 	} 
@@ -431,8 +431,8 @@ class Utility {
 			DiceBonus = DiceSides[2];
 			DiceSides = DiceSides[1];
 		}
-		if(!DiceCount) DiceBonus = 0;
-		if(!DiceSides) DiceBonus = 0;
+		if(!DiceCount) DiceCount = 0;
+		if(!DiceSides) DiceSides = 0;
 		if(!DiceBonus) DiceBonus = 0;
 		return DiceSides + "d" + DiceCount + "+" + DiceBonus;
 	} 

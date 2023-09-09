@@ -164,7 +164,7 @@ class ShapeshiftForm {
         var control;
         const AffectData = require('./AffectData');
         var spells= [ 
-            ["fly","control levitation"],
+            [ "fly","control levitation"],
             [ "pass door","control phase" ],
             [ "stone skin","control skin" ],
             [ "haste","control speed" ],
@@ -174,7 +174,7 @@ class ShapeshiftForm {
         {
             spell = SkillSpell.SkillLookup(pair[0]);
 
-            if ((affect = ch.FindAffect(spell)) != null)
+            if ((affect = ch.FindAffect(spell)))
             {
                 control = SkillSpell.SkillLookup(pair[1]);
                 var chance = ch.GetSkillPercentageOutOfForm(control);
