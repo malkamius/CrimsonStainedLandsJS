@@ -1,5 +1,5 @@
 
-
+const XmlHelper = require("./XmlHelper");
 const ItemData = require("./ItemData");
 
 
@@ -10,6 +10,12 @@ class AreaData {
 
 	xml = null;
 	Name = "";
+	Credits = "";
+	Builders = "";
+	Security = 0;
+	VNumStart = 0;
+	VNumEnd = 0;
+	OverRoomVNum = 0;
 	Rooms = {};
 	NPCTemplates = {};
 	ItemTemplates = {};
@@ -20,7 +26,14 @@ class AreaData {
 
 	constructor(xml) { 
 		var reset = null;
-		this.Name = xml.AREADATA[0].NAME[0];
+		var areaxml = xml.AREADATA[0];
+		this.Name = areaxml.GetElementValue("Name");
+		this.Credits = areaxml.GetElementValue("Credits");
+		this.VNumStart = areaxml.GetElementValueInt("VNumStart");
+		this.VNumEnd = areaxml.GetElementValueInt("VNumEnd");
+		this.Builders = areaxml.GetElementValue("Builders");
+		this.Security = areaxml.GetElementValueInt("Security");
+		this.OverRoomVNum = areaxml.GetElementValueInt("OverRoomVNum");
 		if(xml.ROOMS) {
 			for(const rooms of xml.ROOMS) {
 				if(rooms.ROOM)

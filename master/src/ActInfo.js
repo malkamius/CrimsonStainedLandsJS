@@ -1381,6 +1381,37 @@ Character.DoCommands.DoVisible = function(character, args) {
 	character.StripSneak();
 	character.send("OK.\n\r");
 }
+
+Character.DoCommands.DoAreas = function(ch, args)
+{
+	const AreaData = require("./AreaData");
+	ch.StartPaging();
+	var areas = [];
+	for(var areakey in AreaData.AllAreas) {
+		var area = AreaData.AllAreas[areakey];
+		areas.push(area);
+	}
+	if (ch.IsImmortal) {	
+		areas.sort((a, b) => a.VNumStart < b.VNumStart? -1 : a.VNumStart > b.VNumStart? 1 : 0);
+		for(var area of areas) {
+			ch.send("{0,25} - {1,40} {2,-6} - {3,-6}\n\r", area.Name, area.Credits, area.VNumStart, area.VNumEnd);
+		}
+	} else {
+		areas.sort((a, b) => a.Credits < b.Credits? -1 : a.Credits > b.Credits? 1 : 0);
+		for(var area of areas) {
+			ch.send("{0,25} - {1,40}\n\r", area.Name, area.Credits);
+		}
+	}
+	
+	ch.EndPaging();
+}
+
+Character.DoCommands.DoArea = function(ch, args) {
+	if (!ch.Room || !ch.Room.Area)
+		ch.send("You aren't anywhere.");
+	else
+		ch.send(ch.Room.Area.Name.padEnd(30) + " - " + ch.Room.Area.Credits.padEnd(40) + "\n\r");
+}
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");

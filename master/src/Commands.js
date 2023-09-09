@@ -260,6 +260,9 @@ Commands = {
 
 		"scan": {Command: Character.DoCommands.DoScan, MinimumPosition: "Resting" },
 
+		"area": {Command: Character.DoCommands.DoArea, MinimumPosition: "Dead" },
+		"areas": {Command: Character.DoCommands.DoAreas, MinimumPosition: "Dead" },
+
 		"scrollcount": {Command: Character.DoCommands.DoScrollCount, MinimumPosition: "Dead" },
 
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },

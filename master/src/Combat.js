@@ -1735,7 +1735,7 @@ class Combat {
         {
             return false;
         }
-        else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Polearm)
+        else if (!(wield = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) || wield.WeaponType != ItemData.WeaponTypes.Polearm)
         { // must be wielding a polearm to cut off an opponents escape
             return false;
         }
@@ -1781,11 +1781,11 @@ class Combat {
                 ch.Position = "Fighting";
                 ch.Fighting = victim;
             }
-            ch.Act("You get a parting blow as $N attempts to escape.\n\r", victim, null, null, Character.Character.ActType.ToChar);
-            ch.Act("$n gets a parting blow as $N attempts to escape.\n\r", victim, null, null, Character.Character.ActType.ToRoomNotVictim);
-            ch.Act("$n gets a parting blow as you attempt to escape.\n\r", victim, null, null, Character.Character.ActType.ToVictim);
+            ch.Act("You get a parting blow as $N attempts to escape.\n\r", victim, null, null, Character.ActType.ToChar);
+            ch.Act("$n gets a parting blow as $N attempts to escape.\n\r", victim, null, null, Character.ActType.ToRoomNotVictim);
+            ch.Act("$n gets a parting blow as you attempt to escape.\n\r", victim, null, null, Character.ActType.ToVictim);
 
-            wield = ch.GetEquipment(WearSlotIDs.Wield);
+            wield = ch.GetEquipment(ItemData.WearSlotIDs.Wield);
             // only hit with main hand
             Combat.OneHit(ch, victim, wield, offhand, skill);
 
