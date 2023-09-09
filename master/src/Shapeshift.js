@@ -252,7 +252,7 @@ class ShapeshiftForm {
                 {
                     var skill = selectedform.FormSkill;
                     ch.LearnSkill(skill, 75, ch.Level);
-                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".Contains(selectedform.Name[0]) ? "an " : "a ", selectedform.Name);
+                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".indexOf(selectedform.Name[0]) >= 0 ? "an " : "a ", selectedform.Name);
                     ch.Save();
                 }
             }
@@ -271,7 +271,7 @@ class ShapeshiftForm {
                 {
                     var skill = selectedform.FormSkill;
                     ch.LearnSkill(skill, 75, ch.Level);
-                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".Contains(selectedform.Name[0]) ? "an " : "a ", selectedform.Name);
+                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".indexOf(selectedform.Name[0]) >= 0? "an " : "a ", selectedform.Name);
                     ch.Save();
                 }
             }
@@ -292,7 +292,7 @@ class ShapeshiftForm {
                 {
                     var skill = selectedform.FormSkill;
                     ch.LearnSkill(skill, 75, ch.Level);
-                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".Contains(selectedform.Name[0]) ? "an " : "a ", selectedform.Name);
+                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".indexOf(selectedform.Name[0]) >= 0 ? "an " : "a ", selectedform.Name);
                     ch.Save();
                 }
             }
@@ -311,7 +311,7 @@ class ShapeshiftForm {
                 {
                     var skill = selectedform.FormSkill;
                     ch.LearnSkill(skill, 75, ch.Level);
-                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".Contains(selectedform.Name[0]) ? "an " : "a ", selectedform.Name);
+                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".indexOf(selectedform.Name[0]) >= 0? "an " : "a ", selectedform.Name);
                     ch.Save();
                 }
             }
@@ -332,7 +332,7 @@ class ShapeshiftForm {
                 {
                     var skill = selectedform.FormSkill;
                     ch.LearnSkill(skill, 75, ch.Level);
-                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".Contains(selectedform.Name[0]) ? "an " : "a ", selectedform.Name);
+                    ch.send("\\GYou have learned how to shapeshift into the form of {0}{1}!\\x\n\r", "aeiou".indexOf(selectedform.Name[0]) >= 0? "an " : "a ", selectedform.Name);
                     ch.Save();
                 }
             }
@@ -420,7 +420,7 @@ class ShapeshiftForm {
                 ch.ShapeFocusMinor != ShapeshiftForm.FormType.Air && 
                 ch.ShapeFocusMinor != ShapeshiftForm.FormType.Water)
             {
-                ch.send("You have chosen the minor focus {0}.\n\r", ch.ShapeFocusMinor.ToString().ToLower());
+                ch.send("You have chosen the minor focus {0}.\n\r", ch.ShapeFocusMinor.toLowerCase());
                 ShapeshiftForm.CheckGainForm(ch);
             }
             else if (ch.ShapeFocusMinor == ShapeshiftForm.FormType.Air || ch.ShapeFocusMinor == ShapeshiftForm.FormType.Water)
@@ -430,7 +430,7 @@ class ShapeshiftForm {
             }
             else if (ch.ShapeFocusMinor != ShapeshiftForm.FormType.None)
             {
-                ch.send("Your minor shapefocus is in {0} forms.\n\r", ch.ShapeFocusMinor.ToString().ToLower());
+                ch.send("Your minor shapefocus is in {0} forms.\n\r", ch.ShapeFocusMinor.toLowerCase());
             }
             else
             ch.send("Syntax: shapefocus minor [{0}].\n\r", Utility.JoinArray(ShapeshiftForm.FormType.Select((f, k) => f != ShapeshiftForm.FormType.Water && f != ShapeshiftForm.FormType.Air && f == k), null, ", "));

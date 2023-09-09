@@ -241,7 +241,7 @@ class Character {
 		}
 
 		if(this.Form) ShapeshiftForm.DoRevert(this, "");
-		
+
 		if(this.Room) {
 			this.RemoveCharacterFromRoom();
 		}
@@ -603,15 +603,51 @@ class Character {
 		}
 	}
 
-	GetCurrentStat(stat) {
+	GetCurrentStatOutOfForm(stat) { 
 		if (this.PcRace && this.PcRace.MaxStats)
 			return Math.min(this.PcRace.MaxStats[stat], Math.min(25, Math.max(3, this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] + this.ModifiedStats[stat] : (this.IsNPC ? 20 : 3))));
 		else
 			return Math.min(25, Math.max(3, this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] + this.ModifiedStats[stat] : (this.IsNPC ? 20 : 3)));
 	}
 
+	GetCurrentStat(stat) {
+		var fromaffects = 0;
+		for(var aff of this.Affects) {
+			if(stat == PhysicalStats.PhysicalStatTypes.Strength && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Strength)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Wisdom && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Wisdom)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Intelligence && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Intelligence)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Dexterity && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Dexterity)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Constitution && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Constitution)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Charisma && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Charisma)
+				fromaffects += aff.Modifier;
+		}
+		if(this.Form) return Math.max(Math.min(this.Form.Stats[stat] + fromaffects, 25), 3);
+		return this.GetCurrentStatOutOfForm(stat);
+	}
+
 	GetModifiedStatUncapped(stat)
 	{
+		var fromaffects = 0;
+		for(var aff of this.Affects) {
+			if(stat == PhysicalStats.PhysicalStatTypes.Strength && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Strength)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Wisdom && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Wisdom)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Intelligence && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Intelligence)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Dexterity && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Dexterity)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Constitution && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Constitution)
+				fromaffects += aff.Modifier;
+			if(stat == PhysicalStats.PhysicalStatTypes.Charisma && aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Charisma)
+				fromaffects += aff.Modifier;
+		}
+		if(this.Form) return this.Form.Stats[stat] + fromaffects;
 		return this.PermanentStats && this.ModifiedStats ? this.PermanentStats[stat] +this. ModifiedStats[stat] : (this.IsNPC ? 20 : 3);
 	}
 
@@ -904,7 +940,129 @@ class Character {
 	}
 
 	CheckImprove(skillname, success, rating) {
+		var sk;
+		if(skillname instanceof SkillSpell) {
+			sk = skillname;
+			skillname = sk.Name;
+		} else {
+			sk = SkillSpell.SkillLookup(skillname);
+			if(sk)
+				skillname = sk.Name;
+		}
+		var victim;
+		var chance;
 
+		if (!sk)
+			return;
+
+		if (this.IsNPC)
+			return;
+
+		if ((this.Level < this.GetLevelSkillLearnedAt(sk) && !sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form))
+			|| this.GetSkillPercentage(sk) <= 1
+			|| this.GetSkillPercentage(sk) >= 100)
+			return;  /* skill is not known */
+
+		if (this.Form && !sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form) && sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.InForm) && !sk.SpellFun)
+		{
+			return;
+		}
+
+		if (!this.Learned[skillname])
+			return;
+
+
+		/* check to see if the character has a chance to learn */
+		chance = 10 * PhysicalStats.IntelligenceApply[this.GetCurrentStatOutOfForm(PhysicalStats.PhysicalStatTypes.Intelligence)].Learn;
+		chance /= (multiplier * this.GetSkillRating(sk) * 4) != 0 ? (multiplier * this.GetSkillRating(sk) * 4) : 1;
+		chance += Level;
+		if ((victim = Fighting) != null)
+		{
+			if (victim.IsNPC)
+			{
+				if (victim.Level > Level)
+				{
+					chance += (victim.Level - Level) * 10;
+				}
+			}
+			if (!victim.IsNPC)
+			{
+				chance += (victim.Level) * 2;
+			}
+		}
+		else
+		{
+			chance += Level;
+		}
+
+		//chance = (int)(chance * BonusInfo.LearningBonus);
+
+		if (Utility.Random(1, 1000) > chance)
+			return;
+
+		/* now that the character has a CHANCE to learn, see if they really have */
+		var prereqsnotmet = this.Learned.Select((l,k) => !SkillSpell.SkillLookup(k).PrerequisitesMet(this));
+
+		if (success)
+		{
+			chance = Utility.URANGE(5, 100 - GetSkillPercentage(sk), 95);
+			if (Utility.NumberPercent() < chance)
+			{
+				Learned[sk].Percentage += 1;
+				GainExperience(2 * GetSkillRating(sk));
+				if (sk.SkillTypes.ISSET(SkillSpellTypes.Form) && this.Form)
+				{
+					if (GetSkillPercentage(sk) == 100)
+						send("\\GYou feel confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
+					else
+						send("\\GYou feel more confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
+				}
+				else if (GetSkillPercentage(sk) == 100)
+				{
+					send("\\GYou have perfected {0}!\\x\n\r", sk.Name);
+				}
+				else
+				{
+					send("\\YYou have become better at {0}!\\x\n\r", sk.Name);
+				}
+			}
+		}
+
+		else
+		{
+			chance = Utility.URANGE(5, GetSkillPercentage(sk) / 2, 30);
+			if (Utility.NumberPercent() - 28 < chance)
+			{
+				Learned[sk].Percentage += Utility.Random(1, 3);
+				Learned[sk].Percentage = Math.min(Learned[sk].Percentage, 100);
+				GainExperience(2 * GetSkillRating(sk));
+
+				if (sk.SkillTypes.ISSET(SkillSpellTypes.Form) && this.Form)
+				{
+					if (GetSkillPercentage(sk) == 100)
+						send("\\GYou feel confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
+					else
+						send("\\GYou feel more confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
+				}
+				else if (GetSkillPercentage(sk) == 100)
+				{
+					send("\\GYou learn from your mistakes, and manage to perfect {0}!\\x\n\r", sk.Name);
+				}
+				else
+				{
+					send("\\YYou learn from your mistakes, and your {0} skill improves!\\x\n\r", sk.Name);
+
+				}
+			}
+		}
+		for (var prereqnotmet of prereqsnotmet)
+		{
+			var skill = SkillSpell.SkillLookup(prereqnotmet);
+			if (skill.PrerequisitesMet(this))
+			{
+				send("\\CYou feel a rush of insight into {0}!\\x\n\r", skill.Name);
+			}
+		}
 	}
 
 	GetHitPointsGain()
@@ -1456,19 +1614,19 @@ class Character {
 		var add_move;
 		var add_prac;
 
-		add_hp = PhysicalStats.ConstitutionApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution)].Hitpoints + 
+		add_hp = PhysicalStats.ConstitutionApply[this.GetCurrentStatOutOfForm(PhysicalStats.PhysicalStatTypes.Constitution)].Hitpoints + 
 			(this.Guild != null ? Utility.Random(
 				this.Guild.HitpointGain,
 				this.Guild.HitpointGainMax) : 3);
 
-		var int_mod = this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Intelligence) - 2;
+		var int_mod = this.GetCurrentStatOutOfForm(PhysicalStats.PhysicalStatTypes.Intelligence) - 2;
 
 		add_mana = Math.min(1 + Utility.Random(int_mod / 2, int_mod), 16);
 		
-		add_move = Utility.Random(1, (this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Constitution)
-			+ this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity)) / 6);
+		add_move = Utility.Random(1, (this.GetCurrentStatOutOfForm(PhysicalStats.PhysicalStatTypes.Constitution)
+			+ this.GetCurrentStatOutOfForm(PhysicalStats.PhysicalStatTypes.Dexterity)) / 6);
 		
-		add_prac = PhysicalStats.WisdomApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice;
+		add_prac = PhysicalStats.WisdomApply[this.GetCurrentStatOutOfForm(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice;
 		//add_prac = 3;
 		if (!this.Guild.Name.equals("warrior"))
 		{
@@ -1754,7 +1912,7 @@ class Character {
 						if (gch != this)
 						{
 							if (gch.Position != "Sleeping")
-								gch.Act(buf, gch, null, null, Character.ActType.ToVictim);
+								this.Act(buf, gch, null, null, Character.ActType.ToVictim);
 							if(share_gold)
 							gch.Gold += share_gold;
 							if(share_silver)
@@ -2764,14 +2922,20 @@ class Character {
 				case '1':
 					buf += Utility.Format("{0}{1}\\x",
 						this.HitPoints < (this.MaxHitPoints * 4) / 10 ?
-						this.HitPoints < (this.MaxHitPoints * 2) / 10 ? "\\r" : "\\y" : "\\x",
+						this.HitPoints < (this.MaxHitPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
 						Math.floor(this.HitPoints / this.MaxHitPoints * 100));
 					break;
 				case '2':
-					buf += (Math.floor(this.ManaPoints / this.MaxManaPoints * 100));
+					buf += Utility.Format("{0}{1}\\x",
+						this.ManaPoints < (this.MaxManaPoints * 4) / 10 ?
+						this.ManaPoints < (this.MaxManaPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
+						Math.floor(this.ManaPoints / this.MaxManaPoints * 100));
 					break;
 				case '3':
-					buf += (Math.floor(this.MovementPoints / this.MaxMovementPoints * 100));
+					buf += Utility.Format("{0}{1}\\x",
+					this.MovementPoints < (this.MaxMovementPoints * 4) / 10 ?
+					this.MovementPoints < (this.MaxMovementPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
+					Math.floor(this.MovementPoints / this.MaxMovementPoints * 100));
 					break;
 				case 'e':
 					var found = false;
@@ -2796,7 +2960,7 @@ class Character {
 
 					buf += Utility.Format("{0}{1}\\x",
 					this.HitPoints < (this.MaxHitPoints * 4) / 10 ?
-					this.HitPoints < (this.MaxHitPoints * 2) / 10 ? "\\r" : "\\y" : "\\x",
+					this.HitPoints < (this.MaxHitPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
 					this.HitPoints);
 					break;
 
@@ -2804,13 +2968,19 @@ class Character {
 					buf += (this.MaxHitPoints);
 					break;
 				case 'm':
-					buf += (this.ManaPoints);
+					buf += Utility.Format("{0}{1}\\x",
+					this.ManaPoints < (this.MaxManaPoints * 4) / 10 ?
+					this.ManaPoints < (this.MaxManaPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
+					Math.floor(this.ManaPoints));
 					break;
 				case 'M':
 					buf += (this.MaxManaPoints);
 					break;
 				case 'v':
-					buf += (this.MovementPoints);
+					buf += Utility.Format("{0}{1}\\x",
+					this.MovementPoints < (this.MaxMovementPoints * 4) / 10 ?
+					this.MovementPoints < (this.MaxMovementPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
+					Math.floor(this.MovementPoints));
 					break;
 				case 'V':
 					buf += (this.MaxMovementPoints);

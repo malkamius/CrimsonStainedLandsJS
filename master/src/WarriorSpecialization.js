@@ -1365,10 +1365,10 @@ Character.DoCommands.DoEntrapWeapon = function(ch, argument)
 
 			if (!obj.extraFlags.ISSET(ExtraFlags.NoDrop) && !obj.extraFlags.ISSET(ExtraFlags.Inventory))
 			{
-				if (victim.Inventory.Contains(obj))
+				if (victim.Inventory.indexOf(obj) >= 0)
 					victim.Inventory.Remove(obj);
 
-				victim.Room.items.Insert(0, obj);
+				victim.Room.Items.unshift(obj);
 				obj.Room = victim.Room;
 				obj.CarriedBy = null;
 				if (victim.IsNPC && victim.Wait == 0 && victim.CanSee(obj))
@@ -1465,10 +1465,10 @@ Character.DoCommands.DoStripWeapon = function(ch, argument)
 
 			if (!obj.extraFlags.ISSET(ExtraFlags.NoDrop) && !obj.extraFlags.ISSET(ExtraFlags.Inventory))
 			{
-				if (victim.Inventory.Contains(obj))
+				if (victim.Inventory.indexOf(obj) >= 0)
 					victim.Inventory.Remove(obj);
 
-				victim.Room.items.Insert(0, obj);
+				victim.Room.Items.unshift(obj);
 				obj.Room = victim.Room;
 				obj.CarriedBy = null;
 				if (victim.IsNPC && victim.Wait == 0 && victim.CanSee(obj))
@@ -1565,10 +1565,10 @@ Character.DoCommands.DoHookWeapon = function(ch, argument)
 
 			if (!obj.extraFlags.ISSET(ExtraFlags.NoDrop) && !obj.extraFlags.ISSET(ExtraFlags.Inventory))
 			{
-				if (victim.Inventory.Contains(obj))
+				if (victim.Inventory.indexOf(obj) >= 0)
 					victim.Inventory.Remove(obj);
 
-				victim.Room.items.Insert(0, obj);
+				victim.Room.Items.unshift(obj);
 				obj.Room = victim.Room;
 				obj.CarriedBy = null;
 				if (victim.IsNPC && victim.Wait == 0 && victim.CanSee(obj))

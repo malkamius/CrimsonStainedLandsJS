@@ -275,7 +275,7 @@ class Magic {
             }
 
 
-            if (MethodUsed == Magic.CastType.Cast && !spell.SkillTypes.Contains("Spell"))
+            if (MethodUsed == Magic.CastType.Cast && !spell.SkillTypes.IsSet("Spell"))
             {
                 ch.send("You can't cast that.\n\r");
                 return;

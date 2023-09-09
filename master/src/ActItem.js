@@ -1590,7 +1590,7 @@ Character.DoCommands.DoGive = function(ch, args)
 
 
         ch.Inventory.Remove(item);
-        other.Inventory.Insert(0, item);
+        other.Inventory.unshift(item);
         item.CarriedBy = other;
         ch.Act("You give $p to $N.", other, item, null, Character.ActType.ToChar);
         ch.Act("$n gives you $p.\n\r", other, item, null, Character.ActType.ToVictim);
@@ -1621,7 +1621,7 @@ Character.DoCommands.DoGive = function(ch, args)
 
 
                 }
-                else if (other.Inventory.Contains(item))
+                else if (other.Inventory.indexOf(item) >= 0)
                 {
                     other.Inventory.Remove(item);
                     item.CarriedBy = null;

@@ -351,7 +351,7 @@ Character.DoCommands.DoArcaneVision = function(ch, args)
         affect.Level = ch.Level;
         affect.Location = AffectData.ApplyTypes.None;
         affect.Where = AffectData.AffectWhere.ToAffects;
-        affect.flags.Add(AffectData.AffectFlags.ArcaneVision);
+        affect.flags.SETBIT(AffectData.AffectFlags.ArcaneVision);
         affect.Duration = 12;
         affect.EndMessage = "Your awareness of magical items falls.\n\r";
         ch.AffectToChar(affect);
@@ -619,7 +619,7 @@ Character.DoCommands.DoSap = function(ch, args)
         ch.send("They are already asleep.\n\r");
         return;
     }
-    else if ((weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || ch.GetSkillPercentage(weapon.WeaponType.ToString().ToLower()) <= 1)
+    else if ((weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || ch.GetSkillPercentage(weapon.WeaponType.toLowerCase()) <= 1)
     {
         ch.send("You must be wielding a weapon you are familiar with to sap someone.\n\r");
         return;

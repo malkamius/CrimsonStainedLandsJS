@@ -491,7 +491,7 @@ Character.DoCommands.DoAcuteVision = function(ch, args)
         affect.Level = ch.Level;
         affect.Location = AffectData.ApplyTypes.None;
         affect.Where = AffectData.AffectWhere.ToAffects;
-        affect.Flags.Add(AffectData.AffectFlags.AcuteVision);
+        affect.Flags.SETBIT(AffectData.AffectFlags.AcuteVision);
         affect.Duration = 6;
         affect.EndMessage = "You can no longer see the camouflaged.\n\r";
         ch.AffectToChar(affect);
