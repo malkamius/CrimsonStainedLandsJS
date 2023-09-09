@@ -29,6 +29,7 @@ Commands = {
 		"unlock": {Command: Character.DoCommands.DoUnlock, MinimumPosition: "Resting" },
 		"lock": {Command: Character.DoCommands.DoLock, MinimumPosition: "Resting" },
 		"get": {Command: Character.DoCommands.DoGet, MinimumPosition: "Resting" },
+		"give": {Command: Character.DoCommands.DoGive, MinimumPosition: "Resting" },
 		"put": {Command: Character.DoCommands.DoPut, MinimumPosition: "Resting" },
 		"drop": {Command: Character.DoCommands.DoDrop, MinimumPosition: "Resting" },
 		"wear": {Command: Character.DoCommands.DoWear, MinimumPosition: "Resting" },

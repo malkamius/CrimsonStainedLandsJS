@@ -1475,3 +1475,172 @@ Character.DoCommands.DoWield = function (character, args) {
             character.send("You aren't carrying that.\n\r");
     }
 }
+
+Character.DoCommands.DoGive = function(ch, args)
+{
+    var other;
+    var itemname = "";
+    var count = 0;
+    if (ch.Form)
+    {
+        ch.send("You aren't holding anything.\n\r");
+        return;
+    }
+    [itemname, args] = args.OneArgument();
+
+    var amount = Number(itemname);
+
+    if (amount && Number.isInteger(amount))
+    {
+        [itemname, args] = args.OneArgument();
+        other = ch.GetCharacterHere(args);
+
+        if (other == ch)
+        {
+            ch.send("You can't give yourself anything.\n\r");
+            return;
+        }
+        else if (!other)
+        {
+            ch.send("You don't see them here.\n\r");
+            return;
+        }
+
+        if (itemname.equals("gold"))
+        {
+            if (amount > ch.Gold)
+            {
+                ch.send("You don't have that much gold.\n\r");
+                return;
+            }
+            else if (amount < 1)
+            {
+                ch.send("You can only give a positive amount of gold.\n\r");
+                return;
+            }
+
+            ch.Gold -= amount;
+            other.Gold += amount;
+            ch.Act("You give $N {0} gold.", other, null, null, Character.ActType.ToChar, amount);
+            ch.Act("$n gives you {0} gold.", other, null, null, Character.ActType.ToVictim, amount);
+            ch.Act("$n gives $N some gold.", other, null, null, Character.ActType.ToRoomNotVictim);
+            //Programs.ExecutePrograms(Programs.ProgramTypes.Give, ch, other, null, null, amount + " gold");
+            return;
+        }
+        else if (itemname.equals("silver"))
+        {
+            if (amount > ch.Silver)
+            {
+                ch.send("You don't have that much silver.\n\r");
+                return;
+            }
+            else if (amount < 1)
+            {
+                ch.send("You can only give a positive amount of silver.\n\r");
+                return;
+            }
+
+            ch.Silver -= amount;
+            other.Silver += amount;
+            ch.Act("You give $N {0} silver.", other, null, null, Character.ActType.ToChar, amount);
+            ch.Act("$n gives you {0} silver.", other, null, null, Character.ActType.ToVictim, amount);
+            ch.Act("$n gives $N some silver.", other, null, null, Character.ActType.ToRoomNotVictim);
+            //Programs.ExecutePrograms(Programs.ProgramTypes.Give, ch, other, null, null, amount + " silver");
+            return;
+        }
+        else
+        {
+            ch.send("Give gold or silver?\n\r");
+            return;
+        }
+
+    }
+    var [item] = ch.GetItemInventory(itemname);
+    const AffectData = require('./AffectData');
+    [other] = ch.GetCharacterHere(args);
+
+    if (other == ch)
+    {
+        ch.send("You can't give yourself anything.\n\r");
+    }
+    else if (!other)
+    {
+        ch.send("You don't see them here.\n\r");
+    }
+    else if (other && !other.CanSee(item))
+    {
+        ch.Act("You wave your hands at $N but they can't see $p.", other, item);
+        ch.Act("$n waves $s hands at you.", other, null, Character.ActType.ToVictim);
+    }
+    else if (other && item &&
+        (!item.ExtraFlags.ISSET(ItemData.ExtraFlags.NoDrop) || item.IsAffected(AffectData.AffectFlags.Greased)))
+    {
+        if (other.Carry + 1 > other.MaxCarry)
+        {
+            ch.send("They can't carry anymore items.");
+            ch.Act("$n tries to give you $p, but you are carrying too many things.", other, item, null, Character.ActType.ToVictim);
+            return;
+        }
+        if (other.TotalWeight + item.Weight > other.MaxWeight)
+        {
+            ch.send("You can't carry anymore weight.\n\r");
+            ch.Act("$n tries to give you $p, but you are carrying too much weight.", other, item, null, Character.ActType.ToVictim);
+            return;
+        }
+
+
+        ch.Inventory.Remove(item);
+        other.Inventory.Insert(0, item);
+        item.CarriedBy = other;
+        ch.Act("You give $p to $N.", other, item, null, Character.ActType.ToChar);
+        ch.Act("$n gives you $p.\n\r", other, item, null, Character.ActType.ToVictim);
+        ch.Act("$n gives $p to $N.\n\r", other, item, null, Character.ActType.ToRoomNotVictim);
+        //Programs.ExecutePrograms(Programs.ProgramTypes.Give, ch, other, item, null, "");
+
+        if (other.IsNPC)
+        {
+            // if (other is NPCData)
+            // {
+            //     Programs.ExecutePrograms(Programs.ProgramTypes.Receive, ch, other, item, null, "");
+            // }
+
+            if (other.IsAwake)
+            {
+                other.WearItem(item, true, false);
+
+                if (other.Inventory.indexOf(item) >= 0 && other.CanSee(ch))
+                {
+
+                    other.Inventory.Remove(item);
+                    ch.Inventory.unshift(item);
+                    item.CarriedBy = ch;
+
+                    other.Act("You give $p to $N.\n\r", ch, item, null, Character.ActType.ToChar);
+                    ch.Act("$N gives you $p.\n\r", other, item, null, Character.ActType.ToChar);
+                    other.Act("$n gives $p to $N.\n\r", ch, item, null, Character.ActType.ToRoomNotVictim);
+
+
+                }
+                else if (other.Inventory.Contains(item))
+                {
+                    other.Inventory.Remove(item);
+                    item.CarriedBy = null;
+                    other.Room.Items.unshift(item);
+                    item.Room = other.Room;
+
+                    other.Act("You drop $p.\n\r", ch, item, null, Character.ActType.ToChar);
+                    ch.Act("$N drops $p.\n\r", other, item, null, Character.ActType.ToChar);
+                    other.Act("$n drops $p.\n\r", ch, item, null, Character.ActType.ToRoomNotVictim);
+                }
+                return;
+            }
+        }
+
+    }
+    else if (other != null && item != null)
+        ch.send("You can't let go of it!\n\r");
+    else if (item == null)
+        ch.send("You don't have that.\n\r");
+    else
+        ch.send("You don't see them here.\n\r");
+}
