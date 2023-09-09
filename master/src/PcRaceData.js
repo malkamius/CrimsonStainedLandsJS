@@ -5,9 +5,10 @@ const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility")
 const Settings = require("./Settings");
 
-PcRaces = Array();
+
 
 class PcRaceData {
+    static PcRaces = Array();
     Name = "";
     IsPcRace = true;
 
@@ -55,26 +56,26 @@ class PcRaceData {
             this.MaxStats[4] = XmlHelper.GetElementValueInt(maxstats, "Constitution");
             this.MaxStats[5] = XmlHelper.GetElementValueInt(maxstats, "Charisma");
         }
-        PcRaces.push(this);
+        
+    }
+
+    static LoadAllPcRaces(callback) {
+        var racespath = Settings.DataPath + '/PC_Races.xml';
+        var content = fs.readFileSync(racespath, "utf-8");
+        var xml = content.ParseXml();
+        for(var racexml of xml.RACES.RACEDATA) {
+            var race = new PcRaceData(racexml);
+            PcRaceData.PcRaces.push(race);
+        }
+        callback();
+    }
+
+    static LookupRace(name, strprefix = false) {
+        for(var race of PcRaceData.PcRaces)
+            if((strprefix && Utility.Prefix(race.Name, name)) || Utility.Compare(race.Name, name))
+                return race;
     }
 }
 
-PcRaceData.PcRaces = PcRaces;
 
-function LoadAllPcRaces(callback) {
-    var racespath = Settings.DataPath + '/PC_Races.xml';
-    var content = fs.readFileSync(racespath, "utf-8");
-    parser.parseString(content, (err, xml) => {
-        for(var racexml of xml.RACES.RACEDATA)
-        var race = new PcRaceData(racexml);
-    });
-    callback();
-};
-
-PcRaceData.LoadAllPcRaces = LoadAllPcRaces;
-PcRaceData.LookupRace = function(name, strprefix = false) {
-    for(var race of PcRaces)
-        if((strprefix && Utility.Prefix(race.Name, name)) || Utility.Compare(race.Name, name))
-            return race;
-};
 module.exports = PcRaceData;

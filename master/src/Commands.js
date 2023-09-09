@@ -5,6 +5,7 @@ const Magic = require("./Magic");
 const Dueling = require("./Dueling");
 
 const Player = require("./Player");
+const ShapeshiftForm = require("./Shapeshift");
 
 Commands = {
 		"north": {Command: Character.DoCommands.DoNorth, MinimumPosition: "Standing" },
@@ -113,6 +114,12 @@ Commands = {
 		"color": {Command: Character.DoCommands.DoColor, MinimumPosition: "Dead" },
 		"brief": {Command: Character.DoCommands.DoBrief, MinimumPosition: "Dead" },
 		"afk": {Command: Character.DoCommands.DoAFK, MinimumPosition: "Dead" },
+
+		"forms": {Command: ShapeshiftForm.DoForms, MinimumPosition: "Dead" },
+		"shapeshift": {Command: ShapeshiftForm.DoShapeshift, MinimumPosition: "Dead" },
+		"shapefocus": {Command: ShapeshiftForm.DoShapeFocus, MinimumPosition: "Dead" },
+		"revert": {Command: ShapeshiftForm.DoRevert, MinimumPosition: "Dead" },
+		"enliven": {Command: ShapeshiftForm.DoEnliven, MinimumPosition: "Dead" },
 
 		"commands": {Command: Character.DoCommands.DoCommands, MinimumPosition: "Dead" },
 		"socials": {Command: Character.DoCommands.DoSocials, MinimumPosition: "Dead" },

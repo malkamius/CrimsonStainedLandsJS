@@ -12,6 +12,7 @@ const SkillGroup = require("./SkillGroup");
 const ResetData = require("./ResetData");
 const Program = require("./Program");
 const Liquid = require("./Liquid");
+const ShapeshiftForm = require("./Shapeshift");
 
 function LoadData(callback) {
 	const Settings = require("./Settings");
@@ -23,6 +24,7 @@ function LoadData(callback) {
 	Program.LoadPrograms();
 	const Socials = require("./Socials");
 	Socials.Load();
+	ShapeshiftForm.Load();
 
 	const Commands = require("./Commands");
 	var count = 0;
@@ -82,7 +84,7 @@ function AllLoaded(callback) {
 	console.log(Object.keys(AreaData.AllHelps).length + " helps loaded.");
 	console.log(Object.keys(AreaData.AllAreas).length + " areas loaded.");
 	console.log(Object.keys(ResetData.Resets).length + " resets loaded.");
-
+	console.log(ShapeshiftForm.Forms.length + " shapeshift forms loaded.");
 	AreaData.ResetAreas();
 	
     callback();

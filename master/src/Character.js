@@ -278,7 +278,7 @@ class Character {
 				return "An Immortal";
 			else
 				return "someone";
-		} else if (this.Form != null && !Form.ShortDescription.ISEMPTY()) {
+		} else if (this.Form != null && !this.Form.ShortDescription.ISEMPTY()) {
 			return this.Form.ShortDescription;
 		} else if(this.ShortDescription && this.ShortDescription.length > 0)
 			return this.ShortDescription;
@@ -293,7 +293,7 @@ class Character {
 	GetLongDescription() {
 		const TimeInfo = require('./TimeInfo');
 		if (this.Position == "Standing" && this.Form != null && !this.Form.LongDescription.ISEMPTY()) {
-                return Form.LongDescription;
+                return this.Form.LongDescription;
         } else if(this.Position == this.DefaultPosition && this.NightLongDescription && !this.NightLongDescription.ISEMPTY())
 			return this.NightLongDescription;
 		else if(this.Position == this.DefaultPosition && this.LongDescription && !this.LongDescription.ISEMPTY())

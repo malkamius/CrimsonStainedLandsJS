@@ -148,7 +148,7 @@ class AreaData {
 			this.Timer = Utility.Random(7, 16);//  game.PULSE_AREA * 5;
 			else
 			this.Timer = 3;// game.PULSE_AREA;
-			console.log("RESET AREA :: " + this.Name);
+			//console.log("RESET AREA :: " + this.Name);
 
 			for(var i = 0; i < this.Resets.length; i++) {
 				var reset = this.Resets[i];

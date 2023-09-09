@@ -459,6 +459,18 @@ class Utility {
 		}
 
 	}
+
+	static GetEnumValue(arr, str) {
+		if(Array.isArray(arr)) {
+			for(var value of arr) {
+				if(value.equals(str)) return value;
+			}
+		} else {
+			for(var key in arr) {
+				if(key.equals(str)) return arr[key];
+			}
+		}
+	}
 }
 
 const xml2js = require('xml2js');
