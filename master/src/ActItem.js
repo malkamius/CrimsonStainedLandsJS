@@ -228,6 +228,7 @@ Character.DoCommands.DoWear = function (character, args) {
     }
 }
 
+
 Character.DoCommands.DoPut = function (character, args) {
     var [itemname, containername] = args.oneArgument();
     var fAll = itemname.startsWith("all");
@@ -967,6 +968,45 @@ Character.DoCommands.DoDrink = function(character, args) {
     }
 } // end do drink
 
+Character.DoCommands.DoFill = function(ch, args)
+{
+    var [containerName, args] = args.OneArgument();
+    var container = null;
+    var fountain = null;
+    var count = 0;
+    [container] = ch.GetItemInventory(containerName);
+    // fountain search
+    for (var item of ch.Room.items) {
+        if (item.ItemTypes.ISSET(ItemData.ItemTypes.Fountain)) {
+            fountain = item;
+            break;
+        }
+    }
+
+    if (ch.Fighting)
+    {
+        ch.send("You're too busy fighting to fill anything.\n\r");
+    } else if (!fountain) {
+        ch.send("Nothing here to fill from.\n\r");
+        return;
+    } else if (Utility.IsNullOrEmpty(containerName))
+    {
+        ch.send("Fill what?\n\r");
+    } else if (!container) {
+        ch.send("You can't find it.\n\r");
+    } else if (!container.ItemTypes.ISSET(ItemData.ItemTypes.DrinkContainer))
+    {
+        ch.Act("$p can't be filled.\n\r", null, container);
+    } else if (container.Charges >= container.MaxCharges) {
+        ch.Act("$p is already full.\n\r", null, container);
+    } else {
+        container.Charges = container.MaxCharges;
+        container.Liquid = fountain.Liquid;
+        ch.Act("You fill $p with {1} from $P.\n\r", null, container, fountain, Character.ActType.ToChar, fountain.Liquid);
+        ch.Act("$n fills $p with {0} from $P.\n\r", null, container, fountain, Character.ActType.ToRoom, fountain.Liquid);
+    }
+} // end do fill
+
 Character.DoCommands.DoRecite = function(character, args) {
     const Game = require("./Game");
     const Magic = require("./Magic");
@@ -1412,5 +1452,26 @@ Character.DoCommands.DoRepair = function(character, args) {
     else
     {
         character.send("You see no shopkeepers here.\n\r");
+    }
+}
+
+Character.DoCommands.DoWield = function (character, args) {
+    
+    if (Utility.IsNullOrEmpty(args)) {
+        character.send("Wield what?\n\r");
+        return;
+    } else {
+        var [item] = character.GetItemInventory(args);
+
+        if (item)
+        {
+            if(item.ItemTypes.ISSET(ItemData.ItemTypes.Weapon)) {
+                character.WearItem(item);
+            } else {
+                character.send("That isn't a weapon.\n\r");
+            }
+        }
+        else
+            character.send("You aren't carrying that.\n\r");
     }
 }

@@ -512,6 +512,10 @@ class Combat {
         }
     };
 
+    static DoMurder(character, args) {
+        Combat.DoKill(character, args);
+    }
+
     static OneHit(character, victim, weapon, dualwield = false, skill = null) {
         var damage = Math.floor(Math.random() * 10);
 
@@ -788,13 +792,13 @@ class Combat {
             return false; // Damage is avoided, return false
         }
         if(damage) {
-            var Armor = victim.ArmorClass;
+            var Armor = Math.abs(victim.ArmorClass);
 
             switch(DamageType.toLowerCase()) {
-                default: Armor += victim.ArmorExotic; break;
-                case "bash": Armor += victim.ArmorBash; break;
-                case "slash": Armor += victim.ArmorSlash; break;
-                case "pierce": Armor += victim.ArmorPierce; break;
+                default: Armor += Math.abs(victim.ArmorExotic); break;
+                case "bash": Armor += Math.abs(victim.ArmorBash); break;
+                case "slash": Armor += Math.abs(victim.ArmorSlash); break;
+                case "pierce": Armor += Math.abs(victim.ArmorPierce); break;
             }
 
             var items = [];
@@ -804,10 +808,10 @@ class Combat {
                 var contribution = 0;
                 if(item) {
                     switch(DamageType.toLowerCase()) {
-                        default: Armor += (contribution = item.ArmorExotic); break;
-                        case "bash": Armor += (contribution = item.ArmorBash); break;
-                        case "slash": Armor += (contribution = item.ArmorSlash); break;
-                        case "pierce": Armor += (contribution = item.ArmorPierce); break;
+                        default: Armor += (contribution = Math.abs(item.ArmorExotic)); break;
+                        case "bash": Armor += (contribution = Math.abs(item.ArmorBash)); break;
+                        case "slash": Armor += (contribution = Math.abs(item.ArmorSlash)); break;
+                        case "pierce": Armor += (contribution = Math.abs(item.ArmorPierce)); break;
                     }
                     if(contribution < 0) Armor += contribution * -2;
                     if(item.ItemTypes.ISSET(ItemData.ItemTypes.Armor)) {

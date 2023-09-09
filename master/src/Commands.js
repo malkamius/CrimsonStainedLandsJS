@@ -33,6 +33,7 @@ Commands = {
 		"drop": {Command: Character.DoCommands.DoDrop, MinimumPosition: "Resting" },
 		"wear": {Command: Character.DoCommands.DoWear, MinimumPosition: "Resting" },
 		"remove": {Command: Character.DoCommands.DoRemove, MinimumPosition: "Resting" },
+		"wield": {Command: Character.DoCommands.DoWield, MinimumPosition: "Resting" },
 		"stand": {Command: Character.DoCommands.DoStand, MinimumPosition: "Sleeping" },
 		"sleep": {Command: Character.DoCommands.DoSleep, MinimumPosition: "Sleeping" },
 		"rest": {Command: Character.DoCommands.DoRest, MinimumPosition: "Sleeping" },
@@ -45,6 +46,7 @@ Commands = {
 		"supplications": {Command: Character.DoCommands.DoSupplications, MinimumPosition: "Dead" },
 		"songs": {Command: Character.DoCommands.DoSongs, MinimumPosition: "Dead" },
 		"kill": {Command:Combat.DoKill, MinimumPosition: "Standing" },
+		"murder": {Command:Combat.DoMurder, MinimumPosition: "Standing" },
 		"flee": {Command:Combat.DoFlee, MinimumPosition: "Fighting" },
 		"worth": {Command:Character.DoCommands.DoWorth, MinimumPosition: "Dead" },
 		"follow": {Command:Character.DoCommands.DoFollow, MinimumPosition: "Dead" },
@@ -71,6 +73,7 @@ Commands = {
 		"sell": {Command: Character.DoCommands.DoSell, MinimumPosition: "Resting" },
 		"repair": {Command: Character.DoCommands.DoRepair, MinimumPosition: "Resting" },
 
+		"fill": {Command: Character.DoCommands.DoFill, MinimumPosition: "Resting" },
 		"drink": {Command: Character.DoCommands.DoDrink, MinimumPosition: "Resting" },
 		"eat": {Command: Character.DoCommands.DoEat, MinimumPosition: "Resting" },
 
