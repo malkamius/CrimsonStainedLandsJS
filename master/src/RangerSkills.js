@@ -248,7 +248,7 @@ Character.DoCommands.DoButcher = function(ch, args)
         ch.send("You don't see that here.\n\r");
         return;
     }
-    else if (!corpse.ItemTypes.ISSET(ItemData.ItemTypes.NPCCorpse) && !corpse.ItemType.ISSET(ItemData.ItemTypes.PC_Corpse))
+    else if (!corpse.ItemTypes.ISSET(ItemData.ItemTypes.NPCCorpse) && !corpse.ItemTypes.ISSET(ItemData.ItemTypes.PC_Corpse))
     {
         ch.send("That is not a corpse.\n\r");
         return;
@@ -264,7 +264,7 @@ Character.DoCommands.DoButcher = function(ch, args)
         return;
     }
 
-
+    const ItemTemplateData = require('./ItemTemplateData');
     var template;
     if ((template = ItemTemplateData.ItemTemplates[2971]))
     {
@@ -546,7 +546,7 @@ Character.DoCommands.DoFashionStaff = function(ch, args)
 {
     var skill = SkillSpell.SkillLookup("fashion staff");
     var chance;
-
+    const ItemTemplateData = require('./ItemTemplateData');
     if ((chance = ch.GetSkillPercentage(skill)) + 20 <= 21)
     {
         ch.send("You don't know how to do that.\n\r");
@@ -599,7 +599,7 @@ Character.DoCommands.DoFashionSpear = function(ch, args)
 {
     var skill = SkillSpell.SkillLookup("fashion spear");
     var chance;
-
+    const ItemTemplateData = require('./ItemTemplateData');
     if ((chance = ch.GetSkillPercentage(skill)) + 20 <= 21)
     {
         ch.send("You don't know how to do that.\n\r");

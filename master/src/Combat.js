@@ -353,6 +353,7 @@ class Combat {
                 victim.Gold = 0;
                 victim.Silver = 0;
             }
+            const ShapeshiftForm = require('./Shapeshift');
             if(victim.Form) ShapeshiftForm.DoRevert(victim, "");
             // Remove the character from the room
             victim.RemoveCharacterFromRoom();
@@ -506,6 +507,7 @@ class Combat {
                 var weapon = character.Equipment["Wield"];
                 character.Fighting = victim;
                 character.Position = "Fighting";
+                
                 if(!Combat.CheckIsSafe(character, victim))
                     Combat.OneHit(character, victim, weapon);
             }
@@ -538,6 +540,11 @@ class Combat {
         }
 
         misschance -= .05 / Math.max(character.HitRoll, 1);
+
+        if(character.Form) {
+            weapon = null;
+            damagemessage = DamageMessage.GetWeaponDamageMessage(character.Form.DamageMessage);
+        }
 
         if(weapon) {
             if(misschance * 100 > Utility.NumberPercent())
@@ -1921,7 +1928,7 @@ class Combat {
 
         if (victimWield != null)
         {
-            skVictimWield = SkillSpell.SkillLookup(victimWield.WeaponType());
+            skVictimWield = SkillSpell.SkillLookup(victimWield.WeaponType);
             var skillChance = victim.GetSkillPercentage(skVictimWield);
             chance += skillChance / 10;
 
