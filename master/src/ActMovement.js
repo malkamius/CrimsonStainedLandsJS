@@ -47,6 +47,19 @@ function movechar(character, direction, crawl = false, creep = false, sendWalkMe
 	var exit = character.Room.Exits[direction];
 	var wasinroom = character.Room;
 
+	for(var protector of wasinroom.Characters) {
+		if(!character.IsImmortal && !character.IsNPC && exit.Destination && protector.Guild && character.Guild != protector.Guild && protector.Protects) {
+			for(var protectvnum of protector.Protects) {
+				if(protectvnum == exit.Destination.VNum) {
+					character.Act("$N steps in your way.\n\r", protector);
+					character.Act("$N steps in front of $n.\n\r", protector, null, null, Character.ActType.ToRoomNotVictim);
+					Character.DoCommands.DoSay(protector, "You aren't allowed in there.");
+					return;
+				}
+			}
+		}
+	}
+
 	if(wasinroom && exit && 
 		exit.Destination && 
 		(!exit.Flags.Closed || character.AffectedBy.PassDoor) &&

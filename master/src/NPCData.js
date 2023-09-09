@@ -28,7 +28,7 @@ class NPCData extends Character {
 		this.LongDescription = template.LongDescription;
 		this.Description = template.Description;
 		this.Race = template.Race;
-
+		this.Protects = Utility.CloneArray(template.Protects);
 		var wealth = Utility.Random(template.Level + (this.MaxHitPoints / 2), (template.Level * 3 + (this.MaxHitPoints / 2)));
 
 		if (!this.Race || this.Race.HasCoins)

@@ -16,7 +16,7 @@ class NPCTemplateData extends Character {
   BuyTypes = {};
   ShopOpenHour = 0;
   ShopCloseHour = 0;
-  Protects = {};
+  Protects = [];
   PetVNums = [];
   constructor(area, xml) {
     super(false);
@@ -54,6 +54,12 @@ class NPCTemplateData extends Character {
     
     if(this.Flags.IsSet("Healer") && !this.Guild) {
       this.Guild = GuildData.Lookup("healer");
+    }
+
+    if(xml.PROTECTS && xml.PROTECTS[0] && xml.PROTECTS[0].ROOM) {
+      for(var protectsxml of xml.PROTECTS[0].ROOM) {
+        this.Protects.push(protectsxml.GetAttributeValueInt("VNum"));
+      }
     }
 
     if (xml.SHOP && xml.SHOP[0])
