@@ -39,6 +39,7 @@ Commands = {
 		"sleep": {Command: Character.DoCommands.DoSleep, MinimumPosition: "Sleeping" },
 		"rest": {Command: Character.DoCommands.DoRest, MinimumPosition: "Sleeping" },
 		"sit": {Command: Character.DoCommands.DoSit, MinimumPosition: "Sleeping" },
+		"wake": {Command: Character.DoCommands.DoWake, MinimumPosition: "Sleeping" },
 		"save": {Command: Character.DoCommands.DoSave, MinimumPosition: "Dead" },
 		"who": {Command: Character.DoCommands.DoWho, MinimumPosition: "Dead" },
 		"where": {Command: Character.DoCommands.DoWhere, MinimumPosition: "Resting" },
@@ -113,6 +114,8 @@ Commands = {
 		"brief": {Command: Character.DoCommands.DoBrief, MinimumPosition: "Dead" },
 		"afk": {Command: Character.DoCommands.DoAFK, MinimumPosition: "Dead" },
 
+		"commands": {Command: Character.DoCommands.DoCommands, MinimumPosition: "Dead" },
+		"socials": {Command: Character.DoCommands.DoSocials, MinimumPosition: "Dead" },
 		"replay": {Command: Character.DoCommands.DoReplay, MinimumPosition: "Dead" },
 		"deposit": {Command: Character.DoCommands.DoDeposit, MinimumPosition: "Resting" },
 		"withdraw": {Command: Character.DoCommands.DoWithdraw, MinimumPosition: "Resting" },

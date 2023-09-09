@@ -577,6 +577,42 @@ Character.DoCommands.DoSleep = function(ch, args) {
 	}
 }
 
+Character.DoCommands.DoWake = function(ch, args) {
+	const AffectData = require('./AffectData');
+	var victim = ch;
+
+	if(!Utility.ISEMPTY(args)) {
+		[victim] = ch.GetCharacterHere(args);
+	}
+
+	if(victim != ch && ch.Position == "Sleeping") {
+		this.send("In your dreams or what?\n\r");
+	} else if(victim.Position == "Sleeping") {
+		if(victim.IsAffected(AffectData.AffectFlags.Sleep)) {
+			if(victim == ch) {
+				ch.Act("You try but can't wake yourself up.");
+			} else {
+				ch.Act("You try, but you can't wake $N.", victim);
+			}
+		}
+		if(victim == ch) { 
+			ch.Act("$n wakes and stands up.", null, null, null, "ToRoom");
+			ch.Act("You wake and stand up.", null, null, null, "ToChar");
+		} else {
+			ch.Act("$n wakes $N up.", victim, null, null, "ToRoomNotVictim");
+			ch.Act("$n wakes you up.", victim, null, null, "ToVictim");
+			ch.Act("You wake $N up.", victim, null, null, "ToChar");
+		}
+		ch.Position = "Standing";
+	} else {
+		if(victim == ch) {
+			ch.send("You're already awake.\n\r"); 
+		} else {
+			ch.Act("$N is already awake.", victim);
+		}
+	}
+}
+
 Character.DoCommands.DoAffects = function(ch, args) {
 	var any = false;
 	ch.send("You are affected by:\n\r");
@@ -1279,6 +1315,44 @@ Character.DoCommands.DoBalance = function(ch, args)
 		ch.send("You have {0} silver in your account.\n\r", ch.SilverBank);
 	return;
 }
+
+Character.DoCommands.DoCommands = function(character, args) {
+	const Commands = require('./Commands');
+	var column = 0;
+	character.send("The following commands are available to you:\n\r")
+	for(var key in Commands) {
+		var command = Commands[key];
+		
+		if(command.Skill && character.GetSkillPercentage(command.Skill) <= 1) {
+			continue;
+		} 
+
+		character.send("{0,20} ", key);
+		column++;
+		if(column >= 4) {
+			character.send("\n\r");
+			column = 0;
+		}
+	}
+	character.send("\n\r");
+}
+
+Character.DoCommands.DoSocials = function(character, args) {
+	const Socials = require('./Socials');
+	var column = 0;
+	character.send("The following socials are available:\n\r")
+	for(var key in Socials.Socials) {
+		
+		character.send("{0,20} ", key);
+		column++;
+		if(column >= 4) {
+			character.send("\n\r");
+			column = 0;
+		}
+	}
+	character.send("\n\r");
+}
+
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");
