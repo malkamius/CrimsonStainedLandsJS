@@ -85,8 +85,14 @@ Character.DoCommands.DoLook = function(player, args, auto) {
 		player.send("You are not in a room.\n\r");
 	} else if (!args || args.length == 0 || auto) {
 		player.send(`\\c   ${player.Room.Name}\\x\n\r`);
-		player.send(`${player.Room.Description}\n\r\n\r`);
-		Character.DoCommands.DoExits(player, "");
+		if(!player.Flags.ISSET(Character.ActFlags.Brief) || !auto) {
+			player.send(`${player.Room.Description}\n\r\n\r`);
+		} else {
+			player.send("\n\r");
+		}
+		if(player.Flags.ISSET(Character.ActFlags.AutoExit)) {
+			Character.DoCommands.DoExits(player, "");
+		}
 		var items = {};
 		for(const item of player.Room.Items){
 			var display = item.DisplayFlags(player) + item.DisplayToRoom(player);
@@ -1023,6 +1029,95 @@ Character.DoCommands.DoGain = function(ch, args)
 
 }
 
+Character.DoCommands.DoAutoAssist = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.AutoAssist)) {
+		character.Flags.RemoveFlag(Character.ActFlags.AutoAssist);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.AutoAssist)) {
+		character.Flags.SETBIT(Character.ActFlags.AutoAssist);
+	}
+
+	character.send("AutoAssist is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.AutoAssist)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoAutoSacrifice = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.AutoSac)) {
+		character.Flags.RemoveFlag(Character.ActFlags.AutoSac);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.AutoSac)) {
+		character.Flags.SETBIT(Character.ActFlags.AutoSac);
+	}
+
+	character.send("AutoSacrifice is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.AutoSac)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoAutoLoot = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.AutoLoot)) {
+		character.Flags.RemoveFlag(Character.ActFlags.AutoLoot);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.AutoLoot)) {
+		character.Flags.SETBIT(Character.ActFlags.AutoLoot);
+	}
+
+	character.send("AutoLoot is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.AutoLoot)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoAutoGold = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.AutoGold)) {
+		character.Flags.RemoveFlag(Character.ActFlags.AutoGold);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.AutoGold)) {
+		character.Flags.SETBIT(Character.ActFlags.AutoGold);
+	}
+
+	character.send("AutoGold is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.AutoGold)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoAutoSplit = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.AutoSplit)) {
+		character.Flags.RemoveFlag(Character.ActFlags.AutoSplit);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.AutoSplit)) {
+		character.Flags.SETBIT(Character.ActFlags.AutoSplit);
+	}
+
+	character.send("AutoSplit is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.AutoSplit)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoColor = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.Color)) {
+		character.Flags.RemoveFlag(Character.ActFlags.Color);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.Color)) {
+		character.Flags.SETBIT(Character.ActFlags.Color);
+	}
+
+	character.send("Color is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.Color)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoBrief = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.Brief)) {
+		character.Flags.RemoveFlag(Character.ActFlags.Brief);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.Brief)) {
+		character.Flags.SETBIT(Character.ActFlags.Brief);
+	}
+
+	character.send("Brief is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.Brief)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoAutoExits = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.AutoExit)) {
+		character.Flags.RemoveFlag(Character.ActFlags.AutoExit);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.AutoExit)) {
+		character.Flags.SETBIT(Character.ActFlags.AutoExit);
+	}
+
+	character.send("AutoExits is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.AutoExit)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoAFK = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.AFK)) {
+		character.Flags.RemoveFlag(Character.ActFlags.AFK);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.AFK)) {
+		character.Flags.SETBIT(Character.ActFlags.AFK);
+	}
+
+	character.send("AFK is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.AFK)? "\\GON\\x" : "\\ROFF\\x")
+}
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");

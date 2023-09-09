@@ -524,6 +524,7 @@ class Player extends Character {
 						this.Flags.SETBIT(Character.ActFlags.AutoGold);
 						this.Flags.SETBIT(Character.ActFlags.AutoSplit);
 						this.Flags.SETBIT(Character.ActFlags.AutoAssist);
+						this.Flags.SETBIT(Character.ActFlags.AutoExit);
 
 						this.Save();
 						this.SetStatus("Playing");

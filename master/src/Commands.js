@@ -97,6 +97,16 @@ Commands = {
 		"oocchannel": {Command: Character.DoCommands.DoOOC, MinimumPosition: "Dead" },
 		"generalchannel": {Command: Character.DoCommands.DoGeneral, MinimumPosition: "Dead" },
 
+		"autoassist": {Command: Character.DoCommands.DoAutoAssist, MinimumPosition: "Dead" },
+		"autoloot": {Command: Character.DoCommands.DoAutoLoot, MinimumPosition: "Dead" },
+		"autogold": {Command: Character.DoCommands.DoAutoGold, MinimumPosition: "Dead" },
+		"autosplit": {Command: Character.DoCommands.DoAutoSplit, MinimumPosition: "Dead" },
+		"autosacrifice": {Command: Character.DoCommands.DoAutoSacrifice, MinimumPosition: "Dead" },
+		"autoexits": {Command: Character.DoCommands.DoAutoExits, MinimumPosition: "Dead" },
+		"color": {Command: Character.DoCommands.DoColor, MinimumPosition: "Dead" },
+		"brief": {Command: Character.DoCommands.DoBrief, MinimumPosition: "Dead" },
+		"afk": {Command: Character.DoCommands.DoAFK, MinimumPosition: "Dead" },
+
 		"replay": {Command: Character.DoCommands.DoReplay, MinimumPosition: "Dead" },
 		
 		"recall": {Command: Character.DoCommands.DoRecall, MinimumPosition: "Standing" },
@@ -172,7 +182,9 @@ Commands = {
 		"stenchcloud": {Command: Character.DoCommands.DoStenchCloud, MinimumPosition: "Fighting" },
 		"shiv": {Command: Character.DoCommands.DoShiv, MinimumPosition: "Fighting" },
 		"knife": {Command: Character.DoCommands.DoKnife, MinimumPosition: "Standing" },
+		"bs": {Command: Character.DoCommands.DoBackstab, MinimumPosition: "Standing" },
 		"backstab": {Command: Character.DoCommands.DoBackstab, MinimumPosition: "Standing" },
+		"dbs": {Command: Character.DoCommands.DoDualBackstab, MinimumPosition: "Standing" },
 		"dualbackstab": {Command: Character.DoCommands.DoDualBackstab, MinimumPosition: "Standing" },
 
 		"lash": {Command: Character.DoCommands.DoLash, MinimumPosition: "Fighting" },
