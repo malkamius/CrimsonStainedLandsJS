@@ -934,7 +934,7 @@ class Character {
 			return 0;
 		else if (this.IsImmortal)
 			return 0;
-		else if (this.Guild && (rating = skill.Rating[Guild.Name]))
+		else if (this.Guild && (rating = skill.Rating[this.Guild.Name]))
 			return rating;
 		else
 			return 0;
@@ -980,12 +980,12 @@ class Character {
 		if (this.IsNPC)
 			return;
 
-		if ((this.Level < this.GetLevelSkillLearnedAt(sk) && !sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form))
+		if ((this.Level < this.GetLevelSkillLearnedAt(sk) && !sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Form))
 			|| this.GetSkillPercentage(sk) <= 1
 			|| this.GetSkillPercentage(sk) >= 100)
 			return;  /* skill is not known */
 
-		if (this.Form && !sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.Form) && sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypes.InForm) && !sk.SpellFun)
+		if (this.Form && !sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Form) && sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.InForm) && !sk.SpellFun)
 		{
 			return;
 		}
@@ -996,15 +996,15 @@ class Character {
 
 		/* check to see if the character has a chance to learn */
 		chance = 10 * PhysicalStats.IntelligenceApply[this.GetCurrentStatOutOfForm(PhysicalStats.PhysicalStatTypes.Intelligence)].Learn;
-		chance /= (multiplier * this.GetSkillRating(sk) * 4) != 0 ? (multiplier * this.GetSkillRating(sk) * 4) : 1;
-		chance += Level;
-		if ((victim = Fighting) != null)
+		chance /= (rating * this.GetSkillRating(sk) * 4) != 0 ? (rating * this.GetSkillRating(sk) * 4) : 1;
+		chance += this.evel;
+		if ((victim = this.Fighting) != null)
 		{
 			if (victim.IsNPC)
 			{
-				if (victim.Level > Level)
+				if (victim.Level > this.Level)
 				{
-					chance += (victim.Level - Level) * 10;
+					chance += (victim.Level - this.Level) * 10;
 				}
 			}
 			if (!victim.IsNPC)
@@ -1014,7 +1014,7 @@ class Character {
 		}
 		else
 		{
-			chance += Level;
+			chance += this.Level;
 		}
 
 		//chance = (int)(chance * BonusInfo.LearningBonus);
@@ -1023,66 +1023,66 @@ class Character {
 			return;
 
 		/* now that the character has a CHANCE to learn, see if they really have */
-		var prereqsnotmet = this.Learned.Select((l,k) => !SkillSpell.SkillLookup(k).PrerequisitesMet(this));
+		var prereqsnotmet = SkillSpell.Skills.Select(sk => !sk.PrerequisitesMet(this));// this.Learned.Select((l,k) => !SkillSpell.SkillLookup(k).PrerequisitesMet(this));
 
 		if (success)
 		{
-			chance = Utility.URANGE(5, 100 - GetSkillPercentage(sk), 95);
+			chance = Utility.URANGE(5, 100 - this.GetSkillPercentage(sk), 95);
 			if (Utility.NumberPercent() < chance)
 			{
-				Learned[sk].Percent += 1;
-				GainExperience(4 + (2 * GetSkillRating(sk)));
-				if (sk.SkillTypes.ISSET(SkillSpellTypes.Form) && this.Form)
+				this.Learned[sk].Percent += 1;
+				this.GainExperience(4 + (2 * this.GetSkillRating(sk)));
+				if (sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Form) && this.Form)
 				{
-					if (GetSkillPercentage(sk) == 100)
-						send("\\GYou feel confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
+					if (this.GetSkillPercentage(sk) == 100)
+						this.send("\\GYou feel confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
 					else
-						send("\\GYou feel more confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
+						this.send("\\GYou feel more confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
 				}
-				else if (GetSkillPercentage(sk) == 100)
+				else if (this.GetSkillPercentage(sk) == 100)
 				{
-					send("\\GYou have perfected {0}!\\x\n\r", sk.Name);
+					this.send("\\GYou have perfected {0}!\\x\n\r", sk.Name);
 				}
 				else
 				{
-					send("\\YYou have become better at {0}!\\x\n\r", sk.Name);
+					this.send("\\YYou have become better at {0}!\\x\n\r", sk.Name);
 				}
 			}
 		}
 
 		else
 		{
-			chance = Utility.URANGE(5, GetSkillPercentage(sk) / 2, 30);
+			chance = Utility.URANGE(5, this.GetSkillPercentage(sk) / 2, 30);
 			if (Utility.NumberPercent() - 28 < chance)
 			{
-				Learned[sk].Percent += Utility.Random(1, 3);
-				Learned[sk].Percent = Math.min(Learned[sk].Percent, 100);
-				GainExperience(4 + 2 * GetSkillRating(sk));
+				this.Learned[sk.Name].Percent += Utility.Random(1, 3);
+				this.Learned[sk.Name].Percent = Math.min(this.Learned[sk.Name].Percent, 100);
+				this.GainExperience(4 + 2 * this.GetSkillRating(sk));
 
-				if (sk.SkillTypes.ISSET(SkillSpellTypes.Form) && this.Form)
+				if (sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Form) && this.Form)
 				{
-					if (GetSkillPercentage(sk) == 100)
-						send("\\GYou feel confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
+					if (this.GetSkillPercentage(sk) == 100)
+						this.send("\\GYou feel confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
 					else
-						send("\\GYou feel more confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
+						this.send("\\GYou feel more confident as a {0}!\\x\n\r", this.Form.Name || "unknown");
 				}
-				else if (GetSkillPercentage(sk) == 100)
+				else if (this.GetSkillPercentage(sk) == 100)
 				{
-					send("\\GYou learn from your mistakes, and manage to perfect {0}!\\x\n\r", sk.Name);
+					this.send("\\GYou learn from your mistakes, and manage to perfect {0}!\\x\n\r", sk.Name);
 				}
 				else
 				{
-					send("\\YYou learn from your mistakes, and your {0} skill improves!\\x\n\r", sk.Name);
+					this.send("\\YYou learn from your mistakes, and your {0} skill improves!\\x\n\r", sk.Name);
 
 				}
 			}
 		}
 		for (var prereqnotmet of prereqsnotmet)
 		{
-			var skill = SkillSpell.SkillLookup(prereqnotmet);
-			if (skill.PrerequisitesMet(this))
+			//var skill = SkillSpell.SkillLookup(prereqnotmet);
+			if (prereqnotmet.PrerequisitesMet(this))
 			{
-				send("\\CYou feel a rush of insight into {0}!\\x\n\r", skill.Name);
+				this.send("\\CYou feel a rush of insight into {0}!\\x\n\r", skill.Name);
 			}
 		}
 	}
@@ -3106,40 +3106,39 @@ class Character {
 		var diceroll = 0;
 
 		// Check if the character has the enhanced damage skill and a skill level greater than 1
-		if (damage > 0 && enhancedDamageSkill != null && (skillLevel = ch.GetSkillPercentage(enhancedDamageSkill)) > 1)
+		if (damage > 0 && enhancedDamageSkill != null && (skillLevel = this.GetSkillPercentage(enhancedDamageSkill)) > 1)
 		{
 			// Roll a random diceroll value
 			if (skillLevel > (diceroll = Utility.NumberPercent()))
 			{
 				// The character successfully performed enhanced damage
-				ch.CheckImprove(enhancedDamageSkill, true, 1);
+				this.CheckImprove(enhancedDamageSkill, true, 1);
 
 				// Increase the damage by a percentage of the original damage based on the diceroll value
 				damage += (damage * diceroll / 50);
 
 				// Check for "enhanced damage II" skill
-				if ((skillLevel = ch.GetSkillPercentage("enhanced damage II")) > 1 && skillLevel > (diceroll = Utility.NumberPercent()))
+				if ((skillLevel = this.GetSkillPercentage("enhanced damage II")) > 1 && skillLevel > (diceroll = Utility.NumberPercent()))
 				{
 					// The character successfully performed enhanced damage II
 					damage += (damage * diceroll / 50);
-					ch.CheckImprove("enhanced damage II", true, 1);
+					this.CheckImprove("enhanced damage II", true, 1);
 				}
 				else if (skillLevel > 1)
 				{
 					// The character failed to perform enhanced damage II
-					ch.CheckImprove("enhanced damage II", false, 1);
+					this.CheckImprove("enhanced damage II", false, 1);
 				}
 			}
 			else
 			{
 				// The character failed to perform enhanced damage
-				ch.CheckImprove(enhancedDamageSkill, false, 1);
+				this.CheckImprove(enhancedDamageSkill, false, 1);
 			}
 
-			return damage;
+			//return damage;
 		}
 
-		// No enhanced damage bonus applied
 		return damage;
 	} // End check enhanced damage
 

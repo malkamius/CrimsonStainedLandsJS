@@ -42,7 +42,7 @@ Character.DoCommands.DoWhirl = function(ch, args)
 		chance += ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Strength) / 3;
 		chance += ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity) / 2;
 
-		chance = chance * (whirlPercent / 100);
+		chance = whirlPercent * .75;// chance * (whirlPercent / 100);
 
 		ch.WaitState(skill.WaitTime);
 
