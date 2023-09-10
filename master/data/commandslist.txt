@@ -14,7 +14,7 @@ whisperto
 tell
 yell
 pray
-newbie
+newbiechannel
 quit
 where
 who
@@ -104,7 +104,7 @@ rescue
 intercept
 heal
 autoloot
-autosac
+autosacrifice
 autogold
 autosplit
 autoassist
@@ -235,9 +235,9 @@ bearkinship
 forms
 shapefocus
 bite
-puncturing bite
+puncturingbite
 peck
-wasp stubg
+waspsting
 claw
 furor
 trample

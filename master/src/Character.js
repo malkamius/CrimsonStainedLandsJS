@@ -3344,3 +3344,4 @@ RangerSkills = require("./RangerSkills");
 PaladinSkills = require("./PaladinSkills");
 AssassinSkills = require("./AssassinSkills");
 ThiefSkills = require("./ThiefSkills");
+FormSkills = require("./FormSkills");
