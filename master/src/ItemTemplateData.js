@@ -112,8 +112,8 @@ class ItemTemplateData {
             }
         }
 
-        if(!area.Templates[this.VNum])
-            area.Templates[this.VNum] = this;
+        if(!area.ItemTemplates[this.VNum])
+            area.ItemTemplates[this.VNum] = this;
         else
             console.log("Item " + this.VNum + " already exists in " + area.Name + ".");
         if(!ItemTemplateData.Templates[this.VNum])

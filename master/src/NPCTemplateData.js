@@ -80,8 +80,8 @@ class NPCTemplateData extends Character {
         }
     }
     
-    if(!area.Templates[this.VNum])
-      area.Templates[this.VNum] = this;
+    if(!area.NPCTemplates[this.VNum])
+      area.NPCTemplates[this.VNum] = this;
     else
       console.log(`NPCTemplate ${this.VNum} already exists in area ${this.Name}.`);
 
