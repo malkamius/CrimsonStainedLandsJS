@@ -155,6 +155,8 @@ class Character {
 	Alignment = "neutral";
 	Ethos = "neutral";
 	_position = "Standing";
+	Wimpy = 0;
+
 	get Position() { return this._position; }
 
 	set Position(value) {
@@ -2569,7 +2571,7 @@ class Character {
 		this.ArmorClass = xml.GetElementValueInt("ArmorClass");
 		this.Silver = xml.GetElementValueInt("Silver");
 		this.Gold = xml.GetElementValueInt("Gold");
-		
+		this.Wimpy = xml.GetElementValue("Wimpy");
 		
 		this.SavingThrow = xml.GetElementValueInt("SavingThrow");
 
@@ -2708,6 +2710,8 @@ class Character {
 		parentelement.ele("ArmorClass", this.ArmorClass);
 		parentelement.ele("Silver", this.Silver);
 		parentelement.ele("Gold", this.Gold);
+
+		parentelement.ele("Wimpy", this.Wimpy);
 
 		if(this.ShapeFocusMajor)
 		parentelement.ele("ShapeFocusMajor", this.ShapeFocusMajor);

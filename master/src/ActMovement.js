@@ -2,6 +2,7 @@ const Character = require("./Character");
 const RoomData = require("./RoomData");
 const ItemData = require("./ItemData");
 const AffectData = require("./AffectData");
+const ExitData = require("./ExitData");
 
 function movechar(character, direction, crawl = false, creep = false, sendWalkMessage = true, first = true, movementCost = 0, movementWait = 0) {
 	const Utility = require("./Utility");
@@ -48,7 +49,7 @@ function movechar(character, direction, crawl = false, creep = false, sendWalkMe
 	var wasinroom = character.Room;
 
 	for(var protector of wasinroom.Characters) {
-		if(!character.IsImmortal && !character.IsNPC && exit.Destination && protector.Guild && character.Guild != protector.Guild && protector.Protects) {
+		if(!character.IsImmortal && !character.IsNPC && exit && exit.Destination && protector.Guild && character.Guild != protector.Guild && protector.Protects) {
 			for(var protectvnum of protector.Protects) {
 				if(protectvnum == exit.Destination.VNum) {
 					character.Act("$N steps in your way.\n\r", protector);
@@ -62,7 +63,8 @@ function movechar(character, direction, crawl = false, creep = false, sendWalkMe
 
 	if(wasinroom && exit && 
 		exit.Destination && 
-		(!exit.Flags.Closed || character.AffectedBy.PassDoor) &&
+		(!exit.Flags.ISSET(ExitData.ExitFlags.Closed) || 
+		(!exit.Flags.ISSET(ExitData.ExitFlags.NoPass) && character.AffectedBy.ISSET(AffectData.AffectFlags.PassDoor))) &&
 		(!exit.Flags.Window || crawl)) {
 		
 		var destination = exit.Destination;

@@ -889,41 +889,43 @@ class Combat {
         Combat.CheckIsDead(ch, victim, damage);
 
         // If the victim is an NPC and in a fighting position, has a chance to flee
-        // if ((victim.Position == "Fighting" || victim.Position == "Standing") &&
-        //     victim.IsNPC &&
-        //     allowflee &&
-        //     ch != null &&
-        //     ch != victim &&
-        //     victim.Room == ch.Room &&
-        //     damage > 0 &&
-        //     victim.Wait < Game.PULSE_VIOLENCE / 2)
-        // {
-        //     // Check flee conditions and execute fleeing
-        //     if (((victim.Flags.ISSET(ActFlags.Wimpy) && Utility.Random(0, 4) == 0 && victim.HitPoints < victim.MaxHitPoints / 5)) ||
-        //         (victim.Master != null && victim.Master.Room != victim.Room) && allowflee)
-        //     {
-        //         Combat.DoFlee(victim, "");
-        //     }
-        // }
+        if ((victim.Position == "Fighting" || victim.Position == "Standing") &&
+            victim.IsNPC &&
+            allowflee &&
+            ch != null &&
+            ch != victim &&
+            victim.Room == ch.Room &&
+            damage > 0 &&
+            victim.Wait < Game.PULSE_VIOLENCE / 2)
+        {
+            // Check flee conditions and execute fleeing
+            if (((victim.Flags.ISSET(Character.ActFlags.Wimpy) && Utility.Random(0, 4) == 0 && victim.HitPoints < victim.MaxHitPoints / 5)) ||
+                (victim.Master != null && victim.Master.Room != victim.Room) && allowflee)
+            {
+                Combat.DoFlee(victim, "");
+            }
+        }
 
         // If the victim is a player, check if they have a wimpy value and can flee
-        // if (typeof(victim) == "Player" && ch != victim)
-        // {
-        //     var player = victim;
-
-        //     if (player.Wimpy > 0 &&
-        //         (victim.Position == "Fighting" || victim.Position == "Standing") &&
-        //         damage > 0 &&
-        //         ch != null &&
-        //         victim.Room == ch.Room &&
-        //         allowflee &&
-        //         victim.HitPoints < player.Wimpy //&&
-        //         //victim.Wait < Game.PULSE_VIOLENCE / 2
-        //             )
-        //     {
-        //         Combat.DoFlee(victim, "");
-        //     }
-        // }
+        if (ch != victim)
+        {
+            var percent = parseInt(victim.Wimpy);
+            var wimpy = Number(victim.wimpy);
+            
+            if ((wimpy > 0 || percent > 0) &&
+                (victim.Position == "Fighting" || victim.Position == "Standing") &&
+                damage > 0 &&
+                ch != null &&
+                victim.Room == ch.Room &&
+                allowflee &&
+                ((wimpy && victim.HitPoints < victim.Wimpy) ||
+                (percent && percent > victim.HitPoints / victim.MaxHitPoints * 100))//&&
+                //victim.Wait < Game.PULSE_VIOLENCE / 2
+                    )
+            {
+                Combat.DoFlee(victim, "");
+            }
+        }
 
         return true; // Damage applied successfully
     }
@@ -1133,8 +1135,8 @@ class Combat {
             var exits = character.Room.Exits.Select(function(exit) {
                 return exit && 
                 exit.Destination && 
-                (!exit.Flags.Closed || 
-                (!exit.Flags.NoPass && ch.AffectFlags.PassDoor)) && 
+                (!exit.Flags.ISSET(ExitData.ExitFlags.Closed) || 
+		        (!exit.Flags.ISSET(ExitData.ExitFlags.NoPass) && character.AffectedBy.ISSET(AffectData.AffectFlags.PassDoor))) && 
                 !exit.Flags.Window  &&
                 (exit.Destination.Area == character.Room.Area || !character.IsNPC || !character.Flags.StayArea) &&
                 (character.IsImmortal || character.IsNPC || (character.Level <= exit.Destination.MaxLevel && character.Level >= exit.Destination.MinLevel))

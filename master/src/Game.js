@@ -49,12 +49,16 @@ class Game {
                     player.send("Error: " + err);
                 }
                 catch(innererr) {
-                    console.log(err);
+                    console.log(innererr);
                 }
             }
         }
 
-        Game.Update();
+        try {
+            Game.Update();
+        } catch(err) {
+            console.log(err);
+        }
 
         for(player of Utility.CloneArray(Player.Players))
         {	
@@ -68,7 +72,7 @@ class Game {
                     player.send("Error: " + err);
                 }
                 catch(innererr) {
-                    console.log(err);
+                    console.log(innererr);
                 }
             }
 
@@ -88,20 +92,22 @@ class Game {
     static Update() {
         const AreaData = require('./AreaData');
         if(--Game.UpdateTickCounter <= 0) {
+            Game.UpdateTickCounter = Game.PULSE_PER_TICK;
+
             AreaData.ResetAreas();
             Game.UpdateWeather();
             Game.UpdateTick();
-            Game.UpdateTickCounter = Game.PULSE_PER_TICK;
         }
 
         if(--Game.UpdateCombatCounter <= 0) {
-            Game.UpdateCombat();
             Game.UpdateCombatCounter = Game.PULSE_PER_VIOLENCE;
+
+            Game.UpdateCombat();
         }
 
         if(--Game.UpdateTrackCounter <= 0) {
-            Game.UpdateTrack();
             Game.UpdateTrackCounter = Game.PULSE_TRACK;
+            Game.UpdateTrack();
         }
 
         Game.UpdateAggro();

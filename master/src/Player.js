@@ -528,7 +528,9 @@ class Player extends Character {
 						this.Flags.SETBIT(Character.ActFlags.AutoSplit);
 						this.Flags.SETBIT(Character.ActFlags.AutoAssist);
 						this.Flags.SETBIT(Character.ActFlags.AutoExit);
-
+						
+						this.Wimpy = "30%";
+						ch.send("Wimpy(autoflee) set to {0}.\n\r", this.Wimpy);
 						var extrapractice = Math.ceil(PhysicalStats.WisdomApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice / 2);
 						this.Practices = 5 + extrapractice;
 						this.Trains = 3;

@@ -114,6 +114,9 @@ Commands = {
 		"color": {Command: Character.DoCommands.DoColor, MinimumPosition: "Dead" },
 		"brief": {Command: Character.DoCommands.DoBrief, MinimumPosition: "Dead" },
 		"afk": {Command: Character.DoCommands.DoAFK, MinimumPosition: "Dead" },
+		"wimpy": {Command: Character.DoCommands.DoWimpy, MinimumPosition: "Dead" },
+		"wizinvis": {Command: Character.DoCommands.DoWizInvis, MinimumPosition: "Dead" },
+		"holylight": {Command: Character.DoCommands.DoHolyLight, MinimumPosition: "Dead" },
 
 		"bug": {Command: Character.DoCommands.DoBug, MinimumPosition: "Dead" },
 

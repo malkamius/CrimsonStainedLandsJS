@@ -1459,6 +1459,20 @@ Character.DoCommands.DoEmote = function(ch, args) {
 	}
 }
 
+Character.DoCommands.DoWimpy = function(ch, args) {
+	var percent = parseInt(args);
+	var wimpy = Number(args);
+	if(Utility.IsNullOrEmpty(args)) {
+		ch.send("Your wimpy is set to {0}.\n\r", ch.Wimpy);
+	} else if(((!wimpy && wimpy != 0 && !args.endsWith("%")) || wimpy < 0 || wimpy > ch.MaxHitPoints) &&
+	          ((!percent && percent != 0) || percent > 100 || percent < 0)) {
+		ch.send("Must enter a number between 0 and {0} or [0%-100%].\n\r", ch.MaxHitPoints)
+	} else {
+		ch.Wimpy = args.endsWith("%")? (percent || 0) + "%" : wimpy || 0;
+		ch.send("Your wimpy is set to {0}.\n\r", ch.Wimpy);
+	}
+}
+
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");

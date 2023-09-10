@@ -153,7 +153,7 @@ Character.DoCommands.DoGroupTell = function(character, args) {
 Character.DoCommands.DoPray = function(character, args) {
     Character.CaptureCommunications = true;
 	for (const othercharacter of Character.Characters) {
-		if(othercharacter != character && othercharacter.IsImmortal) {
+		if(othercharacter != character && othercharacter.status == "Playing" && othercharacter.IsImmortal) {
 			character.Act("\\r$n prays '{0}\\x\\r'\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
 		}
 	}
@@ -175,7 +175,7 @@ Character.DoCommands.DoNewbie = function(character, args) {
         character.send("\\cNEWBIE (You): {0}\\x\n\r", args);
 
         for (const othercharacter of Character.Characters) {
-            if(othercharacter != character && othercharacter.Flags.ISSET(Character.ActFlags.NewbieChannel)) {
+            if(othercharacter != character && othercharacter.status == "Playing" && othercharacter.Flags.ISSET(Character.ActFlags.NewbieChannel)) {
                 character.Act("\\cNEWBIE ($n): {0}\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
             }
         }
@@ -198,7 +198,7 @@ Character.DoCommands.DoOOC = function(character, args) {
         character.send("\\rOOC (You): {0}\\x\n\r", args);
 
         for (const othercharacter of Character.Characters) {
-            if(othercharacter != character && othercharacter.Flags.ISSET(Character.ActFlags.OOCChannel)) {
+            if(othercharacter != character && othercharacter.status == "Playing" && othercharacter.Flags.ISSET(Character.ActFlags.OOCChannel)) {
                 character.Act("\\rOOC ($n): {0}\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
             }
         }
@@ -221,8 +221,24 @@ Character.DoCommands.DoGeneral = function(character, args) {
         character.send("\\WGENERAL (You): {0}\\x\n\r", args);
 
         for (const othercharacter of Character.Characters) {
-            if(othercharacter != character && othercharacter.Flags.ISSET(Character.ActFlags.GeneralChannel)) {
+            if(othercharacter != character && othercharacter.status == "Playing" && othercharacter.Flags.ISSET(Character.ActFlags.GeneralChannel)) {
                 character.Act("\\WGENERAL ($n): {0}\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
+            }
+        }
+        Character.CaptureCommunications = false;
+    }	
+}
+
+Character.DoCommands.DoImmortal = function(character, args) {
+    if(args.ISEMPTY()) {
+        character.send("Say what on the immortal channel?\n\r");
+    } else {
+        Character.CaptureCommunications = true;
+        character.send("\\WIMMORTAL :: (You): {0}\\x\n\r", args);
+
+        for (const othercharacter of Character.Characters) {
+            if(othercharacter != character && othercharacter.status == "Playing" && othercharacter.IsImmortal) {
+                character.Act("\\WIMMORTAL :: ($n): {0}\\x", othercharacter, null, null, Character.ActType.ToVictim, args);
             }
         }
         Character.CaptureCommunications = false;

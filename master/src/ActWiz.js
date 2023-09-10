@@ -623,3 +623,23 @@ Character.DoCommands.DoConnections = function(ch, args) {
     }
     ch.send("{0} players.\n\r", Player.Players.length)
 }
+
+Character.DoCommands.DoWizInvis = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.WizInvis)) {
+		character.Flags.RemoveFlag(Character.ActFlags.WizInvis);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.WizInvis)) {
+		character.Flags.SETBIT(Character.ActFlags.WizInvis);
+	}
+
+	character.send("WizInvis is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.WizInvis)? "\\GON\\x" : "\\ROFF\\x")
+}
+
+Character.DoCommands.DoHolyLight = function(character, args) {
+	if("on".prefix(args) || character.Flags.ISSET(Character.ActFlags.HolyLight)) {
+		character.Flags.RemoveFlag(Character.ActFlags.HolyLight);
+	} else if("off".prefix(args) || !character.Flags.ISSET(Character.ActFlags.HolyLight)) {
+		character.Flags.SETBIT(Character.ActFlags.HolyLight);
+	}
+
+	character.send("HolyLight is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.HolyLight)? "\\GON\\x" : "\\ROFF\\x")
+}
