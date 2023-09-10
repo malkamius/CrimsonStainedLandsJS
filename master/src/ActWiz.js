@@ -484,7 +484,9 @@ Character.DoCommands.DoGrant = function(character, args) {
                 for(var i = target.Level; i < level - 1; i++) {
                     target.AdvanceLevel(false);
                 }
+                target.XpTotal = target.XpToLevel * (target.Level);
                 target.AdvanceLevel(true);
+                
                 target.send("You have been promoted to level {0}.\n\r", level);
                 character.Act("You have promoted $N to level {0}.\n\r", target, null, null, Character.ActType.ToChar, level);
             }

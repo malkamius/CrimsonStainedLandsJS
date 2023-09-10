@@ -52,6 +52,8 @@ class NPCTemplateData extends Character {
     this.Race = RaceData.LookupRace(xml.GetElementValue( "Race", "human"));
     this.Guild = GuildData.Lookup(xml.GetElementValue("Guild"), false);
     
+    this.Alignment = xml.GetElementValue("Alignment");
+
     if(this.Flags.IsSet("Healer") && !this.Guild) {
       this.Guild = GuildData.Lookup("healer");
     }

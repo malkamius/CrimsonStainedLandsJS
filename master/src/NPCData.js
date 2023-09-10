@@ -51,6 +51,7 @@ class NPCData extends Character {
 		this.WeaponDamageMessage = template.WeaponDamageMessage;
 		this.Guild = template.Guild;
 		this.Level = template.Level;
+		this.Alignment = template.Alignment;
 		const SkillSpell = require("./SkillSpell");
 		if(this.Guild) {
 			for(var skillname in SkillSpell.Skills)

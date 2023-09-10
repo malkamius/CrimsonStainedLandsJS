@@ -765,7 +765,7 @@ Character.DoCommands.DoWorth = function(ch, args)
 		(ch.XpToLevel * (ch.Level)) - ch.Xp, ch.XpTotal, ch.XpToLevel * (ch.Level));
 	} else {
 			ch.send("You have {0} silver, and {1} gold. You need {2} xp to level({3} of {4})\n\r",
-			ch.Silver, ch.Gold, (ch.XpToLevel * (ch.Level)) - ch.Xp, ch.XpTotal, ch.XpToLevel * (ch.Level));
+			ch.Silver, ch.Gold, ((ch.XpToLevel * ch.Level) - ch.XpTotal).toFixed(2), ch.XpTotal.toFixed(2), (ch.XpToLevel * ch.Level).toFixed(2));
 	}
 }
 
@@ -815,13 +815,14 @@ Character.DoCommands.DoScore = function(character, args) {
 Character.DoCommands.DoPrompt = function(ch,  args)
 {
 	const Color = require('./Color');
+	const defaultprompt  = "<%1%%h %2%%m %3%%mv %W \\C%x/%X\\xtnl> ";
 	if (!(ch instanceof Player)) return;
 
-	ch.send("The default prompt is: <%1%%h %2%%m %3%%mv %W> \n\r");
+	ch.send("The default prompt is: {0}\n\r", defaultprompt);
 
 	if (!args.ISEMPTY() && (args.equals("all") || args.equals("default")))
 	{
-		player.Prompt = "<%1%%h %2%%m %3%%mv %W> ";
+		player.Prompt = defaultprompt;
 	}
 	else if (!args.ISEMPTY() && args.equals("?"))
 	{

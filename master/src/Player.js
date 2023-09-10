@@ -531,7 +531,7 @@ class Player extends Character {
 						this.Flags.SETBIT(Character.ActFlags.AutoSplit);
 						this.Flags.SETBIT(Character.ActFlags.AutoAssist);
 						this.Flags.SETBIT(Character.ActFlags.AutoExit);
-						
+						Character.DoCommands.DoPrompt(this, "default");
 						this.Wimpy = "30%";
 						this.send("Wimpy(autoflee) set to {0}.\n\r", this.Wimpy);
 						var extrapractice = Math.ceil(PhysicalStats.WisdomApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice / 2);

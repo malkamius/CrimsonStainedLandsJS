@@ -1565,7 +1565,7 @@ class Character {
 				continue;
 
 			xp = gch.ExperienceCompute(victim, members, gch.Level); // group_levels);
-			var buf = Utility.Format("\\CYou receive \\W{0}\\C experience points.\\x\n\r", xp);
+			var buf = Utility.Format("\\CYou receive \\W{0}\\C experience points.\\x\n\r", xp.toFixed(2));
 			gch.send(buf);
 			gch.GainExperience(xp);
 		}
@@ -1578,12 +1578,12 @@ class Character {
 
 		/*ch->exp = UMAX( exp_per_level(ch,ch->pcdata->points), ch->exp + gain );*/
 		if (this.Level < 51)
-		this.Xp += gain;
+		this.XpTotal += gain;
 
-		if (this.Xp > this.XpTotal)
-			this.XpTotal = this.Xp;
+		// if (this.Xp > this.XpTotal)
+		// 	this.XpTotal = this.Xp;
 
-		while (this.Level < 51 && this.Xp >=
+		while (this.Level < 51 && this.XpTotal >=
 			this.XpToLevel * (this.Level))
 		{
 			this.AdvanceLevel();
@@ -2139,8 +2139,8 @@ class Character {
 		    (item.ExtraFlags.ISSET(ItemData.ExtraFlags.AntiNeutral) && this.Alignment == Character.Alignment.Neutral) ||
 		    (item.ExtraFlags.ISSET(ItemData.ExtraFlags.AntiEvil) && this.Alignment == Character.Alignment.Evil))
 		{
-		    Act("You try to wear $p, but it zaps you.", null, item, null, Character.ActType.ToChar);
-		    Act("$n tries to wear $p, but it zaps $m.", null, item, null, Character.ActType.ToRoom);
+		    this.Act("You try to wear $p, but it zaps you.", null, item, null, Character.ActType.ToChar);
+		    this.Act("$n tries to wear $p, but it zaps $m.", null, item, null, Character.ActType.ToRoom);
 		    return false;
 		}
 
@@ -2306,6 +2306,11 @@ class Character {
 
 	GetGroupMembersInRoom() {
 		return this.Room.Characters.Select((ch) => ch.IsSameGroup(this));
+	}
+
+	CalculateXpToLevel(level) {
+		if(!level) level = this.Level;
+		return Math.ceil(1500 + ((level - 1) * 1500 * .08));
 	}
 
 	get XpToLevel() { return Math.ceil(1500 + ((this.Level - 1) * 1500 * .08)); }
@@ -2955,19 +2960,19 @@ class Character {
 					buf += Utility.Format("{0}{1}\\x",
 						this.HitPoints < (this.MaxHitPoints * 4) / 10 ?
 						this.HitPoints < (this.MaxHitPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
-						Math.floor(this.HitPoints / this.MaxHitPoints * 100));
+						(this.HitPoints / this.MaxHitPoints * 100).toFixed(2));
 					break;
 				case '2':
 					buf += Utility.Format("{0}{1}\\x",
 						this.ManaPoints < (this.MaxManaPoints * 4) / 10 ?
 						this.ManaPoints < (this.MaxManaPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
-						Math.floor(this.ManaPoints / this.MaxManaPoints * 100));
+						(this.ManaPoints / this.MaxManaPoints * 100).toFixed(2));
 					break;
 				case '3':
 					buf += Utility.Format("{0}{1}\\x",
 					this.MovementPoints < (this.MaxMovementPoints * 4) / 10 ?
 					this.MovementPoints < (this.MaxMovementPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
-					Math.floor(this.MovementPoints / this.MaxMovementPoints * 100));
+					(this.MovementPoints / this.MaxMovementPoints * 100).toFixed(2));
 					break;
 				case 'e':
 					var found = false;
@@ -2993,7 +2998,7 @@ class Character {
 					buf += Utility.Format("{0}{1}\\x",
 					this.HitPoints < (this.MaxHitPoints * 4) / 10 ?
 					this.HitPoints < (this.MaxHitPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
-					this.HitPoints);
+					this.HitPoints.toFixed(2));
 					break;
 
 				case 'H':
@@ -3003,7 +3008,7 @@ class Character {
 					buf += Utility.Format("{0}{1}\\x",
 					this.ManaPoints < (this.MaxManaPoints * 4) / 10 ?
 					this.ManaPoints < (this.MaxManaPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
-					Math.floor(this.ManaPoints));
+					this.ManaPoints.toFixed(2));
 					break;
 				case 'M':
 					buf += (this.MaxManaPoints);
@@ -3012,16 +3017,17 @@ class Character {
 					buf += Utility.Format("{0}{1}\\x",
 					this.MovementPoints < (this.MaxMovementPoints * 4) / 10 ?
 					this.MovementPoints < (this.MaxMovementPoints * 2) / 10 ? "\\R" : "\\Y" : "\\G",
-					Math.floor(this.MovementPoints));
+					this.MovementPoints.toFixed(2));
 					break;
 				case 'V':
-					buf += (this.MaxMovementPoints);
+					buf += (this.MaxMovementPoints.toFixed(2));
 					break;
 				case 'x':
-					buf += (this.XpTotal);
+					var xpsofar = this.XpTotal - this.CalculateXpToLevel(this.Level - 1) * (this.Level - 1);
+					buf += xpsofar.toFixed(2);
 					break;
 				case 'X':
-					buf += (this.XpToLevel * (this.Level) - this.XpTotal);
+					buf += (this.XpToLevel * (this.Level) - this.CalculateXpToLevel(this.Level - 1) * (this.Level - 1)).toFixed(2);
 					break;
 				case 'g':
 					buf += (this.Gold);

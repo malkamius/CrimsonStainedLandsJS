@@ -176,7 +176,7 @@ class Combat {
                 for(var gch of victim.Room.Characters) {
                     if(gch.Fighting == victim && (!ch || !gch.IsSameGroup(ch))) {
                         var xp = gch.ExperienceCompute(victim, 1, gch.Level); // group_levels);
-                        gch.send("\\CYou receive \\W{0}\\C experience points.\\x\n\r", xp);
+                        gch.send("\\CYou receive \\W{0}\\C experience points.\\x\n\r", xp.toFixed(2));
                         gch.GainExperience(xp);
                     }
                 }
@@ -827,19 +827,19 @@ class Combat {
                 }
             }
             
-            var damagereductionpercent = (Armor / (Armor + 400 + 60 * ch? ch.Level : 1)) / 100;
+            var damagereductionpercent = 1 - (1 / (Armor / (Armor + 400 + 60 * (ch? ch.Level : 1))) / 100);
 
             for(var item of items) {
-                if(item.Contribution / Armor * 5 > Utility.NumberPercent()) {
+                if(item.Contribution / Armor * 100 > Utility.NumberPercent()) {
                     victim.Act("Your $o blocks some of $N's {0}.", ch, item.Item, null, Character.ActType.ToChar, nounDamage);
                     victim.Act("$n's $p blocks some of $N's {0}.", ch, item.Item, null, Character.ActType.ToRoom, nounDamage);
-                    damagereductionpercent += .1;
+                    damagereductionpercent = Math.max(damagereductionpercent - .2, .01);
                     break;
                 }
             }
 
-            damage -= damage * damagereductionpercent;  
-            damage = Math.max(damage, 0);
+            damage = damage * damagereductionpercent;  
+            damage = Math.max(damage, .01);
         } else { damage = 0; }
         var immune = false;
 
@@ -1382,29 +1382,29 @@ class Combat {
 
         chance = (3 * skillDodge / 10);
 
-        dex = victim.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity);
-        dexa = ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity);
-        if (dex <= 5)
-            chance += 0;
-        else if (dex <= 10)
-            chance += dex / 2;
-        else if (dex <= 15)
-            chance += (2 * dex / 3);
-        else if (dex <= 20)
-            chance += (8 * dex / 10);
-        else
-            chance += dex;
-        chance += dex - dexa;
-        chance += (Character.Sizes.indexOf(ch.Size) - Character.Sizes.indexOf(victim.Size)) * 5;
+        // dex = victim.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity);
+        // dexa = ch.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity);
+        // if (dex <= 5)
+        //     chance += 0;
+        // else if (dex <= 10)
+        //     chance += dex / 2;
+        // else if (dex <= 15)
+        //     chance += (2 * dex / 3);
+        // else if (dex <= 20)
+        //     chance += (8 * dex / 10);
+        // else
+        //     chance += dex;
+        // chance += dex - dexa;
+        // chance += (Character.Sizes.indexOf(ch.Size) - Character.Sizes.indexOf(victim.Size)) * 5;
 
 
         if (!victim.CanSee(ch))
             chance *= Utility.Random(6 / 10, 3 / 4);
 
-        if (ch.IsAffected(AffectData.AffectFlags.Haste)) chance -= 20;
-        if (victim.IsAffected(AffectData.AffectFlags.Haste)) chance += 5;
-        if (ch.IsAffected(AffectData.AffectFlags.Slow)) chance += 5;
-        if (victim.IsAffected(AffectData.AffectFlags.Slow)) chance -= 5;
+        // if (ch.IsAffected(AffectData.AffectFlags.Haste)) chance -= 20;
+        // if (victim.IsAffected(AffectData.AffectFlags.Haste)) chance += 5;
+        // if (ch.IsAffected(AffectData.AffectFlags.Slow)) chance += 5;
+        // if (victim.IsAffected(AffectData.AffectFlags.Slow)) chance -= 5;
 
         if (ch.Form) chance = chance * (100 - ch.Form.ParryModifier) / 100;
 
@@ -1515,24 +1515,24 @@ class Combat {
         
         //if (!victim.isNPC)
         chance += victim.GetSkillPercentage(skParry) / 2;
-        chance /= 2;
+        chance /= 4;
         
         if(!victimWield && !victimDualWield) chance = 0;
 
         var unarmeddefense = SkillSpell.SkillLookup("unarmed defense");
         var unarmeddefensechance = 0;
-        if (!victimWield && !victimDualWield && (unarmeddefensechance = victim.GetSkillPercentage(unarmeddefense)) > 1)
+        if (!victimWield && !victimDualWield && (unarmeddefensechance = victim.GetSkillPercentage(unarmeddefense) * .75) > 1)
             chance = (chance + unarmeddefensechance) / 2;
 
         var ironfists = SkillSpell.SkillLookup("ironfists");
         var ironfistschance = 0;
-        if (!victimWield && !victimDualWield && (ironfistschance = victim.GetSkillPercentage(ironfists)) > 1)
+        if (!victimWield && !victimDualWield && (ironfistschance = victim.GetSkillPercentage(ironfists) * .75) > 1)
             chance = (chance + ironfistschance) / 2;
 
         var flourintine = SkillSpell.SkillLookup("flourintine");
         var flourintinechance = 0;
         // must dual wield swords for flourintine
-        if (((victimWield && victimWield.WeaponType == ItemData.WeaponTypes.Sword) && (victimDualWield && victimDualWield.WeaponType == ItemData.WeaponTypes.Sword)) && (flourintinechance = victim.GetSkillPercentage(flourintine)) > 1)
+        if (((victimWield && victimWield.WeaponType == ItemData.WeaponTypes.Sword) && (victimDualWield && victimDualWield.WeaponType == ItemData.WeaponTypes.Sword)) && (flourintinechance = victim.GetSkillPercentage(flourintine) * .75) > 1)
         {
             chance += flourintinechance / 5;
         }
