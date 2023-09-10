@@ -1434,14 +1434,8 @@ Character.DoCommands.DoDescription = function(ch, args) {
 			ch.send("OK.\n\r");
 		} else if(command == "-") {
 			ch.Description = ch.Description.replaceAll("\r", "");
-			if(ch.Description.endsWith("\n") && ch.Description.length > 1) {
-				ch.Description = ch.Description.substring(0, ch.Description.length - 1)
-				if(ch.Description.length > ch.Description.lastIndexOf("\n"))
-					ch.Description = ch.Description.substring(0, ch.Description.lastIndexOf("\n") + 1)
-			} else if(ch.Description == "\n") {
-				ch.Description = "";
-			} else if(ch.Description.lastIndexOf("\n") > 1) {
-				ch.Description = ch.Description.substring(0, ch.Description.lastIndexOf("\n"))
+			if(ch.Description.endsWith("\n")) {
+				ch.Description = ch.Description.replace(/.*?\n$/, "");
 			} else {
 				ch.Description = "";
 			}
