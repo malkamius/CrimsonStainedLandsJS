@@ -60,11 +60,11 @@ Character.DoCommands.DoCircleStab = function(ch, argument)
         return;
     }
     obj = ch.GetEquipment(ItemData.WearSlotIDs.Wield);
-    if (!obj || obj.WeaponType != WeaponTypes.Dagger)
+    if (!obj || obj.WeaponType != ItemData.WeaponTypes.Dagger)
     {
         obj = ch.GetEquipment(ItemData.WearSlotIDs.DualWield);
     }
-    if (!obj || obj.WeaponType != WeaponTypes.Dagger)
+    if (!obj || obj.WeaponType != ItemData.WeaponTypes.Dagger)
     {
         ch.send("You must wield a dagger to circle stab someone.\n\r");
         return;
@@ -539,7 +539,7 @@ Character.DoCommands.DoWeaponTrip = function(ch, args)
         ch.Act("You can't weapon trip yourself!.\n\r");
     }
     else if (!(weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) ||
-        [WeaponTypes.Mace, WeaponTypes.Sword, WeaponTypes.Spear].indexOf(weapon.WeaponType) < 0)
+        [ItemData.WeaponTypes.Mace, ItemData.WeaponTypes.Sword, ItemData.WeaponTypes.Spear].indexOf(weapon.WeaponType) < 0)
     {
         ch.Act("You must be wielding a mace, sword, or spear in your main hand to do that.\n\r");
     }
@@ -743,8 +743,8 @@ Character.DoCommands.DoKidneyShot = function(ch, args)
     {
         ch.Act("$E is still bleeding from your previous kidney shot.\n\r", victim);
     }
-    else if (((weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || weapon.WeaponType != WeaponTypes.Dagger) &&
-       ((weapon = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) == null || weapon.WeaponType != WeaponTypes.Dagger))
+    else if (((weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || weapon.WeaponType != ItemData.WeaponTypes.Dagger) &&
+       ((weapon = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) == null || weapon.WeaponType != ItemData.WeaponTypes.Dagger))
     {
         ch.Act("You must be wielding a dagger to kidney shot.");
     }
@@ -1509,8 +1509,8 @@ Character.DoCommands.DoShiv = function(ch, args)
     {
         ch.Act("You don't see them here.");
     }
-    else if (((weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || weapon.WeaponType != WeaponTypes.Dagger) &&
-       ((weapon = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) == null || weapon.WeaponType != WeaponTypes.Dagger))
+    else if (((weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || weapon.WeaponType != ItemData.WeaponTypes.Dagger) &&
+       ((weapon = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) == null || weapon.WeaponType != ItemData.WeaponTypes.Dagger))
     {
         ch.Act("You must be wielding a dagger to shiv.");
     }
@@ -1608,8 +1608,8 @@ Character.DoCommands.DoKnife = function(ch, argument)
 	{
 		ch.send("Bah, you can't knife yourself.\n\r");
 	}
-	else if (((obj = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || obj.WeaponType != WeaponTypes.Dagger)
-					&& ((obj = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) == null || obj.WeaponType != WeaponTypes.Dagger))
+	else if (((obj = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || obj.WeaponType != ItemData.WeaponTypes.Dagger)
+					&& ((obj = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) == null || obj.WeaponType != ItemData.WeaponTypes.Dagger))
 	{
 		ch.send("You must wield a dagger to knife someone.\n\r");
 	}
@@ -1689,8 +1689,8 @@ Character.DoCommands.DoBackstab = function(ch, argument)
 		ch.send("How can you sneak up on yourself?\n\r");
 	}
 
-	else if ((!(obj = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) || obj.WeaponType != WeaponTypes.Dagger)
-		 && (!(obj = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) || obj.WeaponType != WeaponTypes.Dagger))
+	else if ((!(obj = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) || obj.WeaponType != ItemData.WeaponTypes.Dagger)
+		 && (!(obj = ch.GetEquipment(ItemData.WearSlotIDs.DualWield)) || obj.WeaponType != ItemData.WeaponTypes.Dagger))
 	{
 		ch.send("You must wield a dagger to backstab someone.\n\r");
 	}
@@ -1791,7 +1791,7 @@ Character.DoCommands.DoDualBackstab = function(ch, argument)
 	{
 		ch.send("How can you backstab yourself?\n\r");
 	}
-	else if (weapon == null || weapon.WeaponType != WeaponTypes.Dagger || offhand == null || offhand.WeaponType != WeaponTypes.Dagger)
+	else if (weapon == null || weapon.WeaponType != ItemData.WeaponTypes.Dagger || offhand == null || offhand.WeaponType != ItemData.WeaponTypes.Dagger)
 	{
 		ch.send("You must be dual wielding daggers to dual backstab someone.\n\r");
 	}

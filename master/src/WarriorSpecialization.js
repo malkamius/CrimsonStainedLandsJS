@@ -1857,7 +1857,7 @@ Character.DoCommands.DoDrum = function(ch, argument)
 		return;
 	}
 
-	if ((weapon.WeaponType != WeaponTypes.Mace) || (weapon2.WeaponType != WeaponTypes.Mace))
+	if ((weapon.WeaponType != ItemData.WeaponTypes.Mace) || (weapon2.WeaponType != ItemData.WeaponTypes.Mace))
 	{
 		ch.send("You must be wielding two maces to drum.\n\r");
 		return;
@@ -1951,7 +1951,7 @@ Character.DoCommands.DoImpale = function(ch, args)
 		//ch.send("Only animals can impale someone.\n\r");
 		//return;
 	}
-	else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Spear)
+	else if ((wield = ch.GetEquipment(ItemData.WearSlotIDs.Wield)) == null || wield.WeaponType != ItemData.WeaponTypes.Spear)
 	{
 		ch.send("You must be wearing a spear to impale your enemy.\n\r");
 		return;
@@ -1968,9 +1968,6 @@ Character.DoCommands.DoImpale = function(ch, args)
 		ch.send("You don't see them here.\n\r");
 		return;
 	}
-
-	//chance += (level * 2);
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())

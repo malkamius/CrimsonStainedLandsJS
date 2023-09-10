@@ -123,9 +123,9 @@ Character.DoCommands.DoFeint = function(ch, args)
         newAffect.Frequency = Frequency.Violence;
         newAffect.DisplayName = "feint";
         newAffect.Modifier = 0;
-        newAffect.Location = ApplyTypes.None;
+        newAffect.Location = AffectData.ApplyTypes.None;
         newAffect.SkillSpell = skill;
-        newAffect.AffectType = AffectTypes.Skill;
+        newAffect.AffectType = AffectData.AffectTypes.Skill;
         victim.AffectToChar(newAffect);
 
         ch.CheckImprove(skill, true, 1);
@@ -172,23 +172,23 @@ Character.DoCommands.DoBerserk = function(ch, args)
             affect = new AffectData();
             affect.SkillSpell = skill;
             affect.Level = ch.Level;
-            affect.Location = ApplyTypes.Damroll;
+            affect.Location = AffectData.ApplyTypes.Damroll;
             affect.Duration = 2;
             affect.Modifier = +5;
             affect.DisplayName = "berserk";
-            affect.AffectType = AffectTypes.Skill;
+            affect.AffectType = AffectData.AffectTypes.Skill;
             ch.AffectToChar(affect);
 
             affect = new AffectData();
             affect.SkillSpell = skill;
             affect.Level = ch.Level;
-            affect.Location = ApplyTypes.Hitroll;
+            affect.Location = AffectData.ApplyTypes.Hitroll;
             affect.Duration = 2;
             affect.Modifier = +5;
             affect.DisplayName = "berserk";
             affect.EndMessage = "Your rage subsides.\n\r";
             affect.EndMessageToRoom = "$n's rage subsides.\n\r";
-            affect.AffectType = AffectTypes.Skill;
+            affect.AffectType = AffectData.AffectTypes.Skill;
             ch.AffectToChar(affect);
 
             var heal = (int)(ch.Level * 2.5) + 5;
@@ -376,10 +376,10 @@ Character.DoCommands.DoPierce = function(ch, args)
             aff.OwnerName = ch.Name;
             aff.Level = ch.Level;
             aff.Modifier = -4;
-            aff.Location = ApplyTypes.Strength;
-            aff.AffectType = AffectTypes.Skill;
+            aff.Location = AffectData.ApplyTypes.Strength;
+            aff.AffectType = AffectData.AffectTypes.Skill;
             aff.DisplayName = "pierce";
-            aff.Where = AffectWhere.ToAffects;
+            aff.Where = AffectData.AffectWhere.ToAffects;
 
             victim.AffectToChar(aff);
         }
@@ -447,11 +447,11 @@ Character.DoCommands.DoThrust = function(ch, args)
             aff.Duration = 2;
             aff.OwnerName = ch.Name;
             aff.Level = ch.Level;
-            aff.AffectType = AffectTypes.Skill;
+            aff.AffectType = AffectData.AffectTypes.Skill;
             aff.Hidden = true;
-            aff.Frequency = Frequency.Violence;
+            aff.Frequency = AffectData.Frequency.Violence;
             aff.DisplayName = "thrust";
-            aff.Where = AffectWhere.ToAffects;
+            aff.Where = AffectData.AffectWhere.ToAffects;
 
             victim.AffectToChar(aff);
         }
@@ -482,7 +482,7 @@ Character.DoCommands.DoSlice = function(ch, args)
         return;
     }
 
-    if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || (wield.WeaponType != WeaponTypes.Polearm && wield.WeaponType != WeaponTypes.Axe))
+    if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || (wield.WeaponType != ItemData.WeaponTypes.Polearm && wield.WeaponType != ItemData.WeaponTypes.Axe))
     {
         ch.send("You must be wielding a polearm or axe to slice your enemy.");
         return;
@@ -522,11 +522,11 @@ Character.DoCommands.DoSlice = function(ch, args)
             aff.EndMessageToRoom = "$n stops bleeding.";
             aff.OwnerName = ch.Name;
             aff.Level = ch.Level;
-            aff.AffectType = AffectTypes.Skill;
+            aff.AffectType = AffectData.AffectTypes.Skill;
 
-            aff.Frequency = Frequency.Tick;
+            aff.Frequency = AffectData.Frequency.Tick;
             aff.DisplayName = "slice";
-            aff.Where = AffectWhere.ToAffects;
+            aff.Where = AffectData.AffectWhere.ToAffects;
 
             victim.AffectToChar(aff);
         }

@@ -1413,6 +1413,58 @@ Character.DoCommands.DoArea = function(ch, args) {
 	else
 		ch.send(ch.Room.Area.Name.padEnd(30) + " - " + ch.Room.Area.Credits.padEnd(40) + "\n\r");
 }
+
+Character.DoCommands.DoDescription = function(ch, args) {
+	if(Utility.IsNullOrEmpty(args)) {
+		ch.send("Your description is:\n\r");
+		if(!Utility.IsNullOrEmpty(ch.Description)) {
+			ch.send(ch.Description + "\n\r");
+		} else {
+			ch.send("\n\r");
+		}
+		return;
+	}
+	if(args.trim().startsWith("+") || args.trim().startsWith("-")) {
+		[command, args] = args.OneArgument();
+
+		if(command == "+") {
+			if(ch.Description.length > 0 && !ch.Description.endsWith("\n"))
+				ch.Description += "\n";
+			ch.Description = ch.Description + args + "\n";
+			ch.send("OK.\n\r");
+		} else if(command == "-") {
+			ch.Description = ch.Description.replaceAll("\r", "");
+			if(ch.Description.endsWith("\n") && ch.Description.length > 1) {
+				ch.Description = ch.Description.substring(0, ch.Description.length - 1)
+				if(ch.Description.length > ch.Description.lastIndexOf("\n"))
+					ch.Description = ch.Description.substring(0, ch.Description.lastIndexOf("\n") + 1)
+			} else if(ch.Description == "\n") {
+				ch.Description = "";
+			} else if(ch.Description.lastIndexOf("\n") > 1) {
+				ch.Description = ch.Description.substring(0, ch.Description.lastIndexOf("\n"))
+			} else {
+				ch.Description = "";
+			}
+			ch.send("OK.\n\r");
+		} else {
+			ch.send("Failed to process command.\n\r");
+		}
+	} else {
+		ch.Description = args;
+		ch.send("OK.\n\r");
+	}
+	
+}
+
+Character.DoCommands.DoEmote = function(ch, args) {
+	if(Utility.IsNullOrEmpty(args)) {
+		ch.send("Emote what?\n\r");
+	} else {
+		ch.Act("You {0}", null, null, null, Character.ActType.ToChar, args);
+		ch.Act("$n {0}", null, null, null, Character.ActType.ToRoom, args);
+	}
+}
+
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");

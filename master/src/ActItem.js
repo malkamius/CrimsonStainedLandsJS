@@ -930,8 +930,8 @@ Character.DoCommands.DoDrink = function(character, args) {
                 affect = new AffectData();
                 affect.displayName = "alcohol poisoning";
                 affect.skillSpell = alcoholpoisoning;
-                affect.location = ApplyTypes.None;
-                affect.where = AffectWhere.ToAffects;
+                affect.location = AffectData.ApplyTypes.None;
+                affect.where = AffectData.AffectWhere.ToAffects;
                 affect.level = 1;
                 affect.duration = character.Drunk / 10;
                 character.AffectToChar(affect);
@@ -1643,4 +1643,61 @@ Character.DoCommands.DoGive = function(ch, args)
         ch.send("You don't have that.\n\r");
     else
         ch.send("You don't see them here.\n\r");
+}
+
+Character.DoCommands.DoCompare = function(ch, args) {
+    var [itemname, args] = args.OneArgument();
+    var [itemname2, args] = args.OneArgument();
+
+    var [item] = ch.GetItemInventory(itemname);
+    var [item2] = ch.GetItemInventory(itemname2);
+    if(!item2) {
+        for(var slot in ch.Equipment) {
+            var wearslot = Character.WearSlots[slot];
+            if(ch.Equipment[slot] && item.WearFlags.ISSET(wearslot.Flag)) {
+                item2 = ch.Equipment[slot];
+                break;
+            }
+        }
+    }
+
+    if(Utility.IsNullOrEmpty(itemname)) {
+        ch.send("Compare what?\n\r");
+    } else if(!item) {
+        ch.send("Compare what?\n\r");
+    } else if(!item2) {
+        ch.send("You aren't wearing anything comparable.\n\r");         
+    } else {
+        if(item.Level > item2.Level) {
+            ch.Act("$p is higher level than $P.", null, item, item2);
+        } else if(item.Level == item2.Level) {
+            ch.Act("$p is the same level as $P.", null, item, item2);
+        } else {
+            ch.Act("$p is lower level than $P.", null, item, item2);
+        }
+
+        if(item.ArmorBash >= item2.ArmorBash) {
+            ch.Act("$p provides equal or better protection against bashing than $P.", null, item, item2);
+        } else {
+            ch.Act("$p provides less protection against bashing than $P.", null, item, item2);
+        }
+
+        if(item.ArmorSlash >= item2.ArmorSlash) {
+            ch.Act("$p provides equal or better protection against slashing than $P.", null, item, item2);
+        } else {
+            ch.Act("$p provides less protection against slashing than $P.", null, item, item2);
+        }
+
+        if(item.ArmorPierce >= item2.ArmorPierce) {
+            ch.Act("$p provides equal or better protection against piercing than $P.", null, item, item2);
+        } else {
+            ch.Act("$p provides less protection against piercing than $P.", null, item, item2);
+        }
+
+        if(item.ArmorExotic >= item2.ArmorExotic) {
+            ch.Act("$p provides equal or better protection against magic than $P.", null, item, item2);
+        } else {
+            ch.Act("$p provides less protection against magic than $P.", null, item, item2);
+        }
+    }
 }

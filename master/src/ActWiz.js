@@ -15,6 +15,7 @@ Character.DoCommands.DoPeace = function(character, args) {
         if(fighting.Position == "Fighting" || fighting.Fighting) {
             fighting.Position = "Standing";
             fighting.Fighting = null;
+            fighting.LastFighting = null;
             fighting.Act("A wave of calm overcomes you.", null, null, null, "ToChar");
             fighting.Act("A wave of calm overcomes $n.", null, null, null, "ToRoom");
         }

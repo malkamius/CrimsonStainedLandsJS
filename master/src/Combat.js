@@ -799,13 +799,13 @@ class Combat {
             return false; // Damage is avoided, return false
         }
         if(damage) {
-            var Armor = Math.abs(victim.ArmorClass);
-
+            var Armor = -victim.ArmorClass;
+            Armor -= PhysicalStats.DexterityApply[victim.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Dexterity)].Defensive;
             switch(DamageType.toLowerCase()) {
-                default: Armor += Math.abs(victim.ArmorExotic); break;
-                case "bash": Armor += Math.abs(victim.ArmorBash); break;
-                case "slash": Armor += Math.abs(victim.ArmorSlash); break;
-                case "pierce": Armor += Math.abs(victim.ArmorPierce); break;
+                default: Armor += victim.ArmorExotic; break;
+                case "bash": Armor += victim.ArmorBash; break;
+                case "slash": Armor += victim.ArmorSlash; break;
+                case "pierce": Armor += victim.ArmorPierce; break;
             }
 
             var items = [];
@@ -815,18 +815,18 @@ class Combat {
                 var contribution = 0;
                 if(item) {
                     switch(DamageType.toLowerCase()) {
-                        default: Armor += (contribution = Math.abs(item.ArmorExotic)); break;
-                        case "bash": Armor += (contribution = Math.abs(item.ArmorBash)); break;
-                        case "slash": Armor += (contribution = Math.abs(item.ArmorSlash)); break;
-                        case "pierce": Armor += (contribution = Math.abs(item.ArmorPierce)); break;
+                        default: Armor += (contribution = item.ArmorExotic); break;
+                        case "bash": Armor += (contribution = item.ArmorBash); break;
+                        case "slash": Armor += (contribution = item.ArmorSlash); break;
+                        case "pierce": Armor += (contribution = item.ArmorPierce); break;
                     }
-                    if(contribution < 0) Armor += contribution * -2;
+                    //if(contribution < 0) Armor += contribution * -2;
                     if(item.ItemTypes.ISSET(ItemData.ItemTypes.Armor)) {
                         items.push({Item: item, Contribution: contribution});
                     }
                 }
             }
-
+            
             var damagereductionpercent = (Armor / (Armor + 400 + 60 * ch? ch.Level : 1)) / 100;
 
             for(var item of items) {
@@ -839,6 +839,7 @@ class Combat {
             }
 
             damage -= damage * damagereductionpercent;  
+            damage = Math.max(damage, 0);
         } else { damage = 0; }
         var immune = false;
 
@@ -1581,7 +1582,7 @@ class Combat {
             {
                 victim.Act("You riposte $N's {0}!", ch, null, null, Character.ActType.ToChar, damageType);
                 ch.Act("$N ripostes your {0}!", victim, null, null, Character.ActType.ToChar, damageType);
-                var offhand = !(victimWield != null && victimWield.WeaponType == WeaponTypes.Sword);
+                var offhand = !(victimWield != null && victimWield.WeaponType == ItemData.WeaponTypes.Sword);
                 Combat.OneHit(victim, ch, !offhand ? victimWield : victimDualWield, offhand, skRiposte);
             }
         }
@@ -2147,14 +2148,14 @@ class Combat {
     
     static DoThrow(ch, args)
     {
-        var victim = null;
+        var victim = ch.GetCharacterHere(args);
 
         if (args.ISEMPTY() && (victim = ch.Fighting) == null)
         {
             ch.send("You aren't fighting anyone.\n\r");
             return;
         }
-        else if ((!args.ISEMPTY() && (victim = ch.GetCharacterFromRoomByName(args)) == null) || (args.ISEMPTY() && (victim = ch.Fighting) == null))
+        else if ((!args.ISEMPTY() && !victim) || (args.ISEMPTY() && (victim = ch.Fighting) == null))
         {
             ch.send("You don't see them here.\n\r");
             return;
@@ -2507,6 +2508,41 @@ class Combat {
         character.Act("You commit suicide!");
         character.HitPoints = -15;
         Combat.CheckIsDead(null, character, character.MaxHitPoints + 15);
+    }
+
+    static DoConsider(character, args) {
+        var [victim] = character.GetCharacterHere(args);
+
+        if(Utility.IsNullOrEmpty(args)) {
+            ch.send("Consider killing who?\n\r");
+        } else if(!victim) {
+            ch.send("You don't see them here.\n\r");
+        } else {
+            var diff = victim.Level - character.Level;
+            var message;
+            if (diff <= -10)
+                message = "You could kill $N with your little finger.\n\r";
+            else if (diff <= -5)
+                message = "$N doesn't have a fighting chance.\n\r";
+            else if (diff <= -2)
+                message = "$N looks like an easy kill.\n\r";
+            else if (diff <= 1)
+                message = "The perfect match!\n\r";
+            else if (diff <= 4)
+                message = "A few lucky blows would kill $M.\n\r";
+            else if (diff <= 9)
+                message = "$N shows you $S razor-sharp teeth.\n\r";
+            else
+                message = "An ominous, hooded figure waits patiently nearby.\n\r";
+
+            character.Act(message, victim, null, null, Character.ActType.ToChar);
+
+            if (victim.Alignment.equals("Good")) message = "$N smiles happily at you.";
+            else if (victim.Alignment.equals("Evil")) message = "$N grins evilly at you.";
+            else message = "$N seems indifferent towards you.";
+
+            character.Act(message, victim, null, null, Character.ActType.ToChar);
+        }
     }
 }
 

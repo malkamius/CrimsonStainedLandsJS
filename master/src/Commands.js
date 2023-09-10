@@ -131,7 +131,12 @@ Commands = {
 		"deposit": {Command: Character.DoCommands.DoDeposit, MinimumPosition: "Resting" },
 		"withdraw": {Command: Character.DoCommands.DoWithdraw, MinimumPosition: "Resting" },
 		"balance": {Command: Character.DoCommands.DoBalance, MinimumPosition: "Resting" },
-		
+
+		"compare": {Command: Character.DoCommands.DoCompare, MinimumPosition: "Resting" },
+		"emote": {Command: Character.DoCommands.DoEmote, MinimumPosition: "Resting" },
+		"description": {Command: Character.DoCommands.DoDescription, MinimumPosition: "Dead" },
+		"consider": {Command: Combat.DoConsider, MinimumPosition: "Resting" },
+
 		"recall": {Command: Character.DoCommands.DoRecall, MinimumPosition: "Standing" },
 
 		"rescue": {Command: Character.DoCommands.DoRescue, MinimumPosition: "Fighting" },

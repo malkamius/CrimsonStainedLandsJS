@@ -49,7 +49,6 @@ Character.DoCommands.DoBite = function(ch, args)
 
 	var level = 3 - ShapeshiftForm.FormTiers.indexOf(ch.Form.Tier);
 	chance += 20;
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -112,7 +111,6 @@ Character.DoCommands.DoPeck = function(ch, args)
 
 	var level = 3 - ShapeshiftForm.FormTiers.indexOf(ch.Form.Tier);
 	chance += 20;
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -170,7 +168,6 @@ Character.DoCommands.DoWaspSting = function(ch, args)
 
 	var level = 3 - ShapeshiftForm.FormTiers.indexOf(ch.Form.Tier);
 	chance += 20;
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -232,7 +229,6 @@ Character.DoCommands.DoClaw = function(ch, args)
 		return;
 	}
 	chance += (level * 2);
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -296,7 +292,6 @@ Character.DoCommands.DoFuror = function(ch, args)
 	}
 
 	chance += (level * 2);
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -367,7 +362,6 @@ Character.DoCommands.DoTrample = function(ch, args)
 	}
 
 	chance += (level * 2);// / 10;
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -729,7 +723,6 @@ Character.DoCommands.DoSwipe = function(ch, args)
 	}
 
 	chance += (level * 2);
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -798,7 +791,6 @@ Character.DoCommands.DoRip = function(ch, args)
 	}
 
 	chance += (level * 2);
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -887,7 +879,6 @@ Character.DoCommands.DoDevour = function(ch, args)
 	}
 
 	chance += (level * 2);
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -1000,11 +991,7 @@ Character.DoCommands.DoFlank = function(ch, args)
 		//ch.send("Only animals can impale someone.\n\r");
 		//return;
 	}
-	//else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Spear)
-	//{
-	//    ch.send("You must be wearing a spear to impale your enemy.\n\r");
-	//    return;
-	//}
+
 	var [victim] = ch.GetCharacterHere(args);
 
 	if (args.ISEMPTY() && (victim = ch.Fighting) == null)
@@ -1094,11 +1081,7 @@ Character.DoCommands.DoHeadbutt = function(ch, args)
 		//ch.send("Only animals can impale someone.\n\r");
 		//return;
 	}
-	//else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Spear)
-	//{
-	//    ch.send("You must be wearing a spear to impale your enemy.\n\r");
-	//    return;
-	//}
+
 	var [victim] = ch.GetCharacterHere(args);
 
 	if (args.ISEMPTY() && (victim = ch.Fighting) == null)
@@ -1290,7 +1273,6 @@ Character.DoCommands.DoTuskJab = function(ch, args)
 	}
 	var level = 3 - ShapeshiftForm.FormTiers.indexOf(ch.Form.Tier);
 	chance += (level * 2);
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -1354,7 +1336,6 @@ Character.DoCommands.DoHoofStomp = function(ch, args)
 	}
 	var level = 3 - ShapeshiftForm.FormTiers.indexOf(ch.Form.Tier);
 	chance += (level * 2);
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())
@@ -1421,11 +1402,7 @@ Character.DoCommands.DoDive = function(ch, args)
 		//ch.send("Only animals can impale someone.\n\r");
 		//return;
 	}
-	//else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Spear)
-	//{
-	//    ch.send("You must be wearing a spear to impale your enemy.\n\r");
-	//    return;
-	//}
+
 	var [victim] = ch.GetCharacterHere(args);
 
 	if (ch.Position == Positions.Fighting)
@@ -1514,11 +1491,7 @@ Character.DoCommands.DoPounceAttack = function(ch, args)
 		//ch.send("Only animals can impale someone.\n\r");
 		//return;
 	}
-	//else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Spear)
-	//{
-	//    ch.send("You must be wearing a spear to impale your enemy.\n\r");
-	//    return;
-	//}
+
 	var [victim] = ch.GetCharacterHere(args);
 
 	if (ch.IsAffected(skill))
@@ -1712,12 +1685,7 @@ Character.DoCommands.DoQuillSpray = function(ch, args)
 		//ch.send("Only animals can impale someone.\n\r");
 		//return;
 	}
-	//else if ((wield = ch.GetEquipment(WearSlotIDs.Wield)) == null || wield.WeaponType != WeaponTypes.Spear)
-	//{
-	//    ch.send("You must be wearing a spear to impale your enemy.\n\r");
-	//    return;
-	//}
-	//var victim = null;
+
 
 	if (ch.IsAffected(skill))
 	{
@@ -3313,7 +3281,6 @@ Character.DoCommands.DoPuncturingBite = function(ch, args)
 	}
 	var level = 3 - ShapeshiftForm.FormTiers.indexOf(ch.Form.Tier);
 	chance += 20;
-	//var wield = ch.GetEquipment(WearSlotIDs.Wield);
 
 	ch.WaitState(skill.WaitTime);
 	if (chance > Utility.NumberPercent())

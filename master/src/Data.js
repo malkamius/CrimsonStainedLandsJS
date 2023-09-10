@@ -35,7 +35,8 @@ function LoadData(callback) {
 		// 	console.dir(skill.LearnedLevel);
 		// 	count++;
 		//} else 
-		if(skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) && Commands[skillname.replaceAll(" ", "")]) {
+		if( !skill.SpellFun && //skill.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.Skill) &&
+			 Commands[skillname.replaceAll(" ", "")]) {
 			Commands[skillname.replaceAll(" ", "")].Skill = skill;
 		}
 	}

@@ -3901,7 +3901,7 @@ class Magic {
     {
         for (var affect of Utility.CloneArray(ch.Affects))
         {
-            if (affect.Where == AffectData.AffectData.AffectWhere.ToDamageNoun)
+            if (affect.Where == AffectData.AffectWhere.ToDamageNoun)
             {
                 ch.AffectFromChar(affect, AffectData.AffectRemoveReason.WoreOff);
             }
@@ -3956,7 +3956,7 @@ class Magic {
     {
         var weapon = null;
         
-        weapon = ch.GetEquipment(WearSlotIDs.Wield);
+        weapon = ch.GetEquipment(ItemData.WearSlotIDs.Wield);
 
         if(!weapon)
             [weapon, count] = ch.GetItemInventory(args, count);
@@ -4235,7 +4235,7 @@ class Magic {
 
                 if (Victim.Fighting == null)
                 {
-                    var Weapon = Victim.GetEquipment(WearSlotIDs.Wield);
+                    var Weapon = Victim.GetEquipment(ItemData.WearSlotIDs.Wield);
                     Combat.oneHit(Victim, ch, Weapon);
                 }
             }
