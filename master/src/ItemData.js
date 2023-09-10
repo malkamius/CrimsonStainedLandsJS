@@ -215,7 +215,7 @@ class ItemData {
     Durability = 100;
     MaxDurability = 100;
 
-    constructor(vnum, room, character) {
+    constructor(vnum, room, character, wear = false) {
         var template;
         if(vnum instanceof ItemTemplateData) {
             template = vnum;
@@ -273,8 +273,11 @@ class ItemData {
                 room.Items.unshift(this);
                 this.Room = room;
             } else if(character) {
-                character.Inventory.unshift(this);
-                this.CarriedBy = character;
+                if(!wear || !character.WearItem(this, false, false))
+                    character.AddInventoryItem(this, false);
+                    //character.Inventory.unshift(this);
+                //this.CarriedBy = character;
+                
             }
             ItemData.Items.unshift(this);
         } else {

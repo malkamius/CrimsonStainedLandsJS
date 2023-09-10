@@ -534,6 +534,8 @@ class Player extends Character {
 						var extrapractice = Math.ceil(PhysicalStats.WisdomApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice / 2);
 						this.Practices = 5 + extrapractice;
 						this.Trains = 3;
+						
+						Character.DoCommands.DoOutfit(this, "");
 
 						this.Save();
 						this.SetStatus("Playing");

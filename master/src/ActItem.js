@@ -125,7 +125,7 @@ Character.DoCommands.DoDrop = function (character, args) {
                 character.Act("$n drops $p.", null, item, null, "ToRoom");
 
                 if (item.ExtraFlags.ISSET(ItemData.ExtraFlags.MeltDrop)) {
-                    character.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToRoom);
+                    character.Act("$p crumbles into dust.", null, item, null, Character.ActType.ToRoom);
                     character.Act("$p crumbles into dust.", null, contained, null, Character.ActType.ToChar);
                     item.Dispose();
                 }
@@ -1699,5 +1699,95 @@ Character.DoCommands.DoCompare = function(ch, args) {
         } else {
             ch.Act("$p provides less protection against magic than $P.", null, item, item2);
         }
+    }
+} // end do compare
+
+Character.DoCommands.DoOutfit = function(character, args) {
+    var anyEquipped = false;
+    var wearing;
+    const ItemTemplateData = require('./ItemTemplateData');
+    for (var key in ItemTemplateData.ItemTemplates)
+    {
+        var itemTemplate = ItemTemplateData.ItemTemplates[key];
+
+        if (itemTemplate.ExtraFlags.ISSET(ItemData.ExtraFlags.Outfit))
+        {
+            if (itemTemplate.ItemTypes.ISSET(ItemData.ItemTypes.Instrument) && (!character.Guild || !character.Guild.Name.equals("bard")))
+                continue;
+            var given = false;
+            for (var slotkey in Character.WearSlots)
+            {
+                var slot = Character.WearSlots[slotkey];
+
+                if (!(wearing = character.Equipment[slotkey]))
+                {
+                    if (itemTemplate.WearFlags.ISSET(slot.Flag) && !character.Inventory.FirstOrDefault(i => i.VNum == itemTemplate.VNum))
+                    {
+                        var item = new ItemData(itemTemplate, null, character, true);
+                        anyEquipped = true;
+                        given = true;
+                    }
+                }
+            }
+
+            // if (itemTemplate.ItemTypes.ISSET(ItemData.ItemTypes.Instrument)
+            //     && !given
+            //     && (! (held = character.Equipment[ItemData.WearSlotIDs.Held])
+            //         || !held.ItemTypes.ISSET(ItemTypes.Instrument)))
+            //     _ = new ItemData(itemTemplate, character, true);
+        }
+    }
+    if (!(wearing = character.Equipment[ItemData.WearSlotIDs.Wield]))
+    {
+        var index;
+        var weapontemplate;
+        var highestSkill = 0;
+        var weapons = ["sword", "axe", "spear", "staff", "dagger", "mace", "whip", "flail", "polearm"];
+        var weaponVNums = [ 40000, 40001, 40004, 40005, 40002, 40003, 40006, 40007, 40020 ];
+        var bestWeaponTemplate = null;
+
+        for (index = 0; index < weapons.length; index++)
+        {
+            if ((weapontemplate = ItemTemplateData.ItemTemplates[weaponVNums[index]]))
+            {
+                //var weapon = new ItemData(item, this, true);
+                var skill = SkillSpell.SkillLookup(weapons[index]);
+                if (skill != null && character.GetSkillPercentage(skill) > highestSkill)
+                {
+                    bestWeaponTemplate = weapontemplate;
+                    highestSkill = character.GetSkillPercentage(skill);
+                }
+            }
+        }
+
+        if (bestWeaponTemplate != null)
+        {
+            var item = new ItemData(bestWeaponTemplate, null, character, true);
+            
+            anyEquipped = true;
+        }
+    }
+
+    if (anyEquipped)
+    {
+        if ((itemTemplate = ItemTemplateData.ItemTemplates[40010]))
+        {
+            var item = new ItemData(itemTemplate, null, character, false);
+        }
+
+        if ((itemTemplate = ItemTemplateData.ItemTemplates[40011]))
+        {
+            var item = new ItemData(itemTemplate, null, character, false);
+        }
+
+        if ((itemTemplate = ItemTemplateData.ItemTemplates[40012]))
+        {
+            var item = new ItemData(itemTemplate, null, character, false);
+        }
+
+        character.send("The gods have equipped you.\n\r");
+    }
+    else {
+        character.send("The gods found you wanting nothing.\n\r");
     }
 }

@@ -316,6 +316,7 @@ Commands = {
 
 		"scrollcount": {Command: Character.DoCommands.DoScrollCount, MinimumPosition: "Dead" },
 
+		"outfit": {Command: Character.DoCommands.DoOutfit, MinimumPosition: "Resting" },
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
 		"heal": {Command: Magic.DoHeal, MinimumPosition: "Resting" },
 		"sacrifice": {Command: Character.DoCommands.DoSacrifice, MinimumPosition: "Resting" },
@@ -340,6 +341,7 @@ Commands = {
 		"connections": {Command: Character.DoCommands.DoConnections, MinimumPosition: "Dead" },
 		"forcetick": {Command: Character.DoCommands.DoForceTick, MinimumPosition: "Dead" },
 		"setplayerpassword": {Command: Character.DoCommands.SetPlayerPassword, MinimumPosition: "Dead" },
+		"immortal": {Command: Character.DoCommands.DoImmortal, MinimumPosition: "Dead" },
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 
