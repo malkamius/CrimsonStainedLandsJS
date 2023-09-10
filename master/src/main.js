@@ -219,6 +219,9 @@ function DataReceived(socket, buffer) {
 					position--;
 				} else if(buffer[i] == 13 || buffer[i] == 10 || buffer[i] >= 32 && buffer[i] <= 126) {
 					player.input = player.input + String.fromCharCode(buffer[i]);
+					if(!player.IsImmortal && buffer[i] == 92) {
+						player.input = player.input + String.fromCharCode(buffer[i]);
+					}
 				} 
 			}
 		}

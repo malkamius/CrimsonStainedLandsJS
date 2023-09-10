@@ -284,9 +284,9 @@ Character.DoCommands.DoWho = function(ch, args) {
 
 	for (var connection of Player.Players)
 	{
-		if (connection.status == "Playing" && connection.socket != null && (!connection.Flags.WizInvis || (ch.Flags.HolyLight && ch.Level >= connection.Level)))
+		if (!connection.inanimate && connection.status == "Playing" && connection.socket != null && (!connection.Flags.WizInvis || (ch.Flags.HolyLight && ch.Level >= connection.Level)))
 		{
-			whoList += Utitlity.Format("[{0,4} {1}] {2}{3}{4}{5}{6}\n\r",
+			whoList += Utitlity.Format("[{0,-4} {1}] {2}{3}{4}{5}{6}\n\r",
 				connection.Level,
 				(connection.Guild? connection.Guild.WhoName : "   "),
 				connection.IsAFK ? "\\r(AFK)\\x" : "     ",
@@ -829,6 +829,7 @@ Character.DoCommands.DoPrompt = function(ch,  args)
 	}
 	else if (!args.ISEMPTY())
 	{
+		if(!player.IsImmortal) args = args.replaceAll("\\\\", "\\");
 		player.Prompt = args + (!args.endsWith(" ") ? " " : "");
 	}
 

@@ -101,6 +101,8 @@ class RoomData {
 	Flags = {};
 	Sector = "Inside";
     ExtraDescriptions = [];
+    NightName = "";
+    NightDescription = "";
 
 	constructor(area, roomxml) {
 		const ExitData = require('./ExitData');
@@ -108,6 +110,8 @@ class RoomData {
 		this.VNum = roomxml.GetElementValueInt("VNum");
 		this.Name = roomxml.GetElementValue("Name");
 		this.Description = roomxml.GetElementValue("Description");
+        this.NightName = roomxml.GetElementValue("NightName");
+        this.NightDescription = roomxml.GetElementValue("NightDescription");
         var sector = roomxml.GetElementValue("Sector");
 		this.Sector = RoomData.SectorTypes.ISSET(sector);
         if(!this.Sector) console.log(Utility.Format("Sector {0} not found", sector));

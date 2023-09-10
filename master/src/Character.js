@@ -2961,12 +2961,12 @@ class Character {
 					var found = false;
 					if (!this.IsAffected(AffectData.AffectFlags.Blind))
 					{
-						for (var exit of Room.Exits.Select(e => e && e.Destination
+						for (var exit of this.Room.Exits.Select(e => e && e.Destination
 						&& !e.Flags.ISSET(ExitData.ExitFlags.Hidden)
 						&& (!e.Flags.ISSET(ExitData.ExitFlags.HiddenWhileClosed) || !e.Flags.ISSET(ExitData.ExitFlags.Closed))))
 						{
 							found = true;
-							buf += exit.Direction.toLowerCase();
+							buf += exit.Direction[0].toUpperCase();
 						}
 					}
 

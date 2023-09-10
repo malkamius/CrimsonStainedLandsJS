@@ -21,7 +21,7 @@ class TimeInfo
 
     static get Year() { return TimeInfo.Months / 17; }
 
-    static get IsNight() { return TimeInfo.Hour <= 6 || TimeInfo.Hour() >= 20; };
+    static get IsNight() { return TimeInfo.Hour <= 6 || TimeInfo.Hour >= 20; };
 
     static _day_name = 
     [

@@ -224,6 +224,7 @@ class Player extends Character {
 		{
 			if(this.status == "Playing" && this.Wait > 0) return;
 			this.input = this.input.replaceAll("\r", "");
+			
 			var index = this.input.indexOf("\n");
 			if(index != -1 && index != null)
 			{
