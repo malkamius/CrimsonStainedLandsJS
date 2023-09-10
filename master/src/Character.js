@@ -1691,6 +1691,13 @@ class Character {
 		if (this.Level % 5 == 0)
 			this.Trains += 1;
 		
+		if (!this.IsNPC && this.Level % 20 == 0 && this.Guild.Name.equals("warrior"))
+		{
+			// always send message for this
+			this.send("\\YYou gain a weapon specialization.\\x\n\r");
+			this.WeaponSpecializations++;
+		}
+		
 		const ShapeshiftForm = require('./Shapeshift');
 		if (show)
 		{
@@ -1701,19 +1708,16 @@ class Character {
 			if (this.Level % 5 == 0)
 			this.send("\\YYou gain a train.\\x\n\r");
 
-			if (!this.IsNPC && this.Level % 20 == 0 && this.Guild.Name.equals("warrior"))
-			{
-				this.send("\\YYou gain a weapon specialization.\\x\n\r");
-				this.WeaponSpecializations++;
-			}
 
-			if (this.Guild && this.Guild.Name == "shapeshifter" && !this.ShapeFocusMajor || this.ShapeFocusMajor == ShapeshiftForm.FormType.None
-				|| !this.ShapeFocusMinor || this.ShapeFocusMinor == ShapeshiftForm.FormType.None)
+
+			if (this.Guild && this.Guild.Name == "shapeshifter" && (!this.ShapeFocusMajor || this.ShapeFocusMajor == ShapeshiftForm.FormType.None
+				|| !this.ShapeFocusMinor || this.ShapeFocusMinor == ShapeshiftForm.FormType.None))
 			{
 				this.send("\\RYou have not chosen both of your shapefocuses yet. Type shapefocus major/minor to set it.\\x\n\r");
 			}
 		}
 
+		// always send message for this
 		if (this.Guild && this.Guild.Name == "shapeshifter")
 			ShapeshiftForm.CheckGainForm(this);
 		
@@ -2810,6 +2814,10 @@ class Character {
 	}
 
 	GetCharacterWorld(args, count = 0) {
+		var results = this.GetCharacterHere(args, count);
+		
+		if(results[0]) return results;
+
 		var results = this.GetCharacterList(Character.Characters, args, count);
 	
 		return results;

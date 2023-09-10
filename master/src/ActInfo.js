@@ -1473,6 +1473,59 @@ Character.DoCommands.DoWimpy = function(ch, args) {
 	}
 }
 
+Character.DoCommands.DoSpecialize = function(ch, args)
+{
+	if (ch.WeaponSpecializations < 1)
+	{
+		ch.send("You have no weapon specializations available.\n\r");
+	}
+	else
+	{
+		if ("spear".prefix(args) || "staff".prefix(args))
+			args = "spear/staff specialization";
+		else if ("whip".prefix(args) || "flail".prefix(args))
+			args = "whip/flail specialization";
+
+		var specializationskill = SkillSpell.Skills.FirstOrDefault(sk => sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.WarriorSpecialization) && 
+			sk.Name.prefix(args) &&
+			ch.GetSkillPercentage(sk) <= 1);
+		var prereqsnotmet = SkillSpell.Skills.Select(l => !l.PrerequisitesMet(ch));
+
+
+		if (specializationskill != null)
+		{
+			ch.LearnSkill(specializationskill, 100, ch.Level);
+			ch.WeaponSpecializations--;
+			for (var prereqnotmet of prereqsnotmet)
+			{
+				if (prereqnotmet.PrerequisitesMet(ch))
+				{
+					ch.send("\\CYou feel a rush of insight into {0}!\\x\n\r", prereqnotmet.Name);
+				}
+			}
+			ch.send("You have chosen {0}.\n\r", specializationskill.Name);
+			ch.Save();
+		}
+		else
+		{
+			ch.send("Valid weapon specializations are {0}.\n\r",
+				Utility.JoinArray(
+					SkillSpell.Skills.Select(sk => sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.WarriorSpecialization) && 
+					ch.GetSkillPercentage(sk, true) <= 1), sk => sk.Name.replace(" specialization", ""), ", "));
+		}
+	}
+	var specs = SkillSpell.Skills.Select(sk => sk.SkillTypes.ISSET(SkillSpell.SkillSpellTypesList.WarriorSpecialization) && 
+	ch.GetSkillPercentage(sk, true) > 1);
+	if (specs.length > 0)
+		ch.send("Weapon specializations are {0}.\n\r",
+		Utility.JoinArray(
+			specs, sk => sk.Name.replace(" specialization", ""), ", "));
+
+	if (ch.WeaponSpecializations > 0)
+		ch.send("You have {0} weapon specializations left.\n\r", ch.WeaponSpecializations);
+
+} // end do specialize
+
 const Player = require("./Player");
 const SkillSpell = require("./SkillSpell");const ItemData = require("./ItemData");
 const Utility = require("./Utility");

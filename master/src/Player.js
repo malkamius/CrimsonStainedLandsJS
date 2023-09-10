@@ -50,6 +50,7 @@ class Player extends Character {
 	Prompt = "";
 	ClientTypes = Array();
 	LastSavedTime = 0;
+	WeaponSpecializations = 0;
 
   	constructor(socket) {
 		super(false);
@@ -130,6 +131,7 @@ class Player extends Character {
 			this.SilverBank = xml.GetElementValueInt("SilverBank", 0);
 			this.Practices = xml.GetElementValueInt("Practices");
 			this.Trains = xml.GetElementValueInt("Trains");
+			this.WeaponSpecializations = xml.GetElementValueInt("WeaponSpecializations");
 			this.Hunger = xml.GetElementValueInt("Hunger");
 			this.Thirst = xml.GetElementValueInt("Thirst");
 			this.Starving = xml.GetElementValueInt("Starving");
@@ -171,6 +173,7 @@ class Player extends Character {
 		xmlelement.ele("SilverBank", this.SilverBank);
 		xmlelement.ele("Practices", this.Practices);
 		xmlelement.ele("Trains", this.Trains);
+		xmlelement.ele("WeaponSpecializations", this.WeaponSpecializations);
 		xmlelement.ele("Hunger", this.Hunger);
 		xmlelement.ele("Thirst", this.Thirst);
 		xmlelement.ele("Starving", this.Starving);
@@ -530,7 +533,7 @@ class Player extends Character {
 						this.Flags.SETBIT(Character.ActFlags.AutoExit);
 						
 						this.Wimpy = "30%";
-						ch.send("Wimpy(autoflee) set to {0}.\n\r", this.Wimpy);
+						this.send("Wimpy(autoflee) set to {0}.\n\r", this.Wimpy);
 						var extrapractice = Math.ceil(PhysicalStats.WisdomApply[this.GetCurrentStat(PhysicalStats.PhysicalStatTypes.Wisdom)].Practice / 2);
 						this.Practices = 5 + extrapractice;
 						this.Trains = 3;

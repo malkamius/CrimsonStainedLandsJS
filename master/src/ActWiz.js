@@ -461,20 +461,23 @@ Character.DoCommands.DoGrant = function(character, args) {
     var [target] = character.GetCharacterWorld(targetname);
     var commands = ["level","title","extendedtitle", "extitle", "skill"];
     if(targetname.ISEMPTY() || args.ISEMPTY() || command.ISEMPTY() || !commands.some(s => s.prefix(command))) {
-        character.send("grant @playername [level|title|extendedtitle|extitle|skill] arguments")
+        character.send("grant @playername [level|title|extendedtitle|extitle|skill] arguments\n\r")
+        character.send("grant @playername [weaponspecializations|trains|practices] number\n\r")
     } else if(!target) {
         character.send("You couldn't find them.\n\r");
     } else if("level".prefix(command)) {
         var level = Number(args);
-
-        if(!level || level > character.Level || level < 1 || level > 60) {
-            character.send("Provide a valid level between 1 and {0}", character.Level);
+        if(target.IsNPC) {
+            character.send("They aren't a player.\n\r");
+        } else if(!level || level > character.Level || level < 1 || level > 60) {
+            character.send("Provide a valid level between 1 and {0}\n\r", character.Level);
         } else {
             if(level == target.Level) {
-                character.send("They are already level {0}.", level);
+                character.send("They are already level {0}.\n\r", level);
             } else if(level < target.Level) {
                 target.Level = level;
-                target.Save();
+                if(!target.IsNPC)
+                    target.Save();
                 target.send("You have been demoted to level {0}.\n\r", level);
                 character.send("You have demoted them to level {0}.\n\r", level)
             } else {
@@ -485,6 +488,30 @@ Character.DoCommands.DoGrant = function(character, args) {
                 target.send("You have been promoted to level {0}.\n\r", level);
                 character.Act("You have promoted $N to level {0}.\n\r", target, null, null, Character.ActType.ToChar, level);
             }
+        }
+    } else if("weaponspecializations".prefix(command)) {
+        var number = Number(args);
+        if(!number) {
+            character.send("Must specify a valid number.\n\r");
+        } else {
+            character.WeaponSpecializations += number;
+            character.send("OK.\n\r");
+        }
+    } else if("trains".prefix(command)) {
+        var number = Number(args);
+        if(!number) {
+            character.send("Must specify a valid number.\n\r");
+        } else {
+            character.Trains += number;
+            character.send("OK.\n\r");
+        }
+    } else if("practices".prefix(command)) {
+        var number = Number(args);
+        if(!number) {
+            character.send("Must specify a valid number.\n\r");
+        } else {
+            character.Practices += number;
+            character.send("OK.\n\r");
         }
     } else if("title".prefix(command)) {
         target.Title = args;

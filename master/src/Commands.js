@@ -315,6 +315,8 @@ Commands = {
 		"areas": {Command: Character.DoCommands.DoAreas, MinimumPosition: "Dead" },
 
 		"scrollcount": {Command: Character.DoCommands.DoScrollCount, MinimumPosition: "Dead" },
+		
+		"specialize": {Command: Character.DoCommands.DoSpecialize, MinimumPosition: "Sleeping" },
 
 		"outfit": {Command: Character.DoCommands.DoOutfit, MinimumPosition: "Resting" },
 		"map": {Command: Character.DoCommands.DoMap, MinimumPosition: "Dead" },
