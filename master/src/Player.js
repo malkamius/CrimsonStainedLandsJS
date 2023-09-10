@@ -322,11 +322,11 @@ class Player extends Character {
 				}
 				break;
 			case "CreateNewPassword":
-				this.Password = crypto.createHash('md5').update(input + "salt").digest("hex");
+				this.SetPassword(input);
 				this.SetStatus("ConfirmNewPassword");
 				break;
 			case "ConfirmNewPassword":
-				if(this.Password == crypto.createHash('md5').update(input + "salt").digest("hex")) {
+				if(this.Password == this.HashPassword(input)) {
 					
 					if(Player.GetPlayerByName(this.Name, (player) => player != this)) {
 						this.SetStatus("PlayerAlreadyConnected");
@@ -342,11 +342,11 @@ class Player extends Character {
 				}
 				break;
 			case "GetNewPassword":
-				this.Password = crypto.createHash('md5').update(input + "salt").digest("hex");
+				this.SetPassword(input);
 				this.SetStatus("ConfirmPassword");
 				break;
 			case "ConfirmPassword":
-				if(this.Password == crypto.createHash('md5').update(input + "salt").digest("hex")) {
+				if(this.Password == this.HashPassword(input)) {
 					this.SetStatus("GetColorOn")
 				}
 				else {
@@ -761,11 +761,20 @@ class Player extends Character {
 		}
 		else
 		{
-			let hash = crypto.createHash('md5').update(password + "salt").digest("hex");
-			ch.Password = hash;
+			ch.SetPassword(password);
+			
 			ch.Save();
 			ch.send("Password changed.\n\r");
 		}
+	}
+
+	HashPassword(password) {
+		let hash = crypto.createHash('md5').update(password + "salt").digest("hex");
+		return hash;
+	}
+
+	SetPassword(password) {
+		this.Password = this.HashPassword(password);
 	}
 }
 

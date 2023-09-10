@@ -643,3 +643,27 @@ Character.DoCommands.DoHolyLight = function(character, args) {
 
 	character.send("HolyLight is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.HolyLight)? "\\GON\\x" : "\\ROFF\\x")
 }
+
+Character.DoCommands.SetPlayerPassword = function(character, args) {
+    var [playername, args] = args.OneArgument();
+    var [password, args] = args.OneArgument();
+    var [confirmpassword, args] = args.OneArgument();
+
+    var [player] = character.GetCharacterWorld(playername);
+
+    if(Utility.IsNullOrEmpty(playername)) {
+        character.send("Set whose password?\n\r");
+    } else if(Utility.IsNullOrEmpty(password) || Utility.IsNullOrEmpty(confirmpassword)) {
+        character.send("SetPlayerPassword $charactername $password $confirmpassword\n\r");
+    } else if(password != confirmpassword) {
+        character.send("Password does not match.\n\r")
+    } else if(!player || player.IsNPC) {
+        character.send("Could not find player or player was an NPC.\n\r");
+    } else {
+        player.SetPassword(password);
+        character.send("OK.\n\r");
+        player.send("Your password has been changed to `{0}`.\n\r", password);
+        player.Save();
+    }
+    
+}

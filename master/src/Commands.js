@@ -339,6 +339,7 @@ Commands = {
 		"echo": {Command: Character.DoCommands.DoEcho, MinimumPosition: "Dead" },
 		"connections": {Command: Character.DoCommands.DoConnections, MinimumPosition: "Dead" },
 		"forcetick": {Command: Character.DoCommands.DoForceTick, MinimumPosition: "Dead" },
+		"setplayerpassword": {Command: Character.DoCommands.SetPlayerPassword, MinimumPosition: "Dead" },
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 
