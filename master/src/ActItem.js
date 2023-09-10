@@ -358,7 +358,7 @@ Character.DoCommands.DoList = function(character, args) {
             character.Act("$N will sell you the following pets:", shopkeeper, null, null, Character.ActType.ToChar);
             for (var vnum of shopkeeper.PetVNums)
             {
-                if ((pettemplate = NPCTemplateData.NPCTemplates[vnum]))
+                if ((pettemplate = NPCTemplateData.Templates[vnum]))
                 {
                     character.send("[{0,2}] {1,8} - {2}\n\r", pettemplate.Level, 10 * pettemplate.Level * pettemplate.Level, pettemplate.ShortDescription);
                 }
@@ -404,7 +404,7 @@ Character.DoCommands.DoBuy = function(character, args) {
                 var pettemplate
 				for(var vnum of shopkeeper.PetVNums)
 				{
-					if ((pettemplate = NPCTemplateData.NPCTemplates[vnum]) && pettemplate.Name.IsName(buywhat))
+					if ((pettemplate = NPCTemplateData.Templates[vnum]) && pettemplate.Name.IsName(buywhat))
 					{
                         for(var pet of Character.Characters) {
                             if(pet.Master == character && pet.Flags.ISSET(Character.ActFlags.Pet)) {
@@ -1706,9 +1706,9 @@ Character.DoCommands.DoOutfit = function(character, args) {
     var anyEquipped = false;
     var wearing;
     const ItemTemplateData = require('./ItemTemplateData');
-    for (var key in ItemTemplateData.ItemTemplates)
+    for (var key in ItemTemplateData.Templates)
     {
-        var itemTemplate = ItemTemplateData.ItemTemplates[key];
+        var itemTemplate = ItemTemplateData.Templates[key];
 
         if (itemTemplate.ExtraFlags.ISSET(ItemData.ExtraFlags.Outfit))
         {
@@ -1748,7 +1748,7 @@ Character.DoCommands.DoOutfit = function(character, args) {
 
         for (index = 0; index < weapons.length; index++)
         {
-            if ((weapontemplate = ItemTemplateData.ItemTemplates[weaponVNums[index]]))
+            if ((weapontemplate = ItemTemplateData.Templates[weaponVNums[index]]))
             {
                 //var weapon = new ItemData(item, this, true);
                 var skill = SkillSpell.SkillLookup(weapons[index]);
@@ -1770,17 +1770,17 @@ Character.DoCommands.DoOutfit = function(character, args) {
 
     if (anyEquipped)
     {
-        if ((itemTemplate = ItemTemplateData.ItemTemplates[40010]))
+        if ((itemTemplate = ItemTemplateData.Templates[40010]))
         {
             var item = new ItemData(itemTemplate, null, character, false);
         }
 
-        if ((itemTemplate = ItemTemplateData.ItemTemplates[40011]))
+        if ((itemTemplate = ItemTemplateData.Templates[40011]))
         {
             var item = new ItemData(itemTemplate, null, character, false);
         }
 
-        if ((itemTemplate = ItemTemplateData.ItemTemplates[40012]))
+        if ((itemTemplate = ItemTemplateData.Templates[40012]))
         {
             var item = new ItemData(itemTemplate, null, character, false);
         }

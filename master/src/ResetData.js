@@ -34,7 +34,7 @@ class ResetData {
 
       for(var reset of area.Resets) {
         if(reset.Type == "NPC") {
-          var template = NPCTemplateData.NPCTemplates[reset.VNum];
+          var template = NPCTemplateData.Templates[reset.VNum];
 
           if(template) {
             template.ResetMaxCount += 1; //Math.max(reset.Max, 1);
@@ -50,7 +50,7 @@ class ResetData {
       ResetData.LastNPCReset = null;
       var room = RoomData.Rooms[this.Destination];
       if(room) {
-          var template = NPCTemplateData.NPCTemplates[reset.VNum];
+          var template = NPCTemplateData.Templates[reset.VNum];
 
           if(template) {
             var npcsInRoom = room.Characters.Select(function(npc) { return npc.VNum == reset.VNum } );

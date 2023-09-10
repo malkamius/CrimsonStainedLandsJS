@@ -1080,7 +1080,7 @@ Character.DoCommands.DoPoisonDagger = function(ch, args)
         ch.send("You don't know how to do that.\n\r");
         return;
     }
-    var ItemTemplate = ItemTemplateData.ItemTemplates[2966];
+    var ItemTemplate = ItemTemplateData.Templates[2966];
     if (!ItemTemplate)
     {
         ch.send("You fail.\n\r");

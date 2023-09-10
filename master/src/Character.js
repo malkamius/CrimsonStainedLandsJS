@@ -1397,7 +1397,7 @@ class Character {
 
 		this.Act(msg, null, null, null, "ToRoom");
 		var template;
-		if (vnum != 0 &&  (template = ItemTemplateData.ItemTemplates[vnum]) && this.Room != null)
+		if (vnum != 0 &&  (template = ItemTemplateData.Templates[vnum]) && this.Room != null)
 		{
 			var item = new ItemData(template, this.Room);
 			item.Timer = Utility.Random(4, 7)
@@ -2391,23 +2391,23 @@ class Character {
 		}
 
 		if (gold == 0 && silver == 1) {
-			var silvertemplate = ItemTemplateData.ItemTemplates[1];
+			var silvertemplate = ItemTemplateData.Templates[1];
 			obj = new ItemData(silvertemplate);
 		} else if (gold == 1 && silver == 0) {
-			var goldtemplate = ItemTemplateData.ItemTemplates[3];
+			var goldtemplate = ItemTemplateData.Templates[3];
 			obj = new ItemData(goldtemplate);
 		} else if (silver == 0) {
-			var goldpile = ItemTemplateData.ItemTemplates[4];
+			var goldpile = ItemTemplateData.Templates[4];
 			obj = new ItemData(goldpile);
 
 			obj.ShortDescription = Utility.Format(obj.ShortDescription, gold);
 		} else if (gold == 0) {
-			var silverpile = ItemTemplateData.ItemTemplates[2];
+			var silverpile = ItemTemplateData.Templates[2];
 			obj = new ItemData(silverpile);
 
 			obj.ShortDescription = Utility.Format(obj.ShortDescription, silver);
 		} else {
-			var coinpile = ItemTemplateData.ItemTemplates[5];
+			var coinpile = ItemTemplateData.Templates[5];
 			obj = new ItemData(coinpile);
 
 			obj.ShortDescription = Utility.Format(obj.ShortDescription, silver, gold);
@@ -2555,7 +2555,7 @@ class Character {
 		this.VNum = xml.GetElementValueInt("VNum");
 		const NPCTemplateData = require("./NPCTemplateData");
 		if(this.VNum != 0) {
-			this.Template = NPCTemplateData.NPCTemplates[this.VNum];
+			this.Template = NPCTemplateData.Templates[this.VNum];
 		}
 
 		this.Name = xml.GetElementValue("Name");

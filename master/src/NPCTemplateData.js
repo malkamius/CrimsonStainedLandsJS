@@ -4,7 +4,7 @@ const Utility = require("./Utility");
 
 
 class NPCTemplateData extends Character {
-  static NPCTemplates = {};
+  static Templates = {};
 
   Area = null;
   HitPointDice = Array(0,0,0);
@@ -80,13 +80,13 @@ class NPCTemplateData extends Character {
         }
     }
     
-    if(!area.NPCTemplates[this.VNum])
-      area.NPCTemplates[this.VNum] = this;
+    if(!area.Templates[this.VNum])
+      area.Templates[this.VNum] = this;
     else
       console.log(`NPCTemplate ${this.VNum} already exists in area ${this.Name}.`);
 
-    if(!NPCTemplateData.NPCTemplates[this.VNum])
-    NPCTemplateData.NPCTemplates[this.VNum] = this;
+    if(!NPCTemplateData.Templates[this.VNum])
+    NPCTemplateData.Templates[this.VNum] = this;
     else
       console.log(`NPCTemplate ${this.VNum} already exists.`);
   }

@@ -17,8 +17,8 @@ class AreaData {
 	VNumEnd = 0;
 	OverRoomVNum = 0;
 	Rooms = {};
-	NPCTemplates = {};
-	ItemTemplates = {};
+	Templates = {};
+	Templates = {};
 	Resets = Array();
 	helps = {};
 	Timer = 0;

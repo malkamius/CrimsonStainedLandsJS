@@ -273,7 +273,7 @@ class Combat {
             var newCorpse = null;
 
             // Create a corpse item and transfer equipment and inventory to it
-            if ((corpseTemplate = ItemTemplateData.ItemTemplates[6]) && victim.Room != null)
+            if ((corpseTemplate = ItemTemplateData.Templates[6]) && victim.Room != null)
             {
                 newCorpse = new ItemData(corpseTemplate, victim.Room);
                 newCorpse.Name = Utility.Format(newCorpse.Name, victim.Name);

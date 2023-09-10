@@ -14,7 +14,7 @@ class NPCData extends Character {
 		VNum = template.VNum;
 	}
 	else
-		template = NPCTemplateData.NPCTemplates[VNum];
+		template = NPCTemplateData.Templates[VNum];
 		
 
 	if(!template) {

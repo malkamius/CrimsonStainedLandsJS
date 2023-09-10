@@ -266,7 +266,7 @@ Character.DoCommands.DoButcher = function(ch, args)
 
     const ItemTemplateData = require('./ItemTemplateData');
     var template;
-    if ((template = ItemTemplateData.ItemTemplates[2971]))
+    if ((template = ItemTemplateData.Templates[2971]))
     {
         if (chance > Utility.NumberPercent())
         {
@@ -517,7 +517,7 @@ Character.DoCommands.DoFindWater = function(ch, args)
         ch.Act("$n pokes the floor, trying to find water, but nothing happens.\n\r", null, null, null, Character.ActType.ToRoom);
         return;
     }
-    var template = ItemTemplateData.ItemTemplates[23];
+    var template = ItemTemplateData.Templates[23];
     if (template)
     {
         if (chance > Utility.NumberPercent())
@@ -557,7 +557,7 @@ Character.DoCommands.DoFashionStaff = function(ch, args)
         ch.send("You cannot find a suitable tree branch from which to fashion your staff.\n\r");
         return;
     }
-    var  ItemTemplate = ItemTemplateData.ItemTemplates[2967];
+    var  ItemTemplate = ItemTemplateData.Templates[2967];
     if (!ItemTemplate)
     {
         ch.send("You failed.\n\r");
@@ -611,7 +611,7 @@ Character.DoCommands.DoFashionSpear = function(ch, args)
         return;
     }
     
-    var  ItemTemplate = ItemTemplateData.ItemTemplates[2969];
+    var  ItemTemplate = ItemTemplateData.Templates[2969];
     if (!ItemTemplate)
     {
         ch.send("You failed.\n\r");
@@ -683,7 +683,7 @@ Character.DoCommands.DoOwlKinship = function(ch, args)
     aff.EndMessage = "You can once again commune with the owls.";
     ch.AffectToChar(aff);
 
-    var KinshipTemplate = NPCTemplateData.NPCTemplates[19041];
+    var KinshipTemplate = NPCTemplateData.Templates[19041];
     if (KinshipTemplate)
     {
         var Pet = new NPCData(KinshipTemplate, ch.Room);
@@ -749,7 +749,7 @@ Character.DoCommands.DoWolfKinship = function(ch, args)
     aff.EndMessage = "You can once again commune with the wolves.";
     ch.AffectToChar(aff);
 
-    var KinshipTemplate = NPCTemplateData.NPCTemplates[19038];
+    var KinshipTemplate = NPCTemplateData.Templates[19038];
     if (KinshipTemplate)
     {
         var Pet = new NPCData(KinshipTemplate, ch.Room);
@@ -817,7 +817,7 @@ Character.DoCommands.DoSerpentKinship = function(ch, args)
     aff.EndMessage = "You can once again commune with the serpents.";
     ch.AffectToChar(aff);
 
-    var KinshipTemplate = NPCTemplateData.NPCTemplates[19039];
+    var KinshipTemplate = NPCTemplateData.Templates[19039];
     if (KinshipTemplate)
     {
         var Pet = new NPCData(KinshipTemplate, ch.Room);
@@ -885,7 +885,7 @@ Character.DoCommands.DoBearKinship = function(ch, args)
     aff.EndMessage = "You can once again commune with the bears.";
     ch.AffectToChar(aff);
 
-    var KinshipTemplate = NPCTemplateData.NPCTemplates[19040];
+    var KinshipTemplate = NPCTemplateData.Templates[19040];
     if (KinshipTemplate)
     {
         var Pet = new NPCData(KinshipTemplate, ch.Room);

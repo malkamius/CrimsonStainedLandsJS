@@ -3,7 +3,7 @@ const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility");
 
 class ItemTemplateData {
-    static ItemTemplates = {};
+    static Templates = {};
     VNum = 0;
     Name = "";
     ShortDescription = "";
@@ -112,12 +112,12 @@ class ItemTemplateData {
             }
         }
 
-        if(!area.ItemTemplates[this.VNum])
-            area.ItemTemplates[this.VNum] = this;
+        if(!area.Templates[this.VNum])
+            area.Templates[this.VNum] = this;
         else
             console.log("Item " + this.VNum + " already exists in " + area.Name + ".");
-        if(!ItemTemplateData.ItemTemplates[this.VNum])
-            ItemTemplateData.ItemTemplates[this.VNum] = this;
+        if(!ItemTemplateData.Templates[this.VNum])
+            ItemTemplateData.Templates[this.VNum] = this;
         else
             console.log("Item " + this.VNum + " already exists globally.");
     }

@@ -981,7 +981,7 @@ class Magic {
     {
         var template;
         const ItemTemplateData = require("./ItemTemplateData");
-        if ((template = ItemTemplateData.ItemTemplates[13]))
+        if ((template = ItemTemplateData.Templates[13]))
         {
             var bread = new ItemData(template);
             ch.Room.Items.unshift(bread);
@@ -2563,7 +2563,7 @@ class Magic {
     {
         var template;
         const ItemTemplateData = require("./ItemTemplateData");
-        if ((template = ItemTemplateData.ItemTemplates[13]))
+        if ((template = ItemTemplateData.Templates[13]))
         {
             var bread = new ItemData(template);
             ch.Room.Items.unshift(bread);
@@ -2577,7 +2577,7 @@ class Magic {
     {
         var template;
         const ItemTemplateData = require("./ItemTemplateData");
-        if ((template = ItemTemplateData.ItemTemplates[22]))
+        if ((template = ItemTemplateData.Templates[22]))
         {
             var spring = new ItemData(template);
             ch.Room.Items.unshift(spring);
@@ -3737,7 +3737,7 @@ class Magic {
                 return;
             }
             const ItemTemplateData = require("./ItemTemplateData");
-            if (!(ItemTemplate = ItemTemplateData.ItemTemplates[vnum]))
+            if (!(ItemTemplate = ItemTemplateData.Templates[vnum]))
             {
                 ch.send("You failed.\n\r");
                 return;

@@ -171,7 +171,7 @@ Character.DoCommands.DoLoad = function(character, args) {
     } else {
         if(isitem) {
             const ItemData = require("./ItemData");
-            var template = ItemTemplateData.ItemTemplates[vnum];
+            var template = ItemTemplateData.Templates[vnum];
             if(template) {
                 var item = new ItemData(template);
 
@@ -190,7 +190,7 @@ Character.DoCommands.DoLoad = function(character, args) {
             }
         } else {
             const NPCTemplateData = require("./NPCTemplateData");
-            var template = NPCTemplateData.NPCTemplates[vnum];
+            var template = NPCTemplateData.Templates[vnum];
 
             if(template) {
                 var npc = new NPCData(template, character.Room);
@@ -250,7 +250,7 @@ Character.DoCommands.DoStat = function(character, args) {
         vnum = Number(args);
         if (vnum)
         {
-            var itemTemplate = ItemTemplateData.ItemTemplates[vnum];
+            var itemTemplate = ItemTemplateData.Templates[vnum];
             if (itemTemplate)
             {
                 character.send("Item Template details for {0}\n\r", itemTemplate.VNum);
@@ -342,7 +342,7 @@ Character.DoCommands.DoStat = function(character, args) {
         if (vnum)
         {
             const NPCTemplateData = require("./NPCTemplateData");
-            var npcTemplate = NPCTemplateData.NPCTemplates[vnum];
+            var npcTemplate = NPCTemplateData.Templates[vnum];
             if (npcTemplate)
             {
                 character.send("NPC Template details for {0}\n\r", npcTemplate.VNum);

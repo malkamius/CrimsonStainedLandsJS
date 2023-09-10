@@ -222,7 +222,7 @@ class ItemData {
             vnum = template.VNum;
         }
         else {
-            template = ItemTemplateData.ItemTemplates[vnum];
+            template = ItemTemplateData.Templates[vnum];
         }
 
         if(template) {
