@@ -8,6 +8,7 @@ const AffectData = require("./AffectData");
 const DamageMessage = require("./DamageMessage");
 const RoomData = require("./RoomData");
 const ItemTemplateData = require("./ItemTemplateData");
+const ExitData = require("./ExitData");
 
 
 Character.DoCommands.DoCircleStab = function(ch, argument)
@@ -361,147 +362,359 @@ Character.DoCommands.DoArcaneVision = function(ch, args)
     }
 }
 
-// Character.DoCommands.DoInfiltrate = function(ch, args)
-// {
-    // var skill = SkillSpell.SkillLookup("infiltrate");
-    // int chance;
+Character.DoCommands.DoInfiltrate = function(ch, args)
+{
+    var skill = SkillSpell.SkillLookup("infiltrate");
+    var chance;
 
-    // if ((chance = ch.GetSkillPercentage(skill)) + 20 <= 21)
-    // {
-        // ch.send("You don't know how to do that.\n\r");
-        // return;
-    // }
+    if ((chance = ch.GetSkillPercentage(skill)) + 20 <= 21)
+    {
+        ch.send("You don't know how to do that.\n\r");
+        return;
+    }
 
-    // Dictionary<Direction, Direction> reverseDirections = new Dictionary<Direction, Direction>
-    // { { Direction.North, Direction.South }, { Direction.East, Direction.West },
-        // {Direction.South, Direction.North } , {Direction.West, Direction.East },
-        // {Direction.Up, Direction.Down }, {Direction.Down, Direction.Up } };
+    var reverseDirections = [2, 3, 0, 1, 5, 4];
 
-    // Direction direction = Direction.North;
-    // ExitData exit;
-    // ItemData container;
+    var direction;
+    var count = 0;
+    var [exit, count] = ch.Room.GetExit(args, count);
+    var [container, count] = ch.GetItemHere(args, count);
+    
+    if (exit && exit.Destination)
+    {
+        direction = RoomData.Directions.findIndex(d => d.prefix(exit.Direction));
+        if (!exit.Flags.ISSET(ExitData.ExitFlags.Closed))
+        {
+            ch.send("{0} isn't closed.\n\r", exit.Display);
+        }
+        else if (exit.Flags.ISSET(ExitData.ExitFlags.Locked))
+        {
 
-    // if ((exit = ch.Room.GetExit(args)) != null && exit.destination != null)
-    // {
-        // direction = exit.direction;
-        // if (!exit.flags.Contains(ExitFlags.Closed))
-        // {
-            // ch.send("It isn't closed.\n\r");
-        // }
-        // else if (exit.flags.Contains(ExitFlags.Locked))
-        // {
+            if (chance > Utility.NumberPercent())
+            {
+                ch.Act("You unlock " + exit.Display.toLowerCase() + ".\n\r");
+                ch.Act("$n unlocks " + exit.Display.toLowerCase() + ".\n\r", null, null, null, Character.ActType.ToGroupInRoom);
+                exit.Flags.RemoveFlag(ExitData.ExitFlags.Locked);
+                var otherSide;
+                if ((otherSide = exit.Destination.exits[reverseDirections[direction]]) != null && otherSide.destination == ch.Room && otherSide.Flags.ISSET(ExitData.ExitFlags.Closed) && otherSide.Flags.ISSET(ExitData.ExitFlags.Locked))
+                    otherSide.Flags.RemoveFlag(ExitData.ExitFlags.Locked);
+                ch.CheckImprove("infiltrate", true, 1);
+            }
+            else
+            {
+                ch.send("You try to unlock " + exit.Display.toLowerCase() + " but fail.\n\r");
+                ch.Act("$n tries to unlock " + exit.Display.toLowerCase() + " but fails.\n\r", null, null, null, Character.ActType.ToGroupInRoom);
+                ch.CheckImprove("infiltrate", false, 1);
+                return;
+            }
 
-            // if (chance > Utility.NumberPercent())
-            // {
-                // ch.Act("You unlock " + exit.display + ".\n\r");
-                // ch.Act("$n unlocks " + exit.display + ".\n\r", null, null, null, Character.ActType.ToGroupInRoom);
-                // exit.flags.REMOVEFLAG(ExitFlags.Locked);
-                // ExitData otherSide;
-                // if ((otherSide = exit.destination.exits[(int)reverseDirections[direction]]) != null && otherSide.destination == ch.Room && otherSide.flags.Contains(ExitFlags.Closed) && otherSide.flags.Contains(ExitFlags.Locked))
-                    // otherSide.flags.REMOVEFLAG(ExitFlags.Locked);
-                // ch.CheckImprove("infiltrate", true, 1);
-            // }
-            // else
-            // {
-                // ch.send("You try to unlock " + exit.display + " but fail.\n\r");
-                // ch.Act("$n tries to unlock " + exit.display + " but fails.\n\r", null, null, null, Character.ActType.ToGroupInRoom);
-                // ch.CheckImprove("infiltrate", false, 1);
-                // return;
-            // }
+        }
+        else
+            ch.send("It isn't locked.");
+    }
+    else if (container)
+    {
+        if (!container.ExtraFlags.ISSET(ItemData.ExtraFlags.Locked))
+        {
+            ch.send("It's not locked.\n\r");
+            return;
+        }
 
-        // }
-        // else
-            // ch.send("It isn't locked.");
-    // }
-    // else if ((container = ch.GetItemHere(args)) != null)
-    // {
-        // if (!container.extraFlags.ISSET(ExtraFlags.Locked))
-        // {
-            // ch.send("It's not locked.\n\r");
-            // return;
-        // }
+        if (chance > Utility.NumberPercent())
+        {
+            ch.Act("You unlock $p.", null, container);
+            ch.Act("$n unlocks $p.", null, container, null, Character.ActType.ToGroupInRoom);
+            container.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.Locked);
+            ch.CheckImprove("infiltrate", true, 1);
 
-        // if (chance > Utility.NumberPercent())
-        // {
-            // ch.Act("You unlock $p.", null, container);
-            // ch.Act("$n unlocks $p.", null, container, null, Character.ActType.ToGroupInRoom);
-            // container.extraFlags.REMOVEFLAG(ExtraFlags.Locked);
-            // ch.CheckImprove("infiltrate", true, 1);
+        }
+        else
+        {
+            ch.Act("You try to unlock $p but fail.\n\r", null, container);
+            ch.Act("$n tries to unlock $p but fails.\n\r", null, container, null, Character.ActType.ToGroupInRoom);
+            ch.CheckImprove("infiltrate", false, 1);
+            return;
+        }
+    }
+    else
+        ch.send("You don't see that here.\n\r"); // ch.send("You can't unlock that.\n\r");
+}
 
-        // }
-        // else
-        // {
-            // ch.Act("You try to unlock $p but fail.\n\r", null, container);
-            // ch.Act("$n tries to unlock $p but fails.\n\r", null, container, null, Character.ActType.ToGroupInRoom);
-            // ch.CheckImprove("infiltrate", false, 1);
-            // return;
-        // }
-    // }
-    // else
-        // ch.send("You don't see that here.\n\r"); // ch.send("You can't unlock that.\n\r");
-// }
+Character.DoCommands.DoPickLock = function(ch, args)
+{
+    var skill = SkillSpell.SkillLookup("pick lock");
+    var chance;
 
-// Character.DoCommands.DoDrag = function(ch, args)
-// {
-    // var skill = SkillSpell.SkillLookup("drag");
-    // var chance;
-    // var victim = null;
-    // var dirArg = null;
-    // var direction = Direction.North;
-    // var victimname = null;
-    // [victimname, args] = args.OneArgument();
-    // [dirArg, args] = args.OneArgument();
-    // var exit = null;
+    if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You don't know how to do that.\n\r");
+        return;
+    }
+    var thievestools = null;
+    for(var key in ch.Equipment) {
+        var item = ch.Equipment[key];
+        if(item.ItemTypes.ISSET(ItemData.ItemTypes.ThiefPick)) {
+            thievestools = item;
+            break;
+        }
+    }
+    
+    if(!thievestools) {
+        for(var item of ch.Inventory) {
+            if(item.ItemTypes.ISSET(ItemData.ItemTypes.ThiefPick)) {
+                thievestools = item;
+                break;
+            }
+        }
+    }
 
-    // if ((chance = ch.GetSkillPercentage(skill) + 20) <= 21)
-    // {
-        // ch.send("You don't know how to do that.\n\r");
-    // }
-    // else if (!victimname.ISEMPTY() && (victim = ch.GetCharacterFromRoomByName(victimname)) == null)
-    // {
-        // ch.send("You don't see them here.\n\r");
-    // }
-    // else if (dirArg.ISEMPTY() || !Utility.GetEnumValueStrPrefix(dirArg, ref direction))
-    // {
-        // ch.Act("Which direction did you want to drag $N in?\n\r", victim);
-    // }
-    // else if (!victim.IsAffected(AffectData.AffectFlags.BindHands) ||
-        // !victim.IsAffected(AffectData.AffectFlags.BindLegs) || (!victim.IsAffected(AffectData.AffectFlags.Sleep)))
-    // {
-        // ch.Act("You cannot drag them if they're awake or their hands and legs are unbound.\n\r");
-    // }
-    // else if ((exit = ch.Room.GetExit(direction)) == null || exit.destination == null
-        // || exit.flags.ISSET(ExitFlags.Closed) || exit.flags.ISSET(ExitFlags.Window) ||
-        // (!victim.IsImmortal && !victim.IsNPC && (exit.destination.MinLevel > victim.Level || exit.destination.MaxLevel < victim.Level)))
-    // {
-        // ch.Act("You can't drag $N that way.", victim);
-    // }
-    // else if (chance > Utility.NumberPercent())
-    // {
-        // var wasinroom = ch.Room;
+    if(!thievestools) {
+        ch.send("You don't have the required tools.\n\r");
+        return;
+    }
+    var reverseDirections = [2, 3, 0, 1, 5, 4];
 
-        // ch.Act("You drag $N {0}.", victim, args: direction.ToString().ToLower());
-        // ch.Act("$n drags $N {0}.", victim, null, null, Character.ActType.ToRoomNotVictim, args: direction.ToString().ToLower());
+    var direction;
+    var count = 0;
+    var [exit, count] = ch.Room.GetExit(args, count);
+    var [container, count] = ch.GetItemHere(args, count);
+    
+    if (exit && exit.Destination)
+    {
+        direction = RoomData.Directions.findIndex(d => d.prefix(exit.Direction));
+        if (!exit.Flags.ISSET(ExitData.ExitFlags.Closed))
+        {
+            ch.send("It isn't closed.\n\r");
+        }
+        else if (exit.Flags.ISSET(ExitData.ExitFlags.PickProof))
+        {
+            ch.Act(exit.Display + " cannot be picked.\n\r");
+        }
+        else if (exit.Flags.ISSET(ExitData.ExitFlags.Locked))
+        {
 
-        // ch.moveChar(direction, true, false, false, false);
+            if (chance > Utility.NumberPercent())
+            {
+                ch.Act("You unlock " + exit.Display.toLowerCase() + ".\n\r");
+                ch.Act("$n unlocks " + exit.Display.toLowerCase() + ".\n\r", null, null, null, Character.ActType.ToGroupInRoom);
+                exit.Flags.RemoveFlag(ExitData.ExitFlags.Locked);
+                var otherSide;
+                if ((otherSide = exit.Destination.exits[reverseDirections[direction]]) != null && otherSide.destination == ch.Room && otherSide.Flags.ISSET(ExitData.ExitFlags.Closed) && otherSide.Flags.ISSET(ExitData.ExitFlags.Locked))
+                    otherSide.Flags.RemoveFlag(ExitData.ExitFlags.Locked);
+                ch.CheckImprove("pick lock", true, 1);
+            }
+            else
+            {
+                ch.send("You try to unlock " + exit.Display.toLowerCase() + " but fail.\n\r");
+                ch.Act("$n tries to unlock " + exit.Display.toLowerCase() + " but fails.\n\r", null, null, null, Character.ActType.ToGroupInRoom);
+                ch.CheckImprove("pick lock", false, 1);
+                return;
+            }
 
-        // if (ch.Room != wasinroom)
-        // {
-            // victim.RemoveCharacterFromRoom();
-            // victim.AddCharacterToRoom(exit.destination);
-            // //DoLook(victim, "auto");
-            // ch.CheckImprove(skill, true, 1);
+        }
+        else
+            ch.send("It isn't locked.");
+    }
+    else if (container)
+    {
+        if (!container.ExtraFlags.ISSET(ItemData.ExtraFlags.Locked))
+        {
+            ch.Act("$p is not locked.\n\r", null, container);
+            return;
+        }
+        else if (!container.ExtraFlags.ISSET(ItemData.ExtraFlags.PickProof))
+        {
+            ch.Act("$p can't be picked.\n\r", null, container);
+            return;
+        }
+        else if (chance > Utility.NumberPercent())
+        {
+            ch.Act("You unlock $p.", null, container);
+            ch.Act("$n unlocks $p.", null, container, null, Character.ActType.ToGroupInRoom);
+            container.ExtraFlags.RemoveFlag(ItemData.ExtraFlags.Locked);
+            ch.CheckImprove("pick lock", true, 1);
 
-            // ch.Act("$n drags in $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
-        // }
-    // }
-    // else
-    // {
-        // ch.Act("You try to drag $N {0} but fail.", victim, args: direction.ToString().ToLower());
-        // ch.Act("$n tries to drag $N {0} but fails.", victim, null, null, Character.ActType.ToRoomNotVictim, args: direction.ToString().ToLower());
-        // ch.CheckImprove(skill, false, 1);
-    // }
-// } // end drag
+        }
+        else
+        {
+            ch.Act("You try to unlock $p but fail.\n\r", null, container);
+            ch.Act("$n tries to unlock $p but fails.\n\r", null, container, null, Character.ActType.ToGroupInRoom);
+            ch.CheckImprove("pick lock", false, 1);
+            return;
+        }
+    }
+    else
+        ch.send("You don't see that here.\n\r"); // ch.send("You can't unlock that.\n\r");
+}
+
+Character.DoCommands.DoRelock = function(ch, args)
+{
+    var skill = SkillSpell.SkillLookup("relock");
+    var chance;
+
+    if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You don't know how to do that.\n\r");
+        return;
+    }
+    var thievestools = null;
+    for(var key in ch.Equipment) {
+        var item = ch.Equipment[key];
+        if(item.ItemTypes.ISSET(ItemData.ItemTypes.ThiefPick)) {
+            thievestools = item;
+            break;
+        }
+    }
+    
+    if(!thievestools) {
+        for(var item of ch.Inventory) {
+            if(item.ItemTypes.ISSET(ItemData.ItemTypes.ThiefPick)) {
+                thievestools = item;
+                break;
+            }
+        }
+    }
+
+    if(!thievestools) {
+        ch.send("You don't have the required tools.\n\r");
+        return;
+    }
+    var reverseDirections = [2, 3, 0, 1, 5, 4];
+
+    var direction;
+    var count = 0;
+    var [exit, count] = ch.Room.GetExit(args, count);
+    var [container, count] = ch.GetItemHere(args, count);
+    
+    if (exit && exit.Destination)
+    {
+        direction = RoomData.Directions.findIndex(d => d.prefix(exit.Direction));
+        if (!exit.Flags.ISSET(ExitData.ExitFlags.Closed))
+        {
+            ch.send("It isn't closed.\n\r");
+        }
+        else if (exit.Flags.ISSET(ExitData.ExitFlags.PickProof) || !exit.OriginalFlags.ISSET(ExitData.ExitFlags.Locked))
+        {
+            ch.Act(exit.Display + " cannot be locked.\n\r");
+        }
+        else if (!exit.Flags.ISSET(ExitData.ExitFlags.Locked))
+        {
+
+            if (chance > Utility.NumberPercent())
+            {
+                ch.Act("You locks " + exit.Display.toLowerCase() + ".\n\r");
+                ch.Act("$n locks " + exit.Display.toLowerCase() + ".\n\r", null, null, null, Character.ActType.ToGroupInRoom);
+                exit.Flags.SETBIT(ExitData.ExitFlags.Locked);
+                var otherSide;
+                if ((otherSide = exit.Destination.exits[reverseDirections[direction]]) != null && otherSide.destination == ch.Room && otherSide.Flags.ISSET(ExitData.ExitFlags.Closed) && otherSide.Flags.ISSET(ExitData.ExitFlags.Locked))
+                    otherSide.Flags.SETBIT(ExitData.ExitFlags.Locked);
+                ch.CheckImprove("relock", true, 1);
+            }
+            else
+            {
+                ch.send("You try to lock " + exit.Display.toLowerCase() + " but fail.\n\r");
+                ch.Act("$n tries to lock " + exit.Display.toLowerCase() + " but fails.\n\r", null, null, null, Character.ActType.ToGroupInRoom);
+                ch.CheckImprove("relock", false, 1);
+                return;
+            }
+
+        }
+        else
+            ch.send("It is already locked.");
+    }
+    else if (container)
+    {
+        if (container.ExtraFlags.ISSET(ItemData.ExtraFlags.Locked))
+        {
+            ch.Act("$p is already locked.\n\r", null, container);
+            return;
+        }
+        else if (!container.ExtraFlags.ISSET(ItemData.ExtraFlags.PickProof) || !container.ExtraFlags.ISSET(ItemData.ExtraFlags.Lockable))
+        {
+            ch.Act("$p can't be locked.\n\r", null, container);
+            return;
+        }
+        else if (chance > Utility.NumberPercent())
+        {
+            ch.Act("You lock $p.", null, container);
+            ch.Act("$n locks $p.", null, container, null, Character.ActType.ToGroupInRoom);
+            container.ExtraFlags.SETBIT(ItemData.ExtraFlags.Locked);
+            ch.CheckImprove("relock", true, 1);
+
+        }
+        else
+        {
+            ch.Act("You try to lock $p but fail.\n\r", null, container);
+            ch.Act("$n tries to lock $p but fails.\n\r", null, container, null, Character.ActType.ToGroupInRoom);
+            ch.CheckImprove("relock", false, 1);
+            return;
+        }
+    }
+    else
+        ch.send("You don't see that here.\n\r"); // ch.send("You can't unlock that.\n\r");
+}
+
+Character.DoCommands.DoDrag = function(ch, args)
+{
+    var skill = SkillSpell.SkillLookup("drag");
+    var chance;
+    var victim = null;
+    var dirArg = null;
+    var direction = Direction.North;
+    var victimname = null;
+    [victimname, args] = args.OneArgument();
+    [dirArg, args] = args.OneArgument();
+    var exit = null;
+
+    if ((chance = ch.GetSkillPercentage(skill) + 20) <= 21)
+    {
+        ch.send("You don't know how to do that.\n\r");
+    }
+    else if (!victimname.ISEMPTY() && (victim = ch.GetCharacterFromRoomByName(victimname)) == null)
+    {
+        ch.send("You don't see them here.\n\r");
+    }
+    else if (dirArg.ISEMPTY() || (direction = RoomData.Directions.findIndex(d => d.prefix(dirArg))) == -1)
+    {
+        ch.Act("Which direction did you want to drag $N in?\n\r", victim);
+    }
+    else if (!victim.IsAffected(AffectData.AffectFlags.BindHands) ||
+        !victim.IsAffected(AffectData.AffectFlags.BindLegs) || (!victim.IsAffected(AffectData.AffectFlags.Sleep)))
+    {
+        ch.Act("You cannot drag them if they're awake or their hands and legs are unbound.\n\r");
+    }
+    else if (!(exit = ch.Room.Exits[direction]) || !exit.Destination
+        || exit.Flags.ISSET(ExitData.ExitFlags.Closed) || exit.Flags.ISSET(ExitData.ExitFlags.Window) ||
+        (!victim.IsImmortal && !victim.IsNPC && (exit.Destination.MinLevel > victim.Level || exit.Destination.MaxLevel < victim.Level)))
+    {
+        ch.Act("You can't drag $N that way.", victim);
+    }
+    else if (chance > Utility.NumberPercent())
+    {
+        var wasinroom = ch.Room;
+
+        ch.Act("You drag $N {0}.", victim, exit.Direction.toLowerCase());
+        ch.Act("$n drags $N {0}.", victim, null, null, Character.ActType.ToRoomNotVictim, exit.Direction.toLowerCase());
+
+        ch.moveChar(direction, true, false, false, false);
+
+        if (ch.Room != wasinroom)
+        {
+            victim.RemoveCharacterFromRoom();
+            victim.AddCharacterToRoom(exit.Destination);
+            //DoLook(victim, "auto");
+            ch.CheckImprove(skill, true, 1);
+
+            ch.Act("$n drags in $N.", victim, null, null, Character.ActType.ToRoomNotVictim);
+        }
+    }
+    else
+    {
+        ch.Act("You try to drag $N {0} but fail.", victim, null, null, Character.ActType.ToChar, exit.Direction.toLowerCase());
+        ch.Act("$n tries to drag $N {0} but fails.", victim, null, null, Character.ActType.ToRoomNotVictim, exit.Direction.toLowerCase());
+        ch.CheckImprove(skill, false, 1);
+    }
+} // end drag
 
 Character.DoCommands.DoWeaponTrip = function(ch, args)
 {

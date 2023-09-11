@@ -96,6 +96,7 @@ class ItemData {
         "Dark": "Dark",
         "Lock": "Lock",
         "Locked": "Locked",
+        "Lockable": "Lockable",
         "Evil": "Evil",
         "Invisibility": "Invisibility",
         "Magic": "Magic",

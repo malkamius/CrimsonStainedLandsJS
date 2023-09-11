@@ -478,7 +478,7 @@ class Utility {
 	}
 }
 
-const xml2js = require('xml2js');
+
 
 // https://stackoverflow.com/a/59102181
 Object.defineProperty( String.prototype, 'oneArgument', { value: function () { return Utility.OneArgument(this); }} );
@@ -493,6 +493,7 @@ Object.defineProperty( String.prototype, 'contains', { value: function (str) { r
 Object.defineProperty( String.prototype, 'IsNullOrEmpty', { value: function () { return Utility.IsNullOrEmpty(this); }} );
 Object.defineProperty( String.prototype, 'ISEMPTY', { value: function () { return Utility.IsNullOrEmpty(this); }} );
 Object.defineProperty( String.prototype, 'ParseXml', { value: function (callback) { 
+	const xml2js = require('xml2js');
 	const parser = new xml2js.Parser({ strict: false, trim: false });
 	
 	var content;

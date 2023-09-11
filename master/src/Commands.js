@@ -218,6 +218,10 @@ Commands = {
 		"backstab": {Command: Character.DoCommands.DoBackstab, MinimumPosition: "Standing" },
 		"dbs": {Command: Character.DoCommands.DoDualBackstab, MinimumPosition: "Standing" },
 		"dualbackstab": {Command: Character.DoCommands.DoDualBackstab, MinimumPosition: "Standing" },
+		"drag": {Command: Character.DoCommands.DoDrag, MinimumPosition: "Standing" },
+		"infiltrate": {Command: Character.DoCommands.DoInfiltrate, MinimumPosition: "Standing" },
+		"picklock": {Command: Character.DoCommands.DoPickLock, MinimumPosition: "Standing" },
+		"relock": {Command: Character.DoCommands.DoRelock, MinimumPosition: "Standing" },
 
 		"lash": {Command: Character.DoCommands.DoLash, MinimumPosition: "Fighting" },
 		"barkskin": {Command: Character.DoCommands.DoBarkskin, MinimumPosition: "Fighting" },

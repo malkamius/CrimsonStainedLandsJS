@@ -10,6 +10,7 @@ class ExitData {
 		"Door": "Door",
 		"Closed": "Closed",
 		"Locked": "Locked",
+		"Lockable": "Lockable",
 		"Window": "Window",
 		"PickProof": "PickProof",
 		"NoPass": "NoPass",
@@ -57,11 +58,13 @@ class ExitData {
 
 		Utility.ParseFlags(this.Flags, XmlHelper.GetElementValue(exitdata, "Flags"));
 
-		if(this.Flags.Locked) 
-			this.Flags.Closed = true;
-		if(this.Flags.Closed) 
-			this.Flags.Door = true;
-
+		if(this.Flags.ISSET(ExitData.ExitFlags.Locked)) {
+			this.Flags.SETBIT(ExitData.ExitFlags.Closed)
+			this.Flags.SETBIT(ExitData.ExitFlags.Lockable)
+		}
+		if(this.Flags.ISSET(ExitData.ExitFlags.Closed) || this.Flags.ISSET(ExitData.ExitFlags.Lockable)) 
+			this.Flags.SETBIT(ExitData.ExitFlags.Door)
+		
 		Object.assign(this.OriginalFlags, this.Flags);
 		
 		

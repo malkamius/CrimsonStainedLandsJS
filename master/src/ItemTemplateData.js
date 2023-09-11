@@ -52,6 +52,10 @@ class ItemTemplateData {
         this.Material = xml.GetElementValue( "Material");
         this.Liquid = xml.GetElementValue( "Liquid");
         Utility.ParseFlags(this.ExtraFlags, xml.GetElementValue( "ExtraFlags"));
+        const ItemData = require("./ItemData");
+        if(this.ExtraFlags.ISSET(ItemData.ExtraFlags.Locked)) {
+            this.ExtraFlags.SETBIT(ItemData.ExtraFlags.Lockable);
+        }
         Utility.ParseFlags(this.WearFlags, xml.GetElementValue( "WearFlags"));
         Utility.ParseFlags(this.ItemTypes, xml.GetElementValue( "ItemTypes"));
         this.WeaponType = xml.GetElementValue( "WeaponType");
