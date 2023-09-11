@@ -472,6 +472,10 @@ class Utility {
 		}
 		return defstr;
 	}
+
+	static DiminishingReturns(value, max, steepness) {
+		return max * (1 - Math.exp(-steepness * value));
+	}
 }
 
 const xml2js = require('xml2js');

@@ -826,19 +826,20 @@ class Combat {
                     }
                 }
             }
-            
-            var damagereductionpercent = 1 - (1 / (Armor / (Armor + 400 + 60 * (ch? ch.Level : 1))) / 100);
 
             for(var item of items) {
-                if(item.Contribution / Armor * 100 > Utility.NumberPercent()) {
+                if(item.Contribution / Armor * 200 > Utility.NumberPercent()) {
                     victim.Act("Your $o blocks some of $N's {0}.", ch, item.Item, null, Character.ActType.ToChar, nounDamage);
-                    victim.Act("$n's $p blocks some of $N's {0}.", ch, item.Item, null, Character.ActType.ToRoom, nounDamage);
-                    damagereductionpercent = Math.max(damagereductionpercent - .2, .01);
+                    victim.Act("$n's $p blocks some of $N's {0}.", ch, item.Item, null, Character.ActType.ToRoomNotVictim, nounDamage);
+                    victim.Act("$n's $p blocks some of your {0}.", ch, item.Item, null, Character.ActType.ToVictim, nounDamage);
+                    Armor += item.Contribution * 100;
                     break;
                 }
             }
+            
+            var damagereductionpercent = Utility.DiminishingReturns(Armor, 90, .002) / 100;// (Armor / (Armor + 400 + 60 * (ch? ch.Level : 1))) / 100;
 
-            damage = damage * damagereductionpercent;  
+            damage -= damage * damagereductionpercent;
             damage = Math.max(damage, .01);
         } else { damage = 0; }
         var immune = false;
