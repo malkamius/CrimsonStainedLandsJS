@@ -316,7 +316,10 @@ Commands = {
 		"autotomy": {Command: Character.DoCommands.DoAutotomy, MinimumPosition: "Fighting" },
 		"talonstrike": {Command: Character.DoCommands.DoTalonStrike, MinimumPosition: "Fighting" },
 		"puncturingbite": {Command: Character.DoCommands.DoPuncturingBite, MinimumPosition: "Fighting" },
-		
+		"snarl": {Command: Character.DoCommands.DoSnarl, MinimumPosition: "Fighting" },
+		"sprint": {Command: Character.DoCommands.DoSprint, MinimumPosition: "Standing" },
+		"forage": {Command: Character.DoCommands.DoForage, MinimumPosition: "Standing" },
+
 		"scan": {Command: Character.DoCommands.DoScan, MinimumPosition: "Resting" },
 
 		"area": {Command: Character.DoCommands.DoArea, MinimumPosition: "Dead" },

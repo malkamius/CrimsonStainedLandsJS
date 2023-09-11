@@ -3363,3 +3363,154 @@ Character.DoCommands.DoPuncturingBite = function(ch, args)
 	}
 	return;
 } // end puncture bite
+
+Character.DoCommands.DoForage = function( ch, args )
+{
+	var skill = SkillSpell.SkillLookup("forage");
+	var chance;
+	if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+	{
+		ch.send("You don't know how to forage for food.\n\r");
+		return;
+	}
+	// else if (!ch.Form)
+	// {
+	// 	ch.send("Only animals can forage.\n\r");
+	// 	return;
+	// }
+	else if ([ SectorTypes.Swamp, SectorTypes.Field, SectorTypes.Forest, SectorTypes.Trail, SectorTypes.Hills,
+		SectorTypes.Mountain ].indexOf(ch.Room.Sector) == -1)
+	{
+		ch.send("You aren't in the right environment.\n\r");
+		return;
+	}
+	else if (chance < Utility.NumberPercent())
+	{
+		ch.Act("You forage around for food but find nothing.");
+		ch.Act("$n forages around for food but finds nothing.", null, null, null, Character.ActType.ToRoom);
+	}
+	else
+	{
+		ch.Act("You forage around for food and drink and find your fill.");
+		ch.Act("$n forages around for food and drink and seems to find their fill.", null, null, null, Character.ActType.ToRoom);
+		ch.Thirst = 60;
+		ch.Hunger = 60;
+		ch.Dehydrated = 0;
+		ch.Starving = 0;
+	}
+}
+
+Character.DoCommands.DoSprint = function(ch, args)
+{
+	var skill = SkillSpell.SkillLookup("sprint");
+	var chance;
+	var direction;
+
+	if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+	{
+		ch.send("You don't know how to sprint.\n\r");
+		return;
+	}
+	// else if (!ch.Form)
+	// {
+	// 	ch.send("Only animals can sprint.\n\r");
+	// 	return;
+	// }
+	else if (args.ISEMPTY() || (direction = RoomData.Directions.findIndex(d => d.prefix(args))) == -1)
+	{
+		ch.send("Sprint in which direction?\n\r");
+		return;
+	}
+	else
+	{
+		ch.WaitState(skill.WaitTime);
+		for (var i = 0; i < 3; i++)
+		{
+			ch.Act("You sprint {0}.", null, null, null, Character.ActType.ToChar, RoomData.Directions[direction]);
+			ch.Act("$n sprints {0}.", null, null, null, Character.ActType.ToRoom, RoomData.Directions[direction]);
+			Character.Move(ch, direction, false, false);
+		}
+	}
+}
+
+Character.DoCommands.DoSnarl = function(ch, args)
+{
+
+	var dam_each = [	
+			25,
+			35,
+			45,
+			55
+	];
+
+	if (!ch.Form)
+	{
+		if (!ch.CheckSocials("snarl", arguments))
+			ch.send("You must be in form to growl!\n\r");
+		return;
+	}
+
+	var level = 3 - ch.Form.Tier;
+	var skill = SkillSpell.SkillLookup("snarl");
+	var chance;
+	var dam;
+
+	if ((chance = ch.GetSkillPercentage(skill) ) <= 1)
+	{
+		ch.send("You don't know how to do that.\n\r");
+		return;
+	}
+	var victim = null;
+	if (ch.IsAffected(skill))
+	{
+		ch.send("You aren't ready to snarl again yet!\n\r");
+		return;
+	}
+	if (!(victim = ch.Fighting))
+	{
+		ch.send("You aren't fighting anybody.\n\r");
+		return;
+	}
+	ch.WaitState(skill.WaitTime);
+
+	if (ch.IsNPC)
+		level = Math.min(level, 51);
+	level = Math.min(level, dam_each.Length - 1);
+	level = Math.max(0, level);
+
+	if (chance > Utility.NumberPercent())
+	{
+		ch.Act("$n snarls fiercely at $N.", victim, null, null, Character.ActType.ToRoom);
+		ch.Act("You snarl fiercely at $N.", victim, null, null, Character.ActType.ToChar);
+		var aff = new AffectData();
+		aff.SkillSpell = skill;
+		aff.Hidden = false;
+		aff.Location = ApplyTypes.Hitroll;
+		aff.DisplayName = "snarled";
+		aff.Frequency = Frequency.Violence;
+		aff.Duration = 2;
+		aff.Modifier = -victim.HitRoll / 2;
+
+		victim.AffectToChar(aff);
+
+		aff.Hidden = true;
+		aff.Location = ApplyTypes.None;
+		aff.Modifier = 0;
+		aff.Duration = 4;
+		aff.EndMessage = "You feel ready to snarl again.";
+		ch.AffectToChar(aff);
+
+		victim.Act("Your aim is hindered by $N's snarl!\n\r", ch);
+		victim.Act("$n's aim appears to hindered by $N's snarl!", ch, null, null, Character.ActType.ToRoomNotVictim);
+		victim.Act("$n's aim appears to be hindered by your snarl!", ch, null, null, Character.ActType.ToVictim);
+
+		dam = dam_each[level];
+		Combat.Damage(ch, victim, dam, skill);
+	}
+	else
+	{
+		ch.Act("$n snarls at $N, but $N looks unaffected.", victim, null, null, Character.ActType.ToRoomNotVictim);
+		ch.Act("Your snarl proves ineffective against $N .", victim, null, null, Character.ActType.ToChar);
+		ch.Act("$n snarl at you, but fails to intimidate you.", victim, null, null, Character.ActType.ToVictim);
+	}
+}
