@@ -134,6 +134,7 @@ class Character {
         "AFK": "AFK",
     };
 
+	static Sexes = {Male: "Male", Female: "Female", None: "None"}
 	static DoCommands = {};
 	static CaptureCommunications = false;
 	

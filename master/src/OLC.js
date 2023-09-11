@@ -1,8 +1,10 @@
 const AreaData = require("./AreaData");
 const Character = require("./Character");
+const GuildData = require("./GuildData");
 const ItemData = require("./ItemData");
 const ItemTemplateData = require("./ItemTemplateData");
 const NPCTemplateData = require("./NPCTemplateData");
+const RaceData = require("./RaceData");
 const ResetData = require("./ResetData");
 const RoomData = require("./RoomData");
 const Utility = require("./Utility");
@@ -742,6 +744,425 @@ class OLC {
             }
         }
         ch.send("Invalid command.\n\r");
+    }
+
+    static DoEditNPCLevel(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var number = Number(args);
+        if (!number || !(ch.EditingNPCTemplate.Level = number))
+        {
+            ch.send("Syntax: edit npc [vnum] level [1-60]\n\r");
+            return;
+        }
+
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCDamageRoll(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var number = Number(args);
+        if (!number || !(ch.EditingNPCTemplate.DamageRoll = number))
+        {
+            ch.send("Syntax: edit npc [vnum] damageroll [number]\n\r");
+            return;
+        }
+
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCHitRoll(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var number = Number(args);
+        if (!number || !(ch.EditingNPCTemplate.HitRoll = number))
+        {
+            ch.send("Syntax: edit npc [vnum] hitroll [number]\n\r");
+            return;
+        }
+
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCProtects(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        var protects = [];
+        var protectstring = args;
+        while(!Utility.IsNullOrEmpty(args)) {
+            [protectsstring, args] = args.OneArgument();
+            var protects = Number(protectsstring);
+            if(!protects) {
+                ch.send("Syntax: edit npc [vnum] protects {vnum vnum vnum...}\n\r");
+                return;
+            }
+            protects.push(vnum);
+        }
+        
+        ch.EditingNPCTemplate.Protects = Utility.CloneArray(protects);
+
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCGold(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var number = Number(args);
+        if (!number || !(ch.EditingNPCTemplate.Gold = number))
+        {
+            ch.send("Syntax: edit npc [vnum] gold [number]\n\r");
+            return;
+        }
+
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCGuild(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var guild = null;
+        if (!(guild = GuildData.Lookup(args)) && !"none".prefix(args))
+        {
+            ch.send("Syntax: edit npc [vnum] guild {guild name}\n\r");
+            ch.send("Valid guilds are {0}.\n\r", Utility.JoinArray(GuildData.Guilds, g => g.Name, ", "));
+            return;
+        }
+
+        ch.EditingNPCTemplate.Guild = guild;
+        ch.send("OK.\n\r");
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCRace(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var race = null;
+        if (!(race = RaceData.LookupRace(args)))
+        {
+            ch.send("Syntax: edit npc [vnum] race {race name}\n\r");
+            ch.send("Valid races are {0}.\n\r", Utility.JoinArray(RaceData.Races, r => r.Name, ", "));
+            return;
+        }
+
+        ch.EditingNPCTemplate.Race = race;
+        ch.send("OK.\n\r");
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCGender(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var sex;
+        if (Utility.IsNullOrEmpty(sex = Utility.GetEnumValueStrPrefix(Character.Sexes, args)))
+        {
+            ch.send("Syntax: edit npc [vnum] gender {sex}\n\r");
+            ch.send("Valid sexes are {0}.\n\r", Utility.JoinFlags(Character.Sexes));
+            return;
+        }
+
+        ch.EditingNPCTemplate.Sex = sex;
+        ch.send("OK.\n\r");
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCAlignment(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var alignment;
+        if (Utility.IsNullOrEmpty(alignment = Utility.GetEnumValueStrPrefix(Character.Alignment, args)))
+        {
+            ch.send("Syntax: edit npc [vnum] alignment {alignment}\n\r");
+            ch.send("Valid alignments are {0}.\n\r", Utility.JoinFlags(Character.Alignment));
+            return;
+        }
+
+        ch.EditingNPCTemplate.Alignment = alignment;
+        ch.send("OK.\n\r");
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCFlags(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        Utility.ParseFlags(args, ch.EditingNPCTemplate.Flags);
+        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.Flags, true))
+        // {
+        //     ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<ActFlags>() select flag.ToString())));
+        // }
+
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    // static DoEditNPCImmuneFlags(ch, args)
+    // {
+        // if (ch.EditingNPCTemplate == null)
+        // {
+            // ch.send("Edit npc not found\n\r");
+            // return;
+        // }
+
+        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.ImmuneFlags, true))
+        // {
+            // ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<WeaponDamageTypes>() select flag.ToString())));
+        // }
+
+        // ch.EditingNPCTemplate.Area.saved = false;
+        // ch.send("OK.\n\r");
+    // }
+
+    // static DoEditNPCResistFlags(ch, args)
+    // {
+        // if (ch.EditingNPCTemplate == null)
+        // {
+            // ch.send("Edit npc not found\n\r");
+            // return;
+        // }
+
+        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.ResistFlags, true))
+        // {
+            // ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<WeaponDamageTypes>() select flag.ToString())));
+        // }
+
+        // ch.EditingNPCTemplate.Area.saved = false;
+        // ch.send("OK.\n\r");
+    // }
+
+    // static DoEditNPCVulnerableFlags(ch, args)
+    // {
+        // if (ch.EditingNPCTemplate == null)
+        // {
+            // ch.send("Edit npc not found\n\r");
+            // return;
+        // }
+
+        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.VulnerableFlags, true))
+        // {
+            // ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<WeaponDamageTypes>() select flag.ToString())));
+        // }
+
+        // ch.EditingNPCTemplate.Area.saved = false;
+        // ch.send("OK.\n\r");
+    // }
+
+    static DoEditNPCAffectedBy(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.AffectedBy, true))
+        // {
+            // ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<AffectFlags>() select flag.ToString())));
+        // }
+        Utility.ParseFlags(ch.EditingNPCTemplate.AffectedBy, args);
+
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditNPCName(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        ch.EditingNPCTemplate.Name = args;
+
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditNPCLongDescription(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        ch.EditingNPCTemplate.LongDescription = args;
+
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditNPCShortDescription(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        ch.EditingNPCTemplate.ShortDescription = args;
+
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditNPCDescription(ch, args)
+    {
+        var plusminus = "";
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+        var [plusminus, newargs] = args.OneArgument();
+
+        if (plusminus == "-")
+        {
+            if(ch.EditingNPCTemplate.Description.endsWith("\n")) {
+                ch.EditingNPCTemplate.Description = ch.EditingNPCTemplate.Description.replace(/.*?\n$/, "");
+            } else {
+                ch.EditingNPCTemplate.Description = "";
+            }
+            //ch.editRoom.description = ch.editRoom.description.Substring(0, ch.editRoom.description.LastIndexOf('\n', ch.editRoom.description.LastIndexOf('\n')  - 1) - 1);
+        }
+        else if (plusminus == "+")
+        {
+            ch.EditingNPCTemplate.Description += (!Utility.IsNullOrEmpty(EditingNPCTemplate.Description) && !EditingNPCTemplate.Description.endsWith("\n") ? "\n" : "") + newargs + "\n";
+        }
+        else
+        {
+            ch.EditingNPCTemplate.Description = args + "\n";
+        }
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditNPCDamageDice(ch, args)
+    {
+        var [damagedicesidesstring, args] = args.OneArgument();
+        var [damagedicecountstring, args] = args.OneArgument();
+        var [damagedicebonusstring, args] = args.OneArgument();
+        
+        var sides = Number(damagedicesidesstring);
+        var count = Number(damagedicecountstring);
+        var bonus = Number(damagedicebonusstring);
+        
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        if (isNaN(sides) || isNaN(count) || isNaN(bonus))
+        {
+            ch.send("Syntax: edit npc [vnum] damagedice [dicesides] [dicecount] [dicebonus]\n\r");
+            return;
+        }
+        else {
+            ch.EditingNPCTemplate.DamageDice = [sides, count, bonus];
+            ch.send("OK.\n\r");
+        }
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCHitPointDice(ch, args)
+    {
+        var [damagedicesidesstring, args] = args.OneArgument();
+        var [damagedicecountstring, args] = args.OneArgument();
+        var [damagedicebonusstring, args] = args.OneArgument();
+        
+        var sides = Number(damagedicesidesstring);
+        var count = Number(damagedicecountstring);
+        var bonus = Number(damagedicebonusstring);
+
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        if (isNaN(sides) || isNaN(count) || isNaN(bonus))
+        {
+            ch.send("Syntax: edit npc [vnum] hitpointdice [dicesides] [dicecount] [dicebonus]\n\r");
+            return;
+        }
+        else {
+            ch.EditingNPCTemplate.HitPointDice = [sides, count, bonus];
+            ch.send("OK.\n\r");
+        }
+
+        ch.EditingNPCTemplate.Area.saved = false;
+    }
+
+    static DoEditNPCManaPointDice(ch, args)
+    {
+        var [damagedicesidesstring, args] = args.OneArgument();
+        var [damagedicecountstring, args] = args.OneArgument();
+        var [damagedicebonusstring, args] = args.OneArgument();
+        
+        var sides = Number(damagedicesidesstring);
+        var count = Number(damagedicecountstring);
+        var bonus = Number(damagedicebonusstring);
+
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+
+        if (isNaN(sides) || isNaN(count) || isNaN(bonus))
+        {
+            ch.send("Syntax: edit npc [vnum] manapointdice [dicesides] [dicecount] [dicebonus]\n\r");
+            return;
+        }
+        else {
+            ch.EditingNPCTemplate.ManaPointDice = [sides, count, bonus];
+            ch.send("OK.\n\r");
+        }
+
+        ch.EditingNPCTemplate.Area.saved = false;
     }
 }
 

@@ -160,7 +160,7 @@ class Utility {
 		var flag;
 		[flag, flags] = flags.oneArgument();
 		while(!flag.IsNullOrEmpty()) {
-			array[flag] = true;
+			array[flag] = flag;
 			[flag, flags] = flags.oneArgument();
 		}
 	}
