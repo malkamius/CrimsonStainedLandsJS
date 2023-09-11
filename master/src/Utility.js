@@ -446,7 +446,7 @@ class Utility {
 		return result;
 	}
 
-	static GetEnumValueStrPrefix(arr, str) {
+	static GetEnumValueStrPrefix(arr, str, defaultvalue = "") {
 
 		if(Array.isArray(arr)) {
 			for(var value of arr) {
@@ -457,7 +457,7 @@ class Utility {
 				if(key.prefix(str)) return key;
 			}
 		}
-
+		return defaultvalue;
 	}
 
 	static GetEnumValue(arr, str, defstr = "") {
@@ -486,6 +486,28 @@ class Utility {
 		}
 		return max;
 	}
+
+	static GetEnumValues(sourceflags, str, destination, exactmatch = true) {
+		var setflags = {};
+		var setflag;
+		var potentialflags = str.split(" ");
+		var valid = true;
+		for(var flag of potentialflags) {
+			if(!(setflag = sourceflags.ISSET(flag))) {
+				valid = false;
+				break;
+			} else {
+				setflags[setflag] = setflag;
+			}
+		}
+		if(valid) {
+			for(var key in setflags) {
+				destination[key] = key;
+			}
+		}
+		return valid;
+	}
+	
 }
 
 

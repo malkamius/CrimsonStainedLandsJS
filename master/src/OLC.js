@@ -1069,7 +1069,7 @@ class OLC {
         }
         else if (plusminus == "+")
         {
-            ch.EditingNPCTemplate.Description += (!Utility.IsNullOrEmpty(EditingNPCTemplate.Description) && !EditingNPCTemplate.Description.endsWith("\n") ? "\n" : "") + newargs + "\n";
+            ch.EditingNPCTemplate.Description += (!Utility.IsNullOrEmpty(ch.EditingNPCTemplate.Description) && !ch.EditingNPCTemplate.Description.endsWith("\n") ? "\n" : "") + newargs + "\n";
         }
         else
         {
@@ -1164,6 +1164,429 @@ class OLC {
 
         ch.EditingNPCTemplate.Area.saved = false;
     }
+
+    static DoEditRoomDescription(ch, args)
+    {
+	    var plusminus = "";
+        if (!ch.EditingRoom)
+        {
+            ch.send("Edit room not found");
+            return;
+        }
+        [plusminus, newargs] = args.OneArgument();
+
+        if (plusminus == "-")
+        {
+            if(ch.EditingRoom.Description.endsWith("\n")) {
+                ch.EditingRoom.Description = ch.EditingRoom.Description.replace(/.*?\n$/, "");
+            } else {
+                ch.EditingRoom.Description = "";
+            }
+        }
+        else if (plusminus == "+")
+        {
+            ch.EditingRoom.Description += (!Utility.IsNullOrEmpty(ch.EditingRoom.Description) && !ch.EditingRoom.Description.endsWith("\n") ? "\n" : "") + newargs + "\n";
+            ch.send("OK.\n\r");
+        }
+        else if ("extradescriptions".prefix(plusminus))
+        {
+            if ("clear".prefix(newargs))
+            {
+                ch.EditingRoom.ExtraDescriptions = [];
+                ch.send("OK.\n\r");
+            }
+        }
+        else
+        {
+            ch.EditingRoom.Description = args + "\n";
+            ch.send("OK.\n\r");
+        }
+        ch.EditingRoom.Area.saved = false;
+
+    }
+
+    static DoEditRoomName(ch, args)
+    {
+        if (!ch.EditingRoom)
+        {
+            ch.send("Edit room not found\n\r");
+            return;
+        }
+
+        ch.EditingRoom.Name = args;
+
+        ch.EditingRoom.Area.saved = false;
+        ch.send("Done.\n\r");
+    }
+
+    static DoEditRoomSector(ch, args)
+    {
+        var sector;
+        if (!ch.EditingRoom)
+        {
+            ch.send("Edit room not found\n\r");
+            return;
+        }
+        else if (!ch.HasBuilderPermission(ch.EditingRoom))
+        {
+            ch.send("You don't have permission to edit that room.\n\r");
+        }
+        else if ((sector = Utility.GetEnumValueStrPrefix(RoomData.SectorTypes, args)) && (ch.EditingRoom.Sector = sector))
+        {
+            ch.send("Sector changed to " + ch.EditingRoom.Sector + "\n\r");
+            ch.EditingRoom.Area.saved = false;
+        }
+        else
+            ch.send("Valid Sector Types are " + Utility.JoinFlags(RoomData.SectorTypes) + "\n\r");
+
+    }
+
+    static DoEditRoomFlags(ch, args)
+    {
+        if (!ch.EditingRoom)
+        {
+            ch.send("Edit room not found\n\r");
+            return;
+        }
+        else if (!ch.HasBuilderPermission(ch.EditingRoom))
+        {
+            ch.send("You don't have permission to edit that room.\n\r");
+        }
+
+        else if (Utility.GetEnumValues(RoomData.RoomFlags, args, ch.EditingRoom.Flags, true))
+        {
+            ch.send("Room Flags changed to " + Utility.JoinFlags(ch.EditingRoom.Flags) + "\n\r");
+            ch.EditingRoom.Area.saved = false;
+        }
+        else
+            ch.send("Valid Flags are " + Utility.JoinFlags(RoomData.RoomFlags, ", ") + "\n\r");
+
+    }
+
+    static DoEditRoomExits(ch, args)
+    {
+        var [directionArg, args] = args.OneArgument();
+        var [command, args] = args.OneArgument();
+        var vnum = Number(args);
+        
+        if (Utility.IsNullOrEmpty(directionArg))
+        {
+            ch.send("What direction do you want to edit?\n\r");
+            return;
+        }
+        var direction;
+        if ((direction = RoomData.Directions.findIndex(d => d.prefix(directionArg))) == -1)
+        {
+            ch.send("Invalid direction.\n\r");
+            return;
+        }
+
+        var exit = ch.EditingRoom.Exits[direction]? ch.EditingRoom.Exits[direction] : (ch.EditingRoom.Exits[direction] = new ExitData());
+        if(!exit.Source) exit.Source = ch.EditingRoom;
+        if(!exit.Direction) exit.Direction = RoomData.Directions[direction];
+        
+        if ("delete".prefix(command))
+        {
+            if (exit != null) ch.EditingRoom.Exits[direction] = null;
+            
+            ch.EditingRoom.Area.saved = false;
+            ch.send("Exit removed on this side\n\r");
+            return;
+        }
+        else if ("destination".prefix(command) && vnum)
+        {
+            var room;
+            if (room = RoomData.Rooms[vnum])
+            {
+                exit.Destination = room;
+                exit.DestinationVNum = room.VNum;
+
+                ch.EditingRoom.Area.saved = false;
+                ch.send("OK.\n\r");
+                return;
+            }
+            else
+            {
+                ch.send("Destination vnum does not exist.");
+                return;
+            }
+
+        }
+        else if ("flags".prefix(command))
+        {
+            var flags = {};
+            Utility.GetEnumValues(ExitData.ExitFlags, args, flags);
+
+            exit.OriginalFlags = flags;
+            exit.Flags = Utility.CloneArray(flags);
+            
+            ch.EditingRoom.Area.saved = false;
+            ch.send("OK.\n\r");
+            ch.send("Valid flags are {0}\n", Utility.JoinFlags(ExitData.ExitFlags));
+            return;
+        }
+        else if ("keywords".prefix(command))
+        {
+            exit.Keywords = args;
+            
+            ch.EditingRoom.Area.saved = false;
+            ch.send("OK.\n\r");
+            return;
+        }
+        else if ("display".prefix(command))
+        {
+            exit.Display = args;
+            
+            ch.EditingRoom.Area.saved = false;
+            ch.send("OK.\n\r");
+            return;
+        }
+        else if ("description".prefix(command))
+        {
+            exit.Description = args;
+            
+            ch.EditingRoom.Area.saved = false;
+            ch.send("OK.\n\r");
+            return;
+        }
+        else if ("size".prefix(command))
+        {
+            var size;
+            if (!(size = Utility.GetEnumValue(Character.Sizes, args)))
+            {
+                ch.send("Valid sizes are {0}.\n\r", Utility.JoinArray(Character.Sizes, ", "));
+                return;
+            }
+            else
+            {
+                exit.ExitSize = size;
+                ch.EditingRoom.Area.saved = false;
+                ch.send("OK.\n\r");
+                return;
+            }
+        }
+        else if ("keys".prefix(command))
+        {
+            if (args.ISEMPTY())
+            {
+                exit.Keys = [];
+                
+                ch.EditingRoom.Area.saved = false;
+                ch.send("OK.\n\r");
+                return;
+            }
+            else
+            {
+                var keys = args.split(' ');
+                var newkeys = [];
+                var valid = true;
+                for (var key of keys)
+                {
+                    var keyvnum = Number(key)
+                    if(!keyvnum)
+                        valid = false;
+                    else
+                        newkeys.push(keyvnum)
+                }
+                if (valid)
+                {
+                    exit.Keys = newkeys;
+                    
+                    ch.EditingRoom.Area.saved = false;
+                    ch.send("OK.\n\r");
+                    return;
+                }
+                else
+                {
+                    ch.send("Keys must be vnums separated by spaces\n\r");
+                    return;
+                }
+
+            }
+        }
+
+        ch.send("Edit room exits {direction} [keywords, description, destination, flags, size, keys, delete] {arguments}\n\r");
+    }
+
+    // static DoEditRoomResets(ch, string arguments)
+    // {
+        // var [command, arguments] = arguments.OneArgumentOut();
+        // var room = ch.EditingRoom;
+
+        // if (room == null)
+        // {
+            // ch.send("You aren't editing a room.\n\r");
+            // return;
+        // }
+        // else if (!ch.HasBuilderPermission(room))
+        // {
+            // ch.send("Builder permissions not set.\n\r");
+            // return;
+        // }
+        // else if ("list".prefix(command))
+        // {
+            // var resets = room.GetResets();
+            // ch.send("Resets for room {0} - {1}\n\r", room.Vnum, room.Name);
+            // for (int i = 0; i < resets.Count; i++)
+            // {
+                // var reset = resets[i];
+                // string SpawnName = string.Empty;
+                // if ((reset.resetType == ResetTypes.Equip || reset.resetType == ResetTypes.Give || reset.resetType == ResetTypes.Put || reset.resetType == ResetTypes.Item)
+                    // && ItemTemplateData.Templates.TryGetValue(reset.spawnVnum, out var itemtemplate))
+                // {
+                    // SpawnName = itemtemplate.Name;
+                // }
+                // else if (reset.resetType == ResetTypes.NPC && NPCTemplateData.Templates.TryGetValue(reset.spawnVnum, out var npctemplate))
+                    // SpawnName = npctemplate.Name;
+
+                // if (SpawnName.ISEMPTY())
+                    // SpawnName = "unknown name";
+
+                // ch.send("[{0,5:D5}]    {1}Type {2}, SpawnVnum {3} - {4}, MaxRoomCount {5}, MaxCount {6}\n\r",
+                    // i + 1,
+                    // reset.resetType == ResetTypes.Equip || reset.resetType == ResetTypes.Give || reset.resetType == ResetTypes.Put ? "    " : "",
+                    // reset.resetType.ToString(), reset.spawnVnum, SpawnName, reset.count, reset.maxCount);
+            // }
+            // ch.send("\n\r{0} resets.\n\r", resets.Count);
+        // }
+        // else if ("delete".prefix(command))
+        // {
+            // var resets = room.GetResets();
+            // if (int.TryParse(arguments, out var index) && index >= 1 && index <= resets.Count)
+            // {
+                // var reset = resets[index - 1];
+                // room.Area.Resets.Remove(reset);
+                // room.Area.saved = false;
+                // ch.send("Reset removed.\n\r");
+            // }
+            // else
+                // ch.send("You must supply a valid index.\n\r");
+        // }
+        // else if ("move".prefix(command))
+        // {
+            // var resets = room.GetResets();
+
+            // arguments = arguments.OneArgumentOut(out var argStartIndex);
+
+            // if (int.TryParse(argStartIndex, out var index) && index >= 1 && index <= resets.Count && int.TryParse(arguments, out var endIndex) && endIndex >= 1 && endIndex <= resets.Count)
+            // {
+                // var reset = resets[index - 1];
+
+                // room.Area.Resets.Remove(reset);
+
+                // if (endIndex < resets.Count) // insert before the destination index
+                // {
+                    // var destinationReset = resets[endIndex - 1];
+                    // room.Area.Resets.Insert(resets.IndexOf(destinationReset), reset);
+                // }
+                // else // insert after the destination index
+                // {
+                    // var destinationReset = resets[endIndex - 1];
+
+                    // room.Area.Resets.Insert(resets.IndexOf(destinationReset) + 1, reset);
+                // }
+
+                // room.Area.saved = false;
+                // ch.send("Reset moved.\n\r");
+            // }
+            // else
+                // ch.send("You must supply a valid start and end index.\n\r");
+        // }
+        // else if ("create".prefix(command) || "new".prefix(command))
+        // {
+            // var resets = room.GetResets();
+            // arguments = arguments.OneArgumentOut(out var arg1);
+            // arguments = arguments.OneArgumentOut(out var arg2);
+            // arguments = arguments.OneArgumentOut(out var arg3);
+            // arguments = arguments.OneArgumentOut(out var arg4);
+
+            // int spawnvnum = 0, maxroomcount = 0, maxcount = 0;
+            // if (!int.TryParse(arg1, out var index))
+            // {
+                // index = resets.Count;
+
+            // }
+            // else
+            // {
+                // arg1 = arg2;
+                // arg2 = arg3;
+                // arg3 = arg4;
+                // arg4 = arguments;
+            // }
+            // index = index - 1;
+            // if (index <= 0 && resets.Count > 0)
+            // {
+                // index = room.Area.Resets.IndexOf(resets[resets.Count - 1]) + 1;
+            // }
+            // else if (index < 0 || resets.Count == 0)
+            // {
+                // index = room.Area.Resets.Count;
+            // }
+            // else if (index == resets.Count)
+            // {
+                // index = room.Area.Resets.IndexOf(resets[index - 1]) + 1;
+            // }
+            // else if (index >= resets.Count)
+            // {
+                // ch.send("Index must be less than or equal to the count of resets in the room.\n\r");
+                // return;
+            // }
+            // else
+                // index = room.Area.Resets.IndexOf(resets[index]);
+            // if (index < 0) index = 0;
+
+
+            // if (arg1.ISEMPTY() || !Utility.GetEnumValueStrPrefixOut<ResetTypes>(arg1, out var type))
+            // {
+                // ch.send("You must supply a valid reset type.\n\r");
+                // ch.send("Valid reset types are {0}.\n\r", string.Join(", ", from t in Utility.GetEnumValues<ResetTypes>() select t.ToString()));
+                // ch.send("redit reset create [{0}] @spawnvnum @roomcount @maxcount\n\r", string.Join("|", from t in Utility.GetEnumValues<ResetTypes>() select t.ToString()));
+                // return;
+            // }
+            // else if (arg2.ISEMPTY() || !int.TryParse(arg2, out spawnvnum))
+            // {
+                // ch.send("You must supply a valid spawn vnum.\n\r");
+                // return;
+            // }
+
+            // if (!arg3.ISEMPTY() && !int.TryParse(arg3, out maxroomcount))
+            // {
+                // ch.send("Max room count must be numeric if supplied.\n\r");
+                // return;
+            // }
+
+            // if (!arg4.ISEMPTY() && !int.TryParse(arg4, out maxcount))
+            // {
+                // ch.send("Max count must be numeric if supplied.\n\r");
+                // return;
+            // }
+
+            // if (maxroomcount == 0)
+            // {
+                // maxroomcount = resets.Count(r => r.resetType == type && r.spawnVnum == spawnvnum) + 1;
+            // }
+
+            // if (maxcount == 0)
+            // {
+                // maxcount = room.Area.Resets.Count(r => r.resetType == type && r.spawnVnum == spawnvnum);
+            // }
+
+            // var reset = new ResetData()
+            // {
+                // count = maxroomcount,
+                // maxCount = maxcount,
+                // resetType = type,
+                // roomVnum = room.Vnum,
+                // spawnVnum = spawnvnum,
+                // area = room.Area
+            // };
+
+            // room.Area.Resets.Insert(index, reset);
+            // room.Area.saved = false;
+        // }
+        // else
+            // ch.send("redit resets [list|delete @index|move @index @newindex|create {@index} @type]");
+    // }
 }
 
 module.exports = OLC;

@@ -31,6 +31,7 @@ class ExitData {
 	Flags = {};
 	OriginalFlags = {};
 	Keys = [];
+	ExitSize = "Medium";
 
 	constructor(room, exitdata) {
 		
@@ -39,6 +40,7 @@ class ExitData {
 		this.DestinationVNum = XmlHelper.GetElementValue(exitdata, "Destination");
 		this.Description = XmlHelper.GetElementValue(exitdata, "Description");
 		this.Keywords = XmlHelper.GetElementValue(exitdata, "Keywords");
+		this.ExitSize = XmlHelper.GetElementValue(exitdata, "ExitSize", "Medium");
 
 		var keys = exitdata.GetElementValue("Keys");
 
