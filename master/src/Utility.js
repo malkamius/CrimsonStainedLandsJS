@@ -474,7 +474,7 @@ class Utility {
 	}
 
 	static DiminishingReturns(value, max, steepness) {
-		return max * (1 - Math.exp(-steepness * value));
+		return max * (1 - Math.exp(-steepness * Math.abs(value))) * Math.sign(value);
 	}
 }
 
