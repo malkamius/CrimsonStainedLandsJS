@@ -222,6 +222,10 @@ Commands = {
 		"infiltrate": {Command: Character.DoCommands.DoInfiltrate, MinimumPosition: "Standing" },
 		"picklock": {Command: Character.DoCommands.DoPickLock, MinimumPosition: "Standing" },
 		"relock": {Command: Character.DoCommands.DoRelock, MinimumPosition: "Standing" },
+		"gentlewalk": {Command: Character.DoCommands.DoGentleWalk, MinimumPosition: "Standing" },
+		
+		"lore": {Command: Character.DoCommands.DoLore, MinimumPosition: "Resting" },
+		"roundhouse": {Command: Character.DoCommands.DoRoundhouse, MinimumPosition: "Fighting" },
 
 		"lash": {Command: Character.DoCommands.DoLash, MinimumPosition: "Fighting" },
 		"barkskin": {Command: Character.DoCommands.DoBarkskin, MinimumPosition: "Fighting" },

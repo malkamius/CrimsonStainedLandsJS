@@ -69,8 +69,11 @@ class ExitData {
 		
 		
 		this.Source = room;
-		
-		room.Exits[RoomData.Directions.indexOf(this.Direction)] = this;
+		if(RoomData.Directions.indexOf(this.Direction) == -1) {
+			console.log("BAD EXIT Direction = " + this.Direction);
+		} else {
+			room.Exits[RoomData.Directions.indexOf(this.Direction)] = this;
+		}
 	}
 }
 

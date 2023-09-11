@@ -2053,3 +2053,39 @@ Character.DoCommands.DoDualBackstab = function(ch, argument)
 		Combat.Damage(ch, victim, 0, skill, DamageMessage.WeaponDamageTypes.None);
 	}
 } // end dual backstab
+
+Character.DoCommands.DoGentleWalk = function(ch, args)
+{
+    var skill = SkillSpell.SkillLookup("gentle walk");
+    var chance;
+
+    if ((chance = ch.GetSkillPercentage(skill)) <= 1)
+    {
+        ch.send("You don't know how to do that.\n\r");
+        return;
+    }
+    if (chance > Utility.NumberPercent())
+    {
+        var aff = ch.Affects.FirstOrDefault(a => a.SkillSpell = skill && a.Duration != -1)
+        if (aff != null)
+        {
+            aff.duration = 10;
+        }
+        else
+        {
+            aff = new AffectData();
+            aff.SkillSpell = skill;
+            aff.Hidden = true;
+            aff.Duration = 10;
+            aff.EndMessage = "You stop walking gently.";
+            ch.AffectToChar(aff);
+        }
+        ch.CheckImprove("gentle walk", true, 1);
+    }
+    else
+    {
+        ch.CheckImprove("gentle walk", false, 1);
+    }
+    ch.Act("You attempt to walk gently.\n\r");
+}
+
