@@ -476,6 +476,16 @@ class Utility {
 	static DiminishingReturns(value, max, steepness) {
 		return max * (1 - Math.exp(-steepness * Math.abs(value))) * Math.sign(value);
 	}
+
+	static Max(arr, selector) {
+		var max = NaN;
+		for(var key in arr) {
+			var value = selector? selector(arr[key]) : arr[key];
+			if(isNaN(max) || value > max)
+				max = value;
+		}
+		return max;
+	}
 }
 
 

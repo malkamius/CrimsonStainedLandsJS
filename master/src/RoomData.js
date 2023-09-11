@@ -104,40 +104,45 @@ class RoomData {
     NightName = "";
     NightDescription = "";
 
-	constructor(area, roomxml) {
+	constructor(area, roomxml, vnum = 0) {
 		const ExitData = require('./ExitData');
+        this.VNum = vnum;
 		this.Area = area;
-		this.VNum = roomxml.GetElementValueInt("VNum");
-		this.Name = roomxml.GetElementValue("Name");
-		this.Description = roomxml.GetElementValue("Description");
-        this.NightName = roomxml.GetElementValue("NightName");
-        this.NightDescription = roomxml.GetElementValue("NightDescription");
-        var sector = roomxml.GetElementValue("Sector");
-		this.Sector = RoomData.SectorTypes.ISSET(sector);
-        if(!this.Sector) console.log(Utility.Format("Sector {0} not found", sector));
+
+        if(roomxml) {
+            this.VNum = roomxml.GetElementValueInt("VNum");
+            this.Name = roomxml.GetElementValue("Name");
+            this.Description = roomxml.GetElementValue("Description");
+            this.NightName = roomxml.GetElementValue("NightName");
+            this.NightDescription = roomxml.GetElementValue("NightDescription");
+            var sector = roomxml.GetElementValue("Sector");
+            this.Sector = RoomData.SectorTypes.ISSET(sector);
+            if(!this.Sector) console.log(Utility.Format("Sector {0} not found", sector));
 
 
-        this.MaxLevel = roomxml.GetElementValueInt("MaxLevel", 60);
-        this.MinLevel = roomxml.GetElementValueInt("MinLevel", 0);
-		Utility.ParseFlags(this.Flags, roomxml.GetElementValue("Flags"));
+            this.MaxLevel = roomxml.GetElementValueInt("MaxLevel", 60);
+            this.MinLevel = roomxml.GetElementValueInt("MinLevel", 0);
+            Utility.ParseFlags(this.Flags, roomxml.GetElementValue("Flags"));
+            
+            for(const exits of roomxml.EXITS) {
+                if(exits) {
+                    for(var exitxml of exits.EXIT) {
+                        var exitdata = new ExitData(this, exitxml);
+                    }
+                }
+            }
 
-		this.Exits = Array(null, null, null, null, null, null);
-		
-		for(const exits of roomxml.EXITS) {
-			if(exits) {
-				for(var exitxml of exits.EXIT) {
-					var exitdata = new ExitData(this, exitxml);
-				}
-			}
-		}
-
-        if(roomxml.EXTRADESCRIPTIONS && roomxml.EXTRADESCRIPTIONS[0].EXTRADESCRIPTION) {
-            for(var edxml of roomxml.EXTRADESCRIPTIONS[0].EXTRADESCRIPTION) {
-                var extradescription = {Keyword: edxml.GetElementValue("Keyword"), Description: edxml.GetElementValue("Description")};
-                this.ExtraDescriptions.push(extradescription);
+            if(roomxml.EXTRADESCRIPTIONS && roomxml.EXTRADESCRIPTIONS[0].EXTRADESCRIPTION) {
+                for(var edxml of roomxml.EXTRADESCRIPTIONS[0].EXTRADESCRIPTION) {
+                    var extradescription = {Keyword: edxml.GetElementValue("Keyword"), Description: edxml.GetElementValue("Description")};
+                    this.ExtraDescriptions.push(extradescription);
+                }
             }
         }
+        const AreaData = require('./AreaData');
 
+        area.Rooms[vnum] = this;
+        AreaData.AllRooms[vnum] = this;
 		RoomData.Rooms[this.VNum] = this;
 	}
 

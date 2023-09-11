@@ -8,6 +8,7 @@ const ItemData = require("./ItemData");
 
 const RoomData = require("./RoomData");
 const ShapeshiftForm = require("./Shapeshift");
+const AreaData = require("./AreaData");
 class Character {
 	/**
 	 * Array of NPC and Player characters in the world.
@@ -3344,6 +3345,14 @@ class Character {
 				learned.Level = Level;
 			learned.Percent = percentage;
 		}
+	}
+
+	HasBuilderPermission(item) {
+		const Game = require('./Game');
+		if(!item) return false;
+		var area = item instanceof AreaData? item : item.Area;
+
+		return (area && area.Builders && area.Builders.IsName(this.Name, true)) || (this.Level == Game.MAX_LEVEL && !this.IsNPC)
 	}
 }
 

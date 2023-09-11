@@ -7,7 +7,8 @@ class Game {
 
     static GameStarted = new Date();
     static LEVEL_IMMORTAL = 52;
-
+    static MAX_LEVEL = 60;
+    
     static Pulse()
     {
         const Player = require('./Player');

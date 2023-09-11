@@ -20,7 +20,7 @@ class AreaData {
 	NPCTemplates = {};
 	ItemTemplates = {};
 	Resets = Array();
-	helps = {};
+	Helps = {};
 	Timer = 0;
 	LastPeopleCount = 0;
 
@@ -37,8 +37,9 @@ class AreaData {
 		if(xml.ROOMS) {
 			for(const rooms of xml.ROOMS) {
 				if(rooms.ROOM)
-					for(const room of rooms.ROOM) {
-						AreaData.AllRooms[room.VNUM] = this.Rooms[room.VNUM] = new RoomData(this, room);
+					for(const roomxml of rooms.ROOM) {
+						var vnum = roomxml.GetElementValueInt("VNum");
+						var room = new RoomData(this, roomxml, vnum);
 					}
 			}
 		}
@@ -46,7 +47,8 @@ class AreaData {
 			for(const npcs of xml.NPCS) {
 				if(npcs.NPC)
 					for(const npc of npcs.NPC) {
-						var npctemplate = new NPCTemplateData(this, npc);
+						var vnum = npc.GetElementValueInt("VNum");
+						var npctemplate = new NPCTemplateData(this, npc, vnum);
 					}
 			}
 		}
@@ -54,7 +56,8 @@ class AreaData {
 			for(const items of xml.ITEMS) {
 				if(items.ITEM)
 					for(const item of items.ITEM) {
-						var itemtemplate = new ItemTemplateData(this, item);
+						var vnum = item.GetElementValueInt("VNum");
+						var itemtemplate = new ItemTemplateData(this, item, vnum);
 					}
 			}
 		}
@@ -70,8 +73,9 @@ class AreaData {
 			for(const helpsxml of xml.HELPS) {
 				for(var helpxml of helpsxml.HELP)
 				{
-					var help = new HelpData(helpxml);
-					AreaData.AllHelps[help.VNum] = this.helps[help.VNum] = help;
+					var vnum = helpxml.GetAttributeValueInt("VNum");
+					var help = new HelpData(this, helpxml, vnum);
+					AreaData.AllHelps[help.VNum] = this.Helps[help.VNum] = help;
 				}
 			}
 			

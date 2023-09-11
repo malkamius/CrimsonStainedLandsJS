@@ -6,6 +6,7 @@ const Dueling = require("./Dueling");
 
 const Player = require("./Player");
 const ShapeshiftForm = require("./Shapeshift");
+const OLC = require("./OLC");
 
 Commands = {
 		"north": {Command: Character.DoCommands.DoNorth, MinimumPosition: "Standing" },
@@ -355,6 +356,20 @@ Commands = {
 		"forcetick": {Command: Character.DoCommands.DoForceTick, MinimumPosition: "Dead" },
 		"setplayerpassword": {Command: Character.DoCommands.SetPlayerPassword, MinimumPosition: "Dead" },
 		"immortal": {Command: Character.DoCommands.DoImmortal, MinimumPosition: "Dead" },
+
+		"nextvnum": {Command: OLC.DoNextVnum, MinimumPosition: "Dead" },
+		"create": {Command: OLC.DoCreate, MinimumPosition: "Dead" },
+		"edit": {Command: OLC.DoEdit, MinimumPosition: "Dead" },
+		"aedit": {Command: OLC.DoEditArea, MinimumPosition: "Dead" },
+		"areaedit": {Command: OLC.DoEditArea, MinimumPosition: "Dead" },
+		"medit": {Command: OLC.DoEditNPC, MinimumPosition: "Dead" },
+		"npcedit": {Command: OLC.DoEditNPC, MinimumPosition: "Dead" },
+		"oedit": {Command: OLC.DoEditItem, MinimumPosition: "Dead" },
+		"itemedit": {Command: OLC.DoEditItem, MinimumPosition: "Dead" },
+		"redit": {Command: OLC.DoEditRoom, MinimumPosition: "Dead" },
+		"roomedit": {Command: OLC.DoEditRoom, MinimumPosition: "Dead" },
+		"hedit": {Command: OLC.DoEditHelp, MinimumPosition: "Dead" },
+		"helpedit": {Command: OLC.DoEditHelp, MinimumPosition: "Dead" },
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 

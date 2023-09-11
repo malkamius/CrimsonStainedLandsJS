@@ -9,6 +9,17 @@ const XmlHelper = require("./XmlHelper");
 class ResetData {
   static Resets = Array();
   static LastNPCReset = null;
+
+  static ResetTypes =
+  {
+      NPC: "NPC",
+      Equip: "Equip",
+      Give: "Give",
+      Item: "Item",
+      Put: "Put",
+      EquipRandom: "EquipRandom"
+  }
+
   Type = "";
   VNum = 0;
   Destination = 0;
@@ -16,12 +27,14 @@ class ResetData {
   Max = 1;
 
   constructor(area, xml) {
-    this.Type = xml.GetElementValue( "type", xml.GetAttributeValue( "type"));
-    this.Destination = xml.GetElementValueInt( "destination", xml.GetAttributeValue( "destination"));
-    this.Count = xml.GetElementValueInt( "count", xml.GetAttributeValue( "count"));
-    this.Max = xml.GetElementValueInt( "max", xml.GetAttributeValue( "max"));
-    this.VNum = xml.GetElementValueInt( "vnum", xml.GetAttributeValue( "vnum"));
-    
+
+    if(xml) {
+      this.Type = xml.GetElementValue( "type", xml.GetAttributeValue( "type"));
+      this.Destination = xml.GetElementValueInt( "destination", xml.GetAttributeValue( "destination"));
+      this.Count = xml.GetElementValueInt( "count", xml.GetAttributeValue( "count"));
+      this.Max = xml.GetElementValueInt( "max", xml.GetAttributeValue( "max"));
+      this.VNum = xml.GetElementValueInt( "vnum", xml.GetAttributeValue( "vnum"));
+    }
     area.Resets.push(this);
     ResetData.Resets.push(this);
 
