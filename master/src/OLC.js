@@ -1065,7 +1065,6 @@ class OLC {
             } else {
                 ch.EditingNPCTemplate.Description = "";
             }
-            //ch.editRoom.description = ch.editRoom.description.Substring(0, ch.editRoom.description.LastIndexOf('\n', ch.editRoom.description.LastIndexOf('\n')  - 1) - 1);
         }
         else if (plusminus == "+")
         {

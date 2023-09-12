@@ -41,14 +41,14 @@ function LoadData(callback) {
 		}
 	}
 
-	var netcommands = fs.readFileSync(Settings.DataPath + "/commandslist.txt", "ascii");
-	var commands = netcommands.replaceAll("\r", "").split("\n");
+	//var netcommands = fs.readFileSync(Settings.DataPath + "/commandslist.txt", "ascii");
+	//var commands = netcommands.replaceAll("\r", "").split("\n");
 
-	for(var command of commands) {
-		if(!Commands[command]) {
-			console.log(command);
-		}
-	}
+	// for(var command of commands) {
+	// 	if(!Commands[command]) {
+	// 		console.log(command);
+	// 	}
+	// }
 	//console.log(count + " unlinked skills");
 
 	LoadRaces(callback);
