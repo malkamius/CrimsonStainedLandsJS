@@ -1586,6 +1586,486 @@ class OLC {
         // else
             // ch.send("redit resets [list|delete @index|move @index @newindex|create {@index} @type]");
     // }
+
+    static DoEditItemLevel(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+        var number = Number(args);
+        if (isNaN(number) || !(ch.EditingItemTemplate.Level = number))
+        {
+            ch.send("Syntax: edit item [vnum] level [1-60]\n\r");
+            return;
+        }
+        else
+            ch.send("OK.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemWeight(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+        var number = Number(args);
+        if (isNaN(number) || !(ch.EditingItemTemplate.Weight = number))
+        {
+            ch.send("Syntax: edit item [vnum] weight [number]\n\r");
+            return;
+        }
+        else
+            ch.send("OK.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemMaxWeight(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+        var number = Number(args);
+        if (isNaN(number) || !(ch.EditingItemTemplate.MaxWeight = number))
+        {
+            ch.send("Syntax: edit item [vnum] maxweight [number]\n\r");
+            return;
+        }
+        else
+            ch.send("OK.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemValue(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+        var number = Number(args);
+        if (isNaN(number) || !(ch.EditingItemTemplate.Value = number))
+        {
+            ch.send("Syntax: edit item [vnum] value [number]\n\r");
+            return;
+        }
+        else
+            ch.send("OK.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemExtraFlags(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+
+        ch.EditingItemTemplate.ExtraFlags = {};
+
+        if (!Utility.GetEnumValues(ItemData.ExtaFlags, args, ch.EditingItemTemplate.ExtraFlags, true))
+        {
+            ch.send("Valid extra flags are {0}.\n\r", Utility.JoinFlags(ItemData.ExtraFlags, ", "));
+        }
+        else
+            ch.send("OK.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemWearFlags(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+        ch.EditingItemTemplate.WearFlags = {};
+        if (!Utility.GetEnumValues(ItemData.WearFlags, args, ch.EditingItemTemplate.WearFlags, true))
+        {
+            ch.send("Valid wear flags are {0}.\n\r", Utility.JoinFlags(ItemData.WearFlags, ", "));
+        }
+        else
+            ch.send("OK.\n\r");
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemWeaponType(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+
+        ch.EditingItemTemplate.WeaponType = ItemData.WeaponTypes.None;
+        var flag = Utility.GetEnumValue(ItemData.WeaponTypes, args);
+        if (Utility.IsNullOrEmpty(flag) || !(ch.EditingItemTemplate.WeaponType = flag))
+        {
+            ch.send("Valid weapon types are {0}.\n\r", Utility.JoinFlags(ItemData.WeaponTypes, ", "));
+        }
+        else
+            ch.send("OK.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemItemTypes(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+        var flag = Utility.GetEnumValue(ItemData.ItemTypes, args);
+        if (Utility.IsNullOrEmpty(flag) || !(ch.EditingItemTemplate.ItemTypes.SETBIT(flag)))
+        {
+            ch.send("Valid item types are {0}.\n\r", Utility.JoinFlags(ItemData.ItemTypes, ", "));
+        }
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemDamageMessage(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+
+        for (var key in DamageMessage.DamageMessages)
+        {
+            var message = DamageMessage.DamageMessages[key]
+            if (message.Keyword.prefix(args))
+            {
+                ch.EditingItemTemplate.WeaponDamageType = message.Keyword;
+                ch.EditingItemTemplate.Area.saved = false;
+                return;
+            }
+        }
+
+        ch.send("Damage message not found, valid messages are {0}.\n\r", Utility.JoinArray(DamageMessage.DamageMessages.Select(m => m.Keyword), ", "));
+
+    }
+
+    static DoEditItemDamageDice(ch, args)
+    {
+        var [damagedicesidesstring, args] = args.OneArgument();
+        var [damagedicecountstring, args] = args.OneArgument();
+        var [damagedicebonusstring, args] = args.OneArgument();
+
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+        var sides = Number(damagedicesidesstring);
+        var count = Number(damagedicecountstring);
+        var bonus = Number(damagedicebonusstring);
+
+        if (isNaN(sides) || isNaN(count) || isNaN(bonus))
+        {
+            ch.send("Syntax: edit item [vnum] damagedice [dicesides] [dicecount] [dicebonus]\n\r");
+            return;
+        }
+        ch.EditingItemTemplate.DamageDice = [sides, count, bonus];
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemMaterial(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found");
+            return;
+        }
+
+        ch.EditingItemTemplate.Material = args;
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemLiquid(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found");
+            return;
+        }
+
+        ch.EditingItemTemplate.Liquid = args;
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemMaxCharges(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found");
+            return;
+        }
+        var number = Number(args);
+        if (!number || !(ch.EditingItemTemplate.MaxCharges = number)) ch.send("MaxCharges must be numerical.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemMaxDurability(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found");
+            return;
+        }
+        var number = Number(args);
+        if (!number || !(ch.EditingItemTemplate.MaxCharges = number)) ch.send("MaxDurability must be numerical.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+    }
+
+    static DoEditItemNutrition(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found");
+            return;
+        }
+        var number = Number(args);
+        if (!number || !(ch.EditingItemTemplate.Nutrition = number)) ch.send("Nutrition must be numerical.\n\r");
+
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditItemArmorClass(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found");
+            return;
+        }
+        
+        var [ac_bash, args] = args.OneArgument();
+        var [ac_slash, args] = args.OneArgument();
+        var [ac_pierce, args] = args.OneArgument();
+        var [ac_exotic, args] = args.OneArgument();
+        
+        var bash = Number(ac_bash);
+        var slash = Number(ac_slash);
+        var pierce = Number(ac_pierce);
+        var exotic = Number(ac_exotic);
+        if (isNaN(bash) || isNaN(slash) || isNaN(pierce) || isNaN(exotic)) {
+            ch.send("Armor class must be numerical and must supply armorclass [bash slash pierce exotic].\n\r");
+        }
+        ch.EditingItemTemplate.ArmorBash = bash;
+        ch.EditingItemTemplate.ArmorSlash = slash;
+        ch.EditingItemTemplate.ArmorPierce = pierce;
+        ch.EditingItemTemplate.ArmorExotic = exotic;
+        
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditItemName(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found");
+            return;
+        }
+
+        ch.EditingItemTemplate.Name = args;
+
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditItemLongDescription(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        ch.EditingItemTemplate.LongDescription = args;
+
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditItemNightLongDescription(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        ch.EditingItemTemplate.NightLongDescription = args;
+
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditItemNightShortDescription(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        ch.EditingItemTemplate.NightShortDescription = args;
+
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+
+    static DoEditItemShortDescription(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
+
+        ch.EditingItemTemplate.ShortDescription = args;
+
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditItemDescription(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit npc not found");
+            return;
+        }
+        var [plusminus, newargs] = args.OneArgument();
+
+        if (plusminus == "-")
+        {
+            if(ch.EditingItemTemplate.Description.endsWith("\n")) {
+                ch.EditingItemTemplate.Description = ch.EditingItemTemplate.Description.replace(/.*?\n$/, "");
+            } else {
+                ch.EditingItemTemplate.Description = "";
+            }
+        }
+        else if (plusminus == "+")
+        {
+            ch.EditingItemTemplate.Description += (!Utility.IsNullOrEmpty(ch.EditingItemTemplate.Description) && !ch.EditingItemTemplate.Description.endsWith("\n") ? "\n" : "") + newargs + "\n";
+        }
+        else
+        {
+            ch.EditingItemTemplate.Description = args + "\n";
+        }
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditItemSpells(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+        
+        ch.EditingItemTemplate.Spells = [];
+        while (!args.ISEMPTY())
+        {
+            var [levelstring, args] = args.OneArgument();
+            var [arg, args] = args.OneArgument();
+            var level = Number(levelstring);
+            var skill;
+            if (isNaN(level) || !(skill = SkillSpell.SkillLookup(arg)))
+            {
+                ch.send("Syntax: edit item [vnum] spells [spell level] [spell name] [spell level] [spell name].\n Skill/spell {0} not found.\n\r", arg);
+                return;
+            }
+            var spell = {Level: level, SpellName: skill.Name};
+            ch.EditingItemTemplate.Spells.push(spell);
+        }
+
+
+        ch.EditingItemTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
+
+    static DoEditItemAffects(ch, args)
+    {
+        if (!ch.EditingItemTemplate)
+        {
+            ch.send("Edit item not found\n\r");
+            return;
+        }
+
+        var apply = AffectData.ApplyTypes.None;
+
+        var applytypestring = "";
+        var applyvaluestring = "";
+        var applyvalue = 0;
+        [applytypestring, args] = args.OneArgument();
+        [applyvaluestring, args] = args.OneArgument();
+        if (!applytypestring.ISEMPTY() && applytypestring == "-")
+        {
+            if (ch.EditingItemTemplate.Affects.length > 0)
+            {
+                ch.EditingItemTemplate.Affects.splice(ch.EditingItemTemplate.Affects.length - 1, 1);
+                ch.send("OK.\n\r");
+            }
+            else
+                ch.send("No more affects on that item.\n\r");
+            return;
+        }
+        applyvalue = Number(applyvaluestring);
+        apply = Utility.GetEnumValue(AffectData.ApplyType, applytypestring);
+        if (!applytypestring.ISEMPTY() && !applyvaluestring.ISEMPTY() && !isNaN(applyvalue) && !Utility.IsNullOrEmpty(apply))
+        {
+            for (var aff in Utility.CloneArray(ch.EditingItemTemplate.Affects))
+            {
+                if (aff.Where == AffectData.AffectWhere.ToObject && aff.Location == apply)
+                {
+                    if (aff.modifier == 0)
+                    {
+                        ch.EditingItemTemplate.Affects.Remove(aff);
+                    }
+                    else
+                        aff.Modifier = applyvalue;
+                    return;
+                }
+            }
+            var affect = new AffectData();
+            affect.Where = AffectData.AffectWhere.ToObject;
+            affect.Location = apply;
+            affect.Modifier = applyvalue;
+            affect.Duration = -1;
+            ch.EditingItemTemplate.Affects.Add(affect);
+            ch.EditingItemTemplate.Area.saved = false;
+            ch.send("OK.\n\r");
+        }
+        else
+        {
+            ch.send("Edit item [vnum] affects [type] [value]\n\r");
+            ch.send("Types: {0}", Utility.JoinFlags(AffectData.ApplyTypes, ", "));
+        }
+
+    }
 }
 
 module.exports = OLC;
