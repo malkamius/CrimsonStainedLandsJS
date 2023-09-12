@@ -113,7 +113,7 @@ class OLC {
             area.VNumEnd = VNumEnd;
             area.FileName = Settings.AreasPath + "/" + nameString + ".xml";
             
-            AreaData.AllAreas.Add(area);
+            AreaData.AllAreas[area.Name] = area;
             ch.EditingArea = area;
             area.saved = false;
             ch.send("OK\n\r");
@@ -745,6 +745,72 @@ class OLC {
         }
         ch.send("Invalid command.\n\r");
     }
+
+	static DoEditAreaName(ch, args)
+	{
+		if (ch.EditingArea == null)
+		{
+			ch.send("Edit area not found\n\r");
+			return;
+		}
+		else if (!ch.HasBuilderPermission(ch.EditingArea))
+		{
+			ch.send("You don't have permission to edit that area.\n\r");
+		}
+		else
+		{
+			delete AreaData.AllAreas[ch.EditingArea.Name];
+			ch.EditingArea.Name = args;
+			AreaData.AllAreas[ch.EditingArea.Name] = ch.EditingArea;
+			ch.EditingArea.saved = false;
+			ch.send("Done.\n\r");
+		}
+	}
+	
+	static DoEditAreaCredits(ch, args)
+	{
+		if (ch.EditingArea == null)
+		{
+			ch.send("Edit area not found\n\r");
+			return;
+		}
+		else if (!ch.HasBuilderPermission(ch.EditingArea))
+		{
+			ch.send("You don't have permission to edit that area.\n\r");
+		}
+		else
+		{
+			ch.EditingArea.Credits = args;
+
+			ch.EditingArea.saved = false;
+			ch.send("Done.\n\r");
+		}
+	}
+
+	static DoEditAreaOverRoomVnum(ch, args)
+	{
+		var VNum = Number(args);
+		if (ch.EditingArea == null)
+		{
+			ch.send("Edit area not found\n\r");
+			return;
+		}
+		else if (!ch.HasBuilderPermission(ch.EditingArea))
+		{
+			ch.send("You don't have permission to edit that area.\n\r");
+		}
+		else if (isNaN(VNum))
+		{
+			ch.send("Room with specified vnum not found.\n\r");
+		}
+		else
+		{
+			ch.EditingArea.OverRoomVNum = VNum;
+
+			ch.EditingArea.saved = false;
+			ch.send("Done.\n\r");
+		}
+	}
 
     static DoEditNPCLevel(ch, args)
     {
@@ -2055,7 +2121,7 @@ class OLC {
             affect.Location = apply;
             affect.Modifier = applyvalue;
             affect.Duration = -1;
-            ch.EditingItemTemplate.Affects.Add(affect);
+            ch.EditingItemTemplate.Affects.push(affect);
             ch.EditingItemTemplate.Area.saved = false;
             ch.send("OK.\n\r");
         }
