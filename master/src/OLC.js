@@ -1,3 +1,4 @@
+const AffectData = require("./AffectData");
 const AreaData = require("./AreaData");
 const Character = require("./Character");
 const GuildData = require("./GuildData");
@@ -993,11 +994,10 @@ class OLC {
             return;
         }
 
-        Utility.ParseFlags(args, ch.EditingNPCTemplate.Flags);
-        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.Flags, true))
-        // {
-        //     ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<ActFlags>() select flag.ToString())));
-        // }
+        if (!Utility.GetEnumValues(Character.ActFlags, args, ch.EditingNPCTemplate.Flags, true))
+        {
+            ch.send("Valid flags are {0}.\n\r", Utility.JoinFlags(Character.ActFlags, ", "));
+        }
 
         ch.EditingNPCTemplate.Area.saved = false;
         ch.send("OK.\n\r");
@@ -1062,11 +1062,10 @@ class OLC {
             return;
         }
 
-        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.AffectedBy, true))
-        // {
-            // ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<AffectFlags>() select flag.ToString())));
-        // }
-        Utility.ParseFlags(ch.EditingNPCTemplate.AffectedBy, args);
+        if (!Utility.GetEnumValues(AffectData.AffectFlags, args, ch.EditingNPCTemplate.AffectedBy, true))
+        {
+            ch.send("Valid flags are {0}.\n\r", Utility.JoinFlags(AffectData.AffectFlags));
+        }
 
         ch.EditingNPCTemplate.Area.saved = false;
         ch.send("OK.\n\r");
