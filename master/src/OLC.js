@@ -1003,56 +1003,56 @@ class OLC {
         ch.send("OK.\n\r");
     }
 
-    // static DoEditNPCImmuneFlags(ch, args)
-    // {
-        // if (ch.EditingNPCTemplate == null)
-        // {
-            // ch.send("Edit npc not found\n\r");
-            // return;
-        // }
+    static DoEditNPCImmuneFlags(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
 
-        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.ImmuneFlags, true))
-        // {
-            // ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<WeaponDamageTypes>() select flag.ToString())));
-        // }
+        if (!Utility.GetEnumValues(DamageMessage.WeaponDamageTypes, args, ch.EditingNPCTemplate.ImmuneFlags, true))
+        {
+            ch.send("Valid flags are {0}.\n\r", Utility.JoinFlags(DamageMessage.WeaponDamageTypes, ", "));
+        }
 
-        // ch.EditingNPCTemplate.Area.saved = false;
-        // ch.send("OK.\n\r");
-    // }
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
 
-    // static DoEditNPCResistFlags(ch, args)
-    // {
-        // if (ch.EditingNPCTemplate == null)
-        // {
-            // ch.send("Edit npc not found\n\r");
-            // return;
-        // }
+    static DoEditNPCResistFlags(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
 
-        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.ResistFlags, true))
-        // {
-            // ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<WeaponDamageTypes>() select flag.ToString())));
-        // }
+        if (!Utility.GetEnumValues(DamageMessage.WeaponDamageTypes, args, ch.EditingNPCTemplate.ResistFlags, true))
+        {
+            ch.send("Valid flags are {0}.\n\r", Utility.JoinFlags(DamageMessage.WeaponDamageTypes, ", "));
+        }
 
-        // ch.EditingNPCTemplate.Area.saved = false;
-        // ch.send("OK.\n\r");
-    // }
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
 
-    // static DoEditNPCVulnerableFlags(ch, args)
-    // {
-        // if (ch.EditingNPCTemplate == null)
-        // {
-            // ch.send("Edit npc not found\n\r");
-            // return;
-        // }
+    static DoEditNPCVulnerableFlags(ch, args)
+    {
+        if (ch.EditingNPCTemplate == null)
+        {
+            ch.send("Edit npc not found\n\r");
+            return;
+        }
 
-        // if (!Utility.GetEnumValues(args, ref ch.EditingNPCTemplate.VulnerableFlags, true))
-        // {
-            // ch.send("Valid flags are {0}.\n\r", string.Join(", ", (from flag in Utility.GetEnumValues<WeaponDamageTypes>() select flag.ToString())));
-        // }
+        if (!Utility.GetEnumValues(DamageMessage.WeaponDamageTypes, args, ch.EditingNPCTemplate.VulnerableFlags, true))
+        {
+            ch.send("Valid flags are {0}.\n\r", Utility.JoinFlags(DamageMessage.WeaponDamageTypes, ", "));
+        }
 
-        // ch.EditingNPCTemplate.Area.saved = false;
-        // ch.send("OK.\n\r");
-    // }
+        ch.EditingNPCTemplate.Area.saved = false;
+        ch.send("OK.\n\r");
+    }
 
     static DoEditNPCAffectedBy(ch, args)
     {

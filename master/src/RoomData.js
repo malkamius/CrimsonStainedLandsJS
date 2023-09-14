@@ -146,6 +146,40 @@ class RoomData {
 		RoomData.Rooms[this.VNum] = this;
 	}
 
+    Element(xml) {
+        xml = xml.ele("Room");
+        xml.ele("VNum", this.VNum);
+        xml.ele("Name", this.Name);
+        if(!Utility.IsNullOrEmpty(this.NightName)) {
+            xml.ele("NightName", this.Name);
+        }
+        xml.ele("Description", this.Description);
+        if(!Utility.IsNullOrEmpty(this.NightDescriptione)) {
+            xml.ele("NightDescription", this.NightDescription);
+        }
+        xml.ele("Sector", this.Sector);
+        if(this.MinLevel > 0)
+        xml.ele("MinLevel", this.MinLevel);
+        if(this.MaxLevel < 60)
+        xml.ele("MaxLevel", this.MaxLevel);
+        xml.ele("Flags", Utility.JoinFlags(this.Flags));
+        var exitsxml = xml.ele("Exits");
+        for(const exit of this.Exits) {
+            if(exit) {
+                exit.Element(exitsxml);
+            }
+        }
+
+        if(this.ExtraDescriptions.length > 0) {
+            var edsxml = xml.ele("ExtraDescriptions");
+            for(var ed of this.ExtraDescriptions) {
+                var edxml = edsxml.ele("ExtraDescription");
+                edxml.ele("Keyword", ed.Keyword);
+                edxml.ele("Description", ed.Description);
+            }
+        }
+    }
+
 	GetExit(keyword, count = 0) {
 		var number = 0;
 		var [number, keyword] = keyword.numberArgument();

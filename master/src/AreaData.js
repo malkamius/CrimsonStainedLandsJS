@@ -1,4 +1,5 @@
-
+const Utility = require("./Utility");
+const Settings = require("./Settings");
 const XmlHelper = require("./XmlHelper");
 const ItemData = require("./ItemData");
 
@@ -9,8 +10,10 @@ class AreaData {
 	static AllHelps = {};
 
 	xml = null;
+	Path = "";
 	Name = "";
 	Credits = "";
+	Information = "";
 	Builders = "";
 	Security = 0;
 	VNumStart = 0;
@@ -23,11 +26,15 @@ class AreaData {
 	Helps = {};
 	Timer = 0;
 	LastPeopleCount = 0;
+	saved = true;
 
-	constructor(xml) { 
+	constructor(xml, path) { 
+		
 		var reset = null;
 		var areaxml = xml.AREADATA[0];
+		this.Path = path;
 		this.Name = areaxml.GetElementValue("Name");
+		this.Information = areaxml.GetElementValue("Info");
 		this.Credits = areaxml.GetElementValue("Credits");
 		this.VNumStart = areaxml.GetElementValueInt("VNumStart");
 		this.VNumEnd = areaxml.GetElementValueInt("VNumEnd");
@@ -85,42 +92,25 @@ class AreaData {
 	static LoadAllAreas(callback) {
 		const path = require('path')
 		const fs = require('fs');
-		const xml2js = require('xml2js');
-		const parser = new xml2js.Parser({ strict: false, trim: false });
+		//const xml2js = require('xml2js');
+		//const parser = new xml2js.Parser({ strict: false, trim: false });
 		var counter = 0;
 		const Settings = require("./Settings");
 		var areasdirectory = Settings.AreaDataPath;
-		fs.readdir(areasdirectory, function(err, filenames) {
-			if (err) {
-			  throw new Error(err);
-			  return;
+		var filenames = fs.readdirSync(areasdirectory);
+		for(var filename of filenames){
+			if(filename.endsWith(".xml") && !filename.endsWith("_Programs.xml")) {
+				var areapath = path.join(areasdirectory, filename);
+				var content = fs.readFileSync(areapath, 'utf-8')
+				var xml = content.ParseXml();
+					var area = AreaData.AllAreas[xml.AREA.AREADATA[0].NAME[0]] = new AreaData(xml.AREA, areapath);
+					
+					//console.log("Loaded area " + area.Name);
+				
+				counter++;
 			}
-			
-			filenames.forEach(function(filename) {
-				if(filename.endsWith(".xml") && !filename.endsWith("_Programs.xml")) {
-				  fs.readFile(path.join(areasdirectory, filename), 'utf-8', function(err, content) {
-					if (err) {
-					  throw new Error(err);
-					  return;
-					}
-					parser.parseString(content, function(err, xml) {
-						var area = AreaData.AllAreas[xml.AREA.AREADATA[0].NAME[0]] = new AreaData(xml.AREA);
-						//console.log("Loaded area " + area.Name);
-					});
-					counter++;
-					if (counter === filenames.length) {
-						callback();
-					}
-				  });
-				} else {
-					counter++;
-					if (counter === filenames.length) {
-						callback();
-					}
-				}
-			});
-		});
-		
+		}
+		callback();
 	}
 
 	static ResetAreas(force = false) {
@@ -198,7 +188,72 @@ class AreaData {
 		}
 		
 	}
+
+	static SaveAreas(params = {force: false}) {
+		var count = 0;
+		for(var areakey in this.AllAreas) {
+			var area = this.AllAreas[areakey];
+			if(!area.saved || params.force) {
+				area.Save();
+				count++;
+			}
+		}
+		return count;
+	}
 	
+	Save() {
+		var builder = require('xmlbuilder');
+		var xml = builder.create("Area");
+		this.Element(xml);
+
+		var rooms = xml.ele("Rooms");
+		for(var roomkey in this.Rooms) {
+			var room = this.Rooms[roomkey];
+			room.Element(rooms);
+		}
+
+		var npcs = xml.ele("NPCs");
+		for(var npckey in this.NPCTemplates) {
+			var npc = this.NPCTemplates[npckey];
+			npc.Element(npcs);
+		}
+
+		var items = xml.ele("Items");
+		for(var itemkey in this.ItemTemplates) {
+			var item = this.ItemTemplates[itemkey];
+			item.Element(items);
+		}
+
+		var resets = xml.ele("Resets");
+		for(var reset of this.Resets) {
+			reset.Element(resets);
+		}
+
+		var helps = xml.ele("Helps");
+		for(var helpkey in this.Helps) {
+			var help = this.Helps[helpkey];
+			help.Element(helps);
+		}
+
+		var xmlstring = xml.end({ pretty: true});
+		const path = require('path');
+		var filepath = this.Path;
+		const fs = require('fs');
+		fs.writeFileSync(filepath, xmlstring);
+		this.saved = true;
+	}
+
+	Element(xml) {
+		var areadata = xml.ele("AreaData");
+		areadata.ele("Name", this.Name);
+		areadata.ele("Info", this.Information);
+		areadata.ele("VNumStart", this.VNumStart);
+		areadata.ele("VNumEnd", this.VNumEnd);
+		areadata.ele("Credits", this.Credits);
+		areadata.ele("Builders", this.Builders);
+		areadata.ele("Security", this.Security);
+		areadata.ele("OverRoomVNum", this.OverRoomVNum);
+	}
 }
 
 
@@ -211,4 +266,5 @@ const NPCTemplateData = require('./NPCTemplateData');
 const ItemTemplateData = require('./ItemTemplateData');
 const ResetData = require('./ResetData');
 const HelpData = require("./HelpData");
-const Utility = require("./Utility");
+//const Utility = require("./Utility");const Settings = require("./Settings");
+

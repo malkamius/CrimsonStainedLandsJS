@@ -27,6 +27,7 @@ class ExitData {
 	Keywords = "";
 	DestinationVNum = 0;
 	Description = "";
+	Destination = null;
 	Source = null;
 	Flags = {};
 	OriginalFlags = {};
@@ -69,12 +70,25 @@ class ExitData {
 		
 		Object.assign(this.OriginalFlags, this.Flags);
 		
-		
 		this.Source = room;
 		if(RoomData.Directions.indexOf(this.Direction) == -1) {
 			console.log("BAD EXIT Direction = " + this.Direction);
 		} else {
 			room.Exits[RoomData.Directions.indexOf(this.Direction)] = this;
+		}
+	}
+
+	Element(xml) {
+		var element = xml.ele("Exit");
+		element.ele("Direction", this.Direction);
+		element.ele("Display", this.Display);
+		element.ele("Destination", this.Destination? this.Destination.VNum : this.DestinationVNum);
+		element.ele("Description", this.Description);
+		element.ele("Keywords", this.Keywords);
+		element.ele("ExitSize", this.ExitSize);
+		element.ele("Flags", this.OriginalFlags);
+		if(this.Keys.length > 0) {
+			element.ele("Keys", Utility.JoinArray(this.Keys, k => k, " "));
 		}
 	}
 }

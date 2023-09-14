@@ -128,6 +128,74 @@ class ItemTemplateData {
         else
             console.log("Item " + this.VNum + " already exists globally.");
     }
+
+    Element(xml) {
+        xml = xml.ele("Item");
+        xml.ele("VNum", this.VNum);
+        xml.ele("Name", this.Name);
+        xml.ele("ShortDescription", this.ShortDescription);
+        xml.ele("LongDescription", this.LongDescription);
+        xml.ele("Description", this.Description);
+        xml.ele("Material", this.Material);
+        xml.ele("Liquid", this.Liquid);
+        xml.ele("ExtraFlags", Utility.JoinFlags(this.ExtraFlags));
+        xml.ele("WearFlags", Utility.JoinFlags(this.WearFlags));
+        xml.ele("ItemTypes", Utility.JoinFlags(this.ItemTypes));
+        xml.ele("WeaponType", this.WeaponType);
+        xml.ele("WeaponDamageType", this.WeaponDamageType);
+        xml.ele("Level", this.Level);
+        xml.ele("Cost", this.Value);
+        xml.ele("DiceSides", this.DamageDice[0]);
+        xml.ele("DiceCount", this.DamageDice[1]);
+        xml.ele("DiceBonus", this.DamageDice[2]);
+        xml.ele("Weight", this.Weight);
+        xml.ele("Silver", this.Silver);
+        xml.ele("Gold", this.Gold);
+        xml.ele("Charges", this.Charges);
+        xml.ele("MaxCharges", this.MaxCharges);
+        xml.ele("ArmorBash", this.ArmorBash);
+        xml.ele("ArmorPierce", this.ArmorPierce);
+        xml.ele("ArmorSlash", this.ArmorSlash);
+        xml.ele("ArmorExotic", this.ArmorExotic);
+        xml.ele("Nutrition", this.Nutrition);
+        xml.ele("Durability", this.Durability);
+        xml.ele("MaxDurability", this.MaxDurability);
+        if(this.Timer > 0)
+        xml.ele("Timer", this.Timer);
+        xml.ele("MaxWeight", this.MaxWeight);
+        if(this.Keys.length > 0) {
+            var keys = xml.ele("Keys");
+            for(var vnum of this.Keys) {
+                var key = keys.ele("Key");
+                key.attribute("VNum", vnum);
+            }
+        }
+
+        if(this.Spells.length > 0) {
+            var spells = xml.ele("Spells");
+            for(var spell of this.Spells) {
+                var spellxml = spells.ele("Spell");
+                spellxml.attribute("SpellName", spell.SpellName);
+                spellxml.attribute("Level", spell.Level);
+            }
+        }
+        
+        if(this.Affects.length > 0) {
+            var affects = xml.ele("Affects");
+            for(var aff of this.Affects) {
+                aff.Element(affects);
+            }
+        }
+
+        if(this.ExtraDescriptions.length > 0) {
+            var edsxml = xml.ele("ExtraDescriptions");
+            for(var ed of this.ExtraDescriptions) {
+                var edxml = edsxml.ele("ExtraDescription");
+                edxml.ele("Keyword", ed.Keyword);
+                edxml.ele("Description", ed.Description);
+            }
+        }
+    }
 }
 
 module.exports = ItemTemplateData;

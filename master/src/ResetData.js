@@ -40,6 +40,15 @@ class ResetData {
 
   }
 
+  Element(xml) {
+    var element = xml.element("Reset");
+    element.attribute("Type", this.Type);
+    element.attribute("Destination", this.Destination);
+    element.attribute("Count", this.Count);
+    element.attribute("Max", this.Max);
+    element.attribute("VNum", this.VNum);
+  }
+
   static FixMaxCounts() {
     const AreaData = require("./AreaData");
     for(var areakey in AreaData.AllAreas) {

@@ -171,6 +171,9 @@ class Character {
 	Inventory = Array();
 	Equipment = {};
 	AffectedBy = {};
+	ImmuneFlags = {};
+	VulnerableFlags = {};
+	ResistFlags = {};
 	HitPoints = 100;
 	MaxHitPoints = 100;
 	ManaPoints = 100;

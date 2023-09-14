@@ -673,7 +673,7 @@ Character.DoCommands.DoHolyLight = function(character, args) {
 	character.send("HolyLight is {0}.\n\r", character.Flags.ISSET(Character.ActFlags.HolyLight)? "\\GON\\x" : "\\ROFF\\x")
 }
 
-Character.DoCommands.SetPlayerPassword = function(character, args) {
+Character.DoCommands.DoSetPlayerPassword = function(character, args) {
     var [playername, args] = args.OneArgument();
     var [password, args] = args.OneArgument();
     var [confirmpassword, args] = args.OneArgument();
@@ -695,4 +695,11 @@ Character.DoCommands.SetPlayerPassword = function(character, args) {
         player.Save();
     }
     
+}
+
+Character.DoCommands.DoASaveWorld = function(ch, args) {
+    var force = "force".equals(args) || "all".equals(args) || "world".equals(args);
+    var saved = AreaData.SaveAreas({force: force});
+
+    ch.send("OK. {0} areas saved.\n\r", saved);
 }

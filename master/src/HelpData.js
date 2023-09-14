@@ -21,6 +21,13 @@ class HelpData {
         HelpData.Helps[this.VNum] = this;
     }
 
+    Element(xml) {
+        var element = xml.element("Help", this.Text);
+        element.attribute("VNum", this.VNum);
+        element.attribute("Keyword", this.Keyword);
+        element.attribute("LastEditedBy", this.LastEditedBy);
+        element.attribute("LastEditedOn", this.LastEditedOn);
+    }
 
 }
 

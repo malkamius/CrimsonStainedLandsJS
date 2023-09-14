@@ -162,6 +162,7 @@ class Player extends Character {
 
 	Save(path) {
 		if(!path) path = Settings.PlayerDataPath + `/${this.Name}.xml`;
+		
 		this.LastSavedTime = new Date();
 		var builder = require('xmlbuilder');
 		var xmlelement = super.Element();// builder.create("PlayerData");

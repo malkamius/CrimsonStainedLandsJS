@@ -354,7 +354,7 @@ Commands = {
 		"echo": {Command: Character.DoCommands.DoEcho, MinimumPosition: "Dead" },
 		"connections": {Command: Character.DoCommands.DoConnections, MinimumPosition: "Dead" },
 		"forcetick": {Command: Character.DoCommands.DoForceTick, MinimumPosition: "Dead" },
-		"setplayerpassword": {Command: Character.DoCommands.SetPlayerPassword, MinimumPosition: "Dead" },
+		"setplayerpassword": {Command: Character.DoCommands.DoSetPlayerPassword, MinimumPosition: "Dead" },
 		"immortal": {Command: Character.DoCommands.DoImmortal, MinimumPosition: "Dead" },
 
 		"nextvnum": {Command: OLC.DoNextVnum, MinimumPosition: "Dead" },
@@ -370,6 +370,10 @@ Commands = {
 		"roomedit": {Command: OLC.DoEditRoom, MinimumPosition: "Dead" },
 		"hedit": {Command: OLC.DoEditHelp, MinimumPosition: "Dead" },
 		"helpedit": {Command: OLC.DoEditHelp, MinimumPosition: "Dead" },
+		
+		"asaveworld": {Command: Character.DoCommands.DoASaveWorld, MinimumPosition: "Dead" },
+		"saveworld": {Command: Character.DoCommands.DoASaveWorld, MinimumPosition: "Dead" },
+		"worldsave": {Command: Character.DoCommands.DoASaveWorld, MinimumPosition: "Dead" },
 
 		"resetareas": {Command: Character.DoCommands.DoResetAreas, MinimumPosition: "Dead" },
 

@@ -30,7 +30,7 @@ class NPCData extends Character {
 		this.Race = template.Race;
 		this.Protects = Utility.CloneArray(template.Protects);
 		var wealth = Utility.Random(template.Level + (this.MaxHitPoints / 2), (template.Level * 3 + (this.MaxHitPoints / 2)));
-
+		
 		if (!this.Race || this.Race.HasCoins)
 		{
 			this.Silver = wealth % 1000;
@@ -42,6 +42,14 @@ class NPCData extends Character {
 			this.Gold = template.Gold || 0;
 			this.Silver = template.Silver || 0;
 		}
+		this.ArmorClass = template.ArmorClass;
+		this.SavingThrow = template.SavingThrow;
+		this.ArmorBash = template.ArmorBash;
+		this.ArmorSlash = template.ArmorSlash;
+		this.ArmorPierce = template.ArmorPierce;
+		this.ArmorExotic = template.ArmorExotic;
+		this.HitRoll = template.HitRoll;
+		this.DamageRoll = template.DamageRoll;
 
 		this.MaxHitPoints = Utility.Roll(template.HitPointDice); 
 		this.HitPoints = this.MaxHitPoints;
@@ -51,8 +59,12 @@ class NPCData extends Character {
 		this.WeaponDamageMessage = template.WeaponDamageMessage;
 		this.Guild = template.Guild;
 		this.Level = template.Level;
+		this.Sex = template.Sex;
+		this.Size = template.Size;
+
 		this.Alignment = template.Alignment;
 		const SkillSpell = require("./SkillSpell");
+		this.Learned = Utility.CloneArray(template.Learned);
 		if(this.Guild) {
 			for(var skillname in SkillSpell.Skills)
 			{
@@ -75,6 +87,10 @@ class NPCData extends Character {
 
 		this.DamageDice = Utility.CloneArray(template.DamageDice);
 		this.Flags = Utility.CloneArray(template.Flags);
+		this.ImmuneFlags = Utility.CloneArray(template.ImmuneFlags);
+		this.ResistFlags = Utility.CloneArray(template.ResistFlags);
+		this.VulnerableFlags = Utility.CloneArray(template.VulnerableFlags);
+		
 		
 		this.BuyProfitPercent = template.BuyProfitPercent;
         this.SellProfitPercent = template.SellProfitPercent;

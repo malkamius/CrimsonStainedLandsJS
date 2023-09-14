@@ -17,6 +17,7 @@ class Settings {
     
     
     static Load() {
+        fs.mkdirSync(Settings.DataPath, { recursive: true });
         if(!fs.existsSync(this.SettingsPath))
             this.Save();
         else {
@@ -32,6 +33,10 @@ class Settings {
                 Settings.RaceDataPath = xml.GetAttributeValue( "RaceDataPath");
             //});
         }
+        fs.mkdirSync(Settings.PlayerDataPath, { recursive: true });
+        fs.mkdirSync(Settings.AreaDataPath, { recursive: true });
+        fs.mkdirSync(Settings.TitleDataPath, { recursive: true });
+        fs.mkdirSync(Settings.RaceDataPath, { recursive: true });
     }
 
     static Save() {
