@@ -1537,10 +1537,11 @@ class OLC {
             var endIndex = Number(argEndIndex);
             if (!isNaN(index) && index >= 1 && index <= resets.length && !isNaN(endIndex) && endIndex >= 1 && endIndex <= resets.length)
             {
-                var reset = resets[index - 1];
-                var destinationReset = resets[endIndex - 1];
-                room.Area.Resets[index - 1] = destinationReset;
-                room.Area.Resets[endIndex - 1] = reset;
+                // var reset = resets[index - 1];
+                // var destinationReset = resets[endIndex - 1];
+                // room.Area.Resets[index - 1] = destinationReset;
+                // room.Area.Resets[endIndex - 1] = reset;
+                [room.Area.Resets[index - 1], room.Area.Resets[endIndex - 1]] = [room.Area.Resets[endIndex - 1], room.Area.Resets[index - 1]];
                 room.Area.saved = false;
                 ch.send("Reset moved.\n\r");
             }
@@ -1637,10 +1638,17 @@ class OLC {
             reset.Destination = room.VNum;
             reset.VNum = spawnvnum;
             area = room.Area
-            room.Area.Resets.push(reset);
-            var resetatindex = room.Area.Resets[index];
-            room.Area.Resets[index] = reset;
-            room.Area.Resets[room.Area.Resets.length - 1] = resetatindex;
+            if(index == 0) {
+                room.Area.Resets.unshift(reset);
+            } else if(index == room.Area.Resets.length) {
+                room.Area.Resets.push(reset);
+            } else {
+                room.Area.Resets.splice(index, 0, reset);
+            }
+            //[room.Area.Resets[room.Area.Resets.length - 1], room.Area.Resets[index]] = [room.Area.Resets[index], room.Area.Resets[room.Area.Resets.length - 1]];
+            // var resetatindex = room.Area.Resets[index];
+            // room.Area.Resets[index] = reset;
+            // room.Area.Resets[room.Area.Resets.length - 1] = resetatindex;
             room.Area.saved = false;
         }
         else
