@@ -2,6 +2,7 @@ const XmlHelper = require("./XmlHelper");
 const Character = require("./Character");
 const Utility = require("./Utility");
 const SkillSpell = require("./SkillSpell");
+const Game = require("./Game");
 
 
 class NPCTemplateData extends Character {
@@ -148,12 +149,12 @@ class NPCTemplateData extends Character {
     if(!area.NPCTemplates[this.VNum])
       area.NPCTemplates[this.VNum] = this;
     else
-      console.log(`NPCTemplate ${this.VNum} already exists in area ${this.Name}.`);
+      Game.log(`NPCTemplate ${this.VNum} already exists in area ${this.Name}.`, Game.LogLevels.Warning);
 
     if(!NPCTemplateData.Templates[this.VNum])
       NPCTemplateData.Templates[this.VNum] = this;
     else
-      console.log(`NPCTemplate ${this.VNum} already exists.`);
+      Game.log(`NPCTemplate ${this.VNum} already exists.`, Game.LogLevels.Warning);
   }
 
   Element(xml) {

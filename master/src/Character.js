@@ -5,6 +5,7 @@ const SkillSpell = require("./SkillSpell");
 const Utility = require("./Utility");
 const ItemTemplateData = require("./ItemTemplateData");
 const ItemData = require("./ItemData");
+const Game = require("./Game");
 
 const RoomData = require("./RoomData");
 const ShapeshiftForm = require("./Shapeshift");
@@ -2575,7 +2576,7 @@ class Character {
 		this.Description = xml.GetElementValue("Description");
 		var race = xml.GetElementValue("Race", "human");
 		if(!(this.Race = RaceData.LookupRace(race)))
-		console.log(`Race ${race} not found`);
+		Game.log(`Race ${race} not found`, Game.LogLevels.Warning);
 		this.Alignment = xml.GetElementValue("Alignment");
 		this.Ethos = xml.GetElementValue("Ethos");
 		this.Sex = xml.GetElementValue("Sex");
@@ -3390,6 +3391,34 @@ class Character {
 		}
 
 		return [null, count];
+	}
+
+	get GetDamageRoll() {
+		if(this.Form) {
+			var result = this.Form.DamageRoll;
+			for(var aff of this.Affects) {
+				if(aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.DamageRoll) {
+					result += aff.Modifier;
+				}
+			}
+			return result;
+		} else {
+			return this.DamageRoll;
+		}
+	}
+
+	get GetHitRoll() {
+		if(this.Form) {
+			var result = this.Form.HitRoll;
+			for(var aff of this.Affects) {
+				if(aff.Where == AffectData.AffectWhere.ToAffects && aff.Location == AffectData.ApplyTypes.Hitroll) {
+					result += aff.Modifier;
+				}
+			}
+			return result;
+		} else {
+			return this.HitRoll;
+		}
 	}
 }
 

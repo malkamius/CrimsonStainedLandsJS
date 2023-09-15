@@ -1,5 +1,6 @@
 const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility");
+const Game = require("./Game");
 const RoomData = require("./RoomData");
 
 
@@ -72,7 +73,7 @@ class ExitData {
 		
 		this.Source = room;
 		if(RoomData.Directions.indexOf(this.Direction) == -1) {
-			console.log("BAD EXIT Direction = " + this.Direction);
+			Game.log("BAD EXIT Direction = " + this.Direction, Game.LogLevels.Error);
 		} else {
 			room.Exits[RoomData.Directions.indexOf(this.Direction)] = this;
 		}

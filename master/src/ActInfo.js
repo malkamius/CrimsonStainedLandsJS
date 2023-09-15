@@ -1,5 +1,7 @@
 const FileSystem = require("fs");
 
+const Game = require("./Game");
+
 const RoomData = require("./RoomData");
 const AreaData = require("./AreaData");
 const Character = require("./Character");
@@ -16,7 +18,8 @@ Character.DoCommands.DoQuit = function(player, args) {
 	player.Dispose();
 	player.socket.destroy();
 	Player.Players.splice(Player.Players.indexOf(player), 1)
-	console.log(`${player.Name} disconnected`)
+	
+	Game.log(`${player.Name} disconnected`);
 }
 
 Character.DoCommands.DoHelp = function(player, args, plain = false) {

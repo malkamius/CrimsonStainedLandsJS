@@ -1,3 +1,4 @@
+const Game = require('./Game');
 const Utility = require('./Utility');
 const XmlHelper = require("./XmlHelper");
 
@@ -117,7 +118,7 @@ class RoomData {
             this.NightDescription = roomxml.GetElementValue("NightDescription");
             var sector = roomxml.GetElementValue("Sector");
             this.Sector = RoomData.SectorTypes.ISSET(sector);
-            if(!this.Sector) console.log(Utility.Format("Sector {0} not found", sector));
+            if(!this.Sector) Game.log(Utility.Format("Sector {0} not found", sector), Game.LogLevels.Warning);
 
 
             this.MaxLevel = roomxml.GetElementValueInt("MaxLevel", 60);

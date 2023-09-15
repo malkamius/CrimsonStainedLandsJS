@@ -1,3 +1,5 @@
+const Game = require('./Game');
+
 class Utility {
 	static Compare (str1, str2) {
 		return str1 && str2 && str1.isString() && str2.isString() && str1.toLowerCase() == str2.toLowerCase();
@@ -261,18 +263,18 @@ class Utility {
 								}
 							}
 							else if(index < 0)
-								console.log("Parameter index less than 0");
+								Game.log("Parameter index less than 0", Game.LogLevels.Error);
 							else
-								console.log("Parameter index greater than array length");
+								Game.log("Parameter index greater than array length", Game.LogLevels.Error);
 						} else {
 							var index = parseInt(variable);
 
 							if(index != NaN && index < array.length) {
 								result = result + array[index];
 							} else if(index < 0)
-								console.log("Parameter index less than 0");
+								Game.log("Parameter index less than 0", Game.LogLevels.Error);
 							else
-								console.log("Parameter index greater than array length");
+								Game.log("Parameter index greater than array length", Game.LogLevels.Error);
 						}
 					}
 					//i++;

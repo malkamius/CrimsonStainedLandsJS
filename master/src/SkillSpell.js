@@ -235,7 +235,7 @@ class SkillSpell {
 
         var prereqs = this.Prerequisites;
         var prereq = "";
-        //if(this.Name == "flurry") console.log(`${prereqs} ${this.PrerequisitePercentage}`);
+
         while (prereqs.length > 0)
         {
             [prereq, prereqs] = prereqs.oneArgument();

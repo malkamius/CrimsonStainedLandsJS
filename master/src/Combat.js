@@ -551,7 +551,7 @@ class Combat {
                 damage = 0;
             else
                 damage = Utility.Roll(weapon.DamageDice);
-            if(damage != 0) damage += character.DamageRoll;
+            if(damage != 0) damage += character.GetDamageRoll;
             damagemessage = DamageMessage.DamageMessages[weapon.WeaponDamageType.toLowerCase()];
         } else {
             if(character.IsNPC && character.DamageDice) {
@@ -693,7 +693,7 @@ class Combat {
 
         // Check if the damage exceeds 500, log a message if true
         if (damage > 500)
-            console.log(ch.Name + " did more than 500 damage in one hit.");
+            Game.log(ch.Name + " did more than 500 damage in one hit.", Game.LogLevels.Warning);
 
         // Perform actions on the attacker (ch) if it exists
         if (ch)

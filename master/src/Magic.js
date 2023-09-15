@@ -548,7 +548,7 @@ class Magic {
 
         if (!spell.SpellFun)
         {
-            console.log("ObjectCastSpell: bad spell {0}.", spell.Name);
+            Game.log("ObjectCastSpell: bad spell {0}.", Game.LogLevels.Warning, spell.Name);
             return;
         }
 
@@ -563,7 +563,7 @@ class Magic {
         switch (spell.TargetType.toLowerCase())
         {
             default:
-                console.log("ItemCastSpell: bad target for spell {0}.", spell.Name);
+                Game.log("ItemCastSpell: bad target for spell {0}.", Game.LogLevels.Warning, spell.Name);
                 return;
 
             case "targetignore":

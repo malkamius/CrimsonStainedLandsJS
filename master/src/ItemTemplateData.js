@@ -1,5 +1,5 @@
 const XmlHelper = require("./XmlHelper");
-
+const Game = require('./Game');
 const Utility = require("./Utility");
 
 class ItemTemplateData {
@@ -122,11 +122,11 @@ class ItemTemplateData {
         if(!area.ItemTemplates[this.VNum])
             area.ItemTemplates[this.VNum] = this;
         else
-            console.log("Item " + this.VNum + " already exists in " + area.Name + ".");
+            Game.log("Item " + this.VNum + " already exists in " + area.Name + ".", Game.LogLevels.Warning);
         if(!ItemTemplateData.Templates[this.VNum])
             ItemTemplateData.Templates[this.VNum] = this;
         else
-            console.log("Item " + this.VNum + " already exists globally.");
+            Game.log("Item " + this.VNum + " already exists globally.", Game.LogLevels.Warning);
     }
 
     Element(xml) {

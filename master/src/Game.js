@@ -1,3 +1,5 @@
+const Utility = require('./Utility');
+
 class Game {
     static get PULSE_PER_SECOND() { return 4; };	
     static get PULSE_PER_VIOLENCE() { return Game.PULSE_PER_SECOND * 3; }
@@ -9,6 +11,65 @@ class Game {
     static LEVEL_IMMORTAL = 52;
     static MAX_LEVEL = 60;
     
+    static LogLevels = {
+        Information: 0,
+        Warning: 1,
+        Error: 2,
+    };
+
+    
+    static ConsoleLogLevel = Game.LogLevels.Information;
+    static FileLogLevel = Game.LogLevels.Information;
+
+    static log(data, level = 0, ... params) {
+        data = Utility.Format(data, params);
+        if(level >= Game.ConsoleLogLevel) {
+            console.log(data);
+        }
+
+        if(level >= this.FileLogLevel) {
+
+            var winston = require('winston');
+            require('winston-daily-rotate-file');
+          
+            var transport1 = new winston.transports.DailyRotateFile({
+              filename: 'application-%DATE%.log',
+              datePattern: 'YYYY-MM-DD-HH',
+              zippedArchive: true,
+              maxSize: '20m',
+              maxFiles: '14d'
+            });
+          
+            var transport2 = new winston.transports.DailyRotateFile({
+              level: 'warning',
+              filename: 'application-error-%DATE%.log',
+              datePattern: 'YYYY-MM-DD-HH',
+              zippedArchive: true,
+              maxSize: '20m',
+              maxFiles: '14d'
+            });
+          
+            // transport.on('rotate', function(oldFilename, newFilename) {
+            //   // do something fun
+            // });
+          
+            var logger = winston.createLogger({
+              level: 'info',
+              transports: [
+                transport1, // will be used on info level
+                transport2  // will be used on error level
+              ]
+            });
+            if(level == Game.LogLevels.Information) {
+                logger.info(data);
+            } else if(level == Game.LogLevels.Warning) {
+                logger.warning(data);
+            } else if(level == Game.LogLevels.Error) {
+                logger.error(data);
+            }
+        }
+    }
+
     static Pulse()
     {
         const Player = require('./Player');
@@ -46,11 +107,11 @@ class Game {
                     player.HandleInput(); 
             } catch(err) {
                 try {
-                    console.log(err);
+                    Game.log(err, Game.LogLevels.Error);
                     player.send("Error: " + err);
                 }
                 catch(innererr) {
-                    console.log(innererr);
+                    Game.log(innererr, Game.LogLevels.Error);
                 }
             }
         }
@@ -58,7 +119,7 @@ class Game {
         try {
             Game.Update();
         } catch(err) {
-            console.log(err);
+            Game.log(err, Game.LogLevels.Error);
         }
 
         for(player of Utility.CloneArray(Player.Players))
@@ -69,11 +130,11 @@ class Game {
                 }
             } catch(err) {
                 try {
-                    console.log(err);
+                    Game.log(err, Game.LogLevels.Error);
                     player.send("Error: " + err);
                 }
                 catch(innererr) {
-                    console.log(innererr);
+                    Game.log(innererr, Game.LogLevels.Error);
                 }
             }
 
@@ -81,7 +142,7 @@ class Game {
         var totalpulse = new Date() - startpulse;
         setTimeout(Game.Pulse, Math.min(Math.max(250 - totalpulse, 1), 250));
         
-        if(totalpulse > 250) console.log("PULSE TOOK " + totalpulse + "ms");
+        if(totalpulse > 250) Game.log("PULSE TOOK " + totalpulse + "ms", this.LogLevels.Warning);
         //console.timeEnd("PULSE");
         //console.log(totalpulse);
     }
@@ -321,7 +382,7 @@ class Game {
                     }
                 }
             } catch(err) {
-                console.log(err);
+                Game.log(err, Game.LogLevels.Error);
             }
 
             if(Character.Positions.indexOf(character.Position) > Character.Positions.indexOf("Stunned")) {
@@ -713,7 +774,7 @@ class Game {
         switch (WeatherInfo.Sky)
         {
             default:
-                console.log("Weather_update: bad sky " + WeatherInfo.Sky + ".");
+                Game.log("Weather_update: bad sky " + WeatherInfo.Sky + ".", Game.LogLevels.Warning);
                 WeatherInfo.Sky = "Cloudless";
                 break;
 

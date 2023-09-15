@@ -1,6 +1,7 @@
 const fs = require('fs');
 const XmlHelper = require("./XmlHelper");
 const Utility = require("./Utility")
+const Game = require("./Game");
 const RaceData = require("./RaceData");
 const PcRaceData = require("./PcRaceData");
 const GuildData = require("./GuildData");
@@ -77,15 +78,16 @@ function LoadAreas(callback) {
 }
 
 function AllLoaded(callback) {
-	console.log(Object.keys(SkillSpell.Skills).length + " skills loaded.");
-	console.log(RaceData.Races.length + " races loaded.");
-	console.log(PcRaceData.PcRaces.length + " pc races loaded.");
-	console.log(GuildData.Guilds.length + " guilds loaded.");
-	console.log(Object.keys(AreaData.AllRooms).length + " rooms loaded.");
-	console.log(Object.keys(AreaData.AllHelps).length + " helps loaded.");
-	console.log(Object.keys(AreaData.AllAreas).length + " areas loaded.");
-	console.log(Object.keys(ResetData.Resets).length + " resets loaded.");
-	console.log(ShapeshiftForm.Forms.length + " shapeshift forms loaded.");
+	Game.log(Object.keys(SkillSpell.Skills).length + " skills loaded.");
+	Game.log(RaceData.Races.length + " races loaded.");
+	Game.log(PcRaceData.PcRaces.length + " pc races loaded.");
+	Game.log(GuildData.Guilds.length + " guilds loaded.");
+	Game.log(Object.keys(AreaData.AllRooms).length + " rooms loaded.");
+	Game.log(Object.keys(AreaData.AllHelps).length + " helps loaded.");
+	Game.log(Object.keys(AreaData.AllAreas).length + " areas loaded.");
+	Game.log(Object.keys(ResetData.Resets).length + " resets loaded.");
+	Game.log(ShapeshiftForm.Forms.length + " shapeshift forms loaded.");
+	
 	AreaData.ResetAreas();
 	
     callback();

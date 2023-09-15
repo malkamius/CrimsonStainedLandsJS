@@ -1,6 +1,7 @@
 const XmlHelper = require("./XmlHelper");
 const ItemTemplateData = require('./ItemTemplateData');
 const Utility = require('./Utility');
+const Game = require('./Game');
 const AffectData = require("./AffectData");
 /**
  *
@@ -286,7 +287,7 @@ class ItemData {
             }
             ItemData.Items.unshift(this);
         } else {
-            console.log("Item " + this.VNum + " not found")
+            Game.log("Item " + this.VNum + " not found", Game.LogLevels.Warning)
         }
 
     }

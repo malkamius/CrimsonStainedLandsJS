@@ -26,7 +26,7 @@ Data.LoadData(DataLoaded);
 
 function DataLoaded() {
 	var address = server.address();
-	console.log(Utility.Format("Awaiting connections at {0}:{1}", address.address, address.port));
+	Game.log(Utility.Format("Awaiting connections at {0}:{1}", address.address, address.port), Game.LogLevels.Information);
 
 	for(player of Utility.CloneArray(Player.Players))
 	{	
@@ -43,7 +43,7 @@ function HandlePlayerDisconnect(socket) {
 	player = Player.GetPlayer(socket);
 	if(player != null) {
 		player.input = "";
-		console.log(`${player.Name} disconnected`);
+		Game.log(`${player.Name} disconnected`);
 
 
 		if(player.status == "Playing")
@@ -63,11 +63,11 @@ function HandlePlayerDisconnect(socket) {
 
 function HandleNewSocket(socket) {
 	socket.on('error', function(ex) {
-		console.log(ex);
+		Game.log(ex, Game.LogLevels.Error);
 		HandlePlayerDisconnect(socket);
 	});
 
-	console.log(`Connection from ${socket.remoteAddress} port ${socket.remotePort}`)
+	Game.log(`Connection from ${socket.remoteAddress} port ${socket.remotePort}`, Game.LogLevels.Information)
 
 	socket.on("end", () => HandlePlayerDisconnect(socket));
 
@@ -90,9 +90,9 @@ function HandleNewSocket(socket) {
 	dns.reverse(socket.remoteAddress, function(err, hostnames) {
 		if(!err) {
 			socket.hostnames = hostnames;
-			console.log(`Socket ${socket.remoteAddress} hostnames are ` + hostnames.join(", "));
+			Game.log(`Socket ${socket.remoteAddress} hostnames are ` + hostnames.join(", "));
 		} else {
-			console.log(`Socket ${socket.remoteAddress} reversedns error  ` + err);
+			Game.log(`Socket ${socket.remoteAddress} reversedns error  ` + err);
 		}
 	})
 }
@@ -101,7 +101,7 @@ function HandleNewSocket(socket) {
 function startListening(port) {
 	return net.createServer(HandleNewSocket)
 		.listen(port, () => {
-			console.log(`Listening on port ${port}`)
+			Game.log(`Listening on port ${port}`)
 		});
 }
 
@@ -125,7 +125,7 @@ function DataReceived(socket, buffer) {
 						function (sender, command) {
 							if (command.Type == TelnetProtocol.CommandTypes.WillTelnetType)
 							{
-								console.log("WillTelnetType");
+								Game.log("WillTelnetType");
 								var buffer = Buffer.from(TelnetProtocol.ServerGetWillTelnetType);
 								player.socket.write(buffer, "binary");
 							}
@@ -160,7 +160,7 @@ function DataReceived(socket, buffer) {
 
 									if (player.ClientTypes.indexOf(ClientString) < 0)
 									{
-										console.log(ClientString + " client detected.");
+										Game.log(ClientString + " client detected.");
 										player.ClientTypes.push(ClientString);
 										var buffer = Buffer.from(TelnetProtocol.ServerGetTelnetTypeNegotiate);
 										player.socket.write(buffer, "binary");
@@ -176,7 +176,7 @@ function DataReceived(socket, buffer) {
 								}
 							}  else if (command.Type == TelnetProtocol.CommandTypes.DoMUDServerStatusProtocol) {
 								const TimeSpan = require("./TimeSpan");
-								console.log("SENDING MSSP DATA");
+								Game.log("SENDING MSSP DATA");
 								var variables = {};
 								variables["NAME"] = ["CRIMSON STAINED LANDS"];
 								var pcount = 0;
@@ -197,14 +197,14 @@ function DataReceived(socket, buffer) {
 							}
 							else if (command.Type == TelnetProtocol.CommandTypes.DontMUDServerStatusProtocol)
 							{
-								console.log("WONT MSSP");
+								Game.log("WONT MSSP");
 								//var buffer = Buffer.from(TelnetProtocol.ServerGetWillMUDExtensionProtocol);
 								//player.socket.write(buffer, "binary");
 							}
 							else if (command.Type == TelnetProtocol.CommandTypes.DoMUDExtensionProtocol)
 							{
 								player.TelnetOptions[Player.TelnetOptionFlags.MUDeXtensionProtocol] = true;
-								console.log("MXP Enabled.");
+								Game.log("MXP Enabled.");
 							}
 						}
 					);
@@ -226,7 +226,7 @@ function DataReceived(socket, buffer) {
 			}
 		}
 		catch(err) {
-			console.log("Error: " + err);
+			Game.log("Error: " + err, Game.LogLevels.Error);
 		}
 	}
 }

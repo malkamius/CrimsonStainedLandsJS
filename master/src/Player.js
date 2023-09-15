@@ -18,6 +18,7 @@ const SkillSpell = require("./SkillSpell");
 const SkillGroup = require("./SkillGroup");
 const NPCData = require("./NPCData");
 const PhysicalStats = require("./PhysicalStats");
+const Game = require("./Game");
 
 const parser = new xml2js.Parser({ strict: false, trim: false });
 
@@ -140,7 +141,7 @@ class Player extends Character {
 			this.Prompt = xml.GetElementValue("Prompt");
 			this.Password = xml.GetElementValue("Password");
 			if(!(this.PcRace = PcRaceData.LookupRace(this.Race.Name)))
-				console.log(`PcRace ${race} not found`);
+				Game.log(`PcRace ${race} not found`, Game.LogLevels.Warning);
 			var title;
 			if(!this.Title || this.Title.IsNullOrEmpty()) {
 				if (this.Guild && this.Guild.Titles && (title = this.Guild.Titles[this.Level]))
@@ -556,7 +557,7 @@ class Player extends Character {
 					this.sendnow("Incorrect password.\n\r");
 					this.socket.destroy();
 					Player.Players.splice(Player.Players.indexOf(this), 1);
-					console.log(`${this.Name} disconnected - incorrect password`);
+					Game.log(`${this.Name} disconnected - incorrect password`);
 				}
 				else {
 					if(Player.GetPlayerByName(this.Name, (player) => player != this && player.status == "Playing")) {
@@ -571,7 +572,7 @@ class Player extends Character {
 					this.sendnow("Goodbye then.\n\r");
 					this.socket.destroy();
 					Player.Players.splice(Player.Players.indexOf(this), 1);
-					console.log(`${this.Name} disconnected - already playing`);
+					Game.log(`${this.Name} disconnected - already playing`);
 				} else if(Utility.Prefix("yes", input)) {
 					var other = Player.GetPlayerByName(this.Name, (player) => player != this);
 					if(other) {
