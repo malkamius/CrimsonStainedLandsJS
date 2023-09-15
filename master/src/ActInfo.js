@@ -120,9 +120,12 @@ Character.DoCommands.DoLook = function(player, args, auto) {
 
 		[target, count] = player.GetCharacterHere(args, count);
 		isitem = false;
-		
+		var ed, count;
+		if(!lookin && !target && ([ed, count] = player.GetExtraDescription(args, count)) && ed) {
+			
+		}
 		if(!target || lookin) {
-			[target, count] = player.GetItemHere(args, 0);
+			[target, count] = player.GetItemHere(args, count);
 			isitem = true;
 		}
 		
@@ -165,6 +168,8 @@ Character.DoCommands.DoLook = function(player, args, auto) {
 			}
 			if(!anyitems)
 					player.send("   nothing.\n\r");
+		} else if(ed) {
+			player.send(ed.Description + "\n\r");
 		} else if(target && target instanceof ItemData) {
 			if(lookin && target.ExtraFlags.IsSet(ItemData.ExtraFlags.Closed)) {
 				    ch.send("{0} is closed.\n\r", target.Display(ch));

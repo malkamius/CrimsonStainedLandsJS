@@ -191,6 +191,21 @@ class RoomData {
 		return [null, count];
 	}
 
+    GetResets() {
+        var inroom = false;
+        var results = [];
+        for(var reset of this.Area.Resets) {
+            if(reset.Destination == this.VNum && (reset.Type == "NPC" || reset.Type == "Item")) {
+                inroom = true;
+                results.push(reset);
+            } else if(reset.Type == "NPC" || reset.Tye == "Item") {
+                inroom = false;
+            }
+            else if(inroom) {
+                results.push(reset);
+            }
+        }
+    }
     get IsWilderness()
     {
         return this.Sector == RoomData.SectorTypes.Trail ||

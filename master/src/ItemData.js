@@ -182,7 +182,7 @@ class ItemData {
     ShortDescription = "";
     LongDescription = "";
     Description = "";
-    ExtraDescriptions = {};
+    ExtraDescriptions = [];
     Contains = Array();
     Affects = Array();
     Room = null;
@@ -268,6 +268,10 @@ class ItemData {
 
             for(var affect of template.Affects) {
                 this.Affects.push(new AffectData(affect));
+            }
+
+            for(var ed of template.ExtraDescriptions) {
+                this.ExtraDescriptions.push({Keyword: ed.Keyword, Description: ed.Description});
             }
 
             if(room) {

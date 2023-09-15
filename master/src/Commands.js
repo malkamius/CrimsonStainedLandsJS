@@ -370,7 +370,8 @@ Commands = {
 		"roomedit": {Command: OLC.DoEditRoom, MinimumPosition: "Dead" },
 		"hedit": {Command: OLC.DoEditHelp, MinimumPosition: "Dead" },
 		"helpedit": {Command: OLC.DoEditHelp, MinimumPosition: "Dead" },
-		
+		"dig": {Command: OLC.DoDig, MinimumPosition: "Dead" },
+
 		"asaveworld": {Command: Character.DoCommands.DoASaveWorld, MinimumPosition: "Dead" },
 		"saveworld": {Command: Character.DoCommands.DoASaveWorld, MinimumPosition: "Dead" },
 		"worldsave": {Command: Character.DoCommands.DoASaveWorld, MinimumPosition: "Dead" },

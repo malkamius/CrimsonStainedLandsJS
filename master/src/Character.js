@@ -3358,6 +3358,39 @@ class Character {
 
 		return (area && area.Builders && area.Builders.IsName(this.Name, true)) || (this.Level == Game.MAX_LEVEL && !this.IsNPC)
 	}
+
+	GetExtraDescription(keywords = "", count = 0) {
+		var [number, keyword] = Utility.NumberArgument(keywords);
+		
+		for(var ed of this.Room.ExtraDescriptions) {
+			if(ed.Keyword.IsName(keyword) && ++count >= number) {
+				return [ed, count];
+			}
+		}
+
+		for(var item of this.Inventory) {
+			if(this.CanSee(item)) {
+				for(var ed of item.ExtraDescriptions) {
+					if(ed.Keyword.IsName(keyword) && ++count >= number) {
+						return [ed, count];
+					}
+				}		
+			}
+		}
+
+		for(var slot in this.Equipment) {
+			var item = this.Equipment[slot];
+			if(this.CanSee(item)) {
+				for(var ed of item.ExtraDescriptions) {
+					if(ed.Keyword.IsName(keyword) && ++count >= number) {
+						return [ed, count];
+					}
+				}		
+			}
+		}
+
+		return [null, count];
+	}
 }
 
 module.exports = Character;
