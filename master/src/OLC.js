@@ -1472,185 +1472,180 @@ class OLC {
         ch.send("Edit room exits {direction} [keywords, description, destination, flags, size, keys, delete] {arguments}\n\r");
     }
 
-    // static DoEditRoomResets(ch, string arguments)
-    // {
-        // var [command, arguments] = arguments.OneArgumentOut();
-        // var room = ch.EditingRoom;
+    static DoEditRoomResets(ch, args)
+    {
+        var [command, args] = args.OneArgumentOut();
+        var room = ch.EditingRoom;
 
-        // if (room == null)
-        // {
-            // ch.send("You aren't editing a room.\n\r");
-            // return;
-        // }
-        // else if (!ch.HasBuilderPermission(room))
-        // {
-            // ch.send("Builder permissions not set.\n\r");
-            // return;
-        // }
-        // else if ("list".prefix(command))
-        // {
-            // var resets = room.GetResets();
-            // ch.send("Resets for room {0} - {1}\n\r", room.Vnum, room.Name);
-            // for (int i = 0; i < resets.Count; i++)
-            // {
-                // var reset = resets[i];
-                // string SpawnName = string.Empty;
-                // if ((reset.resetType == ResetTypes.Equip || reset.resetType == ResetTypes.Give || reset.resetType == ResetTypes.Put || reset.resetType == ResetTypes.Item)
-                    // && ItemTemplateData.Templates.TryGetValue(reset.spawnVnum, out var itemtemplate))
-                // {
-                    // SpawnName = itemtemplate.Name;
-                // }
-                // else if (reset.resetType == ResetTypes.NPC && NPCTemplateData.Templates.TryGetValue(reset.spawnVnum, out var npctemplate))
-                    // SpawnName = npctemplate.Name;
+        if (room == null)
+        {
+            ch.send("You aren't editing a room.\n\r");
+            return;
+        }
+        else if (!ch.HasBuilderPermission(room))
+        {
+            ch.send("Builder permissions not set.\n\r");
+            return;
+        }
+        else if ("list".prefix(command))
+        {
+            var resets = room.GetResets();
+            ch.send("Resets for room {0} - {1}\n\r", room.VNum, room.Name);
+            for (var i = 0; i < resets.length; i++)
+            {
+                var reset = resets[i];
+                var SpawnName = "";
+                if ((reset.resetType == ResetTypes.Equip || reset.resetType == ResetTypes.Give || reset.resetType == ResetTypes.Put || reset.resetType == ResetTypes.Item)
+                    && (itemTemplate = ItemTemplateData.Templates[reset.spawnVnum]))
+                {
+                    SpawnName = itemtemplate.Name;
+                }
+                else if (reset.resetType == ResetTypes.NPC && (npcTemplate = NPCTemplateData.Templates[reset.spawnVnum]))
+                    SpawnName = npctemplate.Name;
 
-                // if (SpawnName.ISEMPTY())
-                    // SpawnName = "unknown name";
+                if (SpawnName.ISEMPTY())
+                    SpawnName = "unknown name";
 
-                // ch.send("[{0,5:D5}]    {1}Type {2}, SpawnVnum {3} - {4}, MaxRoomCount {5}, MaxCount {6}\n\r",
-                    // i + 1,
-                    // reset.resetType == ResetTypes.Equip || reset.resetType == ResetTypes.Give || reset.resetType == ResetTypes.Put ? "    " : "",
-                    // reset.resetType.ToString(), reset.spawnVnum, SpawnName, reset.count, reset.maxCount);
-            // }
-            // ch.send("\n\r{0} resets.\n\r", resets.Count);
-        // }
-        // else if ("delete".prefix(command))
-        // {
-            // var resets = room.GetResets();
-            // if (int.TryParse(arguments, out var index) && index >= 1 && index <= resets.Count)
-            // {
-                // var reset = resets[index - 1];
-                // room.Area.Resets.Remove(reset);
-                // room.Area.saved = false;
-                // ch.send("Reset removed.\n\r");
-            // }
-            // else
-                // ch.send("You must supply a valid index.\n\r");
-        // }
-        // else if ("move".prefix(command))
-        // {
-            // var resets = room.GetResets();
+                ch.send("[{0,5:D5}]    {1}Type {2}, SpawnVnum {3} - {4}, MaxRoomCount {5}, MaxCount {6}\n\r",
+                    i + 1,
+                    reset.Type == "Equip" || reset.Type == "Give" || reset.Type == "Put" ? "    " : "",
+                    reset.Type, reset.VNum, SpawnName, reset.Count, reset.Max);
+            }
+            ch.send("\n\r{0} resets.\n\r", resets.Count);
+        }
+        else if ("delete".prefix(command))
+        {
+            var resets = room.GetResets();
+            var index = Number(args);
+            if (!isNaN(index) && index >= 1 && index <= resets.length)
+            {
+                var reset = resets[index - 1];
+                room.Area.Resets.Remove(reset);
+                room.Area.saved = false;
+                ch.send("Reset removed.\n\r");
+            }
+            else
+                ch.send("You must supply a valid index.\n\r");
+        }
+        else if ("move".prefix(command))
+        {
+            var resets = room.GetResets();
 
-            // arguments = arguments.OneArgumentOut(out var argStartIndex);
+            var [argStartIndex, args] = args.OneArgument();
+            var [argEndIndex, args] = args.OneArgument();
+            var index = Number(argStartIndex);
+            var endIndex = Number(argEndIndex);
+            if (!isNaN(index) && index >= 1 && index <= resets.length && !isNaN(endIndex) && endIndex >= 1 && endIndex <= resets.length)
+            {
+                var reset = resets[index - 1];
+                var destinationReset = resets[endIndex - 1];
+                room.Area.Resets[index - 1] = destinationReset;
+                room.Area.Resets[endIndex - 1] = reset;
+                room.Area.saved = false;
+                ch.send("Reset moved.\n\r");
+            }
+            else
+                ch.send("You must supply a valid start and end index.\n\r");
+        }
+        else if ("create".prefix(command) || "new".prefix(command))
+        {
+            var resets = room.GetResets();
+            [arg1, args] = arguments.OneArgument();
+            [arg2, args] = arguments.OneArgument();
+            [arg3, args] = arguments.OneArgument();
+            [arg4, args] = arguments.OneArgument();
 
-            // if (int.TryParse(argStartIndex, out var index) && index >= 1 && index <= resets.Count && int.TryParse(arguments, out var endIndex) && endIndex >= 1 && endIndex <= resets.Count)
-            // {
-                // var reset = resets[index - 1];
+            var spawnvnum = 0, maxroomcount = 0, maxcount = 0;
+            var index = Number(arg1);
+            if (isNaN(index))
+            {
+                index = resets.length;
+            }
+            else
+            {
+                arg1 = arg2;
+                arg2 = arg3;
+                arg3 = arg4;
+                arg4 = args;
+            }
+            index = index - 1;
+            if (index <= 0 && resets.length > 0)
+            {
+                index = room.Area.Resets.indexOf(resets[resets.length - 1]) + 1;
+            }
+            else if (index < 0 || resets.length == 0)
+            {
+                index = room.Area.Resets.length;
+            }
+            else if (index == resets.length)
+            {
+                index = room.Area.Resets.indexOf(resets[index - 1]) + 1;
+            }
+            else if (index >= resets.length)
+            {
+                ch.send("Index must be less than or equal to the count of resets in the room.\n\r");
+                return;
+            }
+            else
+                index = room.Area.Resets.indexOf(resets[index]);
+            
+            if (index < 0) index = 0;
+            
+            var type = Utility.GetEnumValueStrPrefix(ResetData.ResetTypes, arg1, "");
+            spawnvnum = Number(arg2);
+            maxroomcount = Number(arg3);
+            maxcount = Number(arg4);
+            if (arg1.ISEMPTY() || Utility.IsNullOrEmpty(type))
+            {
+                ch.send("You must supply a valid reset type.\n\r");
+                ch.send("Valid reset types are {0}.\n\r", Utility.JoinFlags(ResetData.ResetTypes, ", "));
+                ch.send("redit reset create [{0}] @spawnvnum @roomcount @maxcount\n\r", Utility.JoinFlags(ResetData.ResetTypes, "|"));
+                return;
+            }
+            else if (arg2.ISEMPTY() || isNaN(spawnvnum))
+            {
+                ch.send("You must supply a valid spawn vnum.\n\r");
+                return;
+            }
 
-                // room.Area.Resets.Remove(reset);
+            if (!arg3.ISEMPTY() && isNaN(arg3))
+            {
+                ch.send("Max room count must be numeric if supplied.\n\r");
+                return;
+            }
 
-                // if (endIndex < resets.Count) // insert before the destination index
-                // {
-                    // var destinationReset = resets[endIndex - 1];
-                    // room.Area.Resets.Insert(resets.IndexOf(destinationReset), reset);
-                // }
-                // else // insert after the destination index
-                // {
-                    // var destinationReset = resets[endIndex - 1];
+            if (!arg4.ISEMPTY() && isNaN(arg4))
+            {
+                ch.send("Max count must be numeric if supplied.\n\r");
+                return;
+            }
 
-                    // room.Area.Resets.Insert(resets.IndexOf(destinationReset) + 1, reset);
-                // }
+            if (maxroomcount == 0)
+            {
+                maxroomcount = Utility.Count(resets, r => r.Type == type && r.VNum == spawnvnum) + 1;
+            }
 
-                // room.Area.saved = false;
-                // ch.send("Reset moved.\n\r");
-            // }
-            // else
-                // ch.send("You must supply a valid start and end index.\n\r");
-        // }
-        // else if ("create".prefix(command) || "new".prefix(command))
-        // {
-            // var resets = room.GetResets();
-            // arguments = arguments.OneArgumentOut(out var arg1);
-            // arguments = arguments.OneArgumentOut(out var arg2);
-            // arguments = arguments.OneArgumentOut(out var arg3);
-            // arguments = arguments.OneArgumentOut(out var arg4);
+            if (maxcount == 0)
+            {
+                maxcount = Utility.Count(room.Area.Resets, r => r.Type == type && r.VNum == spawnvnum);
+            }
 
-            // int spawnvnum = 0, maxroomcount = 0, maxcount = 0;
-            // if (!int.TryParse(arg1, out var index))
-            // {
-                // index = resets.Count;
-
-            // }
-            // else
-            // {
-                // arg1 = arg2;
-                // arg2 = arg3;
-                // arg3 = arg4;
-                // arg4 = arguments;
-            // }
-            // index = index - 1;
-            // if (index <= 0 && resets.Count > 0)
-            // {
-                // index = room.Area.Resets.IndexOf(resets[resets.Count - 1]) + 1;
-            // }
-            // else if (index < 0 || resets.Count == 0)
-            // {
-                // index = room.Area.Resets.Count;
-            // }
-            // else if (index == resets.Count)
-            // {
-                // index = room.Area.Resets.IndexOf(resets[index - 1]) + 1;
-            // }
-            // else if (index >= resets.Count)
-            // {
-                // ch.send("Index must be less than or equal to the count of resets in the room.\n\r");
-                // return;
-            // }
-            // else
-                // index = room.Area.Resets.IndexOf(resets[index]);
-            // if (index < 0) index = 0;
-
-
-            // if (arg1.ISEMPTY() || !Utility.GetEnumValueStrPrefixOut<ResetTypes>(arg1, out var type))
-            // {
-                // ch.send("You must supply a valid reset type.\n\r");
-                // ch.send("Valid reset types are {0}.\n\r", string.Join(", ", from t in Utility.GetEnumValues<ResetTypes>() select t.ToString()));
-                // ch.send("redit reset create [{0}] @spawnvnum @roomcount @maxcount\n\r", string.Join("|", from t in Utility.GetEnumValues<ResetTypes>() select t.ToString()));
-                // return;
-            // }
-            // else if (arg2.ISEMPTY() || !int.TryParse(arg2, out spawnvnum))
-            // {
-                // ch.send("You must supply a valid spawn vnum.\n\r");
-                // return;
-            // }
-
-            // if (!arg3.ISEMPTY() && !int.TryParse(arg3, out maxroomcount))
-            // {
-                // ch.send("Max room count must be numeric if supplied.\n\r");
-                // return;
-            // }
-
-            // if (!arg4.ISEMPTY() && !int.TryParse(arg4, out maxcount))
-            // {
-                // ch.send("Max count must be numeric if supplied.\n\r");
-                // return;
-            // }
-
-            // if (maxroomcount == 0)
-            // {
-                // maxroomcount = resets.Count(r => r.resetType == type && r.spawnVnum == spawnvnum) + 1;
-            // }
-
-            // if (maxcount == 0)
-            // {
-                // maxcount = room.Area.Resets.Count(r => r.resetType == type && r.spawnVnum == spawnvnum);
-            // }
-
-            // var reset = new ResetData()
-            // {
-                // count = maxroomcount,
-                // maxCount = maxcount,
-                // resetType = type,
-                // roomVnum = room.Vnum,
-                // spawnVnum = spawnvnum,
-                // area = room.Area
-            // };
-
-            // room.Area.Resets.Insert(index, reset);
-            // room.Area.saved = false;
-        // }
-        // else
-            // ch.send("redit resets [list|delete @index|move @index @newindex|create {@index} @type]");
-    // }
+            var reset = new ResetData();
+            reset.Count = maxroomcount;
+            reset.Max  = maxcount;
+            reset.Type = type;
+            reset.Destination = room.VNum;
+            reset.VNum = spawnvnum;
+            area = room.Area
+            room.Area.Resets.push(reset);
+            var resetatindex = room.Area.Resets[index];
+            room.Area.Resets[index] = reset;
+            room.Area.Resets[room.Area.Resets.length - 1] = resetatindex;
+            room.Area.saved = false;
+        }
+        else
+            ch.send("redit resets [list|delete @index|move @index @newindex|create {@index} @type]");
+    }
 
     static DoEditItemLevel(ch, args)
     {
@@ -2130,6 +2125,89 @@ class OLC {
             ch.send("Types: {0}", Utility.JoinFlags(AffectData.ApplyTypes, ", "));
         }
 
+    }
+
+    static DoDig(ch, args)
+    {
+        var directionArg = "";
+        var vnumArg = "";
+        [directionArg, args] = arguments.OneArgument();
+        var reversedirections = [1,3,0,2,5,4];
+        var room;
+        [vnumArg, args] = arguments.OneArgument();
+        var vnum = Number(vnumArg);
+        var area = ch.EditingArea ?? ch.Room.Area;
+        var direction = -1;
+
+        if (Utility.IsNullOrEmpty(directionArg))
+        {
+            ch.send("What direction do you want to create a new room in?\n\r");
+            return;
+        }
+        else if((direction = RoomData.Directions.findIndex(s => s.prefix(directionArg))) < 0)
+        {
+            ch.send("Invalid direction.\n\r");
+            return;
+        }
+        else if (!ch.HasBuilderPermission(ch.Room) || !ch.HasBuilderPermission(area))
+        {
+            ch.send("Builder permissions not set.\n\r");
+            return;
+        }
+        else if ("delete".prefix(vnumArg))
+        {
+            var exit = ch.Room.Exits[direction];
+            if (exit != null) ch.Room.Exits[direction] = null;
+            ch.send("Exit removed on this side\n\r");
+        }
+        else if ((vnumArg.ISEMPTY() || vnum == 0 || isNaN(vnum)) && 
+        area != null && 
+        isNaN((vnum = (Utility.Max(area.Rooms, r => r.VNum) + 1) || area.VNumStart)))
+        {
+            ch.send("Invalid vnum.\n\r");
+        }
+        else if ((room = RoomData.Rooms[vnum]))
+        {
+            //ch.send("Not yet implemented.\n\r");
+            ch.send("Room ({0}) already exists. Attempting to link exits.\n\r", room.VNum)
+        }
+        else
+        {
+            room = new RoomData();
+            room.VNum = vnum;
+            if (vnumArg.equals("copy") || args.equals("copy"))
+            {
+                room.Name = ch.Room.Name;
+                room.Description = ch.Room.Description;
+                room.Sector = ch.Room.Sector;
+                room.Flags = Utility.CloneArray(ch.Room.Flags);
+            }
+            room.Area = area;
+            AreaData.AllRooms[vnum] = room.Area.Rooms[vnum] = RoomData.Rooms[vnum] = room;
+
+            room.Area.saved = false;
+            ch.Room.Area.saved = false;
+        }
+        
+        
+        var revDirection = reversedirections[direction];
+        var Flags = {};
+        Utility.GetEnumValues(ExitData.ExitFlags, args, flags);
+        var exit = room.Exits[revDirection] = new ExitData(); 
+        exit.Destination = ch.Room;
+        exit.DestinationVnum = ch.Room.VNum;
+        exit.Direction = RoomData.Directions[revDirection]
+        exit.Description = "";
+        exit.Flags = Utility.CloneArray(Flags);
+        exit.OriginalFlags = Utility.CloneArray(Flags);
+        var exit = ch.Room.Exits[direction] = new ExitData();
+        exit.Destination = room;
+        exit.Direction = RoomData.Directions[direction];
+        exit.Description = "";
+        exit.Flags = Utility.CloneArray(Flags);
+        exit.OriginalFlags = Utility.CloneArray(Flags);
+        
+        Character.Move(ch, direction);
     }
 }
 

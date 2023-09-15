@@ -487,6 +487,16 @@ class Utility {
 		return max;
 	}
 
+	static Count(arr, selector) {
+		var count = 0;
+		for(var key in arr) {
+			if(!selector || selector(arr[key], key)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	static GetEnumValues(sourceflags, str, destination, exactmatch = true) {
 		var setflags = {};
 		var setflag;
