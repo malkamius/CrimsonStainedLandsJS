@@ -2144,7 +2144,7 @@ class OLC {
         var room;
         [vnumArg, args] = arguments.OneArgument();
         var vnum = Number(vnumArg);
-        var area = ch.EditingArea ?? ch.Room.Area;
+        var area = ch.EditingArea || ch.Room.Area;
         var direction = -1;
 
         if (Utility.IsNullOrEmpty(directionArg))
@@ -2217,6 +2217,404 @@ class OLC {
         
         Character.Move(ch, direction);
     }
+
+    static DoEditRoomExtraDescriptions(ch, args)
+    {
+        [command, args] = args.OneArgumen();
+        var room = ch.EditingRoom;
+
+        if (room == null)
+        {
+            ch.send("You aren't editing a room.\n\r");
+            return;
+        }
+        else if (!ch.HasBuilderPermission(room))
+        {
+            ch.send("Builder permissions not set.\n\r");
+            return;
+        }
+        else if ("list".StringPrefix(command))
+        {
+            [strindex] = args.OneArgument();
+            var ed = null;
+            var index = Number(strindex);
+            if (!strindex.ISEMPTY() && (!isNaN(index) || (ed = room.ExtraDescriptions.FirstOrDefault(e => e.Keyword.IsName(strindex))) != null))
+            {
+                ch.send("Keywords: {0}\n\rDescription: {1}\n\r", ed.Keyword, ed.Description);
+            }
+            else if (!strindex.ISEMPTY())
+            {
+                ch.send("ExtraDescription not found or index out of range.\n\r");
+            }
+            else
+            {
+                var extradescriptions = room.ExtraDescriptions;
+                ch.send("Extra descriptions for item {0} - {1}\n\r", room.VNum, room.Name);
+                for (var i = 0; i < extradescriptions.length; i++)
+                {
+                    ed = extradescriptions[i];
+
+                    ch.send("[{0,5:D5}]    Keywords {1}\n\r",
+                        i + 1, ed.Keyword);
+                }
+                ch.send("\n\r{0} extra descriptions.\n\r", extradescriptions.length);
+            }
+        }
+        else if ("delete".StringPrefix(command))
+        {
+            var eds = room.ExtraDescriptions;
+            var index = Number(args);
+            var ed = null;
+            if ((!isNaN(index) && index >= 1 && index <= eds.length && (ed = eds[index - 1])) || (ed = room.ExtraDescriptions.FirstOrDefault(e => e.Keyword.IsName(args))))
+            {
+                room.ExtraDescriptions.Remove(ed);
+                room.Area.saved = false;
+                ch.send("Extra description removed.\n\r");
+            }
+            else
+                ch.send("You must supply a valid index or keyword.\n\r");
+        }
+        else if ("move".StringPrefix(command))
+        {
+            var eds = room.ExtraDescriptions;
+
+            [argStartIndex, args] = arguments.OneArgument();
+            var index = Number(argStartIndex);
+            var endIndex = Number(args);
+
+            if (!isNaN(index) && index >= 1 && index <= eds.length && !isNaN(endIndex) && endIndex >= 1 && endIndex <= eds.length)
+            {
+                [room.ExtraDescriptions[index - 1], room.ExtraDescriptions[endIndex - 1]] = [room.ExtraDescriptions[endIndex - 1], room.ExtraDescriptions[index]];
+
+                room.Area.saved = false;
+                ch.send("Extra description moved.\n\r");
+            }
+            else
+                ch.send("You must supply a valid start and end index.\n\r");
+        }
+        else if ("create".StringPrefix(command) || "new".StringPrefix(command))
+        {
+            var eds = room.ExtraDescriptions;
+            [keywords] = args.OneArgumentOut();
+            var index = Number(keywords);
+            if (isNaN(index))
+            {
+                index = eds.length;
+            }
+            else
+            {
+                [keywords, args] = arguments.OneArgument();
+            }
+            
+            index = index - 1;
+
+            if (index <= 0 && eds.length > 0)
+            {
+                index = room.ExtraDescriptions.indexOf(eds[eds.Count - 1]) + 1;
+            }
+            else if (index < 0 || eds.length == 0)
+            {
+                index = room.ExtraDescriptions.length;
+            }
+            else if (index == eds.length)
+            {
+                index = room.ExtraDescriptions.indexOf(eds[index - 1]) + 1;
+            }
+            else if (index >= eds.length)
+            {
+                ch.send("Index must be less than or equal to the count of extra descriptions in the room.\n\r");
+                return;
+            }
+            else
+                index = room.ExtraDescriptions.indexOf(eds[index]);
+
+            if (index < 0) index = 0;
+
+
+            if (keywords.ISEMPTY())
+            {
+                ch.send("You must supply keywords.\n\r");
+                return;
+            }
+
+            var ed = {Keyword: args, Description: ""}
+            if(index == eds.length) {
+                eds.push(ed);
+            } else if(index == 0) {
+                eds.unshift(ed);
+            } else {
+                eds.splice(index, 0, ed);
+            }
+            
+            ch.send("ExtraDescription added at index {0}.\n\r", index + 1);
+            room.Area.saved = false;
+        }
+        else if ("edit".StringPrefix(command))
+        {
+            var eds = room.ExtraDescriptions;
+            [strindex] = args.OneArgument();
+            var index = Number(strindex);
+            var modifier = "";
+            var ed = null;
+            if (isNaN(index) && !(ed = room.ExtraDescriptions.FirstOrDefault(e => e.Keyword.IsName(strindex))))
+            {
+                index = eds.length;
+            }
+            else if (!ed)
+            {
+                [strindex, args] = args.OneArgument();
+                [modifier] = args.OneArgument();
+
+
+                index = index - 1;
+                if (index <= 0 && eds.length > 0)
+                {
+                    index = room.ExtraDescriptions.indexOf(eds[eds.length - 1]) + 1;
+                }
+                else if (index < 0 || eds.length == 0)
+                {
+                    index = room.ExtraDescriptions.length;
+                }
+                else if (index == eds.length)
+                {
+                    index = room.ExtraDescriptions.indexOf(eds[index - 1]) + 1;
+                }
+                else if (index >= eds.length)
+                {
+                    ch.send("Index must be less than or equal to the count of resets in the room.\n\r");
+                    return;
+                }
+                else
+                    index = room.ExtraDescriptions.indexOf(eds[index]);
+                if (index < 0) index = 0;
+
+                ed = room.ExtraDescriptions[index];
+            }
+            else
+            {
+                [strindex, args] = args.OneArgument();
+                [modifier] = args.OneArgument();
+            }
+            if (ed != null)
+            {
+                if (modifier == "+")
+                {
+                    [modifier, args] = args.OneArgument();
+                    ed.Description += ((ed.Description.Length > 0 && !ed.Description.EndsWith("\n")) ? "\n" : "") + args + "\n";
+                }
+                else if (modifier == "-")
+                {
+                    var newlineindex = ed.Description.LastIndexOf("\n");
+                    [modifier, args] = args.OneArgument();
+                    ed.Description = newlineindex < 1 ? "" : ed.Description.Substring(0, newlineindex);
+                }
+                else
+                    [ed.Description] = args.replaceAll("\r", "") + "\n";
+                ch.send("OK.\n\r");
+            }
+        }
+        else
+            ch.send("redit extradescriptions [list|delete @index|move @index @newindex|create @keywords|edit @index {+|-} $text]");
+    } // end EditRoomExtraDescriptions
+
+    static DoEditItemExtraDescriptions(ch, args)
+    {
+        [command, args] = args.OneArgumen();
+        var item = ch.EditingItem;
+
+        if (item == null)
+        {
+            ch.send("You aren't editing a item.\n\r");
+            return;
+        }
+        else if (!ch.HasBuilderPermission(item))
+        {
+            ch.send("Builder permissions not set.\n\r");
+            return;
+        }
+        else if ("list".StringPrefix(command))
+        {
+            [strindex] = args.OneArgument();
+            var ed = null;
+            var index = Number(strindex);
+            if (!strindex.ISEMPTY() && (!isNaN(index) || (ed = item.ExtraDescriptions.FirstOrDefault(e => e.Keyword.IsName(strindex))) != null))
+            {
+                ch.send("Keywords: {0}\n\rDescription: {1}\n\r", ed.Keyword, ed.Description);
+            }
+            else if (!strindex.ISEMPTY())
+            {
+                ch.send("ExtraDescription not found or index out of range.\n\r");
+            }
+            else
+            {
+                var extradescriptions = item.ExtraDescriptions;
+                ch.send("Extra descriptions for item {0} - {1}\n\r", item.VNum, item.Name);
+                for (var i = 0; i < extradescriptions.length; i++)
+                {
+                    ed = extradescriptions[i];
+
+                    ch.send("[{0,5:D5}]    Keywords {1}\n\r",
+                        i + 1, ed.Keyword);
+                }
+                ch.send("\n\r{0} extra descriptions.\n\r", extradescriptions.length);
+            }
+        }
+        else if ("delete".StringPrefix(command))
+        {
+            var eds = item.ExtraDescriptions;
+            var index = Number(args);
+            var ed = null;
+            if ((!isNaN(index) && index >= 1 && index <= eds.length && (ed = eds[index - 1])) || (ed = item.ExtraDescriptions.FirstOrDefault(e => e.Keyword.IsName(args))))
+            {
+                item.ExtraDescriptions.Remove(ed);
+                item.Area.saved = false;
+                ch.send("Extra description removed.\n\r");
+            }
+            else
+                ch.send("You must supply a valid index or keyword.\n\r");
+        }
+        else if ("move".StringPrefix(command))
+        {
+            var eds = item.ExtraDescriptions;
+
+            [argStartIndex, args] = arguments.OneArgument();
+            var index = Number(argStartIndex);
+            var endIndex = Number(args);
+
+            if (!isNaN(index) && index >= 1 && index <= eds.length && !isNaN(endIndex) && endIndex >= 1 && endIndex <= eds.length)
+            {
+                [item.ExtraDescriptions[index - 1], item.ExtraDescriptions[endIndex - 1]] = [item.ExtraDescriptions[endIndex - 1], item.ExtraDescriptions[index]];
+
+                item.Area.saved = false;
+                ch.send("Extra description moved.\n\r");
+            }
+            else
+                ch.send("You must supply a valid start and end index.\n\r");
+        }
+        else if ("create".StringPrefix(command) || "new".StringPrefix(command))
+        {
+            var eds = item.ExtraDescriptions;
+            [keywords] = args.OneArgumentOut();
+            var index = Number(keywords);
+            if (isNaN(index))
+            {
+                index = eds.length;
+            }
+            else
+            {
+                [keywords, args] = arguments.OneArgument();
+            }
+            
+            index = index - 1;
+
+            if (index <= 0 && eds.length > 0)
+            {
+                index = item.ExtraDescriptions.indexOf(eds[eds.Count - 1]) + 1;
+            }
+            else if (index < 0 || eds.length == 0)
+            {
+                index = item.ExtraDescriptions.length;
+            }
+            else if (index == eds.length)
+            {
+                index = item.ExtraDescriptions.indexOf(eds[index - 1]) + 1;
+            }
+            else if (index >= eds.length)
+            {
+                ch.send("Index must be less than or equal to the count of extra descriptions in the item.\n\r");
+                return;
+            }
+            else
+                index = item.ExtraDescriptions.indexOf(eds[index]);
+
+            if (index < 0) index = 0;
+
+
+            if (keywords.ISEMPTY())
+            {
+                ch.send("You must supply keywords.\n\r");
+                return;
+            }
+
+            var ed = {Keyword: args, Description: ""}
+            if(index == eds.length) {
+                eds.push(ed);
+            } else if(index == 0) {
+                eds.unshift(ed);
+            } else {
+                eds.splice(index, 0, ed);
+            }
+            
+            ch.send("ExtraDescription added at index {0}.\n\r", index + 1);
+            item.Area.saved = false;
+        }
+        else if ("edit".StringPrefix(command))
+        {
+            var eds = item.ExtraDescriptions;
+            [strindex] = args.OneArgument();
+            var index = Number(strindex);
+            var modifier = "";
+            var ed = null;
+            if (isNaN(index) && !(ed = item.ExtraDescriptions.FirstOrDefault(e => e.Keyword.IsName(strindex))))
+            {
+                index = eds.length;
+            }
+            else if (!ed)
+            {
+                [strindex, args] = args.OneArgument();
+                [modifier] = args.OneArgument();
+
+
+                index = index - 1;
+                if (index <= 0 && eds.length > 0)
+                {
+                    index = item.ExtraDescriptions.indexOf(eds[eds.length - 1]) + 1;
+                }
+                else if (index < 0 || eds.length == 0)
+                {
+                    index = item.ExtraDescriptions.length;
+                }
+                else if (index == eds.length)
+                {
+                    index = item.ExtraDescriptions.indexOf(eds[index - 1]) + 1;
+                }
+                else if (index >= eds.length)
+                {
+                    ch.send("Index must be less than or equal to the count of resets in the item.\n\r");
+                    return;
+                }
+                else
+                    index = item.ExtraDescriptions.indexOf(eds[index]);
+                if (index < 0) index = 0;
+
+                ed = item.ExtraDescriptions[index];
+            }
+            else
+            {
+                [strindex, args] = args.OneArgument();
+                [modifier] = args.OneArgument();
+            }
+            if (ed != null)
+            {
+                if (modifier == "+")
+                {
+                    [modifier, args] = args.OneArgument();
+                    ed.Description += ((ed.Description.Length > 0 && !ed.Description.EndsWith("\n")) ? "\n" : "") + args + "\n";
+                }
+                else if (modifier == "-")
+                {
+                    var newlineindex = ed.Description.LastIndexOf("\n");
+                    [modifier, args] = args.OneArgument();
+                    ed.Description = newlineindex < 1 ? "" : ed.Description.Substring(0, newlineindex);
+                }
+                else
+                    [ed.Description] = args.replaceAll("\r", "") + "\n";
+                ch.send("OK.\n\r");
+            }
+        }
+        else
+            ch.send("oedit extradescriptions [list|delete @index|move @index @newindex|create @keywords|edit @index {+|-} $text]");
+    } // end EditItemExtraDescriptions
 }
 
 module.exports = OLC;
